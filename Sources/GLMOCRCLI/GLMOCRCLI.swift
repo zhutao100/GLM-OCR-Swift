@@ -47,6 +47,9 @@ struct GLMOCRCLI: AsyncParsableCommand {
     @Option(help: "Input image or PDF file path.")
     var input: String?
 
+    @Option(help: "PDF page (1-based). Only used when --input is a PDF.")
+    var page: Int = 1
+
     @Option(help: "Task preset: text | formula | table | json")
     var task: TaskPreset = .text
 
@@ -72,6 +75,9 @@ struct GLMOCRCLI: AsyncParsableCommand {
     mutating func validate() throws {
         guard maxNewTokens > 0 else {
             throw ValidationError("--max-new-tokens must be > 0")
+        }
+        guard page > 0 else {
+            throw ValidationError("--page must be >= 1")
         }
 
         if downloadOnly || devForwardPass { return }
@@ -123,7 +129,7 @@ struct GLMOCRCLI: AsyncParsableCommand {
         }
 
         let options = GenerateOptions(maxNewTokens: maxNewTokens, temperature: 0, topP: 1)
-        let result = try await pipeline.recognize(.fileURL(url), task: taskPreset, options: options)
+        let result = try await pipeline.recognize(.file(url, page: page), task: taskPreset, options: options)
         print(result.text)
     }
 

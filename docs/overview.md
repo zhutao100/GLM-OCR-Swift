@@ -10,13 +10,14 @@ What exists and works today:
 - `swift test` passes (focused unit tests for deterministic helpers)
 - Hugging Face snapshot download + cache resolution is implemented (`VLMRuntimeKit/ModelStore`)
 - CLI/App scaffolding is wired to the pipeline (download → load → recognize)
-- GLM-OCR model architecture + safetensors weight loading + tokenizer validation (forward pass produces logits; decoding is not implemented yet)
+- GLM-OCR model architecture + safetensors weight loading + tokenizer validation
+- End-to-end MVP OCR for a single image / single PDF page (vision preprocessing + chat template + greedy decode + KV cache)
 
 What is still stubbed / not implemented yet:
 
-- Vision preprocessing: MLX tensor conversion and PDF page rendering (`VLMRuntimeKit/VisionIO`)
-- Chat-template/prompt correctness vs the real GLM-OCR template (`VLMRuntimeKit/TokenizerKit`, `GLMOCRProcessor`)
-- Token-by-token decode loop / KV-cache / streaming generation (`VLMRuntimeKit/Generation`)
+- Quality/parity validation vs the official MLX Python example on a curated image set
+- Layout stage (PP-DocLayout-V3) + multi-region orchestration
+- Multi-page document workflows + export/UX polish (Phase 04/05)
 
 ## Where things live (source of truth)
 

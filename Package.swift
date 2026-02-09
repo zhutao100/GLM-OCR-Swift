@@ -28,6 +28,9 @@ let package = Package(
             ],
             swiftSettings: [
                 .enableExperimentalFeature("StrictConcurrency"),
+            ],
+            linkerSettings: [
+                .linkedFramework("PDFKit"),
             ]
         ),
         .target(

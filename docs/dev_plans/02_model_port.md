@@ -4,7 +4,7 @@
 
 Borrowing references: `docs/reference_projects.md` (“Borrowing map”, DeepSeek OCR / DeepSeek OCR2).
 
-**Status (2026-02-09):** GLM-OCR model architecture + safetensors weight loading + tokenizer validation are implemented; generation/decoding remains for Phase 03.
+**Status (2026-02-09):** GLM-OCR model architecture + safetensors weight loading + tokenizer validation are implemented; greedy generation/decoding landed in Phase 03 (parity/golden validation still pending).
 
 ## Tasks
 - [x] Stub `GLMOCRModel` load path

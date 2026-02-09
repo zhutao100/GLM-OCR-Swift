@@ -49,7 +49,7 @@ final class AppViewModel: ObservableObject {
             do {
                 status = .running("Running OCR...")
                 let options = GenerateOptions(maxNewTokens: maxNewTokens, temperature: 0, topP: 1)
-                let result = try await pipeline.recognize(.fileURL(url), task: task, options: options)
+                let result = try await pipeline.recognize(.file(url, page: 1), task: task, options: options)
                 output = result.text
                 status = .ready
             } catch {
@@ -129,7 +129,7 @@ struct ContentView: View {
             VStack(spacing: 8) {
                 Text(vm.droppedFile?.lastPathComponent ?? "Drag & drop an image/PDF here")
                     .font(.headline)
-                Text("Supported: common images + PDF (page rendering planned in Phase 03)")
+                Text("Supported: common images + PDF (uses page 1 for PDFs)")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

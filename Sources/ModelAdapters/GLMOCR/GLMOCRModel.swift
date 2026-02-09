@@ -8,6 +8,7 @@ public enum GLMOCRModelError: Error, Sendable {
     case configurationError(String)
     case tokenizerFailed(String)
     case weightsFailed(String)
+    case missingPixelValues
     case notImplemented
 }
 
@@ -25,6 +26,8 @@ public struct GLMOCRModel: CausalLM, Sendable {
     }
 
     private let state: State
+
+    var config: GLMOCRConfig { state.config }
 
     public static func load(from modelFolder: URL) async throws -> GLMOCRModel {
         guard modelFolder.isFileURL else { throw GLMOCRModelError.invalidModelFolder(modelFolder) }
@@ -80,8 +83,57 @@ public struct GLMOCRModel: CausalLM, Sendable {
         try state.core.forward(inputIds: inputIds, pixelValues: pixelValues)
     }
 
-    public func generate(prompt _: String, options _: GenerateOptions) async throws -> (text: String, tokenIDs: [Int]?) {
-        // Phase 03+: tokenization + forward pass + decode loop.
-        throw GLMOCRModelError.notImplemented
+    public func generate(
+        prompt: String,
+        pixelValues: MLXArray?,
+        options: GenerateOptions
+    ) async throws -> (text: String, tokenIDs: [Int]?) {
+        guard let pixelValues else { throw GLMOCRModelError.missingPixelValues }
+        guard options.maxNewTokens > 0 else { return ("", []) }
+
+        let tokenizer = state.tokenizer
+        let ids = tokenizer.specialTokenIDs
+
+        // Encode vision once; its token count determines how many <|image|> placeholders are required.
+        let visionEmbeddings = state.core.model.visual(pixelValues)
+        try checkedEval(visionEmbeddings)
+        let numImageTokens = visionEmbeddings.dim(1)
+
+        let chat = GLMOCRChatTemplate(imagePlaceholder: "<image>", appendNoThink: true)
+        let promptTokenIDs = try chat.buildInputIDs(prompt: prompt, tokenizer: tokenizer, numImageTokens: numImageTokens)
+
+        let caches = state.core.model.languageModel.layers.map { _ in KVCacheSimple() }
+
+        // Prompt fill (cache all layers).
+        let promptIdArray = MLXArray(promptTokenIDs.map { Int32($0) }).reshaped(1, -1)
+        let textEmbeddings = state.core.model.languageModel.embed(promptIdArray)
+        let fusedEmbeddings = try state.core.fuseEmbeddings(
+            inputIds: promptIdArray,
+            textEmbeddings: textEmbeddings,
+            visionEmbeddings: visionEmbeddings
+        )
+        var logits = state.core.forward(fusedEmbeddings: fusedEmbeddings, mask: .causal, caches: caches)
+        try checkedEval(logits)
+
+        var nextTokenId = Int(logits[0, -1].argMax().item(Int.self))
+        var generated: [Int] = []
+        generated.reserveCapacity(min(options.maxNewTokens, 512))
+
+        for _ in 0 ..< options.maxNewTokens {
+            try Task.checkCancellation()
+
+            if nextTokenId == ids.eosId { break }
+            generated.append(nextTokenId)
+
+            let tokenArray = MLXArray([Int32(nextTokenId)]).reshaped(1, 1)
+            let nextEmbeddings = state.core.model.languageModel.embed(tokenArray)
+            let nextHidden = state.core.model.languageModel.decode(nextEmbeddings, mask: .none, caches: caches)
+            logits = state.core.lmHead(nextHidden)
+            try checkedEval(logits)
+            nextTokenId = Int(logits[0, -1].argMax().item(Int.self))
+        }
+
+        let text = tokenizer.tokenizer.decode(tokens: generated, skipSpecialTokens: true)
+        return (text, generated)
     }
 }

@@ -12,12 +12,13 @@ This repo is intentionally structured as **core + adapter**:
 ## Current status (2026-02-09)
 
 - `swift build` / `swift test` pass.
-- CLI + App run.
+- CLI + App run (single file/image/PDF input).
 - Hugging Face snapshot download + cache resolution is implemented (`VLMRuntimeKit/ModelStore`).
-- **End-to-end OCR inference is not implemented yet** (vision tensor conversion, chat template/prompting, decode loop/generation).
-  - `GLMOCRCLI --download-only` is expected to work.
-  - `GLMOCRCLI --input …` currently fails with a `notImplemented` error (generation is not implemented yet).
-- Phase 02 model port is in place: `GLMOCRModel.load(from:)` can load config/tokenizer/weights and run a forward pass (logits only).
+- End-to-end MVP OCR works for a single image or a single PDF page:
+  - Vision decode + PDF page rendering
+  - CIImage → MLX tensor conversion + normalization
+  - GLM chat-template tokenization (`[gMASK]<sop>` + image placeholders)
+  - Greedy token-by-token decode (with KV cache)
 
 ## Requirements
 
@@ -81,21 +82,21 @@ Run `swift run GLMOCRCLI --help` for the full list. Key flags:
 - `--revision` (default: `main`)
 - `--download-base <path>` (optional)
 - `--download-only` (download without inference)
-- `--input <path>`, `--task <preset>`, `--max-new-tokens <n>` (wired, but inference is stubbed)
+- `--input <path>`, `--page <n>` (PDF only), `--task <preset>`, `--max-new-tokens <n>`
 
 ## Limitations / known gaps
 
-- `GLMOCRModel.generate(...)` is unimplemented (no end-to-end OCR yet).
-- `VisionIO` currently loads images via `CIImage`, but MLX tensor conversion is a stub; PDF page rendering is not implemented.
-- Prompt formatting is placeholder (`<image>` + instruction) and not yet aligned with GLM-OCR’s shipped chat template.
+- Quality/parity vs the official MLX Python example is not yet validated on a curated image set.
+- Layout stage (PP-DocLayout-V3) + multi-region OCR orchestration is not implemented yet.
+- App currently uses page 1 for PDFs (no page picker yet).
 - App has no queue/cancellation/settings yet; it’s a single-file scaffold used to iterate on pipeline wiring.
 
 ## Next steps (roadmap)
 
 Keep the detailed plan in `docs/dev_plans/`. Near-term work:
 
-1. Phase 03: implement `VisionIO` tensor conversion + tokenizer/chat template + a minimal decode loop.
-2. Phase 04: add layout stage and region orchestration.
+1. Phase 04: add layout stage and region orchestration.
+2. Phase 05: UI polish + distribution.
 
 ## Docs
 

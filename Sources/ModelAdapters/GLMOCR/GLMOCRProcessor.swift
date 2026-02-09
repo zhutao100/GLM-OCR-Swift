@@ -16,9 +16,7 @@ public struct GLMOCRProcessor: Sendable {
     }
 
     public func makePrompt(for task: OCRTask) -> String {
-        // Starter: keep a simple “image + instruction” prompt.
-        // Phase 03+ should align exactly with GLM-OCR’s expected chat template / special tokens.
         let instruction = promptTemplate.instruction(for: task)
-        return "\(promptTemplate.imagePlaceholder)\(instruction)"
+        return "\(promptTemplate.imagePlaceholder)\n\(instruction)"
     }
 }

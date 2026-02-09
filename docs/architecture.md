@@ -11,9 +11,9 @@ Responsibilities:
 - `OCRTypes`: shared pipeline protocol + result types (Sendable-first; **implemented**)
 - `VisionIO`: vision IO helpers
   - image file → `CIImage` (**implemented**)
-  - PDF page rendering + CIImage→MLX tensor conversion (**planned; tensor conversion is currently a stub**)
+  - PDF page rendering + CIImage→MLX tensor conversion (**implemented**)
 - `Generation`: model-agnostic generation façade (`CausalLM` + wrapper; **implemented**)
-  - token-by-token decode loop / KV cache / streaming output (**planned**)
+  - KV cache primitives (**implemented**); streaming output (**planned**)
 - `Weights`: safetensors loading helpers (**implemented**; model-specific transforms live in adapters)
 
 ### `GLMOCRAdapter` (model-specific)
@@ -23,9 +23,11 @@ Responsibilities:
 - `GLMOCRDefaults`: default model id/revision + snapshot download globs (**implemented**)
 - `GLMOCRConfig`: parse model config metadata (**implemented**)
 - `GLMOCRTokenizer`: load tokenizer + validate special token IDs (**implemented**)
-- `GLMOCRProcessor`: model-specific prompt policy (**placeholder; needs alignment with GLM-OCR chat template**)
-- `GLMOCRModel`: model definition + weight-loading + forward pass (**implemented**); generation/decoding (**planned**)
-- `GLMOCRPipeline`: orchestration actor; conforms to `OCRPipeline` (**implemented**, but end-to-end OCR is still stubbed until Phase 03+)
+- `GLMOCRProcessor`: model-specific prompt policy (**implemented**)
+- `GLMOCRChatTemplate`: GLM-OCR chat-template tokenization (**implemented**)
+- `GLMOCRImageProcessor`: GLM-OCR resize/normalize policy (**implemented**)
+- `GLMOCRModel`: model definition + weight-loading + forward pass + greedy decode (**implemented**)
+- `GLMOCRPipeline`: orchestration actor; conforms to `OCRPipeline` (**implemented**)
 
 ### `GLMOCRApp` (SwiftUI)
 
@@ -44,20 +46,20 @@ Planned (Phase 05):
 ## Dataflow (MVP)
 
 ```
-Image/PDF -> VisionIO -> GLMOCRProcessor -> TokenizerKit(prompt)
-     -> GLMOCRModel + Generation -> OCRResult(text + diagnostics)
+Image/PDF -> VisionIO -> GLMOCRImageProcessor -> GLMOCRProcessor(prompt)
+     -> GLMOCRChatTemplate + GLMOCRModel.generate -> OCRResult(text + diagnostics)
 ```
 
-### Current implementation note
+### Current implementation note (2026-02-09)
 
-Today, `GLMOCRPipeline.recognize(.fileURL(...), ...)` validates the file path and builds a placeholder prompt, but it does not yet:
+Phase 03 MVP now runs end-to-end for a single image or a single PDF page:
 
-- decode the image/PDF,
-- convert pixels to an MLX tensor,
-- tokenize using the real GLM-OCR chat template,
-- run model forward + decode.
+- decode (image / PDF page render),
+- resize/normalize → `pixelValues`,
+- build GLM-OCR chat-template `input_ids` with aligned image placeholders,
+- greedy token-by-token decode (with KV cache).
 
-Those pieces land across Phase 03 (MVP single image/page) and later phases (decode loop, layout stage).
+Remaining work is largely “quality + UX”: parity validation vs the official MLX Python example, layout stage, better prompt presets, and multi-page/document orchestration.
 
 ## Extension points
 

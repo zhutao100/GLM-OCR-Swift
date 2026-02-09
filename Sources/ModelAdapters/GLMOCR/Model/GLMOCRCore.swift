@@ -1,6 +1,7 @@
 import Foundation
 import MLX
 import MLXNN
+import VLMRuntimeKit
 
 final class GLMOCRInnerModel: Module {
     @ModuleInfo(key: "language_model") var languageModel: GLMOCRLanguageModel
@@ -34,22 +35,40 @@ final class GLMOCRCoreModel: Module {
     }
 
     func forward(inputIds: MLXArray, pixelValues: MLXArray?) throws -> MLXArray {
-        let textEmbeddings = model.languageModel.embed(inputIds)
+        let visionEmbeddings = pixelValues.map { model.visual($0) }
+        return try forward(inputIds: inputIds, visionEmbeddings: visionEmbeddings)
+    }
 
-        let fusedEmbeddings: MLXArray
-        if let pixelValues {
-            let visionEmbeddings = model.visual(pixelValues)
-            fusedEmbeddings = try GLMOCRFusion.fuse(
+    func forward(inputIds: MLXArray, visionEmbeddings: MLXArray?) throws -> MLXArray {
+        let textEmbeddings = model.languageModel.embed(inputIds)
+        let fusedEmbeddings = try fuseEmbeddings(
+            inputIds: inputIds,
+            textEmbeddings: textEmbeddings,
+            visionEmbeddings: visionEmbeddings
+        )
+
+        let hidden = model.languageModel.decode(fusedEmbeddings)
+        return lmHead(hidden)
+    }
+
+    func forward(
+        fusedEmbeddings: MLXArray,
+        mask: MLXFast.ScaledDotProductAttentionMaskMode,
+        caches: [KVCacheSimple]?
+    ) -> MLXArray {
+        let hidden = model.languageModel.decode(fusedEmbeddings, mask: mask, caches: caches)
+        return lmHead(hidden)
+    }
+
+    func fuseEmbeddings(inputIds: MLXArray, textEmbeddings: MLXArray, visionEmbeddings: MLXArray?) throws -> MLXArray {
+        if let visionEmbeddings {
+            return try GLMOCRFusion.fuse(
                 inputIds: inputIds,
                 textEmbeddings: textEmbeddings,
                 visionEmbeddings: visionEmbeddings,
                 imageTokenId: imageTokenId
             )
-        } else {
-            fusedEmbeddings = textEmbeddings
         }
-
-        let hidden = model.languageModel.decode(fusedEmbeddings)
-        return lmHead(hidden)
+        return textEmbeddings
     }
 }

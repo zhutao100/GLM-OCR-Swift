@@ -1,6 +1,7 @@
 import Foundation
 import MLX
 import MLXNN
+import VLMRuntimeKit
 
 final class GLMOCRSelfAttention: Module {
     private let heads: Int
@@ -32,22 +33,42 @@ final class GLMOCRSelfAttention: Module {
         super.init()
     }
 
-    func callAsFunction(_ x: MLXArray, mask: MLXFast.ScaledDotProductAttentionMaskMode) -> MLXArray {
+    func callAsFunction(
+        _ x: MLXArray,
+        mask: MLXFast.ScaledDotProductAttentionMaskMode,
+        cache: KVCacheSimple? = nil
+    ) -> MLXArray {
         let (batch, seqLen) = (x.dim(0), x.dim(1))
 
         var q = wq(x).reshaped(batch, seqLen, heads, headDim).transposed(0, 2, 1, 3)
         var k = wk(x).reshaped(batch, seqLen, kvHeads, headDim).transposed(0, 2, 1, 3)
         let v = wv(x).reshaped(batch, seqLen, kvHeads, headDim).transposed(0, 2, 1, 3)
 
-        q = rope(q)
-        k = rope(k)
+        let ropeOffset = cache?.offset ?? 0
+        q = rope(q, offset: ropeOffset)
+        k = rope(k, offset: ropeOffset)
+
+        let keys: MLXArray
+        let values: MLXArray
+        if let cache {
+            (keys, values) = cache.update(keys: k, values: v)
+        } else {
+            keys = k
+            values = v
+        }
+
+        let effectiveMask: MLXFast.ScaledDotProductAttentionMaskMode = if cache != nil, ropeOffset > 0, seqLen == 1 {
+            .none
+        } else {
+            mask
+        }
 
         let attn = MLXFast.scaledDotProductAttention(
             queries: q,
-            keys: k,
-            values: v,
+            keys: keys,
+            values: values,
             scale: scale,
-            mask: mask
+            mask: effectiveMask
         )
 
         let merged = attn.transposed(0, 2, 1, 3).reshaped(batch, seqLen, heads * headDim)
@@ -108,8 +129,12 @@ final class GLMOCRDecoderLayer: Module {
         super.init()
     }
 
-    func callAsFunction(_ x: MLXArray, mask: MLXFast.ScaledDotProductAttentionMaskMode) -> MLXArray {
-        var h = x + selfAttn(inputLayerNorm(x), mask: mask)
+    func callAsFunction(
+        _ x: MLXArray,
+        mask: MLXFast.ScaledDotProductAttentionMaskMode,
+        cache: KVCacheSimple? = nil
+    ) -> MLXArray {
+        var h = x + selfAttn(inputLayerNorm(x), mask: mask, cache: cache)
         h = postSelfAttnLayerNorm(h)
         h += mlp(postAttentionLayerNorm(h))
         h = postMlpLayerNorm(h)
@@ -176,10 +201,24 @@ final class GLMOCRLanguageModel: Module {
     }
 
     func decode(_ embeddings: MLXArray) -> MLXArray {
+        decode(embeddings, mask: .causal, caches: nil)
+    }
+
+    func decode(
+        _ embeddings: MLXArray,
+        mask: MLXFast.ScaledDotProductAttentionMaskMode,
+        caches: [KVCacheSimple]?
+    ) -> MLXArray {
         var h = embeddings
-        let mask: MLXFast.ScaledDotProductAttentionMaskMode = .causal
-        for layer in layers {
-            h = layer(h, mask: mask)
+        if let caches {
+            precondition(caches.count == layers.count, "cache count must match layer count")
+            for (idx, layer) in layers.enumerated() {
+                h = layer(h, mask: mask, cache: caches[idx])
+            }
+        } else {
+            for layer in layers {
+                h = layer(h, mask: mask)
+            }
         }
         return norm(h)
     }

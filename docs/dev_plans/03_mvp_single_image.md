@@ -4,26 +4,26 @@
 
 Borrowing references: `docs/reference_projects.md` (“Borrowing map”, DeepSeek OCR / DeepSeek OCR2 / PaddleOCR-VL).
 
-**Status (2026-02-09):** model download + model load/forward pass are in place, but end-to-end OCR is still stubbed (VisionIO tensor conversion + real chat template + decode loop).
+**Status (2026-02-09):** end-to-end single-image/single-page OCR is now implemented (PDF render + CIImage→MLX tensor conversion + GLM chat-template tokenization + greedy decode with KV-cache). Parity vs the official MLX Python example still needs to be validated on real images.
 
 ## Tasks
 - [x] Implement `VisionIO` image decode:
   - image file -> `CIImage` (`VisionIO.loadCIImage(from:)`)
-- [ ] Implement `VisionIO` PDF page rendering:
+- [x] Implement `VisionIO` PDF page rendering:
   - PDF page render (PDFKit) -> `CIImage`
   - borrow: CoreImage/PDFKit patterns (`mzbac/deepseek-ocr.swift` `ImageProcessor.swift`)
-- [ ] Implement `VisionIO` conversion to an MLX tensor with normalization
+- [x] Implement `VisionIO` conversion to an MLX tensor with normalization
   - borrow: `DeepSeekOCRImageProcessor` CoreImage→MLX conversion + normalization (`mzbac/deepseek-ocr.swift` `ImageProcessor.swift`)
   - borrow: dynamic resize strategy (`PaddleOCRVLImageProcessor` `smartResize` flow) for huge PDFs (`mlx-community/paddleocr-vl.swift` `ImageProcessor.swift`)
 - [x] Implement baseline prompt helpers in `TokenizerKit`
   - `<image>` placeholder splitting (`PromptTemplate.splitByImagePlaceholder`)
   - task presets → instruction string (`PromptTemplate.instruction(for:)`)
-- [ ] Implement real tokenization + chat-template correctness for GLM-OCR
+- [x] Implement real tokenization + chat-template correctness for GLM-OCR
   - align with `docs/GLM-OCR_model.md` (special tokens + `[gMASK]<sop>` prefix + image placeholders)
   - ensure the text token stream and image tensor(s) are aligned
 - [x] Provide a minimal model-agnostic generation façade
   - `CausalLM` + `GreedyGenerator` exist in `VLMRuntimeKit/Generation`
-- [ ] Implement a minimal greedy decode loop (token-by-token) + optional cancellation
+- [x] Implement a minimal greedy decode loop (token-by-token) + optional cancellation
   - borrow: simple greedy decode loop structure (`DeepSeekOCRGenerator.generate(...)`) (`mzbac/deepseek-ocr.swift` `Generator.swift`)
   - borrow: KV-cache utilities for long outputs / batching (`KVCache*`) (`mzbac/deepseek-ocr2.swift` `Utils/KVCache.swift`)
 - [x] Hook `GLMOCRCLI` to run a single image/page job (wiring)

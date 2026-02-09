@@ -1,3 +1,4 @@
+import CoreImage
 import Foundation
 import VLMRuntimeKit
 
@@ -6,13 +7,17 @@ public enum GLMOCRPipelineError: Error, Sendable {
     case invalidInputURL(URL)
     case inputNotFound(URL)
     case inputIsDirectory(URL)
-    case notImplemented(String)
+    case unsupportedInput(URL)
+    case invalidPDFPageIndex(Int)
 }
 
 /// Input types supported by the pipeline.
 public enum GLMOCRInput: Sendable, Equatable {
-    case fileURL(URL)
+    /// File URL (image or PDF). `page` is 1-based and only applies to PDFs.
+    case file(URL, page: Int)
     case predecodedText(String)
+
+    public static func fileURL(_ url: URL) -> GLMOCRInput { .file(url, page: 1) }
 }
 
 /// Main pipeline entrypoint.
@@ -81,17 +86,27 @@ public actor GLMOCRPipeline: OCRPipeline {
             return OCRResult(text: text, rawTokens: nil, diagnostics: .init(modelID: modelID, revision: revision))
         }
 
-        if case let .fileURL(url) = input {
-            guard url.isFileURL else { throw GLMOCRPipelineError.invalidInputURL(url) }
+        let url: URL
+        let page: Int
+        switch input {
+        case let .file(u, p):
+            url = u
+            page = p
+        case .predecodedText:
+            fatalError("unreachable")
+        }
 
-            let normalizedURL = url.standardizedFileURL
-            var isDirectory: ObjCBool = false
-            guard FileManager.default.fileExists(atPath: normalizedURL.path, isDirectory: &isDirectory) else {
-                throw GLMOCRPipelineError.inputNotFound(normalizedURL)
-            }
-            if isDirectory.boolValue {
-                throw GLMOCRPipelineError.inputIsDirectory(normalizedURL)
-            }
+        guard url.isFileURL else { throw GLMOCRPipelineError.invalidInputURL(url) }
+
+        guard page >= 1 else { throw GLMOCRPipelineError.invalidPDFPageIndex(page) }
+
+        let normalizedURL = url.standardizedFileURL
+        var isDirectory: ObjCBool = false
+        guard FileManager.default.fileExists(atPath: normalizedURL.path, isDirectory: &isDirectory) else {
+            throw GLMOCRPipelineError.inputNotFound(normalizedURL)
+        }
+        if isDirectory.boolValue {
+            throw GLMOCRPipelineError.inputIsDirectory(normalizedURL)
         }
 
         if model == nil, let loadTask {
@@ -102,23 +117,57 @@ public actor GLMOCRPipeline: OCRPipeline {
 
         let prompt = processor.makePrompt(for: task)
 
-        do {
-            let generator = GreedyGenerator()
-            var result = try await generator.run(model: model, prompt: prompt, options: options)
-            result.diagnostics.modelID = modelID
-            result.diagnostics.revision = revision
-            result.diagnostics.notes.append(
-                "NOTE: Generation is not implemented yet; implement GLMOCRModel.generate(...) in Phase 03+."
-            )
-            return result
-        } catch {
-            throw GLMOCRPipelineError.notImplemented("GLM-OCR model generation is not implemented yet: \(error)")
+        let ciImage: CIImage = if normalizedURL.pathExtension.lowercased() == "pdf" {
+            try VisionIO.loadCIImage(fromPDF: normalizedURL, page: page, dpi: 200)
+        } else {
+            try VisionIO.loadCIImage(from: normalizedURL)
         }
+
+        var imageOptions = GLMOCRImageProcessingOptions()
+        if let folder = modelFolder, let meanStd = try? loadMeanStd(from: folder) {
+            imageOptions.mean = meanStd.mean
+            imageOptions.std = meanStd.std
+        }
+        let imageProcessor = GLMOCRImageProcessor(options: imageOptions)
+        let processed = try imageProcessor.process(ciImage, config: model.config)
+
+        let generator = GreedyGenerator()
+        var result = try await generator.run(
+            model: model,
+            prompt: prompt,
+            pixelValues: processed.pixelValues,
+            options: options
+        )
+        result.diagnostics.modelID = modelID
+        result.diagnostics.revision = revision
+        return result
     }
 
     private func finishLoad(modelFolder: URL, model: GLMOCRModel) {
         self.modelFolder = modelFolder
         self.model = model
         loadTask = nil
+    }
+
+    private struct PreprocessorConfig: Decodable, Sendable {
+        var imageMean: [Float]?
+        var imageStd: [Float]?
+
+        private enum CodingKeys: String, CodingKey {
+            case imageMean = "image_mean"
+            case imageStd = "image_std"
+        }
+    }
+
+    private func loadMeanStd(from modelFolder: URL) throws -> (mean: (Float, Float, Float), std: (Float, Float, Float))? {
+        let url = modelFolder.appendingPathComponent("preprocessor_config.json")
+        guard FileManager.default.fileExists(atPath: url.path) else { return nil }
+
+        let data = try Data(contentsOf: url)
+        let config = try JSONDecoder().decode(PreprocessorConfig.self, from: data)
+        guard let mean = config.imageMean, let std = config.imageStd, mean.count == 3, std.count == 3 else {
+            return nil
+        }
+        return ((mean[0], mean[1], mean[2]), (std[0], std[1], std[2]))
     }
 }
