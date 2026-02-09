@@ -175,10 +175,10 @@ Validated against the local sibling checkouts in this workspace:
 Planned landing zones in this repo:
 
 * `VLMRuntimeKit/ModelStore`: HF snapshot download + cache conventions (DeepSeek OCR repos’ Hub patterns; Phase 01)
-* `VLMRuntimeKit/VisionIO`: CIImage/PDFKit decode → MLXArray + normalization (DeepSeek OCR), plus smart resize policy (PaddleOCR-VL; Phase 02)
-* `VLMRuntimeKit/TokenizerKit`: `<image>` placeholder splitting + “prompt parts” tokenization patterns (DeepSeek OCR2; Phase 02)
+* `VLMRuntimeKit/VisionIO`: CIImage/PDFKit decode → MLXArray + normalization (DeepSeek OCR), plus smart resize policy (PaddleOCR-VL; Phase 03)
+* `VLMRuntimeKit/TokenizerKit`: `<image>` placeholder splitting + “prompt parts” tokenization patterns (DeepSeek OCR2; Phase 03)
   * Keep special token ids and image-token budgeting constants in `GLMOCRAdapter`
-* `VLMRuntimeKit/Weights`: sharded safetensors loading + dtype selection (DeepSeek OCR2 `WeightsLoader`; Phase 03)
+* `VLMRuntimeKit/Weights`: sharded safetensors loading + dtype selection (DeepSeek OCR2 `WeightsLoader`; Phase 02)
   * Keep GLM-OCR weight name mapping in `GLMOCRAdapter`
 * `VLMRuntimeKit/Generation`: token-by-token greedy decode skeleton (DeepSeek OCR) + KV cache utilities (DeepSeek OCR2; Phase 02/03)
 * `GLMOCRAdapter`: config parsing, model-specific prompt formatting, vision sizing policy, token ids, and connector glue (Phase 02/03)
@@ -327,8 +327,8 @@ HF Swift tooling already provides model download + progress hooks suitable for a
 These map directly to the repo’s phase plans in `docs/dev_plans/`:
 
 * Phase 01: `docs/dev_plans/01_modelstore.md`
-* Phase 02: `docs/dev_plans/02_mvp_single_image.md`
-* Phase 03: `docs/dev_plans/03_model_port.md`
+* Phase 02: `docs/dev_plans/02_model_port.md`
+* Phase 03: `docs/dev_plans/03_mvp_single_image.md`
 * Phase 04: `docs/dev_plans/04_layout_stage.md`
 * Phase 05: `docs/dev_plans/05_gui_polish_distribution.md`
 

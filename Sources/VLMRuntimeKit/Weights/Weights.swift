@@ -7,7 +7,7 @@ public enum WeightsError: Error, Sendable {
 
 /// Placeholder for a future safetensors + dtype/quant loader.
 ///
-/// In Phase 03, this should become:
+/// In Phase 02, this should become:
 /// - shard enumeration
 /// - safetensors parsing
 /// - key mapping + post-processing

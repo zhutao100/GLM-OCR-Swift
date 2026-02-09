@@ -56,7 +56,7 @@ Today, `GLMOCRPipeline.recognize(.fileURL(...), ...)` validates the file path an
 - tokenize using the real GLM-OCR chat template,
 - run model forward + decode.
 
-Those pieces land in Phase 02/03.
+Those pieces land in Phase 02 (model port) and Phase 03 (MVP single image/page).
 
 ## Extension points
 

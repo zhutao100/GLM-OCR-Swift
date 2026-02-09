@@ -1,4 +1,4 @@
-# Phase 02 — MVP: single image / single PDF page -> text
+# Phase 03 — MVP: single image / single PDF page -> text
 
 **Objective:** one GLM-OCR inference end-to-end for a single image.
 
@@ -21,10 +21,6 @@ Borrowing references: `docs/reference_projects.md` (“Borrowing map”, DeepSee
 - [ ] Implement real tokenization + chat-template correctness for GLM-OCR
   - align with `docs/GLM-OCR_model.md` (special tokens + `[gMASK]<sop>` prefix + image placeholders)
   - ensure the text token stream and image tensor(s) are aligned
-- [x] Stub `GLMOCRModel` load path
-  - model snapshot download + `GLMOCRModel.load(from:)` harness exists
-- [ ] Port `GLMOCRModel` inference
-  - start with “load config + load weights + single forward pass” harness
 - [x] Provide a minimal model-agnostic generation façade
   - `CausalLM` + `GreedyGenerator` exist in `VLMRuntimeKit/Generation`
 - [ ] Implement a minimal greedy decode loop (token-by-token) + optional cancellation
@@ -37,3 +33,4 @@ Borrowing references: `docs/reference_projects.md` (“Borrowing map”, DeepSee
 ## Exit criteria
 - `swift run GLMOCRCLI --input <path>` produces OCR output for one image or one PDF page
 - App runs OCR for one dropped image/PDF and shows output (not just an error)
+- Parity within acceptable tolerance vs the official MLX Python example on 3-5 test images

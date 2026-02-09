@@ -37,7 +37,7 @@ public enum ImageTensorConverter {
     /// Convert a CIImage into a normalized (H, W, C) float tensor.
     ///
     /// Starter implementation is a stub: it returns an empty tensor.
-    /// Phase 02 should implement:
+    /// Phase 03 should implement:
     /// - CIContext render -> RGBA8 buffer
     /// - convert to Float32/Float16/BFloat16
     /// - normalize (mean/std) as required by the vision encoder

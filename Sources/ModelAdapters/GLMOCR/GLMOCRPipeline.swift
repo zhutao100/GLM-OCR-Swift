@@ -107,7 +107,7 @@ public actor GLMOCRPipeline: OCRPipeline {
             var result = try await generator.run(model: model, prompt: prompt, options: options)
             result.diagnostics.modelID = modelID
             result.diagnostics.revision = revision
-            result.diagnostics.notes.append("NOTE: Model port is stubbed; implement GLMOCRModel.generate(...) in Phase 02/03.")
+            result.diagnostics.notes.append("NOTE: Model port is stubbed; implement GLMOCRModel.generate(...) in Phase 02/03 (model port → MVP).")
             return result
         } catch {
             throw GLMOCRPipelineError.notImplemented("GLM-OCR model generation is not implemented yet: \(error)")

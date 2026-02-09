@@ -129,7 +129,7 @@ struct ContentView: View {
             VStack(spacing: 8) {
                 Text(vm.droppedFile?.lastPathComponent ?? "Drag & drop an image/PDF here")
                     .font(.headline)
-                Text("Supported: common images + PDF (page rendering planned in Phase 02)")
+                Text("Supported: common images + PDF (page rendering planned in Phase 03)")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

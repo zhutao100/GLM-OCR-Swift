@@ -80,8 +80,8 @@ Run `swift run GLMOCRCLI --help` for the full list. Key flags:
 
 Keep the detailed plan in `docs/dev_plans/`. Near-term work:
 
-1. Phase 02: implement `VisionIO` tensor conversion + tokenizer/chat template + a minimal decode loop.
-2. Phase 03: port the GLM-OCR model + weights mapping in MLX Swift.
+1. Phase 02: port the GLM-OCR model + weights mapping in MLX Swift.
+2. Phase 03: implement `VisionIO` tensor conversion + tokenizer/chat template + a minimal decode loop.
 
 ## Docs
 
