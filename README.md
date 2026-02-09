@@ -14,9 +14,10 @@ This repo is intentionally structured as **core + adapter**:
 - `swift build` / `swift test` pass.
 - CLI + App run.
 - Hugging Face snapshot download + cache resolution is implemented (`VLMRuntimeKit/ModelStore`).
-- **OCR inference is not implemented yet** (vision tensor conversion, tokenizer/chat template, weights loading, generation/model port).
+- **End-to-end OCR inference is not implemented yet** (vision tensor conversion, chat template/prompting, decode loop/generation).
   - `GLMOCRCLI --download-only` is expected to work.
-  - `GLMOCRCLI --input …` currently fails with a `notImplemented` error (model port stub).
+  - `GLMOCRCLI --input …` currently fails with a `notImplemented` error (generation is not implemented yet).
+- Phase 02 model port is in place: `GLMOCRModel.load(from:)` can load config/tokenizer/weights and run a forward pass (logits only).
 
 ## Requirements
 
@@ -36,6 +37,19 @@ swift run GLMOCRCLI --help
 
 # Launch the SwiftUI app scaffold
 swift run GLMOCRApp
+```
+
+One-time (required for any MLX execution via SwiftPM):
+
+```bash
+# Build MLX's metal shader library next to SwiftPM-built executables
+scripts/build_mlx_metallib.sh -c debug
+```
+
+Developer (Phase 02): single forward pass (logits only):
+
+```bash
+swift run GLMOCRCLI --dev-forward-pass
 ```
 
 Optional (large download):
@@ -73,15 +87,15 @@ Run `swift run GLMOCRCLI --help` for the full list. Key flags:
 
 - `GLMOCRModel.generate(...)` is unimplemented (no end-to-end OCR yet).
 - `VisionIO` currently loads images via `CIImage`, but MLX tensor conversion is a stub; PDF page rendering is not implemented.
-- Prompt formatting is placeholder (`<image>` + instruction) and not yet aligned with GLM-OCR’s shipped chat template / special tokens.
+- Prompt formatting is placeholder (`<image>` + instruction) and not yet aligned with GLM-OCR’s shipped chat template.
 - App has no queue/cancellation/settings yet; it’s a single-file scaffold used to iterate on pipeline wiring.
 
 ## Next steps (roadmap)
 
 Keep the detailed plan in `docs/dev_plans/`. Near-term work:
 
-1. Phase 02: port the GLM-OCR model + weights mapping in MLX Swift.
-2. Phase 03: implement `VisionIO` tensor conversion + tokenizer/chat template + a minimal decode loop.
+1. Phase 03: implement `VisionIO` tensor conversion + tokenizer/chat template + a minimal decode loop.
+2. Phase 04: add layout stage and region orchestration.
 
 ## Docs
 

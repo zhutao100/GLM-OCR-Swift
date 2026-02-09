@@ -4,7 +4,7 @@
 
 Borrowing references: `docs/reference_projects.md` (“Borrowing map”, DeepSeek OCR / DeepSeek OCR2 / PaddleOCR-VL).
 
-**Status (2026-02-09):** scaffolding is in place (CLI/App wired; model download works), but inference is still stubbed.
+**Status (2026-02-09):** model download + model load/forward pass are in place, but end-to-end OCR is still stubbed (VisionIO tensor conversion + real chat template + decode loop).
 
 ## Tasks
 - [x] Implement `VisionIO` image decode:

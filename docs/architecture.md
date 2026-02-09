@@ -14,7 +14,7 @@ Responsibilities:
   - PDF page rendering + CIImage→MLX tensor conversion (**planned; tensor conversion is currently a stub**)
 - `Generation`: model-agnostic generation façade (`CausalLM` + wrapper; **implemented**)
   - token-by-token decode loop / KV cache / streaming output (**planned**)
-- `Weights`: safetensors + dtype/quant plumbing (**planned; currently a stub**)
+- `Weights`: safetensors loading helpers (**implemented**; model-specific transforms live in adapters)
 
 ### `GLMOCRAdapter` (model-specific)
 
@@ -22,9 +22,10 @@ Responsibilities:
 
 - `GLMOCRDefaults`: default model id/revision + snapshot download globs (**implemented**)
 - `GLMOCRConfig`: parse model config metadata (**implemented**)
+- `GLMOCRTokenizer`: load tokenizer + validate special token IDs (**implemented**)
 - `GLMOCRProcessor`: model-specific prompt policy (**placeholder; needs alignment with GLM-OCR chat template**)
-- `GLMOCRModel`: model definition + weight-loading + generation (**stubbed**)
-- `GLMOCRPipeline`: orchestration actor; conforms to `OCRPipeline` (**implemented**, but inference fails until the model port lands)
+- `GLMOCRModel`: model definition + weight-loading + forward pass (**implemented**); generation/decoding (**planned**)
+- `GLMOCRPipeline`: orchestration actor; conforms to `OCRPipeline` (**implemented**, but end-to-end OCR is still stubbed until Phase 03+)
 
 ### `GLMOCRApp` (SwiftUI)
 
@@ -56,7 +57,7 @@ Today, `GLMOCRPipeline.recognize(.fileURL(...), ...)` validates the file path an
 - tokenize using the real GLM-OCR chat template,
 - run model forward + decode.
 
-Those pieces land in Phase 02 (model port) and Phase 03 (MVP single image/page).
+Those pieces land across Phase 03 (MVP single image/page) and later phases (decode loop, layout stage).
 
 ## Extension points
 

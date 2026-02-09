@@ -13,6 +13,8 @@ GLM-OCR is described as a **~0.9B-parameter** multimodal OCR model built on a **
 * a **GLM-0.5B** language model backbone,
 * plus training features including **Multi-Token Prediction (MTP)**. ([Hugging Face][1])
 
+In practice, the released Hugging Face checkpoint contains **~1.325B BF16 parameters** (`model.safetensors`). This repo uses the checkpoint as the source of truth for concrete tensor shapes and special-token IDs.
+
 On the inference side, the official OCR “system” is a **two-stage pipeline**:
 
 1. optional **layout analysis** (document structure detection), then
@@ -33,7 +35,7 @@ Key hyperparameters:
 * **FFN intermediate:** 4608
 * **Attention heads:** 16
 * **KV heads:** 8  → **Grouped-Query Attention (GQA)**
-* **Head dim:** 96
+* **Head dim:** 128 (note: `head_dim` does **not** equal `hidden_size / num_heads` for this model)
 * **Max positions:** 131072 (128K-ish context)
 * **Activation:** SiLU
 * **Norm:** RMSNorm (`rms_norm_eps = 1e-5`)
@@ -66,9 +68,9 @@ The merge/downsample concept matches the GLM-4.6V processor design (same process
 
 The config defines explicit special tokens:
 
-* `<|begin_of_image|>` id **59279**
+* `<|begin_of_image|>` id **59256**
 * `<|image|>` id **59280**
-* `<|end_of_image|>` id **59281**
+* `<|end_of_image|>` id **59257**
 
 The prompting convention is:
 
@@ -112,9 +114,9 @@ You should treat the `<|begin_of_image|> … <|end_of_image|>` sequence as a **m
 
 ---
 
-## 4) Parameter accounting (what we can infer without weights)
+## 4) Parameter accounting (from weights)
 
-Because weights aren’t present, the best we can do is **config-based estimation** + reconcile with the stated “~0.9B”.
+The `model.safetensors` checkpoint is a single BF16 shard containing **1,325,258,240** parameters in **526** tensors.
 
 ### 4.1 Decoder parameter estimate (text side)
 
@@ -146,14 +148,7 @@ So vision is on the order of **~300M** with a plain 2-matrix MLP; more if it use
 
 ### 4.3 Reconciling to “~0.9B”
 
-A “text ~0.52B + vision ~0.30B” baseline is ~0.82B, leaving ~0.08B for:
-
-* connector/projector(s),
-* any extra embedding tables / modality adapters,
-* and/or **gated MLPs** (either in vision or language),
-* and MTP head parameters.
-
-The published “~0.9B” claim suggests at least one of these subsystems is *not* the minimalist interpretation. ([Hugging Face][1])
+The published “~0.9B” figure does not match the checkpoint’s raw parameter count (**~1.325B**). Treat “~0.9B” as a rough/marketing number (or a subset-count) and use the checkpoint as the authoritative source when implementing tensor shapes and weight mapping. ([Hugging Face][1])
 
 ---
 

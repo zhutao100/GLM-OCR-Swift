@@ -1,18 +1,83 @@
 import Foundation
+import MLX
+import MLXNN
 import VLMRuntimeKit
 
 public enum GLMOCRModelError: Error, Sendable {
+    case invalidModelFolder(URL)
+    case configurationError(String)
+    case tokenizerFailed(String)
+    case weightsFailed(String)
     case notImplemented
 }
 
-/// Placeholder for the actual GLM-OCR model.
-/// Phase 02 replaces this with a real MLX Swift implementation and weight loading.
 public struct GLMOCRModel: CausalLM, Sendable {
-    public init() {}
+    final class State: @unchecked Sendable {
+        let config: GLMOCRConfig
+        let tokenizer: GLMOCRTokenizer
+        let core: GLMOCRCoreModel
 
-    public static func load(from _: URL) async throws -> GLMOCRModel {
-        // Phase 02: parse config.json, load weights, init modules.
-        GLMOCRModel()
+        init(config: GLMOCRConfig, tokenizer: GLMOCRTokenizer, core: GLMOCRCoreModel) {
+            self.config = config
+            self.tokenizer = tokenizer
+            self.core = core
+        }
+    }
+
+    private let state: State
+
+    public static func load(from modelFolder: URL) async throws -> GLMOCRModel {
+        guard modelFolder.isFileURL else { throw GLMOCRModelError.invalidModelFolder(modelFolder) }
+        var isDirectory: ObjCBool = false
+        guard FileManager.default.fileExists(atPath: modelFolder.path, isDirectory: &isDirectory),
+              isDirectory.boolValue
+        else {
+            throw GLMOCRModelError.invalidModelFolder(modelFolder)
+        }
+
+        let config: GLMOCRConfig
+        do {
+            config = try GLMOCRConfig.load(from: modelFolder)
+        } catch {
+            throw GLMOCRModelError.configurationError(String(describing: error))
+        }
+
+        let tokenizer: GLMOCRTokenizer
+        do {
+            tokenizer = try await GLMOCRTokenizer.load(from: modelFolder, config: config)
+        } catch {
+            throw GLMOCRModelError.tokenizerFailed(String(describing: error))
+        }
+
+        let core = try GLMOCRCoreModel(config: config, imageTokenId: tokenizer.specialTokenIDs.imageId)
+
+        do {
+            let loader = WeightsLoader()
+            var weights = try loader.loadAll(from: modelFolder, dtype: nil)
+
+            // Filter out MTP/aux weights not wired in Phase 02.
+            weights = weights.filter { k, _ in !k.hasPrefix("model.language_model.layers.16.") }
+
+            // Convert PyTorch conv weight layouts (O,I,...) to MLX (O,...,I).
+            if let patchWeight = weights["model.visual.patch_embed.proj.weight"] {
+                weights["model.visual.patch_embed.proj.weight"] = patchWeight.transposed(0, 2, 3, 4, 1)
+            }
+            if let downsampleWeight = weights["model.visual.downsample.weight"] {
+                weights["model.visual.downsample.weight"] = downsampleWeight.transposed(0, 2, 3, 1)
+            }
+
+            let parameters = ModuleParameters.unflattened(weights)
+            try core.update(parameters: parameters, verify: .all)
+            try checkedEval(core)
+        } catch {
+            throw GLMOCRModelError.weightsFailed(String(describing: error))
+        }
+
+        return GLMOCRModel(state: State(config: config, tokenizer: tokenizer, core: core))
+    }
+
+    public func forward(inputIds: MLXArray, pixelValues: MLXArray?) throws -> MLXArray {
+        try state.core.forward(inputIds: inputIds, pixelValues: pixelValues)
     }
 
     public func generate(prompt _: String, options _: GenerateOptions) async throws -> (text: String, tokenIDs: [Int]?) {

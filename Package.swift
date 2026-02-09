@@ -73,5 +73,14 @@ let package = Package(
                 .enableExperimentalFeature("StrictConcurrency"),
             ]
         ),
+        .testTarget(
+            name: "GLMOCRAdapterTests",
+            dependencies: [
+                "GLMOCRAdapter",
+            ],
+            swiftSettings: [
+                .enableExperimentalFeature("StrictConcurrency"),
+            ]
+        ),
     ]
 )
