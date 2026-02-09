@@ -28,13 +28,13 @@ public struct PromptTemplate: Sendable, Equatable {
     public func instruction(for task: OCRTask) -> String {
         switch task {
         case .text:
-            return "Extract the text and return as Markdown."
+            "Extract the text and return as Markdown."
         case .formula:
-            return "Extract formulas. Prefer LaTeX for math."
+            "Extract formulas. Prefer LaTeX for math."
         case .table:
-            return "Extract tables. Prefer Markdown tables."
+            "Extract tables. Prefer Markdown tables."
         case let .structuredJSON(schema):
-            return "Extract structured data and return JSON that matches this schema:\n\n\(schema)"
+            "Extract structured data and return JSON that matches this schema:\n\n\(schema)"
         }
     }
 }

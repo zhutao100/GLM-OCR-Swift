@@ -25,14 +25,11 @@ final class AppViewModel: ObservableObject {
         Task {
             do {
                 status = .downloading("Starting download...")
-                var lastCompleted: Int64 = -1
                 try await pipeline.ensureLoaded { progress in
-                    if progress.completedUnitCount != lastCompleted {
-                        lastCompleted = progress.completedUnitCount
-                        let total = max(progress.totalUnitCount, 1)
-                        Task { @MainActor in
-                            self.status = .downloading("Downloading model files: \(lastCompleted)/\(total)")
-                        }
+                    let completed = progress.completedUnitCount
+                    let total = max(progress.totalUnitCount, 1)
+                    Task { @MainActor in
+                        self.status = .downloading("Downloading model files: \(completed)/\(total)")
                     }
                 }
                 status = .ready

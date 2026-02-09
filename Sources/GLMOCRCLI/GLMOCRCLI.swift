@@ -3,6 +3,30 @@ import Foundation
 import GLMOCRAdapter
 import VLMRuntimeKit
 
+actor DownloadProgressPrinter {
+    private let modelID: String
+    private var lastCompleted: Int64 = -1
+
+    init(modelID: String) {
+        self.modelID = modelID
+    }
+
+    func update(completed: Int64, total: Int64) {
+        guard completed != lastCompleted else { return }
+        lastCompleted = completed
+
+        let total = max(total, 1)
+        FileHandle.standardError.write(Data("Downloading \(modelID) (\(completed)/\(total) files)\n".utf8))
+    }
+}
+
+enum TaskPreset: String, ExpressibleByArgument {
+    case text
+    case formula
+    case table
+    case json
+}
+
 @main
 struct GLMOCRCLI: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
@@ -20,10 +44,10 @@ struct GLMOCRCLI: AsyncParsableCommand {
     var downloadBase: String?
 
     @Option(help: "Input image or PDF file path.")
-    var input: String
+    var input: String?
 
     @Option(help: "Task preset: text | formula | table | json")
-    var task: String = "text"
+    var task: TaskPreset = .text
 
     @Option(help: "Max new tokens.")
     var maxNewTokens: Int = 2048
@@ -31,33 +55,58 @@ struct GLMOCRCLI: AsyncParsableCommand {
     @Flag(help: "Do not run inference; just resolve/download the model snapshot.")
     var downloadOnly: Bool = false
 
-    mutating func run() async throws {
-        func normalize(_ value: String?) -> String? {
-            let trimmed = value?.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard let trimmed, !trimmed.isEmpty else { return nil }
-            return trimmed
+    private static func normalizedNonEmpty(_ value: String?) -> String? {
+        let trimmed = value?.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let trimmed, !trimmed.isEmpty else { return nil }
+        return trimmed
+    }
+
+    private static func normalizedFileURL(fromPath path: String) -> URL {
+        URL(fileURLWithPath: (path as NSString).expandingTildeInPath).standardizedFileURL
+    }
+
+    mutating func validate() throws {
+        guard maxNewTokens > 0 else {
+            throw ValidationError("--max-new-tokens must be > 0")
         }
 
-        let downloadBaseURL: URL? = normalize(downloadBase).map { URL(fileURLWithPath: $0).standardizedFileURL }
-        let pipeline = GLMOCRPipeline(modelID: model, revision: revision, downloadBase: downloadBaseURL)
+        if downloadOnly { return }
+        guard let inputPath = Self.normalizedNonEmpty(input) else {
+            throw ValidationError("--input is required unless --download-only is set")
+        }
 
-        var lastCompleted: Int64 = -1
+        let url = Self.normalizedFileURL(fromPath: inputPath)
+        var isDirectory: ObjCBool = false
+        guard FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory) else {
+            throw ValidationError("Input not found: \(url.path)")
+        }
+        if isDirectory.boolValue {
+            throw ValidationError("Input is a directory: \(url.path)")
+        }
+    }
+
+    mutating func run() async throws {
+        let modelID = model
+        let downloadBaseURL: URL? = Self.normalizedNonEmpty(downloadBase).map(Self.normalizedFileURL(fromPath:))
+        let pipeline = GLMOCRPipeline(modelID: modelID, revision: revision, downloadBase: downloadBaseURL)
+
+        let printer = DownloadProgressPrinter(modelID: modelID)
         try await pipeline.ensureLoaded { progress in
-            if progress.completedUnitCount != lastCompleted {
-                lastCompleted = progress.completedUnitCount
-                let total = max(progress.totalUnitCount, 1)
-                FileHandle.standardError.write(Data("Downloading \(model) (\(lastCompleted)/\(total) files)\n".utf8))
-            }
+            let completed = progress.completedUnitCount
+            let total = progress.totalUnitCount
+            Task { await printer.update(completed: completed, total: total) }
         }
         if downloadOnly { return }
 
-        let url = URL(fileURLWithPath: (input as NSString).expandingTildeInPath).standardizedFileURL
-        let taskPreset: OCRTask = switch task.lowercased() {
-        case "text": .text
-        case "formula": .formula
-        case "table": .table
-        case "json": .structuredJSON(schema: "{\n  \"type\": \"object\"\n}")
-        default: .text
+        guard let inputPath = Self.normalizedNonEmpty(input) else {
+            throw ValidationError("--input is required unless --download-only is set")
+        }
+        let url = Self.normalizedFileURL(fromPath: inputPath)
+        let taskPreset: OCRTask = switch task {
+        case .text: .text
+        case .formula: .formula
+        case .table: .table
+        case .json: .structuredJSON(schema: "{\n  \"type\": \"object\"\n}")
         }
 
         let options = GenerateOptions(maxNewTokens: maxNewTokens, temperature: 0, topP: 1)

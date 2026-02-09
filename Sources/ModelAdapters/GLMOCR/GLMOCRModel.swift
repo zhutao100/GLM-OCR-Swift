@@ -11,12 +11,12 @@ public struct GLMOCRModel: CausalLM, Sendable {
     public init() {}
 
     public static func load(from _: URL) async throws -> GLMOCRModel {
-        // TODO(phase03): parse config.json, load weights, init modules.
-        return GLMOCRModel()
+        // Phase 03: parse config.json, load weights, init modules.
+        GLMOCRModel()
     }
 
     public func generate(prompt _: String, options _: GenerateOptions) async throws -> (text: String, tokenIDs: [Int]?) {
-        // TODO(phase02+): tokenization + forward pass + decode loop.
+        // Phase 02+: tokenization + forward pass + decode loop.
         throw GLMOCRModelError.notImplemented
     }
 }

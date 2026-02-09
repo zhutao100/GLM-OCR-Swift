@@ -10,6 +10,7 @@ line_length:
 
 disabled_rules:
   - identifier_name
+  - trailing_comma
   - type_body_length
 
 function_body_length:

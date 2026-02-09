@@ -21,10 +21,10 @@ public enum VisionIO {
 
 // MARK: - MLX conversion (starter stub)
 
-public struct ImageTensor: Sendable, Equatable {
-    public var tensor: MLXArray
-    public var width: Int
-    public var height: Int
+public struct ImageTensor: @unchecked Sendable {
+    public let tensor: MLXArray
+    public let width: Int
+    public let height: Int
 
     public init(tensor: MLXArray, width: Int, height: Int) {
         self.tensor = tensor

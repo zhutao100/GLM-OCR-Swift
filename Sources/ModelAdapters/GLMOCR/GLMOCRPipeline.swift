@@ -3,6 +3,9 @@ import VLMRuntimeKit
 
 public enum GLMOCRPipelineError: Error, Sendable {
     case modelNotLoaded
+    case invalidInputURL(URL)
+    case inputNotFound(URL)
+    case inputIsDirectory(URL)
     case notImplemented(String)
 }
 
@@ -15,7 +18,7 @@ public enum GLMOCRInput: Sendable, Equatable {
 /// Main pipeline entrypoint.
 /// - Responsible for: model snapshot resolution, prompt building, generation.
 /// - Delegates model-agnostic concerns to VLMRuntimeKit.
-public final class GLMOCRPipeline: OCRPipeline, @unchecked Sendable {
+public actor GLMOCRPipeline: OCRPipeline {
     public typealias Input = GLMOCRInput
 
     private let store: any ModelStore
@@ -28,6 +31,7 @@ public final class GLMOCRPipeline: OCRPipeline, @unchecked Sendable {
 
     private var modelFolder: URL?
     private var model: GLMOCRModel?
+    private var loadTask: Task<Void, Error>?
 
     public init(
         modelID: String = GLMOCRDefaults.modelID,
@@ -47,13 +51,28 @@ public final class GLMOCRPipeline: OCRPipeline, @unchecked Sendable {
 
     public func ensureLoaded(progress: (@Sendable (Progress) -> Void)? = nil) async throws {
         if model != nil { return }
+        if let loadTask {
+            try await loadTask.value
+            return
+        }
 
+        let store = store
         let request = ModelSnapshotRequest(modelID: modelID, revision: revision, matchingGlobs: downloadGlobs)
-        let folder = try await store.resolveSnapshot(request, downloadBase: downloadBase, progress: progress)
-        modelFolder = folder
+        let downloadBase = downloadBase
 
-        // Load model (stubbed)
-        model = try await GLMOCRModel.load(from: folder)
+        let task = Task {
+            let folder = try await store.resolveSnapshot(request, downloadBase: downloadBase, progress: progress)
+            let loadedModel = try await GLMOCRModel.load(from: folder)
+            self.finishLoad(modelFolder: folder, model: loadedModel)
+        }
+
+        loadTask = task
+        do {
+            try await task.value
+        } catch {
+            loadTask = nil
+            throw error
+        }
     }
 
     public func recognize(_ input: GLMOCRInput, task: OCRTask, options: GenerateOptions) async throws -> OCRResult {
@@ -62,13 +81,24 @@ public final class GLMOCRPipeline: OCRPipeline, @unchecked Sendable {
             return OCRResult(text: text, rawTokens: nil, diagnostics: .init(modelID: modelID, revision: revision))
         }
 
-        guard let _ = modelFolder else {
-            // Don’t auto-download implicitly; caller should call ensureLoaded().
-            throw GLMOCRPipelineError.modelNotLoaded
+        if case let .fileURL(url) = input {
+            guard url.isFileURL else { throw GLMOCRPipelineError.invalidInputURL(url) }
+
+            let normalizedURL = url.standardizedFileURL
+            var isDirectory: ObjCBool = false
+            guard FileManager.default.fileExists(atPath: normalizedURL.path, isDirectory: &isDirectory) else {
+                throw GLMOCRPipelineError.inputNotFound(normalizedURL)
+            }
+            if isDirectory.boolValue {
+                throw GLMOCRPipelineError.inputIsDirectory(normalizedURL)
+            }
         }
-        guard let model else {
-            throw GLMOCRPipelineError.modelNotLoaded
+
+        if model == nil, let loadTask {
+            try await loadTask.value
         }
+
+        guard let model else { throw GLMOCRPipelineError.modelNotLoaded }
 
         let prompt = processor.makePrompt(for: task)
 
@@ -82,5 +112,11 @@ public final class GLMOCRPipeline: OCRPipeline, @unchecked Sendable {
         } catch {
             throw GLMOCRPipelineError.notImplemented("GLM-OCR model generation is not implemented yet: \(error)")
         }
+    }
+
+    private func finishLoad(modelFolder: URL, model: GLMOCRModel) {
+        self.modelFolder = modelFolder
+        self.model = model
+        loadTask = nil
     }
 }

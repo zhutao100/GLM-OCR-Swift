@@ -3,11 +3,11 @@ import Foundation
 // MARK: - Public API surface (intentionally small)
 
 public protocol OCRPipeline: Sendable {
-    associatedtype Input
+    associatedtype Input: Sendable
     func recognize(_ input: Input, task: OCRTask, options: GenerateOptions) async throws -> OCRResult
 }
 
-public enum OCRTask: Sendable, Equatable {
+public enum OCRTask: Sendable, Equatable, Hashable {
     case text
     case formula
     case table
