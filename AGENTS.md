@@ -7,8 +7,14 @@ This repository is intended to be safely evolvable by **agentic coding tools** a
 Build a **fully native macOS (Apple Silicon) GLM-OCR app** in Swift using:
 
 - **MLX Swift** for inference
-- **Hugging Face Swift tooling** (Hub / Tokenizers) for model download + tokenizer loading
+- **Hugging Face Swift tooling** (`HubApi.snapshot` today; tokenizer integration planned) for model download + tokenizer loading
 - A maintainable architecture that supports future consolidation into a multi-model OCR workbench.
+
+## Current reality (2026-02-09)
+
+- The repo builds and tests cleanly (`swift test`).
+- `ModelStore` snapshot download + HF cache resolution is implemented.
+- OCR inference is still stubbed (vision preprocessing, tokenizer/chat template, weights loading, model port, decode loop).
 
 ## Non-negotiables
 
@@ -18,13 +24,46 @@ Build a **fully native macOS (Apple Silicon) GLM-OCR app** in Swift using:
    - UI code lives only in `GLMOCRApp`.
 
 2. **Docs must stay in sync**
-   - Update `docs/architecture.md` whenever public types or module boundaries change.
-   - Update `docs/dev_plans/*` checklists as milestones complete.
-   - Add ADRs in `docs/decisions/` for decisions that affect future work (interfaces, caching layout, tokenization scheme, etc.).
+   - Update `docs/architecture.md` whenever module boundaries or public API shape changes.
+   - Update `docs/dev_plans/*` checklists as milestones complete (keep them truthful).
+   - Add ADRs in `docs/decisions/` for decisions that affect future work (interfaces, caching layout, tokenization/chat template scheme, etc.).
 
 3. **Prefer deterministic, testable primitives**
-   - Keep pure functions for preprocessing and prompt/template logic.
+   - Keep pure functions for preprocessing and prompt/template logic where possible.
    - Add unit tests for: prompt splitting, cache path rules, JSON schema task formatting, and any token budgeting logic.
+
+## Repo map (fast navigation)
+
+- `Sources/VLMRuntimeKit/` — model-agnostic runtime
+  - `ModelStore/ModelStore.swift` — HF cache resolution + snapshot download
+  - `TokenizerKit/PromptTemplate.swift` — `<image>` placeholder splitting + task→instruction mapping
+  - `OCRTypes.swift` — public pipeline API (`OCRPipeline`, `OCRTask`, `GenerateOptions`, `OCRResult`)
+  - `VisionIO/VisionIO.swift` — CIImage load (tensor conversion is currently a stub)
+  - `Generation/Generation.swift` — generation façade (`CausalLM`, `GreedyGenerator`)
+  - `Weights/Weights.swift` — weights loader placeholder
+- `Sources/ModelAdapters/GLMOCR/` — GLM-OCR-specific adapter
+  - `GLMOCRPipeline.swift` — orchestration actor (download → load → recognize)
+  - `GLMOCRModel.swift` — model placeholder (generate is unimplemented)
+  - `GLMOCRProcessor.swift` — prompt policy placeholder
+  - `GLMOCRDefaults.swift` — default model id/revision/globs
+- `Sources/GLMOCRCLI/GLMOCRCLI.swift` — CLI entrypoint
+- `Sources/GLMOCRApp/` — SwiftUI app scaffold
+- `Tests/VLMRuntimeKitTests/` — focused unit tests for deterministic helpers
+
+## Docs: what to read first (by task)
+
+- **Triage / “what is broken?”**
+  - `docs/overview.md` (status + pointers)
+  - run `swift test`, then reproduce with `swift run GLMOCRCLI --help`
+- **Feature work (runtime / pipeline)**
+  - `docs/architecture.md` (boundaries + dataflow)
+  - relevant phase in `docs/dev_plans/`
+  - add/update an ADR in `docs/decisions/` if you introduce a new interface, cache layout, or tokenization scheme
+- **Bugfix (small, local)**
+  - search usage with `rg` (types above are the main entry points)
+  - add a unit test in `Tests/VLMRuntimeKitTests/` when the fix is deterministic
+- **Docs-only changes**
+  - keep `README.md`, `AGENTS.md`, and `docs/*` consistent; prefer linking over duplication
 
 ## Build / test commands
 
@@ -33,6 +72,22 @@ swift build
 swift test
 swift run GLMOCRCLI --help
 swift run GLMOCRApp
+```
+
+## Formatting / linting (optional but preferred)
+
+This repo includes configs for local tooling:
+
+- SwiftFormat: `.swiftformat`
+- SwiftLint: `.swiftlint.yml`
+- pre-commit: `.pre-commit-config.yaml`
+
+Typical commands (if installed):
+
+```bash
+swiftformat --config .swiftformat .
+swiftlint --config .swiftlint.yml
+pre-commit run -a
 ```
 
 ## Coding conventions
