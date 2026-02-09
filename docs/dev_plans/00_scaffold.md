@@ -2,6 +2,8 @@
 
 **Objective:** establish project boundaries + buildable targets + docs.
 
+Borrowing references: `docs/reference_projects.md` (survey + borrowing map) to keep later phases grounded.
+
 ## Done in this starter
 - [x] SwiftPM package with `VLMRuntimeKit`, `GLMOCRAdapter`, `GLMOCRApp`, `GLMOCRCLI`
 - [x] AGENTS.md

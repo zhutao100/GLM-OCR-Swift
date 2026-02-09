@@ -22,6 +22,12 @@ and adjacent “inference scaffolding” repos, including reusable component inv
 
 Below are the *highest leverage* reuse candidates for a GLM-OCR Swift implementation, with the **exact types** and what they buy you. I’m listing **file paths + key APIs/types**, and giving GitHub “exact file” links in code blocks (copy/paste).
 
+**Validation:** checked against local checkouts on **2026-02-09** and pinned to these commits:
+
+* `mzbac/deepseek-ocr.swift` @ `5930b620433c866e615341fe2dc52acc4431cc48`
+* `mzbac/deepseek-ocr2.swift` @ `637449ccf08069bede24fdc4ef17eb853e1a383a`
+* `mlx-community/paddleocr-vl.swift` @ `b31d5ab0bdb87a77ae80b74ec3380fed99f5b706`
+
 ### A) `deepseek-ocr.swift` (minimal, very “template-able”)
 
 **1) Public pipeline surface (good “product API” shape)**
@@ -31,7 +37,7 @@ Below are the *highest leverage* reuse candidates for a GLM-OCR Swift implementa
 * **Refactor for GLM-OCR:** Rename to `GLMOCRPipeline`; swap prompt template + model adapter + vision preprocess.
 
 ```text
-https://github.com/mzbac/deepseek-ocr.swift/blob/main/Sources/DeepSeekOCR/DeepSeekOCRPipeline.swift
+https://github.com/mzbac/deepseek-ocr.swift/blob/5930b620433c866e615341fe2dc52acc4431cc48/Sources/DeepSeekOCR/DeepSeekOCRPipeline.swift
 ```
 
 **2) Image preprocessing (CoreImage → MLXArray, padding/resize, normalization)**
@@ -41,30 +47,30 @@ https://github.com/mzbac/deepseek-ocr.swift/blob/main/Sources/DeepSeekOCR/DeepSe
 * **Refactor for GLM-OCR:** Replace its mode/token-count assumptions with GLM-OCR’s expected vision encoder input sizing; keep the CoreImage/CGImage/MLX conversion utilities.
 
 ```text
-https://github.com/mzbac/deepseek-ocr.swift/blob/main/Sources/DeepSeekOCR/ImageProcessor.swift
+https://github.com/mzbac/deepseek-ocr.swift/blob/5930b620433c866e615341fe2dc52acc4431cc48/Sources/DeepSeekOCR/ImageProcessor.swift
 ```
 
-**3) Generation loop (token-by-token decode; easy cancellation checks)**
+**3) Generation loop (token-by-token decode; easy to add cancellation)**
 
 * **Types:** `DeepSeekOCRGenerator`, `GenerationResult`, `BatchGenerationResult`
-* **Why reuse:** Clear, readable generation loop that can be upgraded to:
+* **Why reuse:** Straightforward decode loop that can be upgraded to:
 
   * `AsyncStream<Token>` streaming for UI
   * cooperative cancellation (`Task.isCancelled`) per token
 * **Refactor for GLM-OCR:** Replace special tokens/EOS logic + integrate GLM-OCR’s image-token insertion scheme.
 
 ```text
-https://github.com/mzbac/deepseek-ocr.swift/blob/main/Sources/DeepSeekOCR/Generator.swift
+https://github.com/mzbac/deepseek-ocr.swift/blob/5930b620433c866e615341fe2dc52acc4431cc48/Sources/DeepSeekOCR/Generator.swift
 ```
 
 **4) Weight loading + key-munging patterns**
 
-* **Type:** `DeepSeekOCRModel.load(modelURL:dtype:)` (plus the internal `sanitizeWeights(...)` mapping style)
+* **Types:** `DeepSeekOCRModel.load(from:)` (plus internal `loadWeights(for:from:)` and `sanitizeWeights(_:)` key mapping)
 * **Why reuse:** Even if GLM-OCR is architecturally different, the *pattern* (read config → load safetensors → rename keys → postprocess tensors → init modules) is the core of any Swift port.
 * **Refactor for GLM-OCR:** Implement GLM-OCR-specific key mapping; keep the structure.
 
 ```text
-https://github.com/mzbac/deepseek-ocr.swift/blob/main/Sources/DeepSeekOCR/DeepSeekOCRModel.swift
+https://github.com/mzbac/deepseek-ocr.swift/blob/5930b620433c866e615341fe2dc52acc4431cc48/Sources/DeepSeekOCR/DeepSeekOCRModel.swift
 ```
 
 **5) CLI UX + distribution pattern (signed artifact, “model download then run”)**
@@ -73,7 +79,7 @@ https://github.com/mzbac/deepseek-ocr.swift/blob/main/Sources/DeepSeekOCR/DeepSe
 * **Why reuse:** ArgumentParser wiring and “download/cache model folder then run” maps directly to “GUI: pick model → download → run”.
 
 ```text
-https://github.com/mzbac/deepseek-ocr.swift/blob/main/Sources/DeepSeekOCRCLI/main.swift
+https://github.com/mzbac/deepseek-ocr.swift/blob/5930b620433c866e615341fe2dc52acc4431cc48/Sources/DeepSeekOCRCLI/main.swift
 ```
 
 ---
@@ -87,7 +93,7 @@ https://github.com/mzbac/deepseek-ocr.swift/blob/main/Sources/DeepSeekOCRCLI/mai
 * **Refactor for GLM-OCR:** Keep as-is; only adapt how you enumerate shards / index and how you map parameter names.
 
 ```text
-https://github.com/mzbac/deepseek-ocr2.swift/blob/main/Sources/DeepSeekOCR2/Weights/WeightsLoader.swift
+https://github.com/mzbac/deepseek-ocr2.swift/blob/637449ccf08069bede24fdc4ef17eb853e1a383a/Sources/DeepSeekOCR2/Weights/WeightsLoader.swift
 ```
 
 **2) KV cache utilities (especially for batch + long documents)**
@@ -97,17 +103,17 @@ https://github.com/mzbac/deepseek-ocr2.swift/blob/main/Sources/DeepSeekOCR2/Weig
 * **Refactor for GLM-OCR:** Usually minimal—cache is “decoder generic” as long as attention implementation matches.
 
 ```text
-https://github.com/mzbac/deepseek-ocr2.swift/blob/main/Sources/DeepSeekOCR2/Utils/KVCache.swift
+https://github.com/mzbac/deepseek-ocr2.swift/blob/637449ccf08069bede24fdc4ef17eb853e1a383a/Sources/DeepSeekOCR2/Utils/KVCache.swift
 ```
 
 **3) Prompt splitting for multimodal `<image>` insertion**
 
-* **Type:** `DeepseekOCR2Generator.tokenizePromptParts(...)`
+* **Type:** `DeepseekOCR2Generator.tokenizePromptParts(prompt:)` (private helper)
 * **Why reuse:** This is the exact pattern you’ll need if GLM-OCR uses an `<image>` placeholder or equivalent “image then text” chat template.
 * **Refactor for GLM-OCR:** Change special token ids / image token budget logic.
 
 ```text
-https://github.com/mzbac/deepseek-ocr2.swift/blob/main/Sources/DeepSeekOCR2/DeepseekOCR2/DeepseekOCR2Generator.swift
+https://github.com/mzbac/deepseek-ocr2.swift/blob/637449ccf08069bede24fdc4ef17eb853e1a383a/Sources/DeepSeekOCR2/DeepseekOCR2/DeepseekOCR2Generator.swift
 ```
 
 **4) Image processor that encodes “vision token budget” explicitly**
@@ -117,7 +123,7 @@ https://github.com/mzbac/deepseek-ocr2.swift/blob/main/Sources/DeepSeekOCR2/Deep
 * **Refactor for GLM-OCR:** Replace constants (image size, patch size, token count formula) with GLM-OCR/CogViT expectations.
 
 ```text
-https://github.com/mzbac/deepseek-ocr2.swift/blob/main/Sources/DeepSeekOCR2/DeepseekOCR2/DeepseekOCR2ImageProcessor.swift
+https://github.com/mzbac/deepseek-ocr2.swift/blob/637449ccf08069bede24fdc4ef17eb853e1a383a/Sources/DeepSeekOCR2/DeepseekOCR2/DeepseekOCR2ImageProcessor.swift
 ```
 
 **5) Pipeline shape + model injection pattern**
@@ -126,8 +132,8 @@ https://github.com/mzbac/deepseek-ocr2.swift/blob/main/Sources/DeepSeekOCR2/Deep
 * **Why reuse:** Clean separation between “pipeline orchestration” and “model core”, including injection/hooking patterns you may need for GLM-OCR connector layers.
 
 ```text
-https://github.com/mzbac/deepseek-ocr2.swift/blob/main/Sources/DeepSeekOCR2/DeepseekOCR2/DeepseekOCR2Pipeline.swift
-https://github.com/mzbac/deepseek-ocr2.swift/blob/main/Sources/DeepSeekOCR2/DeepseekOCR2/DeepseekOCR2Model.swift
+https://github.com/mzbac/deepseek-ocr2.swift/blob/637449ccf08069bede24fdc4ef17eb853e1a383a/Sources/DeepSeekOCR2/DeepseekOCR2/DeepseekOCR2Pipeline.swift
+https://github.com/mzbac/deepseek-ocr2.swift/blob/637449ccf08069bede24fdc4ef17eb853e1a383a/Sources/DeepSeekOCR2/DeepseekOCR2/DeepseekOCR2Model.swift
 ```
 
 ---
@@ -136,7 +142,7 @@ https://github.com/mzbac/deepseek-ocr2.swift/blob/main/Sources/DeepSeekOCR2/Deep
 
 **1) Smart resize strategy (min/max pixels → stable quality/perf tradeoff)**
 
-* **Type:** `PaddleOCRVLImageProcessor.smartResize(...)` (and the associated preprocess flow)
+* **Type:** `PaddleOCRVLImageProcessor` dynamic-resize flow (`processDynamicResolution` + private `smartResize(width:height:)`)
 * **Why reuse:** For a GUI OCR app, you’ll process:
 
   * huge PDFs (A4 scans, 300–600 DPI)
@@ -145,7 +151,7 @@ https://github.com/mzbac/deepseek-ocr2.swift/blob/main/Sources/DeepSeekOCR2/Deep
 * **Refactor for GLM-OCR:** Keep the strategy, change constants to match GLM-OCR vision encoder’s preferred operating range.
 
 ```text
-https://github.com/mlx-community/paddleocr-vl.swift/blob/master/Sources/PaddleOCRVL/ImageProcessor.swift
+https://github.com/mlx-community/paddleocr-vl.swift/blob/b31d5ab0bdb87a77ae80b74ec3380fed99f5b706/Sources/PaddleOCRVL/ImageProcessor.swift
 ```
 
 **2) Pipeline supports “task presets” (OCR/table/formula style workflows)**
@@ -154,9 +160,35 @@ https://github.com/mlx-community/paddleocr-vl.swift/blob/master/Sources/PaddleOC
 * **Why reuse:** GLM-OCR explicitly supports different prompt scenarios (“Text / Formula / Table”, plus structured extraction). Modeling that as a first-class “task” improves UX. ([Hugging Face][10])
 
 ```text
-https://github.com/mlx-community/paddleocr-vl.swift/blob/master/Sources/PaddleOCRVL/PaddleOCRVLPipeline.swift
-https://github.com/mlx-community/paddleocr-vl.swift/blob/master/Sources/PaddleOCRVL/Configuration.swift
+https://github.com/mlx-community/paddleocr-vl.swift/blob/b31d5ab0bdb87a77ae80b74ec3380fed99f5b706/Sources/PaddleOCRVL/PaddleOCRVLPipeline.swift
+https://github.com/mlx-community/paddleocr-vl.swift/blob/b31d5ab0bdb87a77ae80b74ec3380fed99f5b706/Sources/PaddleOCRVL/Configuration.swift
 ```
+
+## 2.5) Borrowing map (source → target module)
+
+Validated against the local sibling checkouts in this workspace:
+
+* `../deepseek-ocr.swift`
+* `../deepseek-ocr2.swift`
+* `../paddleocr-vl.swift`
+
+Planned landing zones in this repo:
+
+* `VLMRuntimeKit/ModelStore`: HF snapshot download + cache conventions (DeepSeek OCR repos’ Hub patterns; Phase 01)
+* `VLMRuntimeKit/VisionIO`: CIImage/PDFKit decode → MLXArray + normalization (DeepSeek OCR), plus smart resize policy (PaddleOCR-VL; Phase 02)
+* `VLMRuntimeKit/TokenizerKit`: `<image>` placeholder splitting + “prompt parts” tokenization patterns (DeepSeek OCR2; Phase 02)
+  * Keep special token ids and image-token budgeting constants in `GLMOCRAdapter`
+* `VLMRuntimeKit/Weights`: sharded safetensors loading + dtype selection (DeepSeek OCR2 `WeightsLoader`; Phase 03)
+  * Keep GLM-OCR weight name mapping in `GLMOCRAdapter`
+* `VLMRuntimeKit/Generation`: token-by-token greedy decode skeleton (DeepSeek OCR) + KV cache utilities (DeepSeek OCR2; Phase 02/03)
+* `GLMOCRAdapter`: config parsing, model-specific prompt formatting, vision sizing policy, token ids, and connector glue (Phase 02/03)
+* `GLMOCRApp`: job queue + responsiveness patterns (mlx-swift-chat / mlx-swift-examples; Phase 05)
+
+License/attribution notes when copying code:
+
+* `deepseek-ocr.swift`: MIT (per README)
+* `deepseek-ocr2.swift`: Apache-2.0 (`LICENSE`)
+* `paddleocr-vl.swift`: MIT (`LICENSE`)
 
 ---
 
@@ -202,7 +234,7 @@ This matches your “Apple-native end state” goal while avoiding early scope c
   * `TokenizerKit` (chat template + multimodal placeholder splitting)
   * `VisionIO` (CIImage/CGImage/PDFKit decode + resize/normalize)
   * `Generation` (decoder loop, KV cache, streaming)
-* `ModelAdapters/GLMOCR`
+* `GLMOCRAdapter` (model-specific; lives at `Sources/ModelAdapters/GLMOCR`)
 
   * `GLMOCRConfig`, `GLMOCRProcessor`, `GLMOCRModel`, `GLMOCRPipeline`
 * `GLMOCRApp` (SwiftUI)
@@ -245,7 +277,7 @@ public struct OCRResult: Sendable {
 
 ### Option 2 — **SwiftUI app on top of MLX Swift LM (if GLM-OCR can be integrated)**
 
-* **Core idea:** upstream/add GLM-OCR as a VLM model inside `mlx-swift-lm`, and use `mlx-swift-examples` / similar SwiftUI scaffolding. ([GitHub][8])
+* **Core idea:** upstream/add GLM-OCR as a VLM model inside `mlx-swift-lm`, and use `mlx-swift-examples` / similar SwiftUI scaffolding. ([GitHub][7], [GitHub][8])
 * **Pros:** least long-term maintenance; you ride an actively maintained inference core.
 * **Cons:** only viable if GLM-OCR architecture fits (or you’re willing to do a non-trivial upstream port).
 
@@ -292,15 +324,18 @@ HF Swift tooling already provides model download + progress hooks suitable for a
 
    * `OCRJob` queue with cancellation + progress + streaming decode; use proven SwiftUI inference patterns from mlx-swift-chat / mlx-swift-examples. ([GitHub][9])
 
-If you want, I can turn this into a concrete repo layout + build plan (targets, packages, entitlements, model cache directory conventions, and a first SwiftUI screen flow) without waiting on any more inputs.
+These map directly to the repo’s phase plans in `docs/dev_plans/`:
 
-[1]: https://chatgpt.com/c/6988f067-de38-832b-816a-f08a866b37bf "GLM-OCR macOS GUI Solutions"
-[2]: https://chatgpt.com/c/6988f0b7-ad18-8331-884f-17441e2b814f "[prompt] MacOS GUI for GLM-OCR"
-[3]: https://chatgpt.com/c/6988f107-4a14-832f-a3f9-57ab2cf662c1 "macOS GLM-OCR Inference Design"
+* Phase 01: `docs/dev_plans/01_modelstore.md`
+* Phase 02: `docs/dev_plans/02_mvp_single_image.md`
+* Phase 03: `docs/dev_plans/03_model_port.md`
+* Phase 04: `docs/dev_plans/04_layout_stage.md`
+* Phase 05: `docs/dev_plans/05_gui_polish_distribution.md`
+
 [4]: https://github.com/mzbac/deepseek-ocr.swift "GitHub - mzbac/deepseek-ocr.swift"
 [5]: https://github.com/mzbac/deepseek-ocr2.swift "GitHub - mzbac/deepseek-ocr2.swift"
-[6]: https://github.com/mlx-community/paddleocr-vl.swift "GitHub - mlx-community/paddleocr-vl.swift: Native Swift + MLX port of Paddle0CR-VL, a 0.9B doc parsing VLM for OCR, tables, formulas, and charts on Apple Silicon"
-[7]: https://github.com/ml-explore/mlx-swift-examples?utm_source=chatgpt.com "ml-explore/mlx-swift-examples"
+[6]: https://github.com/mlx-community/paddleocr-vl.swift "GitHub - mlx-community/paddleocr-vl.swift: Native Swift + MLX port of PaddleOCR-VL, a 0.9B doc parsing VLM for OCR, tables, formulas, and charts on Apple Silicon"
+[7]: https://github.com/ml-explore/mlx-swift-lm "GitHub - ml-explore/mlx-swift-lm: LLM/VLM implementations for MLX Swift"
 [8]: https://github.com/ml-explore/mlx-swift-examples "GitHub - ml-explore/mlx-swift-examples: Examples using MLX Swift"
 [9]: https://github.com/preternatural-explore/mlx-swift-chat "GitHub - preternatural-explore/mlx-swift-chat: A multi-platform SwiftUI frontend for running local LLMs with Apple's MLX framework."
 [10]: https://huggingface.co/zai-org/GLM-OCR "zai-org/GLM-OCR · Hugging Face"

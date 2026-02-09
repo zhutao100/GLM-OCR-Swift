@@ -2,10 +2,13 @@
 
 **Objective:** robust model download / caching for GLM-OCR.
 
+Borrowing references: `docs/reference_projects.md` (“Borrowing map”, DeepSeek OCR repos’ Hub snapshot patterns).
+
 ## Tasks
 - [x] Define canonical cache root:
   - default to HF cache (`~/.cache/huggingface/hub`) unless overridden
   - support custom base directory (GUI setting + CLI flag)
+  - borrow: HF cache env var precedence (`HF_HUB_CACHE`, `HF_HOME`) from the reference Swift OCR repos
 - [x] Implement `HuggingFaceHubModelStore.resolveSnapshot(...)` using `HubApi.snapshot`
 - [x] Add glob filtering for typical LLM/VLM artifacts:
   - `*.safetensors`, `*.json`, tokenizer files, `preprocessor_config.json`, etc.
