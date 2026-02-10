@@ -39,7 +39,7 @@ Responsibilities:
 - `PPDocLayoutV3Mappings`: layout label → task/kind policy (**implemented**)
 - `PPDocLayoutV3Postprocess`: NMS + containment merge + ordering (**implemented**)
 - `PPDocLayoutV3Detector`: load + run layout detection (**planned**)
-- `LayoutResultFormatter`: regions → merged Markdown (**planned**)
+- `LayoutResultFormatter`: regions → merged Markdown (**implemented**)
 
 ### `GLMOCRApp` (SwiftUI)
 
