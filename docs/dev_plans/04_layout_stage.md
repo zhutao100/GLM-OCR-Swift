@@ -25,7 +25,7 @@ Borrowing references: official GLM-OCR pipeline (`glmocr/pipeline/pipeline.py`) 
 ## Session checklist
 - [x] 04.1 Structured types + `VisionIO.cropRegion` (+ tests)
 - [x] 04.2 `DocLayoutAdapter` scaffold + config/mappings (+ tests)
-- [ ] 04.3 Layout postprocess (NMS/merge/ordering) (+ tests)
+- [x] 04.3 Layout postprocess (NMS/merge/ordering) (+ tests)
 - [ ] 04.4 `LayoutResultFormatter` (regions → Markdown) (+ tests)
 - [ ] 04.5 Detector “load-only” validation (optional integration)
 - [ ] 04.6 Detector inference outputs + postprocess wiring (optional integration)
