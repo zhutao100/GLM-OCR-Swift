@@ -23,7 +23,7 @@ Borrowing references: official GLM-OCR pipeline (`glmocr/pipeline/pipeline.py`) 
 - [ ] Batch parallelism + cancellation
 
 ## Session checklist
-- [ ] 04.1 Structured types + `VisionIO.cropRegion` (+ tests)
+- [x] 04.1 Structured types + `VisionIO.cropRegion` (+ tests)
 - [ ] 04.2 `DocLayoutAdapter` scaffold + config/mappings (+ tests)
 - [ ] 04.3 Layout postprocess (NMS/merge/ordering) (+ tests)
 - [ ] 04.4 `LayoutResultFormatter` (regions → Markdown) (+ tests)

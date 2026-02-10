@@ -8,10 +8,11 @@ Responsibilities:
 
 - `ModelStore`: Hugging Face Hub snapshot download + local cache conventions (**implemented**)
 - `TokenizerKit`: prompt/template helpers (placeholder splitting + task→instruction mapping; **implemented**)
-- `OCRTypes`: shared pipeline protocol + result types (Sendable-first; **implemented**)
+- `OCRTypes`: shared pipeline protocol + result types (including optional structured document output; **implemented**)
 - `VisionIO`: vision IO helpers
   - image file → `CIImage` (**implemented**)
   - PDF page rendering + CIImage→MLX tensor conversion (**implemented**)
+  - normalized bbox/polygon region crop (**implemented**)
 - `Generation`: model-agnostic generation façade (`CausalLM` + wrapper; **implemented**)
   - KV cache primitives (**implemented**); streaming output (**planned**)
 - `Weights`: safetensors loading helpers (**implemented**; model-specific transforms live in adapters)
@@ -47,7 +48,7 @@ Planned (Phase 05):
 
 ```
 Image/PDF -> VisionIO -> GLMOCRImageProcessor -> GLMOCRProcessor(prompt)
-     -> GLMOCRChatTemplate + GLMOCRModel.generate -> OCRResult(text + diagnostics)
+     -> GLMOCRChatTemplate + GLMOCRModel.generate -> OCRResult(text + document? + diagnostics)
 ```
 
 ### Current implementation note (2026-02-09)

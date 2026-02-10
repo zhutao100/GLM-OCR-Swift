@@ -26,7 +26,7 @@ public struct GenerateOptions: Sendable, Equatable {
     }
 }
 
-public struct Diagnostics: Sendable, Equatable {
+public struct Diagnostics: Sendable, Codable, Equatable {
     public var modelID: String?
     public var revision: String?
     public var timings: [String: Double]
@@ -40,14 +40,17 @@ public struct Diagnostics: Sendable, Equatable {
     }
 }
 
-public struct OCRResult: Sendable, Equatable {
+public struct OCRResult: Sendable, Codable, Equatable {
     public var text: String
     public var rawTokens: [Int]?
+    /// Optional structured output (pages/regions/bboxes).
+    public var document: OCRDocument?
     public var diagnostics: Diagnostics
 
-    public init(text: String, rawTokens: [Int]? = nil, diagnostics: Diagnostics = .init()) {
+    public init(text: String, rawTokens: [Int]? = nil, document: OCRDocument? = nil, diagnostics: Diagnostics = .init()) {
         self.text = text
         self.rawTokens = rawTokens
+        self.document = document
         self.diagnostics = diagnostics
     }
 }
