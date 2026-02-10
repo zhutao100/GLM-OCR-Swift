@@ -1,0 +1,849 @@
+import Foundation
+import MLX
+import MLXNN
+import VLMRuntimeKit
+
+public enum PPDocLayoutV3ModelError: Error, Sendable, Equatable {
+    case invalidModelFolder(URL)
+    case configurationError(String)
+    case missingWeight(String)
+    case incompatibleWeightShape(String)
+    case weightsFailed(String)
+    case invalidConfiguration(String)
+}
+
+public struct PPDocLayoutV3Model: Sendable {
+    public struct Options: Sendable, Equatable {
+        public var scoreThreshold: Float
+
+        public init(scoreThreshold: Float = 0.3) {
+            self.scoreThreshold = scoreThreshold
+        }
+    }
+
+    final class State: @unchecked Sendable {
+        let config: PPDocLayoutV3Config
+        let modelConfig: PPDocLayoutV3ModelConfig
+        let core: PPDocLayoutV3EncoderOnlyRoot
+
+        init(config: PPDocLayoutV3Config, modelConfig: PPDocLayoutV3ModelConfig, core: PPDocLayoutV3EncoderOnlyRoot) {
+            self.config = config
+            self.modelConfig = modelConfig
+            self.core = core
+        }
+    }
+
+    private let state: State
+
+    private init(state: State) {
+        self.state = state
+    }
+
+    public static func load(from modelFolder: URL) throws -> PPDocLayoutV3Model {
+        guard modelFolder.isFileURL else { throw PPDocLayoutV3ModelError.invalidModelFolder(modelFolder) }
+        var isDirectory: ObjCBool = false
+        guard FileManager.default.fileExists(atPath: modelFolder.path, isDirectory: &isDirectory),
+              isDirectory.boolValue
+        else {
+            throw PPDocLayoutV3ModelError.invalidModelFolder(modelFolder)
+        }
+
+        let config: PPDocLayoutV3Config
+        let modelConfig: PPDocLayoutV3ModelConfig
+        do {
+            config = try PPDocLayoutV3Config.load(from: modelFolder)
+            modelConfig = try PPDocLayoutV3ModelConfig.load(from: modelFolder)
+        } catch {
+            throw PPDocLayoutV3ModelError.configurationError(String(describing: error))
+        }
+
+        let numLabels = config.id2label.count
+        guard numLabels > 0 else {
+            throw PPDocLayoutV3ModelError.invalidConfiguration("id2label is empty; cannot determine num_labels")
+        }
+
+        let core = PPDocLayoutV3EncoderOnlyRoot(modelConfig: modelConfig, numLabels: numLabels)
+        core.train(false)
+
+        do {
+            let loader = WeightsLoader()
+            var weights = try loader.loadAll(from: modelFolder, dtype: .float32)
+
+            // Convert PyTorch conv weight layouts (O, I, kH, kW) to MLX (O, kH, kW, I).
+            for (key, value) in weights where value.ndim == 4 {
+                weights[key] = value.transposed(0, 2, 3, 1)
+            }
+
+            let parameters = ModuleParameters.unflattened(weights)
+            try core.update(parameters: parameters, verify: [.allModelKeysSet, .shapeMismatch])
+            try checkedEval(core)
+        } catch let error as UpdateError {
+            switch error {
+            case let .keyNotFound(path, _):
+                throw PPDocLayoutV3ModelError.missingWeight(path.joined(separator: "."))
+            case let .mismatchedSize(path, _, expectedShape, actualShape):
+                throw PPDocLayoutV3ModelError.incompatibleWeightShape(
+                    "\(path.joined(separator: ".")) expected \(expectedShape) but got \(actualShape)"
+                )
+            default:
+                throw PPDocLayoutV3ModelError.weightsFailed(String(describing: error))
+            }
+        } catch {
+            throw PPDocLayoutV3ModelError.weightsFailed(String(describing: error))
+        }
+
+        return PPDocLayoutV3Model(state: State(config: config, modelConfig: modelConfig, core: core))
+    }
+
+    public func forward(pixelValues: MLXArray, options: Options = .init()) throws -> PPDocLayoutV3Postprocess.RawDetections {
+        try state.core.forward(pixelValues: pixelValues, options: options)
+    }
+}
+
+// MARK: - Config
+
+public struct PPDocLayoutV3ModelConfig: Sendable, Codable, Equatable {
+    public var dModel: Int
+    public var numQueries: Int
+    public var decoderLayers: Int
+    public var batchNormEps: Double?
+    public var layerNormEps: Double?
+    public var globalPointerHeadSize: Int
+    public var gpDropoutValue: Double?
+
+    private enum CodingKeys: String, CodingKey {
+        case dModel = "d_model"
+        case numQueries = "num_queries"
+        case decoderLayers = "decoder_layers"
+        case batchNormEps = "batch_norm_eps"
+        case layerNormEps = "layer_norm_eps"
+        case globalPointerHeadSize = "global_pointer_head_size"
+        case gpDropoutValue = "gp_dropout_value"
+    }
+
+    public static func load(from modelFolder: URL) throws -> PPDocLayoutV3ModelConfig {
+        let url = modelFolder.appendingPathComponent("config.json")
+        let data = try Data(contentsOf: url)
+        return try JSONDecoder().decode(PPDocLayoutV3ModelConfig.self, from: data)
+    }
+}
+
+// MARK: - Core modules (encoder-only subset)
+
+final class PPDocLayoutV3EncoderOnlyRoot: Module {
+    @ModuleInfo(key: "model") var model: PPDocLayoutV3EncoderOnlyCore
+
+    init(modelConfig: PPDocLayoutV3ModelConfig, numLabels: Int) {
+        _model.wrappedValue = PPDocLayoutV3EncoderOnlyCore(modelConfig: modelConfig, numLabels: numLabels)
+        super.init()
+    }
+
+    func forward(pixelValues: MLXArray, options: PPDocLayoutV3Model.Options) throws -> PPDocLayoutV3Postprocess.RawDetections {
+        try model.forward(pixelValues: pixelValues, options: options)
+    }
+}
+
+final class PPDocLayoutV3EncoderOnlyCore: Module {
+    @ModuleInfo(key: "backbone") var backbone: PPDocLayoutV3ConvEncoderCore
+
+    @ModuleInfo(key: "encoder_input_proj") var encoderInputProj: [(Conv2d, BatchNorm)]
+    @ModuleInfo(key: "decoder_input_proj") var decoderInputProj: [(Conv2d, BatchNorm)]
+
+    @ModuleInfo(key: "enc_output") var encOutput: (Linear, LayerNorm)
+    @ModuleInfo(key: "enc_score_head") var encScoreHead: Linear
+    @ModuleInfo(key: "enc_bbox_head") var encBBoxHead: PPMLPPredictionHead
+
+    @ModuleInfo(key: "decoder_norm") var decoderNorm: LayerNorm
+    @ModuleInfo(key: "decoder_order_head") var decoderOrderHead: [Linear]
+    @ModuleInfo(key: "decoder_global_pointer") var decoderGlobalPointer: PPGlobalPointer
+
+    private let modelConfig: PPDocLayoutV3ModelConfig
+    private let numLabels: Int
+
+    init(modelConfig: PPDocLayoutV3ModelConfig, numLabels: Int) {
+        self.modelConfig = modelConfig
+        self.numLabels = numLabels
+
+        _backbone.wrappedValue = PPDocLayoutV3ConvEncoderCore()
+
+        let bnEps = Float(modelConfig.batchNormEps ?? 1e-5)
+        _encoderInputProj.wrappedValue = [
+            (
+                Conv2d(inputChannels: 512, outputChannels: modelConfig.dModel, kernelSize: 1, stride: 1, padding: 0, bias: false),
+                BatchNorm(featureCount: modelConfig.dModel, eps: bnEps)
+            ),
+            (
+                Conv2d(inputChannels: 1024, outputChannels: modelConfig.dModel, kernelSize: 1, stride: 1, padding: 0, bias: false),
+                BatchNorm(featureCount: modelConfig.dModel, eps: bnEps)
+            ),
+            (
+                Conv2d(inputChannels: 2048, outputChannels: modelConfig.dModel, kernelSize: 1, stride: 1, padding: 0, bias: false),
+                BatchNorm(featureCount: modelConfig.dModel, eps: bnEps)
+            ),
+        ]
+        _decoderInputProj.wrappedValue = [
+            (
+                Conv2d(inputChannels: modelConfig.dModel, outputChannels: modelConfig.dModel, kernelSize: 1, stride: 1, padding: 0, bias: false),
+                BatchNorm(featureCount: modelConfig.dModel, eps: bnEps)
+            ),
+            (
+                Conv2d(inputChannels: modelConfig.dModel, outputChannels: modelConfig.dModel, kernelSize: 1, stride: 1, padding: 0, bias: false),
+                BatchNorm(featureCount: modelConfig.dModel, eps: bnEps)
+            ),
+            (
+                Conv2d(inputChannels: modelConfig.dModel, outputChannels: modelConfig.dModel, kernelSize: 1, stride: 1, padding: 0, bias: false),
+                BatchNorm(featureCount: modelConfig.dModel, eps: bnEps)
+            ),
+        ]
+
+        let lnEps = Float(modelConfig.layerNormEps ?? 1e-5)
+        _encOutput.wrappedValue = (Linear(modelConfig.dModel, modelConfig.dModel), LayerNorm(dimensions: modelConfig.dModel, eps: lnEps))
+        _encScoreHead.wrappedValue = Linear(modelConfig.dModel, numLabels)
+        _encBBoxHead.wrappedValue = PPMLPPredictionHead(inputDim: modelConfig.dModel, hiddenDim: modelConfig.dModel, outputDim: 4, numLayers: 3)
+        _decoderNorm.wrappedValue = LayerNorm(dimensions: modelConfig.dModel, eps: lnEps)
+
+        _decoderOrderHead.wrappedValue = (0 ..< max(modelConfig.decoderLayers, 1)).map { _ in Linear(modelConfig.dModel, modelConfig.dModel) }
+        _decoderGlobalPointer.wrappedValue = PPGlobalPointer(dModel: modelConfig.dModel, headSize: modelConfig.globalPointerHeadSize)
+
+        super.init()
+    }
+
+    func forward(pixelValues: MLXArray, options: PPDocLayoutV3Model.Options) throws -> PPDocLayoutV3Postprocess.RawDetections {
+        let pixelValues = pixelValues.asType(.float32)
+
+        let features = backbone(pixelValues)
+        guard features.count == 4 else {
+            throw PPDocLayoutV3ModelError.invalidConfiguration("backbone returned \(features.count) feature maps, expected 4")
+        }
+
+        // x4_feat is features[0] (stage1). We skip the hybrid encoder and use projected backbone features directly.
+        let projected = zip(encoderInputProj.indices, features.dropFirst()).map { idx, feature in
+            let (conv, norm) = encoderInputProj[idx]
+            return norm(conv(feature))
+        }
+
+        let sources = zip(decoderInputProj.indices, projected).map { idx, feature in
+            let (conv, norm) = decoderInputProj[idx]
+            return norm(conv(feature))
+        }
+
+        var sourceFlatten: [MLXArray] = []
+        sourceFlatten.reserveCapacity(sources.count)
+
+        var spatialShapes: [(h: Int, w: Int)] = []
+        spatialShapes.reserveCapacity(sources.count)
+
+        for source in sources {
+            let h = source.dim(1)
+            let w = source.dim(2)
+            spatialShapes.append((h: h, w: w))
+            let flat = source.reshaped(source.dim(0), h * w, source.dim(3))
+            sourceFlatten.append(flat)
+        }
+
+        let encoderHiddenStates = concatenated(sourceFlatten, axis: 1)
+
+        let (anchors, validMask) = generateAnchors(spatialShapes: spatialShapes, dtype: encoderHiddenStates.dtype)
+        let memory = encoderHiddenStates * validMask.asType(encoderHiddenStates.dtype)
+
+        let outputMemory = encOutput.1(encOutput.0(memory))
+        let encLogits = encScoreHead(outputMemory)
+        let encBoxUnact = encBBoxHead(outputMemory) + anchors
+
+        // Pick top-k queries from encoder outputs.
+        let maxScores = encLogits.max(axis: -1)
+        try checkedEval(maxScores)
+        let maxScoresArray = maxScores.asArray(Float.self)
+        let (topIndices, didFallbackToAll) = selectTopIndices(
+            scores: maxScoresArray,
+            k: modelConfig.numQueries
+        )
+
+        let topkInd = MLXArray(topIndices.map { Int32($0) }).reshaped(1, -1)
+        let k = topIndices.count
+
+        let idxLogits = broadcast(topkInd.reshaped(1, k, 1), to: [1, k, numLabels])
+        let idxBoxes = broadcast(topkInd.reshaped(1, k, 1), to: [1, k, 4])
+        let idxHidden = broadcast(topkInd.reshaped(1, k, 1), to: [1, k, modelConfig.dModel])
+
+        let logits = takeAlong(encLogits, idxLogits, axis: 1)
+        let boxes = sigmoid(takeAlong(encBoxUnact, idxBoxes, axis: 1))
+        let hidden = takeAlong(outputMemory, idxHidden, axis: 1)
+
+        let orderHead = decoderOrderHead[max(0, min(decoderOrderHead.count - 1, modelConfig.decoderLayers - 1))]
+        let orderHidden = orderHead(decoderNorm(hidden))
+        let orderLogits = decoderGlobalPointer(orderHidden)
+
+        try checkedEval(logits, boxes, orderLogits)
+
+        var detections = postProcessObjectDetection(
+            logits: logits,
+            boxes: boxes,
+            orderLogits: orderLogits,
+            scoreThreshold: options.scoreThreshold
+        )
+
+        if detections.scores.isEmpty, didFallbackToAll == false {
+            // Ensure we always return at least one region for diagnostics/debuggability.
+            detections = postProcessObjectDetection(
+                logits: logits,
+                boxes: boxes,
+                orderLogits: orderLogits,
+                scoreThreshold: -Float.infinity
+            )
+        }
+
+        return detections
+    }
+
+    private func generateAnchors(spatialShapes: [(h: Int, w: Int)], dtype: DType) -> (anchors: MLXArray, validMask: MLXArray) {
+        let gridSize: Float = 0.05
+        var anchorsByLevel: [MLXArray] = []
+        anchorsByLevel.reserveCapacity(spatialShapes.count)
+
+        for (level, shape) in spatialShapes.enumerated() {
+            let height = shape.h
+            let width = shape.w
+
+            let gridY = arange(0, height, dtype: dtype)
+            let gridX = arange(0, width, dtype: dtype)
+            let grids = meshGrid([gridY, gridX], indexing: .ij)
+            let yy = grids[0]
+            let xx = grids[1]
+
+            let wScalar = Float(width).asMLXArray(dtype: dtype)
+            let hScalar = Float(height).asMLXArray(dtype: dtype)
+            let xxNorm = (xx + 0.5) / wScalar
+            let yyNorm = (yy + 0.5) / hScalar
+            let gridXY = stacked([xxNorm, yyNorm], axis: -1)
+
+            let scale = (gridSize * pow(2.0, Float(level))).asMLXArray(dtype: dtype)
+            let wh = MLXArray.ones(like: gridXY) * scale
+
+            let anchor = concatenated([gridXY, wh], axis: -1).reshaped(1, height * width, 4)
+            anchorsByLevel.append(anchor)
+        }
+
+        let anchors = concatenated(anchorsByLevel, axis: 1)
+        let eps: Float = 1e-2
+        let epsArray = eps.asMLXArray(dtype: dtype)
+        let oneMinus = (1.0 - eps).asMLXArray(dtype: dtype)
+
+        let gt = anchors .> epsArray
+        let lt = anchors .< oneMinus
+        let valid = logicalAnd(gt, lt).all(axes: [-1], keepDims: true)
+
+        let anchorsLogit = log(anchors / (1 - anchors))
+        let maxFloat = Float32.greatestFiniteMagnitude.asMLXArray(dtype: dtype)
+        let anchorsMasked = which(valid, anchorsLogit, maxFloat)
+        return (anchorsMasked, valid)
+    }
+
+    private func selectTopIndices(scores: [Float], k: Int) -> (indices: [Int], didFallbackToAll: Bool) {
+        let k = max(1, k)
+        if scores.count <= k {
+            return (Array(scores.indices), true)
+        }
+
+        var indices = Array(scores.indices)
+        indices.sort { scores[$0] > scores[$1] }
+        return (Array(indices.prefix(k)), false)
+    }
+
+    private func postProcessObjectDetection(
+        logits: MLXArray,
+        boxes: MLXArray,
+        orderLogits: MLXArray,
+        scoreThreshold: Float
+    ) -> PPDocLayoutV3Postprocess.RawDetections {
+        let numQueries = boxes.dim(1)
+        let numClasses = logits.dim(2)
+
+        let logitsArray = logits.asArray(Float.self)
+        let boxesArray = boxes.asArray(Float.self)
+        let orderLogitsArray = orderLogits.asArray(Float.self)
+
+        let orderSeqFull = computeOrderSeq(orderLogitsArray, numQueries: numQueries)
+
+        // Convert boxes from cxcywh to xyxy (normalized 0..1)
+        var boxesXYXY = Array(repeating: (x1: Float(0), y1: Float(0), x2: Float(0), y2: Float(0)), count: numQueries)
+        for q in 0 ..< numQueries {
+            let base = q * 4
+            let cx = boxesArray[base + 0]
+            let cy = boxesArray[base + 1]
+            let w = boxesArray[base + 2]
+            let h = boxesArray[base + 3]
+            let x1 = cx - 0.5 * w
+            let y1 = cy - 0.5 * h
+            let x2 = cx + 0.5 * w
+            let y2 = cy + 0.5 * h
+            boxesXYXY[q] = (x1: x1, y1: y1, x2: x2, y2: y2)
+        }
+
+        // Compute sigmoid(scores) and take top-K over flattened (query * class).
+        let totalScores = numQueries * numClasses
+        var scored: [(score: Float, flatIndex: Int)] = []
+        scored.reserveCapacity(totalScores)
+
+        for flat in 0 ..< totalScores {
+            let score = sigmoidFloat(logitsArray[flat])
+            scored.append((score: score, flatIndex: flat))
+        }
+        scored.sort { $0.score > $1.score }
+
+        let top = scored.prefix(numQueries)
+
+        // swiftlint:disable:next large_tuple
+        var kept: [(score: Float, label: Int, bbox: OCRNormalizedBBox, order: Int)] = []
+        kept.reserveCapacity(numQueries)
+
+        for item in top {
+            let score = item.score
+            if score < scoreThreshold { continue }
+
+            let queryIndex = item.flatIndex / numClasses
+            let label = item.flatIndex % numClasses
+            let order = orderSeqFull[queryIndex]
+
+            let b = boxesXYXY[queryIndex]
+            let bbox = toNormalizedBBox(x1: b.x1, y1: b.y1, x2: b.x2, y2: b.y2)
+            guard bbox.x1 < bbox.x2, bbox.y1 < bbox.y2 else { continue }
+
+            kept.append((score: score, label: label, bbox: bbox, order: order))
+        }
+
+        kept.sort { a, b in
+            if a.order != b.order { return a.order < b.order }
+            if a.bbox.y1 != b.bbox.y1 { return a.bbox.y1 < b.bbox.y1 }
+            return a.bbox.x1 < b.bbox.x1
+        }
+
+        return PPDocLayoutV3Postprocess.RawDetections(
+            scores: kept.map(\.score),
+            labels: kept.map(\.label),
+            boxes: kept.map(\.bbox),
+            orderSeq: kept.map(\.order),
+            polygons: nil
+        )
+    }
+
+    private func computeOrderSeq(_ orderLogits: [Float], numQueries: Int) -> [Int] {
+        // order_logits shape is [1, num_queries, num_queries] flattened.
+        let n = numQueries
+        var scores = Array(repeating: Float(0), count: n * n)
+        for i in 0 ..< min(orderLogits.count, n * n) {
+            scores[i] = sigmoidFloat(orderLogits[i])
+        }
+
+        var votes = Array(repeating: Float(0), count: n)
+        for j in 0 ..< n {
+            var sum: Float = 0
+            // upper triangle contribution: sum_{i<j} score[i,j]
+            for i in 0 ..< j {
+                sum += scores[i * n + j]
+            }
+            // lower triangle contribution: sum_{i>j} (1 - score[j,i])
+            if j + 1 < n {
+                for i in (j + 1) ..< n {
+                    sum += (1 - scores[j * n + i])
+                }
+            }
+            votes[j] = sum
+        }
+
+        var pointers = Array(0 ..< n)
+        pointers.sort { votes[$0] < votes[$1] }
+
+        var orderSeq = Array(repeating: 0, count: n)
+        for (rank, idx) in pointers.enumerated() {
+            orderSeq[idx] = rank + 1 // 1-based order
+        }
+        return orderSeq
+    }
+}
+
+// MARK: - Utilities
+
+private func sigmoidFloat(_ x: Float) -> Float {
+    1 / (1 + exp(-x))
+}
+
+private func toNormalizedBBox(x1: Float, y1: Float, x2: Float, y2: Float) -> OCRNormalizedBBox {
+    func clamp01(_ v: Float) -> Float { max(0, min(1, v)) }
+
+    let x1 = clamp01(x1)
+    let y1 = clamp01(y1)
+    let x2 = clamp01(x2)
+    let y2 = clamp01(y2)
+
+    let nx1 = Int((x1 * 1000).rounded(.down))
+    let ny1 = Int((y1 * 1000).rounded(.down))
+    let nx2 = Int((x2 * 1000).rounded(.up))
+    let ny2 = Int((y2 * 1000).rounded(.up))
+
+    return OCRNormalizedBBox(
+        x1: max(0, min(1000, nx1)),
+        y1: max(0, min(1000, ny1)),
+        x2: max(0, min(1000, nx2)),
+        y2: max(0, min(1000, ny2))
+    )
+}
+
+// MARK: - Lightweight building blocks
+
+final class PPMLPPredictionHead: Module, UnaryLayer {
+    @ModuleInfo(key: "layers") var layers: [Linear]
+
+    init(inputDim: Int, hiddenDim: Int, outputDim: Int, numLayers: Int) {
+        let numLayers = max(numLayers, 1)
+        var linears: [Linear] = []
+        linears.reserveCapacity(numLayers)
+        for i in 0 ..< numLayers {
+            let inDim = (i == 0) ? inputDim : hiddenDim
+            let outDim = (i == numLayers - 1) ? outputDim : hiddenDim
+            linears.append(Linear(inDim, outDim))
+        }
+        _layers.wrappedValue = linears
+        super.init()
+    }
+
+    func callAsFunction(_ x: MLXArray) -> MLXArray {
+        var x = x
+        for i in layers.indices {
+            x = layers[i](x)
+            if i < layers.count - 1 {
+                x = relu(x)
+            }
+        }
+        return x
+    }
+}
+
+final class PPGlobalPointer: Module, UnaryLayer {
+    @ModuleInfo(key: "dense") var dense: Linear
+
+    private let headSize: Int
+
+    init(dModel: Int, headSize: Int) {
+        self.headSize = max(headSize, 1)
+        _dense.wrappedValue = Linear(dModel, self.headSize * 2)
+        super.init()
+    }
+
+    func callAsFunction(_ x: MLXArray) -> MLXArray {
+        let batch = x.dim(0)
+        let seq = x.dim(1)
+
+        let proj = dense(x).reshaped(batch, seq, 2, headSize)
+        let parts = split(proj, parts: 2, axis: 2)
+        let queries = parts[0].squeezed(axis: 2)
+        let keys = parts[1].squeezed(axis: 2)
+
+        let logits = matmul(queries, transposed(keys, axes: [0, 2, 1])) / sqrt(Float(headSize))
+
+        let mask = MLXArray.tri(seq, m: seq, k: 0, dtype: .bool).reshaped(1, seq, seq)
+        let fill = (-1e4).asMLXArray(dtype: logits.dtype)
+        return which(mask, fill, logits)
+    }
+}
+
+// MARK: - HGNetV2 backbone (channels-last)
+
+final class PPDocLayoutV3ConvEncoderCore: Module {
+    @ModuleInfo(key: "model") var model: HGNetV2BackboneCore
+
+    init(model: HGNetV2BackboneCore = HGNetV2BackboneCore()) {
+        _model.wrappedValue = model
+        super.init()
+    }
+
+    func callAsFunction(_ x: MLXArray) -> [MLXArray] {
+        model(x)
+    }
+}
+
+final class HGNetV2BackboneCore: Module {
+    @ModuleInfo(key: "embedder") var embedder: HGNetV2EmbeddingsCore
+    @ModuleInfo(key: "encoder") var encoder: HGNetV2EncoderCore
+
+    override init() {
+        _embedder.wrappedValue = HGNetV2EmbeddingsCore()
+        _encoder.wrappedValue = HGNetV2EncoderCore()
+        super.init()
+    }
+
+    func callAsFunction(_ x: MLXArray) -> [MLXArray] {
+        var hidden = embedder(x)
+        var featureMaps: [MLXArray] = []
+        featureMaps.reserveCapacity(encoder.stages.count)
+        for stage in encoder.stages {
+            hidden = stage(hidden)
+            featureMaps.append(hidden)
+        }
+        return featureMaps
+    }
+}
+
+final class HGNetV2EmbeddingsCore: Module, UnaryLayer {
+    @ModuleInfo(key: "stem1") var stem1: HGNetV2ConvLayerCore
+    @ModuleInfo(key: "stem2a") var stem2a: HGNetV2ConvLayerCore
+    @ModuleInfo(key: "stem2b") var stem2b: HGNetV2ConvLayerCore
+    @ModuleInfo(key: "stem3") var stem3: HGNetV2ConvLayerCore
+    @ModuleInfo(key: "stem4") var stem4: HGNetV2ConvLayerCore
+
+    private let pool = MaxPool2d(kernelSize: 2, stride: 1)
+
+    override init() {
+        _stem1.wrappedValue = HGNetV2ConvLayerCore(inChannels: 3, outChannels: 32, kernel: 3, stride: 2, groups: 1, activation: .relu)
+        _stem2a.wrappedValue = HGNetV2ConvLayerCore(inChannels: 32, outChannels: 16, kernel: 2, stride: 1, groups: 1, activation: .relu)
+        _stem2b.wrappedValue = HGNetV2ConvLayerCore(inChannels: 16, outChannels: 32, kernel: 2, stride: 1, groups: 1, activation: .relu)
+        _stem3.wrappedValue = HGNetV2ConvLayerCore(inChannels: 64, outChannels: 32, kernel: 3, stride: 2, groups: 1, activation: .relu)
+        _stem4.wrappedValue = HGNetV2ConvLayerCore(inChannels: 32, outChannels: 48, kernel: 1, stride: 1, groups: 1, activation: .relu)
+        super.init()
+    }
+
+    func callAsFunction(_ x: MLXArray) -> MLXArray {
+        var embedding = stem1(x)
+        embedding = padRightBottom1(embedding)
+
+        var stem = stem2a(embedding)
+        stem = padRightBottom1(stem)
+        stem = stem2b(stem)
+
+        let pooled = pool(embedding)
+        embedding = concatenated([pooled, stem], axis: -1)
+        embedding = stem3(embedding)
+        embedding = stem4(embedding)
+        return embedding
+    }
+
+    private func padRightBottom1(_ x: MLXArray) -> MLXArray {
+        padded(x, widths: [0, [0, 1], [0, 1], 0], mode: .constant, value: MLXArray(0, dtype: x.dtype))
+    }
+}
+
+final class HGNetV2EncoderCore: Module {
+    @ModuleInfo(key: "stages") var stages: [HGNetV2StageCore]
+
+    override init() {
+        _stages.wrappedValue = [
+            HGNetV2StageCore(
+                stageIndex: 0,
+                inChannels: 48,
+                midChannels: 48,
+                outChannels: 128,
+                numBlocks: 1,
+                numLayers: 6,
+                downsample: false,
+                lightBlock: false,
+                kernelSize: 3
+            ),
+            HGNetV2StageCore(
+                stageIndex: 1,
+                inChannels: 128,
+                midChannels: 96,
+                outChannels: 512,
+                numBlocks: 1,
+                numLayers: 6,
+                downsample: true,
+                lightBlock: false,
+                kernelSize: 3
+            ),
+            HGNetV2StageCore(
+                stageIndex: 2,
+                inChannels: 512,
+                midChannels: 192,
+                outChannels: 1024,
+                numBlocks: 3,
+                numLayers: 6,
+                downsample: true,
+                lightBlock: true,
+                kernelSize: 5
+            ),
+            HGNetV2StageCore(
+                stageIndex: 3,
+                inChannels: 1024,
+                midChannels: 384,
+                outChannels: 2048,
+                numBlocks: 1,
+                numLayers: 6,
+                downsample: true,
+                lightBlock: true,
+                kernelSize: 5
+            ),
+        ]
+        super.init()
+    }
+}
+
+final class HGNetV2StageCore: Module, UnaryLayer {
+    @ModuleInfo(key: "downsample") var downsampleLayer: Module
+    @ModuleInfo(key: "blocks") var blocks: [HGNetV2BasicLayerCore]
+
+    init(
+        stageIndex _: Int,
+        inChannels: Int,
+        midChannels: Int,
+        outChannels: Int,
+        numBlocks: Int,
+        numLayers: Int,
+        downsample: Bool,
+        lightBlock: Bool,
+        kernelSize: Int
+    ) {
+        if downsample {
+            _downsampleLayer.wrappedValue = HGNetV2ConvLayerCore(inChannels: inChannels, outChannels: inChannels, kernel: 3, stride: 2, groups: inChannels, activation: nil)
+        } else {
+            _downsampleLayer.wrappedValue = Identity()
+        }
+
+        var stageBlocks: [HGNetV2BasicLayerCore] = []
+        stageBlocks.reserveCapacity(numBlocks)
+        for i in 0 ..< max(numBlocks, 1) {
+            stageBlocks.append(
+                HGNetV2BasicLayerCore(
+                    inChannels: i == 0 ? inChannels : outChannels,
+                    midChannels: midChannels,
+                    outChannels: outChannels,
+                    numLayers: numLayers,
+                    residual: i != 0,
+                    lightBlock: lightBlock,
+                    kernelSize: kernelSize
+                )
+            )
+        }
+        _blocks.wrappedValue = stageBlocks
+        super.init()
+    }
+
+    func callAsFunction(_ x: MLXArray) -> MLXArray {
+        guard let downsampleLayer = downsampleLayer as? UnaryLayer else {
+            fatalError("downsample layer does not conform to UnaryLayer")
+        }
+        var x = downsampleLayer(x)
+        for block in blocks {
+            x = block(x)
+        }
+        return x
+    }
+}
+
+final class HGNetV2BasicLayerCore: Module, UnaryLayer {
+    @ModuleInfo(key: "layers") var layers: [Module]
+    @ModuleInfo(key: "aggregation") var aggregation: [HGNetV2ConvLayerCore]
+
+    private let residual: Bool
+
+    init(
+        inChannels: Int,
+        midChannels: Int,
+        outChannels: Int,
+        numLayers: Int,
+        residual: Bool,
+        lightBlock: Bool,
+        kernelSize: Int
+    ) {
+        self.residual = residual
+
+        var layerModules: [Module] = []
+        layerModules.reserveCapacity(max(numLayers, 1))
+        for i in 0 ..< max(numLayers, 1) {
+            let tempIn = (i == 0) ? inChannels : midChannels
+            if lightBlock {
+                layerModules.append(HGNetV2ConvLayerLightCore(inChannels: tempIn, outChannels: midChannels, kernel: kernelSize))
+            } else {
+                layerModules.append(HGNetV2ConvLayerCore(inChannels: tempIn, outChannels: midChannels, kernel: kernelSize, stride: 1, groups: 1, activation: .relu))
+            }
+        }
+        _layers.wrappedValue = layerModules
+
+        let totalChannels = inChannels + max(numLayers, 1) * midChannels
+        _aggregation.wrappedValue = [
+            HGNetV2ConvLayerCore(inChannels: totalChannels, outChannels: outChannels / 2, kernel: 1, stride: 1, groups: 1, activation: .relu),
+            HGNetV2ConvLayerCore(inChannels: outChannels / 2, outChannels: outChannels, kernel: 1, stride: 1, groups: 1, activation: .relu),
+        ]
+
+        super.init()
+    }
+
+    func callAsFunction(_ x: MLXArray) -> MLXArray {
+        let identity = x
+        var outputs: [MLXArray] = []
+        outputs.reserveCapacity(layers.count + 1)
+        outputs.append(x)
+
+        var hidden = x
+        for layer in layers {
+            guard let layer = layer as? UnaryLayer else {
+                fatalError("HGNetV2BasicLayerCore.layers contains non-UnaryLayer module: \(type(of: layer))")
+            }
+            hidden = layer(hidden)
+            outputs.append(hidden)
+        }
+
+        hidden = concatenated(outputs, axis: -1)
+        hidden = aggregation[0](hidden)
+        hidden = aggregation[1](hidden)
+        if residual {
+            hidden += identity
+        }
+        return hidden
+    }
+}
+
+final class HGNetV2ConvLayerLightCore: Module, UnaryLayer {
+    @ModuleInfo(key: "conv1") var conv1: HGNetV2ConvLayerCore
+    @ModuleInfo(key: "conv2") var conv2: HGNetV2ConvLayerCore
+
+    init(inChannels: Int, outChannels: Int, kernel: Int) {
+        _conv1.wrappedValue = HGNetV2ConvLayerCore(inChannels: inChannels, outChannels: outChannels, kernel: 1, stride: 1, groups: 1, activation: nil)
+        _conv2.wrappedValue = HGNetV2ConvLayerCore(inChannels: outChannels, outChannels: outChannels, kernel: kernel, stride: 1, groups: outChannels, activation: .relu)
+        super.init()
+    }
+
+    func callAsFunction(_ x: MLXArray) -> MLXArray {
+        conv2(conv1(x))
+    }
+}
+
+enum HGNetActivation: Sendable {
+    case relu
+}
+
+final class HGNetV2ConvLayerCore: Module, UnaryLayer {
+    @ModuleInfo(key: "convolution") var convolution: Conv2d
+    @ModuleInfo(key: "normalization") var normalization: BatchNorm
+
+    private let activation: HGNetActivation?
+
+    init(
+        inChannels: Int,
+        outChannels: Int,
+        kernel: Int,
+        stride: Int,
+        groups: Int,
+        activation: HGNetActivation?
+    ) {
+        self.activation = activation
+        let padding = (kernel - 1) / 2
+        _convolution.wrappedValue = Conv2d(
+            inputChannels: inChannels,
+            outputChannels: outChannels,
+            kernelSize: .init(kernel),
+            stride: .init(stride),
+            padding: .init(padding),
+            groups: groups,
+            bias: false
+        )
+        _normalization.wrappedValue = BatchNorm(featureCount: outChannels)
+        super.init()
+    }
+
+    func callAsFunction(_ x: MLXArray) -> MLXArray {
+        var y = normalization(convolution(x))
+        if activation == .relu {
+            y = relu(y)
+        }
+        return y
+    }
+}

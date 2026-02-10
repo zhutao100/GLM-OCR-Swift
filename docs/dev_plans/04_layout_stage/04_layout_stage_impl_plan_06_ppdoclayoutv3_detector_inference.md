@@ -54,3 +54,9 @@ If env var `LAYOUT_SNAPSHOT_PATH` is set:
 
 ## Exit criteria
 - Detector can run end-to-end on a real snapshot (opt-in) and produces ordered regions suitable for downstream cropping + OCR.
+
+## Implementation note (2026-02-10)
+The current `PPDocLayoutV3Model` implementation is an **encoder-only subset** (no deformable decoder) that still emits the raw detection invariants needed by `PPDocLayoutV3Postprocess`:
+`scores`, `labels`, `boxes`, `order_seq` (with polygons synthesized from bbox when absent).
+
+Rationale + follow-ups are captured in `docs/decisions/0003-ppdoclayoutv3-encoder-only-inference.md`.
