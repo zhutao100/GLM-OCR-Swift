@@ -36,9 +36,10 @@ Responsibilities:
 
 - `PPDocLayoutV3Defaults`: model id/revision + snapshot download globs (**implemented**)
 - `PPDocLayoutV3Config`: minimal `config.json` decoding (e.g. `id2label`) (**implemented**)
+- `PPDocLayoutV3Processor`: resize/normalize policy (**implemented**)
 - `PPDocLayoutV3Mappings`: layout label → task/kind policy (**implemented**)
 - `PPDocLayoutV3Postprocess`: NMS + containment merge + ordering (**implemented**)
-- `PPDocLayoutV3Detector`: load + run layout detection (**planned**)
+- `PPDocLayoutV3Detector`: snapshot load + weight-key validation (**implemented**, inference **planned**)
 - `LayoutResultFormatter`: regions → merged Markdown (**implemented**)
 
 ### `GLMOCRApp` (SwiftUI)

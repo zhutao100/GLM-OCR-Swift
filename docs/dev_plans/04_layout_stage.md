@@ -27,7 +27,7 @@ Borrowing references: official GLM-OCR pipeline (`glmocr/pipeline/pipeline.py`) 
 - [x] 04.2 `DocLayoutAdapter` scaffold + config/mappings (+ tests)
 - [x] 04.3 Layout postprocess (NMS/merge/ordering) (+ tests)
 - [x] 04.4 `LayoutResultFormatter` (regions → Markdown) (+ tests)
-- [ ] 04.5 Detector “load-only” validation (optional integration)
+- [x] 04.5 Detector “load-only” validation (optional integration)
 - [ ] 04.6 Detector inference outputs + postprocess wiring (optional integration)
 - [ ] 04.7 Orchestration + concurrency + CLI/App wiring (Phase 04 exit criteria)
 

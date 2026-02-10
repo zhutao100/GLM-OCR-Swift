@@ -112,8 +112,10 @@ pre-commit run -a
 - Inspect `.safetensors` structure:
   - `~/bin/stls.py --format toon <file.safetensors>`
   - If missing: `curl https://gist.githubusercontent.com/zhutao100/cc481d2cd248aa8769e1abb3887facc8/raw/89d644c490bcf5386cb81ebcc36c92471f578c60/stls.py > ~/bin/stls.py`
-- Default model snapshot cache (common location):
-  - `~/.cache/huggingface/hub/models--zai-org--GLM-OCR/snapshots`
+- Model snapshot cache (common location `~/.cache/huggingface/hub/`):
+  - `zai-org--GLM-OCR`: `~/.cache/huggingface/hub/models--zai-org--GLM-OCR/snapshots`
+  - `PaddlePaddle/PP-DocLayoutV3_safetensors`: `~/.cache/huggingface/hub/models--PaddlePaddle--PP-DocLayoutV3_safetensors`
+  - Use shell command `hf cache ls` to list model caches, `hf cache download [model-org]/[model-id]` to download models as needed.
 - Reference Swift OCR Model projects
   - [deepseek-ocr2.swift](https://github.com/mzbac/deepseek-ocr2.swift) for model `DeepSeek-OCR2`: accessible at `../deepseek-ocr2.swift`
   - [deepseek-ocr.swift](https://github.com/mzbac/deepseek-ocr.swift) for model `DeepSeek-OCR`: accessible at `../deepseek-ocr.swift`
