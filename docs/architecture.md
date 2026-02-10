@@ -29,6 +29,8 @@ Responsibilities:
 - `GLMOCRImageProcessor`: GLM-OCR resize/normalize policy (**implemented**)
 - `GLMOCRModel`: model definition + weight-loading + forward pass + greedy decode (**implemented**)
 - `GLMOCRPipeline`: orchestration actor; conforms to `OCRPipeline` (**implemented**)
+- `GLMOCRLayoutOptions`: layout-mode concurrency policy (**implemented**)
+- `GLMOCRLayoutPipeline`: layout detection → region OCR → merge; conforms to `OCRPipeline` (**implemented**)
 
 ### `DocLayoutAdapter` (layout-specific)
 
@@ -51,6 +53,7 @@ Responsibilities:
   - drag/drop a single file (image/PDF)
   - show download status (via `Progress` callback)
   - run a single recognition attempt and display output/error
+  - optional “Layout mode” toggle (default on for PDFs); keeps structured JSON in memory for later export
 
 Planned (Phase 05):
 
@@ -64,16 +67,30 @@ Image/PDF -> VisionIO -> GLMOCRImageProcessor -> GLMOCRProcessor(prompt)
      -> GLMOCRChatTemplate + GLMOCRModel.generate -> OCRResult(text + document? + diagnostics)
 ```
 
-### Current implementation note (2026-02-09)
+## Dataflow (layout mode)
 
-Phase 03 MVP now runs end-to-end for a single image or a single PDF page:
+```
+PDF page -> VisionIO -> PPDocLayoutV3Detector -> [regions]
+     -> VisionIO.cropRegion -> GLMOCRPipeline(recognize CIImage per region)
+     -> LayoutResultFormatter -> OCRResult(text + document)
+```
+
+### Current implementation note (2026-02-10)
+
+Phase 03 MVP and Phase 04 layout mode now run end-to-end for a single image or a single PDF page:
 
 - decode (image / PDF page render),
 - resize/normalize → `pixelValues`,
 - build GLM-OCR chat-template `input_ids` with aligned image placeholders,
 - greedy token-by-token decode (with KV cache).
 
-Remaining work is largely “quality + UX”: parity validation vs the official MLX Python example, layout stage, better prompt presets, and multi-page/document orchestration.
+Layout mode additionally performs:
+
+- PP-DocLayout-V3 detection → ordered regions,
+- region crop → per-region GLM-OCR (text/table/formula),
+- `LayoutResultFormatter` merge into Markdown + `OCRDocument`.
+
+Remaining work is largely “quality + UX”: parity validation vs the official MLX Python example, multi-page/document orchestration, and app export/UX polish.
 
 ## Numerical parity & golden checks
 

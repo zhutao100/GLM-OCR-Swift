@@ -112,10 +112,7 @@ public actor GLMOCRPipeline: OCRPipeline {
         if model == nil, let loadTask {
             try await loadTask.value
         }
-
-        guard let model else { throw GLMOCRPipelineError.modelNotLoaded }
-
-        let prompt = processor.makePrompt(for: task)
+        guard model != nil else { throw GLMOCRPipelineError.modelNotLoaded }
 
         let ciImage: CIImage = if normalizedURL.pathExtension.lowercased() == "pdf" {
             try VisionIO.loadCIImage(fromPDF: normalizedURL, page: page, dpi: 200)
@@ -123,24 +120,56 @@ public actor GLMOCRPipeline: OCRPipeline {
             try VisionIO.loadCIImage(from: normalizedURL)
         }
 
-        var imageOptions = GLMOCRImageProcessingOptions()
-        if let folder = modelFolder, let meanStd = try? loadMeanStd(from: folder) {
-            imageOptions.mean = meanStd.mean
-            imageOptions.std = meanStd.std
-        }
-        let imageProcessor = GLMOCRImageProcessor(options: imageOptions)
-        let processed = try imageProcessor.process(ciImage, config: model.config)
+        return try await recognize(ciImage: ciImage, task: task, options: options)
+    }
 
-        let generator = GreedyGenerator()
-        var result = try await generator.run(
-            model: model,
-            prompt: prompt,
-            pixelValues: processed.pixelValues,
-            options: options
-        )
-        result.diagnostics.modelID = modelID
-        result.diagnostics.revision = revision
-        return result
+    func recognize(ciImage: CIImage, task: OCRTask, options: GenerateOptions) async throws -> OCRResult {
+        if model == nil, let loadTask {
+            try await loadTask.value
+        }
+        guard let model else { throw GLMOCRPipelineError.modelNotLoaded }
+
+        let prompt = processor.makePrompt(for: task)
+        let modelID = modelID
+        let revision = revision
+        let config = model.config
+
+        var meanStd: (mean: (Float, Float, Float), std: (Float, Float, Float))?
+        if let folder = modelFolder, let loaded = try? loadMeanStd(from: folder) {
+            meanStd = loaded
+        }
+
+        let sendableImage = SendableCIImage(ciImage)
+
+        let work = Task.detached(priority: .userInitiated) {
+            try Task.checkCancellation()
+
+            var imageOptions = GLMOCRImageProcessingOptions()
+            if let meanStd {
+                imageOptions.mean = meanStd.mean
+                imageOptions.std = meanStd.std
+            }
+
+            let imageProcessor = GLMOCRImageProcessor(options: imageOptions)
+            let processed = try imageProcessor.process(sendableImage.value, config: config)
+
+            let generator = GreedyGenerator()
+            var result = try await generator.run(
+                model: model,
+                prompt: prompt,
+                pixelValues: processed.pixelValues,
+                options: options
+            )
+            result.diagnostics.modelID = modelID
+            result.diagnostics.revision = revision
+            return result
+        }
+
+        return try await withTaskCancellationHandler(operation: {
+            try await work.value
+        }, onCancel: {
+            work.cancel()
+        })
     }
 
     private func finishLoad(modelFolder: URL, model: GLMOCRModel) {

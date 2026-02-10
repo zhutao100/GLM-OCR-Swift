@@ -212,8 +212,8 @@ From the official MLX example: the reference Apple-Silicon path is currently Pyt
 
 **Implication:** for a macOS GUI app, you should plan for two milestones:
 
-1. **MVP**: single-image / single-page GLM-OCR → Markdown/text
-2. **Quality parity**: add a **layout stage** (DocLayout) and multi-region OCR orchestration (parallel runs + merge)
+1. **MVP**: single-image / single-page GLM-OCR → Markdown/text (**implemented**)
+2. **Layout mode**: **layout stage** (DocLayout) + multi-region OCR orchestration (parallel runs + merge) (**implemented**)
 
 ---
 

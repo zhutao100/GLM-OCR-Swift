@@ -1,5 +1,7 @@
 # Phase 04.7 Implementation Plan — Layout orchestration + concurrency + CLI/App wiring
 
+> Status: Implemented (2026-02-10).
+
 ## Goal
 Deliver the Phase 04 end-to-end user story:
 **PDF page → layout regions → crop → per-region GLM-OCR → merge into Markdown**, with:

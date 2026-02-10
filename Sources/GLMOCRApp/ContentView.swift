@@ -16,20 +16,33 @@ final class AppViewModel: ObservableObject {
     @Published var status: Status = .idle
     @Published var droppedFile: URL?
     @Published var task: OCRTask = .text
+    @Published var layoutMode: Bool = false
     @Published var output: String = ""
+    @Published var documentJSON: String?
     @Published var maxNewTokens: Int = 2048
 
     private let pipeline = GLMOCRPipeline()
+    private let layoutPipeline = GLMOCRLayoutPipeline()
 
     func downloadModelIfNeeded() {
         Task {
             do {
                 status = .downloading("Starting download...")
-                try await pipeline.ensureLoaded { progress in
-                    let completed = progress.completedUnitCount
-                    let total = max(progress.totalUnitCount, 1)
-                    Task { @MainActor in
-                        self.status = .downloading("Downloading model files: \(completed)/\(total)")
+                if layoutMode {
+                    try await layoutPipeline.ensureLoaded { progress in
+                        let completed = progress.completedUnitCount
+                        let total = max(progress.totalUnitCount, 1)
+                        Task { @MainActor in
+                            self.status = .downloading("Downloading model files: \(completed)/\(total)")
+                        }
+                    }
+                } else {
+                    try await pipeline.ensureLoaded { progress in
+                        let completed = progress.completedUnitCount
+                        let total = max(progress.totalUnitCount, 1)
+                        Task { @MainActor in
+                            self.status = .downloading("Downloading model files: \(completed)/\(total)")
+                        }
                     }
                 }
                 status = .ready
@@ -49,8 +62,19 @@ final class AppViewModel: ObservableObject {
             do {
                 status = .running("Running OCR...")
                 let options = GenerateOptions(maxNewTokens: maxNewTokens, temperature: 0, topP: 1)
-                let result = try await pipeline.recognize(.file(url, page: 1), task: task, options: options)
+                let result: OCRResult = if layoutMode {
+                    try await layoutPipeline.recognize(.file(url, page: 1), task: task, options: options)
+                } else {
+                    try await pipeline.recognize(.file(url, page: 1), task: task, options: options)
+                }
                 output = result.text
+                if let document = result.document {
+                    let encoder = JSONEncoder()
+                    encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+                    documentJSON = try String(decoding: encoder.encode(document), as: UTF8.self)
+                } else {
+                    documentJSON = nil
+                }
                 status = .ready
             } catch {
                 status = .error(String(describing: error))
@@ -109,6 +133,9 @@ struct ContentView: View {
             }
             .pickerStyle(.segmented)
 
+            Toggle("Layout mode", isOn: $vm.layoutMode)
+                .toggleStyle(.switch)
+
             Stepper("Max tokens: \(vm.maxNewTokens)", value: $vm.maxNewTokens, in: 128 ... 8192, step: 128)
                 .frame(width: 250)
 
@@ -142,6 +169,7 @@ struct ContentView: View {
                 guard let url else { return }
                 Task { @MainActor in
                     vm.droppedFile = url
+                    vm.layoutMode = (url.pathExtension.lowercased() == "pdf")
                 }
             }
             return true

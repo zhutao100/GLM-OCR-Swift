@@ -1,5 +1,7 @@
 # Phase 04 Implementation Plan — Layout + region OCR orchestration (Index)
 
+> Status: Completed (2026-02-10).
+
 ## Summary
 Implement the “full pipeline” path for documents: **PP-DocLayout-V3 layout detection → region cropping → per-region GLM-OCR → merge into ordered Markdown**, with **structured outputs (pages/regions/bboxes)** exposed via the public runtime types, plus **auto-tuned parallelism + cancellation**.
 

@@ -1,4 +1,7 @@
 import ArgumentParser
+import Darwin
+import Dispatch
+import DocLayoutAdapter
 import Foundation
 import GLMOCRAdapter
 import MLX
@@ -21,11 +24,48 @@ actor DownloadProgressPrinter {
     }
 }
 
+final class SIGINTCanceller {
+    private let source: DispatchSourceSignal
+    private let onCancel: @Sendable () -> Void
+    private var hitCount: Int = 0
+
+    init(onCancel: @escaping @Sendable () -> Void) {
+        self.onCancel = onCancel
+
+        signal(SIGINT, SIG_IGN)
+        source = DispatchSource.makeSignalSource(signal: SIGINT, queue: .global(qos: .userInitiated))
+
+        source.setEventHandler { [weak self] in
+            guard let self else { return }
+            hitCount += 1
+            if hitCount == 1 {
+                FileHandle.standardError.write(Data("SIGINT received; cancelling…\n".utf8))
+                self.onCancel()
+            } else {
+                FileHandle.standardError.write(Data("SIGINT received again; exiting.\n".utf8))
+                exit(130)
+            }
+        }
+
+        source.resume()
+    }
+
+    func cancel() {
+        source.cancel()
+    }
+}
+
 enum TaskPreset: String, ExpressibleByArgument {
     case text
     case formula
     case table
     case json
+}
+
+enum LayoutParallelismArg: String, ExpressibleByArgument {
+    case auto
+    case one = "1"
+    case two = "2"
 }
 
 @main
@@ -50,6 +90,18 @@ struct GLMOCRCLI: AsyncParsableCommand {
     @Option(help: "PDF page (1-based). Only used when --input is a PDF.")
     var page: Int = 1
 
+    @Flag(name: .customLong("layout"), help: "Enable layout mode (default: on for PDFs, off otherwise).")
+    var layout: Bool = false
+
+    @Flag(name: .customLong("no-layout"), help: "Disable layout mode.")
+    var noLayout: Bool = false
+
+    @Option(help: "Layout OCR parallelism: auto | 1 | 2")
+    var layoutParallelism: LayoutParallelismArg = .auto
+
+    @Option(help: "Write structured OCRDocument JSON to path (layout mode only).")
+    var emitJson: String?
+
     @Option(help: "Task preset: text | formula | table | json")
     var task: TaskPreset = .text
 
@@ -72,6 +124,13 @@ struct GLMOCRCLI: AsyncParsableCommand {
         URL(fileURLWithPath: (path as NSString).expandingTildeInPath).standardizedFileURL
     }
 
+    private static func resolveLayoutEnabled(inputURL: URL?, layout: Bool, noLayout: Bool) -> Bool {
+        let explicit: Bool? = layout ? true : (noLayout ? false : nil)
+        if let explicit { return explicit }
+        let isPDF = inputURL?.pathExtension.lowercased() == "pdf"
+        return isPDF
+    }
+
     mutating func validate() throws {
         guard maxNewTokens > 0 else {
             throw ValidationError("--max-new-tokens must be > 0")
@@ -80,9 +139,22 @@ struct GLMOCRCLI: AsyncParsableCommand {
             throw ValidationError("--page must be >= 1")
         }
 
-        if downloadOnly || devForwardPass { return }
+        if layout, noLayout {
+            throw ValidationError("Pass at most one of --layout or --no-layout")
+        }
+
+        if emitJson != nil, Self.normalizedNonEmpty(emitJson) == nil {
+            throw ValidationError("--emit-json path must be non-empty")
+        }
+
+        if downloadOnly || devForwardPass {
+            if emitJson != nil {
+                throw ValidationError("--emit-json requires running inference")
+            }
+            return
+        }
         guard let inputPath = Self.normalizedNonEmpty(input) else {
-            throw ValidationError("--input is required unless --download-only is set")
+            throw ValidationError("--input is required unless --download-only or --dev-forward-pass is set")
         }
 
         let url = Self.normalizedFileURL(fromPath: inputPath)
@@ -93,34 +165,28 @@ struct GLMOCRCLI: AsyncParsableCommand {
         if isDirectory.boolValue {
             throw ValidationError("Input is a directory: \(url.path)")
         }
+
+        if emitJson != nil {
+            let layoutEnabled = Self.resolveLayoutEnabled(inputURL: url, layout: layout, noLayout: noLayout)
+            guard layoutEnabled else {
+                throw ValidationError("--emit-json requires layout mode (pass --layout for non-PDF inputs)")
+            }
+        }
     }
 
     mutating func run() async throws {
         let modelID = model
+        let modelRevision = revision
+        let maxNewTokens = maxNewTokens
+        let page = page
+        let downloadOnly = downloadOnly
+        let devForwardPass = devForwardPass
         let downloadBaseURL: URL? = Self.normalizedNonEmpty(downloadBase).map(Self.normalizedFileURL(fromPath:))
 
-        let printer = DownloadProgressPrinter(modelID: modelID)
-        let store: any ModelStore = HuggingFaceHubModelStore()
-        let request = ModelSnapshotRequest(modelID: modelID, revision: revision, matchingGlobs: GLMOCRDefaults.downloadGlobs)
-        let folder = try await store.resolveSnapshot(request, downloadBase: downloadBaseURL) { progress in
-            let completed = progress.completedUnitCount
-            let total = progress.totalUnitCount
-            Task { await printer.update(completed: completed, total: total) }
-        }
-        if downloadOnly { return }
+        let inputURL: URL? = Self.normalizedNonEmpty(input).map(Self.normalizedFileURL(fromPath:))
+        let layoutEnabled = Self.resolveLayoutEnabled(inputURL: inputURL, layout: layout, noLayout: noLayout)
+        let emitJsonURL: URL? = Self.normalizedNonEmpty(emitJson).map(Self.normalizedFileURL(fromPath:))
 
-        if devForwardPass {
-            try await runDevForwardPass(modelFolder: folder)
-            return
-        }
-
-        let pipeline = GLMOCRPipeline(modelID: modelID, revision: revision, downloadBase: downloadBaseURL)
-        try await pipeline.ensureLoaded(progress: nil)
-
-        guard let inputPath = Self.normalizedNonEmpty(input) else {
-            throw ValidationError("--input is required unless --download-only is set")
-        }
-        let url = Self.normalizedFileURL(fromPath: inputPath)
         let taskPreset: OCRTask = switch task {
         case .text: .text
         case .formula: .formula
@@ -128,12 +194,137 @@ struct GLMOCRCLI: AsyncParsableCommand {
         case .json: .structuredJSON(schema: "{\n  \"type\": \"object\"\n}")
         }
 
-        let options = GenerateOptions(maxNewTokens: maxNewTokens, temperature: 0, topP: 1)
-        let result = try await pipeline.recognize(.file(url, page: page), task: taskPreset, options: options)
+        let generateOptions = GenerateOptions(maxNewTokens: maxNewTokens, temperature: 0, topP: 1)
+
+        let concurrencyPolicy: LayoutConcurrencyPolicy = switch layoutParallelism {
+        case .auto: .auto
+        case .one: .fixed(1)
+        case .two: .fixed(2)
+        }
+        let layoutOptions = GLMOCRLayoutOptions(concurrency: concurrencyPolicy, maxConcurrentRegionsCap: 2)
+
+        let workTask = Task {
+            try await Self.runWork(
+                modelID: modelID,
+                revision: modelRevision,
+                downloadBaseURL: downloadBaseURL,
+                inputURL: inputURL,
+                page: page,
+                taskPreset: taskPreset,
+                generateOptions: generateOptions,
+                downloadOnly: downloadOnly,
+                devForwardPass: devForwardPass,
+                layoutEnabled: layoutEnabled,
+                layoutOptions: layoutOptions,
+                emitJsonURL: emitJsonURL
+            )
+        }
+
+        let sigint = SIGINTCanceller {
+            workTask.cancel()
+        }
+        defer { sigint.cancel() }
+
+        do {
+            try await workTask.value
+        } catch is CancellationError {
+            throw ExitCode(130)
+        }
+    }
+
+    // swiftlint:disable:next function_parameter_count
+    private static func runWork(
+        modelID: String,
+        revision: String,
+        downloadBaseURL: URL?,
+        inputURL: URL?,
+        page: Int,
+        taskPreset: OCRTask,
+        generateOptions: GenerateOptions,
+        downloadOnly: Bool,
+        devForwardPass: Bool,
+        layoutEnabled: Bool,
+        layoutOptions: GLMOCRLayoutOptions,
+        emitJsonURL: URL?
+    ) async throws {
+        let store: any ModelStore = HuggingFaceHubModelStore()
+
+        let glmPrinter = DownloadProgressPrinter(modelID: modelID)
+        let glmRequest = ModelSnapshotRequest(modelID: modelID, revision: revision, matchingGlobs: GLMOCRDefaults.downloadGlobs)
+        let glmFolder = try await store.resolveSnapshot(glmRequest, downloadBase: downloadBaseURL) { progress in
+            let completed = progress.completedUnitCount
+            let total = progress.totalUnitCount
+            Task { await glmPrinter.update(completed: completed, total: total) }
+        }
+
+        if layoutEnabled {
+            let layoutModelID = PPDocLayoutV3Defaults.modelID
+            let layoutPrinter = DownloadProgressPrinter(modelID: layoutModelID)
+            let layoutRequest = ModelSnapshotRequest(
+                modelID: layoutModelID,
+                revision: PPDocLayoutV3Defaults.revision,
+                matchingGlobs: PPDocLayoutV3Defaults.downloadGlobs
+            )
+            _ = try await store.resolveSnapshot(layoutRequest, downloadBase: downloadBaseURL) { progress in
+                let completed = progress.completedUnitCount
+                let total = progress.totalUnitCount
+                Task { await layoutPrinter.update(completed: completed, total: total) }
+            }
+        }
+
+        if downloadOnly { return }
+
+        if devForwardPass {
+            try await runDevForwardPass(modelFolder: glmFolder)
+            return
+        }
+
+        guard let inputURL else {
+            throw ValidationError("--input is required unless --download-only or --dev-forward-pass is set")
+        }
+
+        if layoutEnabled {
+            if taskPreset != .text {
+                FileHandle.standardError.write(Data("Note: --task is ignored in layout mode.\n".utf8))
+            }
+
+            let pipeline = GLMOCRLayoutPipeline(
+                modelID: modelID,
+                revision: revision,
+                downloadBase: downloadBaseURL,
+                layoutOptions: layoutOptions
+            )
+            try await pipeline.ensureLoaded(progress: nil)
+            let result = try await pipeline.recognize(.file(inputURL, page: page), task: taskPreset, options: generateOptions)
+
+            if let emitJsonURL {
+                guard let document = result.document else { throw ValidationError("Layout pipeline did not produce a document.") }
+                try writeDocumentJSON(document, to: emitJsonURL)
+            }
+
+            print(result.text)
+            return
+        }
+
+        if emitJsonURL != nil {
+            throw ValidationError("--emit-json requires layout mode (pass --layout for non-PDF inputs)")
+        }
+
+        let pipeline = GLMOCRPipeline(modelID: modelID, revision: revision, downloadBase: downloadBaseURL)
+        try await pipeline.ensureLoaded(progress: nil)
+
+        let result = try await pipeline.recognize(.file(inputURL, page: page), task: taskPreset, options: generateOptions)
         print(result.text)
     }
 
-    private func runDevForwardPass(modelFolder: URL) async throws {
+    private static func writeDocumentJSON(_ document: OCRDocument, to url: URL) throws {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        let data = try encoder.encode(document)
+        try data.write(to: url, options: .atomic)
+    }
+
+    private static func runDevForwardPass(modelFolder: URL) async throws {
         let config = try GLMOCRConfig.load(from: modelFolder)
         let tokenizer = try await GLMOCRTokenizer.load(from: modelFolder, config: config)
         let ids = tokenizer.specialTokenIDs

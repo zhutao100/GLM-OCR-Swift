@@ -29,7 +29,7 @@ Borrowing references: official GLM-OCR pipeline (`glmocr/pipeline/pipeline.py`) 
 - [x] 04.4 `LayoutResultFormatter` (regions → Markdown) (+ tests)
 - [x] 04.5 Detector “load-only” validation (optional integration)
 - [x] 04.6 Detector inference outputs + postprocess wiring (optional integration)
-- [ ] 04.7 Orchestration + concurrency + CLI/App wiring (Phase 04 exit criteria)
+- [x] 04.7 Orchestration + concurrency + CLI/App wiring (Phase 04 exit criteria)
 
 ## Exit criteria
 - A4 scanned PDF page produces structured output with sane ordering

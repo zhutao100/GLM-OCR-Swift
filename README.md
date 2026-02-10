@@ -9,7 +9,7 @@ This repo is intentionally structured as **core + adapter**:
 - `Sources/GLMOCRCLI/` — CLI harness (model download + pipeline wiring)
 - `Sources/GLMOCRApp/` — SwiftUI UI scaffold (single-file drop + run)
 
-## Current status (2026-02-09)
+## Current status (2026-02-10)
 
 - `swift build` / `swift test` pass.
 - CLI + App run (single file/image/PDF input).
@@ -19,6 +19,9 @@ This repo is intentionally structured as **core + adapter**:
   - CIImage → MLX tensor conversion + normalization
   - GLM chat-template tokenization (`[gMASK]<sop>` + image placeholders)
   - Greedy token-by-token decode (with KV cache)
+- Phase 04 layout mode is implemented for single-page documents:
+  - PP-DocLayout-V3 layout detection → region crop → per-region GLM-OCR → merged Markdown
+  - Optional structured `OCRDocument` JSON export from the CLI (`--emit-json`)
 
 ## Requirements
 
@@ -83,20 +86,21 @@ Run `swift run GLMOCRCLI --help` for the full list. Key flags:
 - `--download-base <path>` (optional)
 - `--download-only` (download without inference)
 - `--input <path>`, `--page <n>` (PDF only), `--task <preset>`, `--max-new-tokens <n>`
+- Layout mode: `--layout/--no-layout`, `--layout-parallelism auto|1|2`, `--emit-json <path>`
 
 ## Limitations / known gaps
 
 - Quality/parity vs the official MLX Python example is not yet validated on a curated image set.
-- Layout stage (PP-DocLayout-V3) + multi-region OCR orchestration is not implemented yet.
+- Layout mode currently runs a **single PDF page** at a time (CLI `--page`; App uses page 1).
 - App currently uses page 1 for PDFs (no page picker yet).
-- App has no queue/cancellation/settings yet; it’s a single-file scaffold used to iterate on pipeline wiring.
+- App has no queue/settings/export UI yet; it’s a single-file scaffold used to iterate on pipeline wiring.
 
 ## Next steps (roadmap)
 
 Keep the detailed plan in `docs/dev_plans/`. Near-term work:
 
-1. Phase 04: add layout stage and region orchestration.
-2. Phase 05: UI polish + distribution.
+1. Phase 05: multi-page workflows + export/UX polish.
+2. Quality/parity validation vs the official pipeline + curated test set.
 
 ## Docs
 
@@ -110,7 +114,7 @@ Keep the detailed plan in `docs/dev_plans/`. Near-term work:
 ## Documentation Changelog
 
 - Added: explicit “Current status”, runnable quickstart, and configuration details (HF cache precedence + CLI flags).
-- Removed/clarified: claims of job queue/cancellation/export and end-to-end OCR (not implemented yet).
+- Removed/clarified: claims of job queue/settings/export (not implemented yet).
 - Restructured: consistent module paths (`Sources/...`) and a single doc index (`docs/overview.md`) to avoid duplication.
 
 ## License
