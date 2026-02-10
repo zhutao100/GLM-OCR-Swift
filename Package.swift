@@ -9,6 +9,7 @@ let package = Package(
     ],
     products: [
         .library(name: "VLMRuntimeKit", targets: ["VLMRuntimeKit"]),
+        .library(name: "DocLayoutAdapter", targets: ["DocLayoutAdapter"]),
         .library(name: "GLMOCRAdapter", targets: ["GLMOCRAdapter"]),
         .executable(name: "GLMOCRApp", targets: ["GLMOCRApp"]),
         .executable(name: "GLMOCRCLI", targets: ["GLMOCRCLI"]),
@@ -34,8 +35,21 @@ let package = Package(
             ]
         ),
         .target(
+            name: "DocLayoutAdapter",
+            dependencies: [
+                "VLMRuntimeKit",
+                .product(name: "MLX", package: "mlx-swift"),
+                .product(name: "MLXNN", package: "mlx-swift"),
+            ],
+            path: "Sources/ModelAdapters/DocLayout",
+            swiftSettings: [
+                .enableExperimentalFeature("StrictConcurrency"),
+            ]
+        ),
+        .target(
             name: "GLMOCRAdapter",
             dependencies: [
+                "DocLayoutAdapter",
                 "VLMRuntimeKit",
                 .product(name: "MLX", package: "mlx-swift"),
                 .product(name: "MLXNN", package: "mlx-swift"),
@@ -71,6 +85,18 @@ let package = Package(
             name: "VLMRuntimeKitTests",
             dependencies: [
                 "VLMRuntimeKit",
+            ],
+            swiftSettings: [
+                .enableExperimentalFeature("StrictConcurrency"),
+            ]
+        ),
+        .testTarget(
+            name: "DocLayoutAdapterTests",
+            dependencies: [
+                "DocLayoutAdapter",
+            ],
+            resources: [
+                .process("Fixtures"),
             ],
             swiftSettings: [
                 .enableExperimentalFeature("StrictConcurrency"),

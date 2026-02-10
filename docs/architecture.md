@@ -30,6 +30,16 @@ Responsibilities:
 - `GLMOCRModel`: model definition + weight-loading + forward pass + greedy decode (**implemented**)
 - `GLMOCRPipeline`: orchestration actor; conforms to `OCRPipeline` (**implemented**)
 
+### `DocLayoutAdapter` (layout-specific)
+
+Responsibilities:
+
+- `PPDocLayoutV3Defaults`: model id/revision + snapshot download globs (**implemented**)
+- `PPDocLayoutV3Config`: minimal `config.json` decoding (e.g. `id2label`) (**implemented**)
+- `PPDocLayoutV3Mappings`: layout label → task/kind policy (**implemented**)
+- `PPDocLayoutV3Detector`: load + run layout detection (**planned**)
+- `LayoutResultFormatter`: regions → merged Markdown (**planned**)
+
 ### `GLMOCRApp` (SwiftUI)
 
 Responsibilities:

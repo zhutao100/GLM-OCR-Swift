@@ -1,0 +1,16 @@
+{
+  "model_type": "ppdoclayoutv3",
+  "num_labels": 25,
+  "id2label": {
+    "0": "abstract",
+    "14": "image",
+    "21": "table",
+    "22": "text"
+  },
+  "label2id": {
+    "abstract": 0,
+    "image": 14,
+    "table": 21,
+    "text": 22
+  }
+}
