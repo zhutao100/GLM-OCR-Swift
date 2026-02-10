@@ -47,7 +47,7 @@ final class GLMOCRVisionAttention: Module {
         super.init()
     }
 
-    func callAsFunction(_ x: MLXArray) -> MLXArray {
+    func callAsFunction(_ x: MLXArray, cos: MLXArray, sin: MLXArray) -> MLXArray {
         let (batch, seqLen, hidden) = (x.dim(0), x.dim(1), x.dim(2))
         precondition(hidden == heads * headDim)
 
@@ -63,6 +63,17 @@ final class GLMOCRVisionAttention: Module {
 
         qh = qNorm(qh)
         kh = kNorm(kh)
+
+        // Vision rotary embedding (ported from Transformers `apply_rotary_pos_emb_vision`).
+        let origDType = qh.dtype
+        let qf = qh.asType(.float32)
+        let kf = kh.asType(.float32)
+        let cosF = cos.asType(.float32)
+        let sinF = sin.asType(.float32)
+        let qEmbed = (qf * cosF) + (GLMOCRRotary.rotateHalfSplit(qf) * sinF)
+        let kEmbed = (kf * cosF) + (GLMOCRRotary.rotateHalfSplit(kf) * sinF)
+        qh = qEmbed.asType(origDType)
+        kh = kEmbed.asType(origDType)
 
         let attn = MLXFast.scaledDotProductAttention(
             queries: qh,
@@ -108,32 +119,32 @@ final class GLMOCRVisionBlock: Module {
         super.init()
     }
 
-    func callAsFunction(_ x: MLXArray) -> MLXArray {
-        let h = x + attn(norm1(x))
+    func callAsFunction(_ x: MLXArray, cos: MLXArray, sin: MLXArray) -> MLXArray {
+        let h = x + attn(norm1(x), cos: cos, sin: sin)
         return h + mlp(norm2(h))
     }
 }
 
 final class GLMOCRVisionMerger: Module {
     @ModuleInfo(key: "proj") var proj: Linear
+    @ModuleInfo(key: "post_projection_norm") var postProjectionNorm: LayerNorm
     @ModuleInfo(key: "gate_proj") var gate: Linear
     @ModuleInfo(key: "up_proj") var up: Linear
     @ModuleInfo(key: "down_proj") var down: Linear
-    @ModuleInfo(key: "post_projection_norm") var postProjectionNorm: LayerNorm
 
     init(hiddenSize: Int, intermediateSize: Int, normEps: Float) {
         _proj.wrappedValue = Linear(hiddenSize, hiddenSize, bias: false)
+        _postProjectionNorm.wrappedValue = LayerNorm(dimensions: hiddenSize, eps: normEps, affine: true, bias: true)
         _gate.wrappedValue = Linear(hiddenSize, intermediateSize, bias: false)
         _up.wrappedValue = Linear(hiddenSize, intermediateSize, bias: false)
         _down.wrappedValue = Linear(intermediateSize, hiddenSize, bias: false)
-        _postProjectionNorm.wrappedValue = LayerNorm(dimensions: hiddenSize, eps: normEps, affine: true, bias: true)
         super.init()
     }
 
     func callAsFunction(_ x: MLXArray) -> MLXArray {
-        let h = proj(x)
-        let mlpOut = down(silu(gate(h)) * up(h))
-        return postProjectionNorm(h + mlpOut)
+        var h = proj(x)
+        h = gelu(postProjectionNorm(h))
+        return down(silu(gate(h)) * up(h))
     }
 }
 
@@ -148,6 +159,7 @@ final class GLMOCRVisionModel: Module {
     let patchSize: Int
     let temporalPatchSize: Int
     let spatialMergeSize: Int
+    let numHeads: Int
 
     init(config: GLMOCRConfig.VisionConfig) throws {
         guard let hiddenSize = config.hiddenSize else {
@@ -181,6 +193,7 @@ final class GLMOCRVisionModel: Module {
         self.patchSize = patchSize
         self.temporalPatchSize = temporalPatchSize
         self.spatialMergeSize = spatialMergeSize
+        self.numHeads = numHeads
 
         _patchEmbed.wrappedValue = GLMOCRVisionPatchEmbed(
             inChannels: 3,
@@ -229,9 +242,12 @@ final class GLMOCRVisionModel: Module {
         let gridW = patches.dim(3)
         let hidden = patches.dim(4)
 
-        var x = patches.reshaped(batch, depth * gridH * gridW, hidden)
+        let seqLen = depth * gridH * gridW
+        let (cos, sin) = visionCosSin(gridT: depth, gridH: gridH, gridW: gridW, headDim: hidden / numHeads)
+
+        var x = patches.reshaped(batch, seqLen, hidden)
         for block in blocks {
-            x = block(x)
+            x = block(x, cos: cos, sin: sin)
         }
         x = postLayerNorm(x)
 
@@ -250,5 +266,52 @@ final class GLMOCRVisionModel: Module {
 
         tokens = merger(tokens)
         return tokens
+    }
+
+    private func visionCosSin(gridT: Int, gridH: Int, gridW: Int, headDim: Int) -> (cos: MLXArray, sin: MLXArray) {
+        // Ported from Transformers `GlmOcrVisionModel.rot_pos_emb`.
+        // Returns cos/sin shaped [1, 1, seqLen, headDim] (broadcastable to [B, heads, seqLen, headDim]).
+        let dim = max(headDim / 2, 0)
+        let theta: Float = 10000
+        let half = max(dim / 2, 0)
+
+        guard dim > 0, half > 0, gridH > 0, gridW > 0 else {
+            let empty = MLXArray.zeros([1, 1, max(gridT * gridH * gridW, 1), 0], dtype: .float32)
+            return (empty, empty)
+        }
+
+        let positions = (MLXArray(Array(0 ..< half)).asType(.float32) * 2) / Float(dim)
+        let invFreq = 1.0 / pow(theta, positions) // [half]
+
+        let maxGrid = max(gridH, gridW)
+        let seq = MLXArray(Array(0 ..< maxGrid)).asType(.float32) // [maxGrid]
+        let freqsFull = seq.expandedDimensions(axis: -1) * invFreq // [maxGrid, half]
+
+        let seqLen = gridT * gridH * gridW
+        var hIds: [Int] = []
+        var wIds: [Int] = []
+        hIds.reserveCapacity(seqLen)
+        wIds.reserveCapacity(seqLen)
+
+        for _ in 0 ..< gridT {
+            for h in 0 ..< gridH {
+                for w in 0 ..< gridW {
+                    hIds.append(h)
+                    wIds.append(w)
+                }
+            }
+        }
+
+        let hIndex = MLXArray(hIds)
+        let wIndex = MLXArray(wIds)
+
+        let freqsH = freqsFull[hIndex] // [seqLen, half]
+        let freqsW = freqsFull[wIndex]
+        let rotaryPos = concatenated([freqsH, freqsW], axis: -1) // [seqLen, dim]
+        let emb = concatenated([rotaryPos, rotaryPos], axis: -1) // [seqLen, headDim]
+
+        let cos = cos(emb).reshaped(1, 1, seqLen, headDim)
+        let sin = sin(emb).reshaped(1, 1, seqLen, headDim)
+        return (cos, sin)
     }
 }

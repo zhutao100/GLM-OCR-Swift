@@ -14,9 +14,7 @@ final class GLMOCRSelfAttention: Module {
     @ModuleInfo(key: "v_proj") var wv: Linear
     @ModuleInfo(key: "o_proj") var wo: Linear
 
-    private let rope: RoPE
-
-    init(hiddenSize: Int, numHeads: Int, numKeyValueHeads: Int, headDim: Int, ropeTheta: Float) {
+    init(hiddenSize: Int, numHeads: Int, numKeyValueHeads: Int, headDim: Int) {
         precondition(numHeads % numKeyValueHeads == 0, "numHeads must be divisible by numKeyValueHeads")
 
         heads = numHeads
@@ -28,25 +26,40 @@ final class GLMOCRSelfAttention: Module {
         _wk.wrappedValue = Linear(hiddenSize, numKeyValueHeads * headDim, bias: false)
         _wv.wrappedValue = Linear(hiddenSize, numKeyValueHeads * headDim, bias: false)
         _wo.wrappedValue = Linear(numHeads * headDim, hiddenSize, bias: false)
-
-        rope = RoPE(dimensions: headDim, traditional: false, base: ropeTheta, scale: 1.0)
         super.init()
     }
 
     func callAsFunction(
         _ x: MLXArray,
         mask: MLXFast.ScaledDotProductAttentionMaskMode,
+        cos: MLXArray,
+        sin: MLXArray,
+        rotaryDim: Int,
         cache: KVCacheSimple? = nil
     ) -> MLXArray {
         let (batch, seqLen) = (x.dim(0), x.dim(1))
 
-        var q = wq(x).reshaped(batch, seqLen, heads, headDim).transposed(0, 2, 1, 3)
-        var k = wk(x).reshaped(batch, seqLen, kvHeads, headDim).transposed(0, 2, 1, 3)
+        var q = wq(x).reshaped(batch, seqLen, heads, headDim).transposed(0, 2, 1, 3) // [B, H, S, D]
+        var k = wk(x).reshaped(batch, seqLen, kvHeads, headDim).transposed(0, 2, 1, 3) // [B, KvH, S, D]
         let v = wv(x).reshaped(batch, seqLen, kvHeads, headDim).transposed(0, 2, 1, 3)
 
-        let ropeOffset = cache?.offset ?? 0
-        q = rope(q, offset: ropeOffset)
-        k = rope(k, offset: ropeOffset)
+        // Apply GLM-style interleaved RoPE to the first `rotaryDim` features.
+        if rotaryDim > 0 {
+            let rd = min(rotaryDim, headDim)
+            let qRot = q[0..., 0..., 0..., ..<rd]
+            let qPass = rd < headDim ? q[0..., 0..., 0..., rd...] : nil
+            let kRot = k[0..., 0..., 0..., ..<rd]
+            let kPass = rd < headDim ? k[0..., 0..., 0..., rd...] : nil
+
+            let cosSlice = cos[0..., 0..., 0..., ..<rd]
+            let sinSlice = sin[0..., 0..., 0..., ..<rd]
+
+            let qEmbed = (qRot * cosSlice) + (GLMOCRRotary.rotateHalfInterleaved(qRot) * sinSlice)
+            let kEmbed = (kRot * cosSlice) + (GLMOCRRotary.rotateHalfInterleaved(kRot) * sinSlice)
+
+            q = qPass.map { concatenated([qEmbed, $0], axis: -1) } ?? qEmbed
+            k = kPass.map { concatenated([kEmbed, $0], axis: -1) } ?? kEmbed
+        }
 
         let keys: MLXArray
         let values: MLXArray
@@ -57,7 +70,7 @@ final class GLMOCRSelfAttention: Module {
             values = v
         }
 
-        let effectiveMask: MLXFast.ScaledDotProductAttentionMaskMode = if cache != nil, ropeOffset > 0, seqLen == 1 {
+        let effectiveMask: MLXFast.ScaledDotProductAttentionMaskMode = if let cache, cache.offset > 0, seqLen == 1 {
             .none
         } else {
             mask
@@ -111,7 +124,6 @@ final class GLMOCRDecoderLayer: Module {
         numHeads: Int,
         numKeyValueHeads: Int,
         headDim: Int,
-        ropeTheta: Float,
         normEps: Float
     ) {
         _inputLayerNorm.wrappedValue = RMSNorm(dimensions: hiddenSize, eps: normEps)
@@ -119,8 +131,7 @@ final class GLMOCRDecoderLayer: Module {
             hiddenSize: hiddenSize,
             numHeads: numHeads,
             numKeyValueHeads: numKeyValueHeads,
-            headDim: headDim,
-            ropeTheta: ropeTheta
+            headDim: headDim
         )
         _postSelfAttnLayerNorm.wrappedValue = RMSNorm(dimensions: hiddenSize, eps: normEps)
         _postAttentionLayerNorm.wrappedValue = RMSNorm(dimensions: hiddenSize, eps: normEps)
@@ -132,12 +143,22 @@ final class GLMOCRDecoderLayer: Module {
     func callAsFunction(
         _ x: MLXArray,
         mask: MLXFast.ScaledDotProductAttentionMaskMode,
+        cos: MLXArray,
+        sin: MLXArray,
+        rotaryDim: Int,
         cache: KVCacheSimple? = nil
     ) -> MLXArray {
-        var h = x + selfAttn(inputLayerNorm(x), mask: mask, cache: cache)
+        let residual1 = x
+        var h = inputLayerNorm(x)
+        h = selfAttn(h, mask: mask, cos: cos, sin: sin, rotaryDim: rotaryDim, cache: cache)
         h = postSelfAttnLayerNorm(h)
-        h += mlp(postAttentionLayerNorm(h))
-        h = postMlpLayerNorm(h)
+        h = residual1 + h
+
+        let residual2 = h
+        var mlpOut = postAttentionLayerNorm(h)
+        mlpOut = mlp(mlpOut)
+        mlpOut = postMlpLayerNorm(mlpOut)
+        h = residual2 + mlpOut
         return h
     }
 }
@@ -146,6 +167,8 @@ final class GLMOCRLanguageModel: Module {
     @ModuleInfo(key: "embed_tokens") var embedTokens: Embedding
     var layers: [GLMOCRDecoderLayer]
     @ModuleInfo(key: "norm") var norm: RMSNorm
+
+    private let rotaryEmbedding: GLMOCRTextRotaryEmbedding
 
     let vocabSize: Int
     let hiddenSize: Int
@@ -174,10 +197,18 @@ final class GLMOCRLanguageModel: Module {
         }
 
         let ropeTheta = config.ropeParameters?.ropeTheta ?? 10000
+        let partialRotaryFactor = config.ropeParameters?.partialRotaryFactor ?? 1.0
+        let mropeSection = config.ropeParameters?.mropeSection
         let normEps = config.rmsNormEps ?? 1e-5
 
         self.vocabSize = vocabSize
         self.hiddenSize = hiddenSize
+        rotaryEmbedding = GLMOCRTextRotaryEmbedding(
+            headDim: headDim,
+            ropeTheta: ropeTheta,
+            partialRotaryFactor: partialRotaryFactor,
+            mropeSection: mropeSection
+        )
 
         _embedTokens.wrappedValue = Embedding(embeddingCount: vocabSize, dimensions: hiddenSize)
         layers = (0 ..< numLayers).map { _ in
@@ -187,7 +218,6 @@ final class GLMOCRLanguageModel: Module {
                 numHeads: numHeads,
                 numKeyValueHeads: numKVHeads,
                 headDim: headDim,
-                ropeTheta: ropeTheta,
                 normEps: normEps
             )
         }
@@ -201,23 +231,39 @@ final class GLMOCRLanguageModel: Module {
     }
 
     func decode(_ embeddings: MLXArray) -> MLXArray {
-        decode(embeddings, mask: .causal, caches: nil)
+        decode(embeddings, mask: .causal, caches: nil, positionIds: nil)
     }
 
     func decode(
         _ embeddings: MLXArray,
         mask: MLXFast.ScaledDotProductAttentionMaskMode,
-        caches: [KVCacheSimple]?
+        caches: [KVCacheSimple]?,
+        positionIds: MLXArray?
     ) -> MLXArray {
+        let batch = embeddings.dim(0)
+        let seqLen = embeddings.dim(1)
+
+        let ids: MLXArray
+        if let positionIds {
+            ids = positionIds
+        } else {
+            let base = MLXArray(Array(0 ..< seqLen)).reshaped(1, 1, seqLen)
+            ids = broadcast(base, to: [3, batch, seqLen])
+        }
+
+        let (cosBase, sinBase) = rotaryEmbedding.cosSin(positionIds: ids, dtype: embeddings.dtype)
+        let cos = cosBase.expandedDimensions(axis: 1) // [B, 1, S, rotaryDim]
+        let sin = sinBase.expandedDimensions(axis: 1)
+
         var h = embeddings
         if let caches {
             precondition(caches.count == layers.count, "cache count must match layer count")
             for (idx, layer) in layers.enumerated() {
-                h = layer(h, mask: mask, cache: caches[idx])
+                h = layer(h, mask: mask, cos: cos, sin: sin, rotaryDim: rotaryEmbedding.rotaryDim, cache: caches[idx])
             }
         } else {
             for layer in layers {
-                h = layer(h, mask: mask)
+                h = layer(h, mask: mask, cos: cos, sin: sin, rotaryDim: rotaryEmbedding.rotaryDim)
             }
         }
         return norm(h)

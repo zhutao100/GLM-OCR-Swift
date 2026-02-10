@@ -29,6 +29,10 @@ public struct GLMOCRModel: CausalLM, Sendable {
 
     var config: GLMOCRConfig { state.config }
 
+    #if DEBUG
+        var _debugCore: GLMOCRCoreModel { state.core }
+    #endif
+
     public static func load(from modelFolder: URL) async throws -> GLMOCRModel {
         guard modelFolder.isFileURL else { throw GLMOCRModelError.invalidModelFolder(modelFolder) }
         var isDirectory: ObjCBool = false
@@ -52,11 +56,18 @@ public struct GLMOCRModel: CausalLM, Sendable {
             throw GLMOCRModelError.tokenizerFailed(String(describing: error))
         }
 
-        let core = try GLMOCRCoreModel(config: config, imageTokenId: tokenizer.specialTokenIDs.imageId)
+        let core = try GLMOCRCoreModel(
+            config: config,
+            imageTokenId: tokenizer.specialTokenIDs.imageId,
+            videoStartTokenId: config.videoStartTokenId,
+            videoEndTokenId: config.videoEndTokenId
+        )
 
         do {
             let loader = WeightsLoader()
-            var weights = try loader.loadAll(from: modelFolder, dtype: nil)
+            let wantFloat16 = ProcessInfo.processInfo.environment["GLMOCR_RUN_GOLDEN"] == "1"
+            let weightsDType: DType? = wantFloat16 ? .float16 : nil
+            var weights = try loader.loadAll(from: modelFolder, dtype: weightsDType)
 
             // Filter out MTP/aux weights not wired in Phase 02.
             weights = weights.filter { k, _ in !k.hasPrefix("model.language_model.layers.16.") }
@@ -70,7 +81,7 @@ public struct GLMOCRModel: CausalLM, Sendable {
             }
 
             let parameters = ModuleParameters.unflattened(weights)
-            try core.update(parameters: parameters, verify: .all)
+            try core.update(parameters: parameters, verify: Module.VerifyUpdate.all)
             try checkedEval(core)
         } catch {
             throw GLMOCRModelError.weightsFailed(String(describing: error))
@@ -112,7 +123,28 @@ public struct GLMOCRModel: CausalLM, Sendable {
             textEmbeddings: textEmbeddings,
             visionEmbeddings: visionEmbeddings
         )
-        var logits = state.core.forward(fusedEmbeddings: fusedEmbeddings, mask: .causal, caches: caches)
+
+        let patchSize = max(state.core.model.visual.patchSize, 1)
+        let temporalPatchSize = max(state.core.model.visual.temporalPatchSize, 1)
+        let gridT = max(pixelValues.dim(1) / temporalPatchSize, 1)
+        let gridH = max(pixelValues.dim(2) / patchSize, 1)
+        let gridW = max(pixelValues.dim(3) / patchSize, 1)
+
+        let rope = try GLMOCRRoPEIndex.compute(
+            inputIds: promptIdArray,
+            imageGridTHW: (t: gridT, h: gridH, w: gridW),
+            spatialMergeSize: state.core.model.visual.spatialMergeSize,
+            imageTokenId: state.core.imageTokenId,
+            videoStartTokenId: state.core.videoStartTokenId,
+            videoEndTokenId: state.core.videoEndTokenId
+        )
+
+        var logits = state.core.forward(
+            fusedEmbeddings: fusedEmbeddings,
+            mask: .causal,
+            caches: caches,
+            positionIds: rope.positionIds
+        )
         try checkedEval(logits)
 
         var nextTokenId = Int(logits[0, -1].argMax().item(Int.self))
@@ -127,7 +159,17 @@ public struct GLMOCRModel: CausalLM, Sendable {
 
             let tokenArray = MLXArray([Int32(nextTokenId)]).reshaped(1, 1)
             let nextEmbeddings = state.core.model.languageModel.embed(tokenArray)
-            let nextHidden = state.core.model.languageModel.decode(nextEmbeddings, mask: .none, caches: caches)
+
+            let cachePosition = caches.first?.offset ?? 0
+            let delta = rope.ropeDeltas.asType(.int32) + Int32(cachePosition)
+            let stepPositionIds = broadcast(delta.reshaped(1, 1, 1), to: [3, 1, 1])
+
+            let nextHidden = state.core.model.languageModel.decode(
+                nextEmbeddings,
+                mask: .none,
+                caches: caches,
+                positionIds: stepPositionIds
+            )
             logits = state.core.lmHead(nextHidden)
             try checkedEval(logits)
             nextTokenId = Int(logits[0, -1].argMax().item(Int.self))

@@ -21,7 +21,7 @@ Borrowing references: `docs/reference_projects.md` (“Borrowing map”, DeepSee
 - [x] Validate tokenizer + special tokens
 - [ ] Add golden tests (small prompts) and compare to Python reference outputs
   - borrow: KV-cache utilities for long outputs / batching (`KVCache*`) (`mzbac/deepseek-ocr2.swift` `Utils/KVCache.swift`)
-  - note: a Swift-only opt-in forward-pass golden exists; Python parity is still pending
+  - note: an opt-in Python/Transformers parity golden test exists, but it’s skipped by default and requires generating a local fixture.
 
 ## Exit criteria
 - `GLMOCRModel.load(from:)` loads config + weights successfully
@@ -37,5 +37,8 @@ scripts/build_mlx_metallib.sh -c debug
 ## Opt-in integration tests
 - Tokenizer + special token IDs (requires local snapshot):
   - `GLMOCR_TEST_MODEL_FOLDER=<path> swift test`
-- Forward pass golden (also requires `mlx.metallib`):
+- Forward pass smoke (also requires `mlx.metallib`):
   - `GLMOCR_TEST_MODEL_FOLDER=<path> GLMOCR_TEST_RUN_FORWARD_PASS=1 swift test`
+- Python/Transformers parity golden (also requires `mlx.metallib`):
+  - `python3 scripts/generate_glmocr_golden.py --model-folder <path>`
+  - `GLMOCR_TEST_MODEL_FOLDER=<path> GLMOCR_RUN_GOLDEN=1 swift test`

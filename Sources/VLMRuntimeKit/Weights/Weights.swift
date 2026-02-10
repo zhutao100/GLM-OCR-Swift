@@ -18,22 +18,23 @@ public struct WeightsLoader: Sendable {
     public init() {}
 
     public func loadAll(from url: URL, dtype: DType? = nil) throws -> [String: MLXArray] {
-        guard url.isFileURL else { throw WeightsError.invalidURL(url) }
+        let resolvedURL = url.resolvingSymlinksInPath()
+        guard resolvedURL.isFileURL else { throw WeightsError.invalidURL(url) }
 
         var isDirectory: ObjCBool = false
-        guard FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory) else {
-            throw WeightsError.invalidURL(url)
+        guard FileManager.default.fileExists(atPath: resolvedURL.path, isDirectory: &isDirectory) else {
+            throw WeightsError.invalidURL(resolvedURL)
         }
 
         if isDirectory.boolValue {
-            return try loadAllFromDirectory(url, dtype: dtype)
+            return try loadAllFromDirectory(resolvedURL, dtype: dtype)
         }
 
-        if url.pathExtension == "safetensors" {
-            return try loadAllFromSafetensorsFile(url, dtype: dtype)
+        if resolvedURL.pathExtension == "safetensors" {
+            return try loadAllFromSafetensorsFile(resolvedURL, dtype: dtype)
         }
 
-        throw WeightsError.invalidURL(url)
+        throw WeightsError.invalidURL(resolvedURL)
     }
 
     private func loadAllFromSafetensorsFile(_ url: URL, dtype: DType?) throws -> [String: MLXArray] {

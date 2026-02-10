@@ -81,6 +81,9 @@ let package = Package(
             dependencies: [
                 "GLMOCRAdapter",
             ],
+            resources: [
+                .process("Fixtures"),
+            ],
             swiftSettings: [
                 .enableExperimentalFeature("StrictConcurrency"),
             ]

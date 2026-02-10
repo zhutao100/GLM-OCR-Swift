@@ -9,12 +9,32 @@ enum GLMOCRTestEnv {
         return URL(fileURLWithPath: (value as NSString).expandingTildeInPath).standardizedFileURL
     }
 
+    static var runGolden: Bool {
+        ProcessInfo.processInfo.environment["GLMOCR_RUN_GOLDEN"] == "1"
+    }
+
     static var runForwardPass: Bool {
-        ProcessInfo.processInfo.environment["GLMOCR_TEST_RUN_FORWARD_PASS"] == "1"
+        ProcessInfo.processInfo.environment["GLMOCR_TEST_RUN_FORWARD_PASS"] == "1" || runGolden
     }
 
     static var runGenerate: Bool {
         ProcessInfo.processInfo.environment["GLMOCR_TEST_RUN_GENERATE"] == "1"
+    }
+
+    static func goldenFixtureData(
+        name: String = "glmocr_forward_golden_v1",
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) throws -> Data {
+        guard let url = Bundle.module.url(forResource: name, withExtension: "json") else {
+            throw XCTSkip(
+                "Golden fixture '\(name).json' not found in test bundle. " +
+                    "Generate it via scripts/generate_glmocr_golden.py and place it under Tests/GLMOCRAdapterTests/Fixtures/.",
+                file: file,
+                line: line
+            )
+        }
+        return try Data(contentsOf: url)
     }
 }
 

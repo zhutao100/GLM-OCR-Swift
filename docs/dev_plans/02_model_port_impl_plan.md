@@ -204,16 +204,17 @@ Add tests that do not require a downloaded model:
 
 ### 5.3 Opt-in golden checks (skipped unless explicitly enabled)
 Add an opt-in integration test:
-- If env var `GLMOCR_RUN_GOLDEN=1` and the snapshot folder exists:
-  - load the local snapshot (no download)
+- If env var `GLMOCR_RUN_GOLDEN=1` and `GLMOCR_TEST_MODEL_FOLDER` points at a local snapshot folder:
+  - load the local snapshot (no download; uses `GLMOCR_TEST_MODEL_FOLDER`)
   - run the deterministic forward pass
-  - assert logits shape and a small numeric slice against golden data.
+  - assert logits shape and a small numeric slice against golden fixture data (`Tests/GLMOCRAdapterTests/Fixtures/glmocr_forward_golden_v1.json`).
 
 Add `scripts/generate_glmocr_golden.py` (manual workflow, not run by CI):
 - Uses Python + `transformers` to:
   - load the same snapshot weights
-  - run the same `input_ids` and `pixel_values` (with saved seed / explicit arrays)
-  - write out a compact golden artifact (e.g., `tests/fixtures/glmocr_forward_logits_slice.json` with float32 values)
+  - build a deterministic synthetic RGB image and run it through the official `Glm46VImageProcessor` to produce `pixel_values` + `image_grid_thw`
+  - run the same `input_ids` (built from tokenizer + computed `num_image_tokens`)
+  - write out a compact golden artifact: `Tests/GLMOCRAdapterTests/Fixtures/glmocr_forward_golden_v1.json` (float32 slice values).
 
 ---
 
@@ -237,4 +238,4 @@ Add `scripts/generate_glmocr_golden.py` (manual workflow, not run by CI):
 1. `swift test` (must pass; golden test is skipped by default)
 2. `swift run GLMOCRCLI --download-only` (ensures snapshot exists)
 3. `swift run GLMOCRCLI --dev-forward-pass` (prints logits shape + top-k ids)
-4. (Optional) `GLMOCR_RUN_GOLDEN=1 swift test` after generating fixtures via `scripts/generate_glmocr_golden.py`
+4. (Optional) `GLMOCR_TEST_MODEL_FOLDER=<path> GLMOCR_RUN_GOLDEN=1 swift test` after generating fixtures via `scripts/generate_glmocr_golden.py`
