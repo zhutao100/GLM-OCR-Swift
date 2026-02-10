@@ -62,6 +62,10 @@ Phase 03 MVP now runs end-to-end for a single image or a single PDF page:
 
 Remaining work is largely “quality + UX”: parity validation vs the official MLX Python example, layout stage, better prompt presets, and multi-page/document orchestration.
 
+## Numerical parity & golden checks
+
+When porting models (or changing preprocessing/generation), use the opt-in golden workflow described in `docs/golden_checks.md` to keep `swift test` fast by default while still enabling deterministic parity checks when needed.
+
 ## Extension points
 
 - Add new model adapters under `Sources/ModelAdapters/*`

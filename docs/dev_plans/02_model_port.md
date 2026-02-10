@@ -4,7 +4,7 @@
 
 Borrowing references: `docs/reference_projects.md` (“Borrowing map”, DeepSeek OCR / DeepSeek OCR2).
 
-**Status (2026-02-09):** GLM-OCR model architecture + safetensors weight loading + tokenizer validation are implemented; greedy generation/decoding landed in Phase 03 (parity/golden validation still pending).
+**Status (2026-02-09):** GLM-OCR model architecture + safetensors weight loading + tokenizer validation are implemented; an opt-in Python/Transformers forward-pass golden check exists (skipped by default). Broader “quality parity on real documents” is still pending.
 
 ## Tasks
 - [x] Stub `GLMOCRModel` load path
@@ -19,9 +19,9 @@ Borrowing references: `docs/reference_projects.md` (“Borrowing map”, DeepSee
 - [x] Add a minimal “single forward pass” harness
   - load config + load weights + run one forward pass (logits only; no decoding yet)
 - [x] Validate tokenizer + special tokens
-- [ ] Add golden tests (small prompts) and compare to Python reference outputs
+- [x] Add golden tests (small prompts) and compare to Python reference outputs
   - borrow: KV-cache utilities for long outputs / batching (`KVCache*`) (`mzbac/deepseek-ocr2.swift` `Utils/KVCache.swift`)
-  - note: an opt-in Python/Transformers parity golden test exists, but it’s skipped by default and requires generating a local fixture.
+  - note: the parity golden test is opt-in (skipped by default) and requires generating a local fixture.
 
 ## Exit criteria
 - `GLMOCRModel.load(from:)` loads config + weights successfully
@@ -42,3 +42,6 @@ scripts/build_mlx_metallib.sh -c debug
 - Python/Transformers parity golden (also requires `mlx.metallib`):
   - `python3 scripts/generate_glmocr_golden.py --model-folder <path>`
   - `GLMOCR_TEST_MODEL_FOLDER=<path> GLMOCR_RUN_GOLDEN=1 swift test`
+
+Parity notes:
+- Keep device/dtype aligned between the fixture generator and Swift parity runs; see `docs/golden_checks.md`.

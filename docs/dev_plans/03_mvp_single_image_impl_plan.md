@@ -87,7 +87,7 @@ Work:
    - Render via `CIContext.render(... toBitmap: ...)` into RGBA8.
    - Convert to `MLXArray` of shape `[1, H, W, 3]` float32 in `[0,1]`.
 2. Add an options struct (model-agnostic):
-   - `ImageTensorConversionOptions(dtype: MLXDataType = .bfloat16, mean: (Float,Float,Float)?, std: ...?)`
+   - `ImageTensorConversionOptions(dtype: DType = .bfloat16, mean: (Float,Float,Float)?, std: ...?)`
    - If mean/std provided, apply `(x - mean) / std` using MLX broadcasting.
 3. Keep color space explicit: sRGB.
 
@@ -112,7 +112,7 @@ Work:
 2. Convert to tensor:
    - Use `ImageTensorConverter.toTensor(image, options: ...)` to get `[1,H,W,3]`.
    - Expand to GLM-required `pixelValues` of shape `[1, D, H, W, 3]` where `D = temporalPatchSize` by repeating along depth.
-   - Cast dtype to `.bfloat16`.
+   - Choose dtype via options (default `.bfloat16` for runtime; parity/golden fixtures may require `.float16` depending on the reference stack/device).
 3. Compute `numImageTokens` deterministically from final size:
    - `gridH = H / patchSize`, `gridW = W / patchSize`
    - `downH = gridH / spatialMergeSize`, `downW = gridW / spatialMergeSize`

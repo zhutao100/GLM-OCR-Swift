@@ -208,6 +208,7 @@ Add an opt-in integration test:
   - load the local snapshot (no download; uses `GLMOCR_TEST_MODEL_FOLDER`)
   - run the deterministic forward pass
   - assert logits shape and a small numeric slice against golden fixture data (`Tests/GLMOCRAdapterTests/Fixtures/glmocr_forward_golden_v1.json`).
+  - parity hygiene (dtype/device alignment, intermediate debugging): see `docs/golden_checks.md`.
 
 Add `scripts/generate_glmocr_golden.py` (manual workflow, not run by CI):
 - Uses Python + `transformers` to:

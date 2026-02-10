@@ -22,6 +22,7 @@ What is still stubbed / not implemented yet:
 ## Where things live (source of truth)
 
 - Architecture and module boundaries: `docs/architecture.md`
+- Numerical parity & golden fixtures (developer workflow): `docs/golden_checks.md`
 - Roadmap and prioritized TODOs: `docs/dev_plans/`
 - Decisions that affect interfaces/layout: `docs/decisions/`
 - GLM-OCR model notes (special tokens, templates, pipeline behavior): `docs/GLM-OCR_model.md`
