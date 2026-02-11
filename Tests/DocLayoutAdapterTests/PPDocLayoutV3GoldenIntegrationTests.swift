@@ -33,7 +33,10 @@ final class PPDocLayoutV3GoldenIntegrationTests: XCTestCase {
         let processed = try processor.process(image, preprocessorConfig: preprocessorConfig)
 
         let model = try PPDocLayoutV3Model.load(from: modelFolder)
-        let raw = try model.forwardRawOutputs(pixelValues: processed.pixelValues)
+        let raw = try model.forwardRawOutputs(
+            pixelValues: processed.pixelValues,
+            encoderTopKIndicesOverride: fixture.encoderTopKIndices
+        )
 
         XCTAssertEqual(raw.logits.shape, fixture.model.logitsShape)
         XCTAssertEqual(raw.predBoxes.shape, fixture.model.predBoxesShape)
@@ -47,20 +50,49 @@ final class PPDocLayoutV3GoldenIntegrationTests: XCTestCase {
         let logitsTolerance: Float = 0.50
         let boxesTolerance: Float = 0.02
 
-        for (rowIndex, queryIndex) in fixture.queryIndices.enumerated() {
-            let logits = raw.logits[0, queryIndex].asType(.float32).asArray(Float.self)
+        let swiftTopK = raw.encoderTopKIndices[0].asArray(Int32.self).map { Int($0) }
+        let pythonTopK = fixture.encoderTopKIndices
+        if let pythonTopK {
+            XCTAssertEqual(pythonTopK.count, fixture.model.numQueries)
+            XCTAssertEqual(swiftTopK.count, fixture.model.numQueries)
+        }
+
+        for (rowIndex, pythonQueryIndex) in fixture.queryIndices.enumerated() {
+            let swiftQueryIndex: Int
+            if let pythonTopK {
+                let encoderIndex = pythonTopK[pythonQueryIndex]
+                guard let mapped = swiftTopK.firstIndex(of: encoderIndex) else {
+                    XCTFail("Python encoder index \(encoderIndex) not found in Swift top-k. pythonQuery=\(pythonQueryIndex)")
+                    continue
+                }
+                swiftQueryIndex = mapped
+            } else {
+                swiftQueryIndex = pythonQueryIndex
+            }
+
+            let logits = raw.logits[0, swiftQueryIndex].asType(.float32).asArray(Float.self)
             for (colIndex, classIndex) in fixture.classIndices.enumerated() {
                 let expected = fixture.logitsSlice[rowIndex][colIndex]
                 let actual = logits[classIndex]
-                XCTAssertEqual(actual, expected, accuracy: logitsTolerance)
+                XCTAssertEqual(
+                    actual,
+                    expected,
+                    accuracy: logitsTolerance,
+                    "pythonQuery=\(pythonQueryIndex) swiftQuery=\(swiftQueryIndex) class=\(classIndex)"
+                )
             }
 
-            let box = raw.predBoxes[0, queryIndex].asType(.float32).asArray(Float.self)
+            let box = raw.predBoxes[0, swiftQueryIndex].asType(.float32).asArray(Float.self)
             XCTAssertEqual(box.count, 4)
             for i in 0 ..< 4 {
                 let expected = fixture.predBoxesSlice[rowIndex][i]
                 let actual = box[i]
-                XCTAssertEqual(actual, expected, accuracy: boxesTolerance)
+                XCTAssertEqual(
+                    actual,
+                    expected,
+                    accuracy: boxesTolerance,
+                    "pythonQuery=\(pythonQueryIndex) swiftQuery=\(swiftQueryIndex) box=\(i)"
+                )
             }
         }
     }

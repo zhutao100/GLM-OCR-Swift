@@ -66,6 +66,43 @@ Guideline:
 - Treat the image processor/tokenizer configuration as part of the golden fixture.
 - Prefer recording the reference library versions and any critical processor flags (e.g. `use_fast`) in the fixture metadata or the generator output.
 
+### 7) If the model performs internal selection, record the indices
+
+Many detectors are effectively “two-stage”: the decoder queries are created by selecting top-scoring encoder locations.
+Tiny numeric drift (device kernels, dtype promotions, half precision rounding) can change the **ordering** of that selection even when the underlying features are close.
+
+Golden probes that assume “query i is query i” become meaningless if the query identities differ.
+
+Guideline:
+
+- Capture the reference selection indices (e.g. encoder `topk_ind`, kept indices after masking) in the fixture.
+- In Swift, either:
+  - override the selection indices during the parity run, or
+  - map “python query i” → “swift query j” by matching the underlying selected encoder index.
+
+This makes golden slices compare like-for-like, instead of accidentally comparing different objects.
+
+### 8) Use dtype-appropriate sentinel values for masking
+
+Masking often uses “very large” numbers so that invalid entries disappear under `min/max/topk`.
+In half precision, `Float.greatestFiniteMagnitude` does **not** fit and becomes `inf`, which can turn downstream ops into `NaN` (especially if you later apply `log`, `exp`, or reduce across mixed valid/invalid values).
+
+Guideline:
+
+- Use dtype-aware finite maxima (e.g. `Float16.greatestFiniteMagnitude` when running FP16).
+- Be deliberate about dtype promotions in comparisons (some backends compare FP16 values against FP32 scalars).
+
+### 9) Boundary-sensitive ops can amplify tiny errors
+
+`grid_sample(align_corners=false)` and deformable attention are highly sensitive to sampling locations near the `[0, 1]` boundary.
+In FP16, rounding can push an “almost-in-bounds” coordinate slightly out of bounds, triggering zero padding and disproportionately large downstream drift.
+
+Guideline:
+
+- Keep the sampling-location math faithful to the reference implementation (including dtype).
+- When diagnosing parity, always include at least one probe that is fully in-bounds to separate “core math mismatch” from “OOB/border effects”.
+- Prefer probe indices that are stable across backends; if an index is consistently border-sensitive, replace it with a nearby index that exercises the same codepaths.
+
 ## Repo-specific switches (parity workflow)
 
 - `GLMOCR_TEST_MODEL_FOLDER=<snapshot_path>` points tests at a local HF snapshot.
@@ -76,7 +113,9 @@ Guideline:
 
 ## Practical checklist (when adding or updating a golden fixture)
 
-1. Generate the fixture from the reference stack (`scripts/generate_glmocr_golden.py`).
+1. Generate the fixture from the reference stack:
+   - GLM-OCR: `scripts/generate_glmocr_golden.py`
+   - PP-DocLayout-V3: `scripts/generate_ppdoclayoutv3_golden.py`
 2. Ensure the fixture metadata records enough to reproduce:
    - snapshot hash, prompt, preprocessing config summary
    - device + dtype (and any forced-float32 blocks); if not embedded in JSON, ensure it is printed/logged by the generator script output.
@@ -85,5 +124,5 @@ Guideline:
    - `LAYOUT_SNAPSHOT_PATH=<snapshot> LAYOUT_RUN_GOLDEN=1 swift test`
 4. If it fails:
    - turn on `GLMOCR_DEBUG_VISION=1`
-    - validate dtype/device alignment first
-    - then validate layout + RoPE conventions
+   - validate dtype/device alignment first
+   - then validate layout + RoPE conventions

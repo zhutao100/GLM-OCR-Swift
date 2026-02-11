@@ -65,6 +65,8 @@ struct PPDocLayoutV3ForwardGoldenFixture: Decodable, Sendable {
     let processor: ProcessorSummary
     let model: ModelSummary
 
+    let encoderTopKIndices: [Int]?
+
     let queryIndices: [Int]
     let classIndices: [Int]
     let logitsSlice: [[Float]]
@@ -74,6 +76,7 @@ struct PPDocLayoutV3ForwardGoldenFixture: Decodable, Sendable {
         case metadata
         case processor
         case model
+        case encoderTopKIndices = "encoder_topk_indices"
         case queryIndices = "query_indices"
         case classIndices = "class_indices"
         case logitsSlice = "logits_slice"

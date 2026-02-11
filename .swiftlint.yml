@@ -9,6 +9,7 @@ line_length:
   error: 200
 
 disabled_rules:
+  - function_parameter_count
   - identifier_name
   - trailing_comma
   - type_body_length

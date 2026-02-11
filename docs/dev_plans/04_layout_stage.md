@@ -32,7 +32,7 @@ Borrowing references: official GLM-OCR pipeline (`glmocr/pipeline/pipeline.py`) 
 - [x] 04.5 Detector “load-only” validation (optional integration)
 - [x] 04.6 Detector inference outputs + postprocess wiring (optional integration)
 - [x] 04.7 Orchestration + concurrency + CLI/App wiring (Phase 04 exit criteria)
-- [ ] 04.8 PP-DocLayout-V3 parity (golden fixtures + full model alignment)
+- [x] 04.8 PP-DocLayout-V3 parity (golden fixtures + full model alignment)
 - [ ] 04.9 End-to-end parity vs `examples/` (Markdown + JSON expectations)
 
 ## Exit criteria

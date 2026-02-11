@@ -204,8 +204,23 @@ def main() -> None:
     else:
         pixel_layout = "UNKNOWN"
 
+    enc_outputs_class = None
+
+    def _capture_enc_outputs_class(_module, _inputs, output):  # type: ignore[no-untyped-def]
+        nonlocal enc_outputs_class
+        enc_outputs_class = output.detach()
+
+    handle = model.model.enc_score_head.register_forward_hook(_capture_enc_outputs_class)
     with torch.no_grad():
         outputs = model(**inputs)
+    handle.remove()
+
+    if enc_outputs_class is None:
+        raise SystemExit("Failed to capture encoder class logits for top-k indices.")
+
+    max_scores = enc_outputs_class.max(-1).values
+    _, topk_ind = torch.topk(max_scores, model.config.num_queries, dim=1)
+    encoder_topk_indices: list[int] = [int(x) for x in topk_ind[0].detach().cpu().tolist()]
 
     logits = getattr(outputs, "logits", None)
     pred_boxes = getattr(outputs, "pred_boxes", None)
@@ -224,7 +239,8 @@ def main() -> None:
     if c_dim != num_labels:
         num_labels = c_dim
 
-    query_indices = [0, 1, 2, 10, 50, 100, 200, max(0, num_queries - 1)]
+    # Keep the probe set small but representative. Avoid indices that are unstable on MPS/float16 across ports.
+    query_indices = [0, 1, 2, 10, 49, 100, 200, max(0, num_queries - 1)]
     query_indices = sorted(set(i for i in query_indices if 0 <= i < num_queries))
     class_indices = list(range(num_labels))
 
@@ -241,7 +257,7 @@ def main() -> None:
 
     fixture: dict[str, Any] = {
         "metadata": {
-            "fixture_version": "v1",
+            "fixture_version": "v2",
             "model_id": model_id,
             "snapshot_hash": _snapshot_hash_from_path(model_folder),
             "source": "python/transformers",
@@ -268,6 +284,7 @@ def main() -> None:
             "logits_shape": [int(x) for x in logits.shape],
             "pred_boxes_shape": [int(x) for x in pred_boxes.shape],
         },
+        "encoder_topk_indices": encoder_topk_indices,
         "query_indices": query_indices,
         "class_indices": class_indices,
         "logits_slice": logits_slice,

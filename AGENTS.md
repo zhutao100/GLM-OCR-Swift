@@ -97,10 +97,16 @@ pre-commit run -a
 - Avoid global singletons (except lightweight statics for constants).
 - Fail with typed errors (`enum: Error`) rather than `fatalError`, unless the failure is truly unrecoverable.
 
+## MLX vs PyTorch (MPS) dtype quirks (parity-critical)
+
+- **MPS defaults to FP16 often**: PyTorch/Transformers commonly runs models + `pixel_values` in `float16` on MPS; parity runs in Swift should force **both weights and inputs** to `.float16`.
+- **Mixed-dtype comparisons can differ**: PyTorch MPS may effectively compare FP16 tensors against FP32 scalars (e.g. `eps`) in FP32; if a mask depends on thresholds, match the reference comparison dtype explicitly (often by casting the tensor to FP32 for the compare).
+- **Sentinel magnitudes must be dtype-aware**: casting `Float.greatestFiniteMagnitude` to FP16 becomes `inf`; prefer `Float16.greatestFiniteMagnitude` (or an explicit finite FP16 max) for masking to avoid `inf`/`NaN` cascades.
+- **FP16 border sensitivity is real**: operations like `grid_sample(align_corners=false)` are very sensitive near `[0, 1]`; FP16 rounding can flip in/out-of-bounds. When writing golden checks, prefer stable probe indices and record any internal selection indices (see `docs/golden_checks.md`).
+
 ## Work plan checkpoints
 
 - Phase plans: `docs/dev_plans/`
-- Start with Phase 01 (ModelStore) then Phase 02 (MVP single image/page).
 
 ## References
 

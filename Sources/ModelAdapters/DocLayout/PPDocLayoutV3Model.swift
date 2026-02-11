@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 import Foundation
 import MLX
 import MLXNN
@@ -25,15 +26,16 @@ public struct PPDocLayoutV3Model: Sendable {
         var logits: MLXArray
         var predBoxes: MLXArray
         var orderLogits: MLXArray
+        var encoderTopKIndices: MLXArray
         var didFallbackToAllQueries: Bool
     }
 
     final class State: @unchecked Sendable {
         let config: PPDocLayoutV3Config
         let modelConfig: PPDocLayoutV3ModelConfig
-        let core: PPDocLayoutV3EncoderOnlyRoot
+        let core: PPDocLayoutV3Root
 
-        init(config: PPDocLayoutV3Config, modelConfig: PPDocLayoutV3ModelConfig, core: PPDocLayoutV3EncoderOnlyRoot) {
+        init(config: PPDocLayoutV3Config, modelConfig: PPDocLayoutV3ModelConfig, core: PPDocLayoutV3Root) {
             self.config = config
             self.modelConfig = modelConfig
             self.core = core
@@ -69,7 +71,7 @@ public struct PPDocLayoutV3Model: Sendable {
             throw PPDocLayoutV3ModelError.invalidConfiguration("id2label is empty; cannot determine num_labels")
         }
 
-        let core = PPDocLayoutV3EncoderOnlyRoot(modelConfig: modelConfig, numLabels: numLabels)
+        let core = PPDocLayoutV3Root(modelConfig: modelConfig, numLabels: numLabels)
         core.train(false)
 
         do {
@@ -108,8 +110,16 @@ public struct PPDocLayoutV3Model: Sendable {
         try state.core.forward(pixelValues: pixelValues, options: options)
     }
 
-    func forwardRawOutputs(pixelValues: MLXArray, options: Options = .init()) throws -> RawOutputs {
-        try state.core.forwardRawOutputs(pixelValues: pixelValues, options: options)
+    func forwardRawOutputs(
+        pixelValues: MLXArray,
+        options: Options = .init(),
+        encoderTopKIndicesOverride: [Int]? = nil
+    ) throws -> RawOutputs {
+        try state.core.forwardRawOutputs(
+            pixelValues: pixelValues,
+            options: options,
+            encoderTopKIndicesOverride: encoderTopKIndicesOverride
+        )
     }
 }
 
@@ -118,20 +128,137 @@ public struct PPDocLayoutV3Model: Sendable {
 public struct PPDocLayoutV3ModelConfig: Sendable, Codable, Equatable {
     public var dModel: Int
     public var numQueries: Int
+
+    public var encoderHiddenDim: Int
+    public var encoderInChannels: [Int]
+    public var encoderLayers: Int
+    public var encoderAttentionHeads: Int
+    public var encoderFFNDim: Int
+    public var encoderActivationFunction: String
+
+    public var decoderInChannels: [Int]
     public var decoderLayers: Int
+    public var decoderAttentionHeads: Int
+    public var decoderFFNDim: Int
+    public var decoderNPoints: Int
+    public var decoderActivationFunction: String
+
+    public var numFeatureLevels: Int
+    public var featureStrides: [Int]
+    public var encodeProjLayers: [Int]
+    public var positionalEncodingTemperature: Int
+
+    public var activationFunction: String
+    public var normalizeBefore: Bool
+
+    public var dropout: Double
+    public var attentionDropout: Double
+    public var activationDropout: Double
+
     public var batchNormEps: Double?
     public var layerNormEps: Double?
+    public var disableCustomKernels: Bool
+
+    public var hiddenExpansion: Double
+
+    public var maskFeatureChannels: [Int]
+    public var x4FeatDim: Int
+    public var maskEnhanced: Bool
+    public var numPrototypes: Int
+
     public var globalPointerHeadSize: Int
     public var gpDropoutValue: Double?
 
     private enum CodingKeys: String, CodingKey {
         case dModel = "d_model"
         case numQueries = "num_queries"
+
+        case encoderHiddenDim = "encoder_hidden_dim"
+        case encoderInChannels = "encoder_in_channels"
+        case encoderLayers = "encoder_layers"
+        case encoderAttentionHeads = "encoder_attention_heads"
+        case encoderFFNDim = "encoder_ffn_dim"
+        case encoderActivationFunction = "encoder_activation_function"
+
+        case decoderInChannels = "decoder_in_channels"
         case decoderLayers = "decoder_layers"
+        case decoderAttentionHeads = "decoder_attention_heads"
+        case decoderFFNDim = "decoder_ffn_dim"
+        case decoderNPoints = "decoder_n_points"
+        case decoderActivationFunction = "decoder_activation_function"
+
+        case numFeatureLevels = "num_feature_levels"
+        case featureStrides = "feature_strides"
+        case encodeProjLayers = "encode_proj_layers"
+        case positionalEncodingTemperature = "positional_encoding_temperature"
+
+        case activationFunction = "activation_function"
+        case normalizeBefore = "normalize_before"
+
+        case dropout
+        case attentionDropout = "attention_dropout"
+        case activationDropout = "activation_dropout"
+
         case batchNormEps = "batch_norm_eps"
         case layerNormEps = "layer_norm_eps"
+        case disableCustomKernels = "disable_custom_kernels"
+
+        case hiddenExpansion = "hidden_expansion"
+
+        case maskFeatureChannels = "mask_feature_channels"
+        case x4FeatDim = "x4_feat_dim"
+        case maskEnhanced = "mask_enhanced"
+        case numPrototypes = "num_prototypes"
+
         case globalPointerHeadSize = "global_pointer_head_size"
         case gpDropoutValue = "gp_dropout_value"
+    }
+
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        dModel = try container.decode(Int.self, forKey: .dModel)
+        numQueries = try container.decode(Int.self, forKey: .numQueries)
+
+        encoderHiddenDim = try container.decodeIfPresent(Int.self, forKey: .encoderHiddenDim) ?? dModel
+        encoderInChannels = try container.decodeIfPresent([Int].self, forKey: .encoderInChannels) ?? [512, 1024, 2048]
+        encoderLayers = try container.decodeIfPresent(Int.self, forKey: .encoderLayers) ?? 0
+        encoderAttentionHeads = try container.decodeIfPresent(Int.self, forKey: .encoderAttentionHeads) ?? 8
+        encoderFFNDim = try container.decodeIfPresent(Int.self, forKey: .encoderFFNDim) ?? 1024
+        encoderActivationFunction = try container.decodeIfPresent(String.self, forKey: .encoderActivationFunction) ?? "gelu"
+
+        decoderInChannels = try container.decodeIfPresent([Int].self, forKey: .decoderInChannels) ?? Array(repeating: dModel, count: 3)
+        decoderLayers = try container.decodeIfPresent(Int.self, forKey: .decoderLayers) ?? 1
+        decoderAttentionHeads = try container.decodeIfPresent(Int.self, forKey: .decoderAttentionHeads) ?? 8
+        decoderFFNDim = try container.decodeIfPresent(Int.self, forKey: .decoderFFNDim) ?? 1024
+        decoderNPoints = try container.decodeIfPresent(Int.self, forKey: .decoderNPoints) ?? 4
+        decoderActivationFunction = try container.decodeIfPresent(String.self, forKey: .decoderActivationFunction) ?? "relu"
+
+        numFeatureLevels = try container.decodeIfPresent(Int.self, forKey: .numFeatureLevels) ?? decoderInChannels.count
+        featureStrides = try container.decodeIfPresent([Int].self, forKey: .featureStrides) ?? [8, 16, 32]
+        encodeProjLayers = try container.decodeIfPresent([Int].self, forKey: .encodeProjLayers) ?? []
+        positionalEncodingTemperature = try container.decodeIfPresent(Int.self, forKey: .positionalEncodingTemperature) ?? 10000
+
+        activationFunction = try container.decodeIfPresent(String.self, forKey: .activationFunction) ?? "silu"
+        normalizeBefore = try container.decodeIfPresent(Bool.self, forKey: .normalizeBefore) ?? false
+
+        dropout = try container.decodeIfPresent(Double.self, forKey: .dropout) ?? 0
+        attentionDropout = try container.decodeIfPresent(Double.self, forKey: .attentionDropout) ?? 0
+        activationDropout = try container.decodeIfPresent(Double.self, forKey: .activationDropout) ?? 0
+
+        batchNormEps = try container.decodeIfPresent(Double.self, forKey: .batchNormEps)
+        layerNormEps = try container.decodeIfPresent(Double.self, forKey: .layerNormEps)
+        disableCustomKernels = try container.decodeIfPresent(Bool.self, forKey: .disableCustomKernels) ?? true
+
+        hiddenExpansion = try container.decodeIfPresent(Double.self, forKey: .hiddenExpansion) ?? 1.0
+
+        maskFeatureChannels = try container.decodeIfPresent([Int].self, forKey: .maskFeatureChannels) ?? [64, 64]
+        x4FeatDim = try container.decodeIfPresent(Int.self, forKey: .x4FeatDim) ?? 128
+        maskEnhanced = try container.decodeIfPresent(Bool.self, forKey: .maskEnhanced) ?? true
+        numPrototypes = try container.decodeIfPresent(Int.self, forKey: .numPrototypes) ?? 32
+
+        globalPointerHeadSize = try container.decodeIfPresent(Int.self, forKey: .globalPointerHeadSize) ?? 64
+        gpDropoutValue = try container.decodeIfPresent(Double.self, forKey: .gpDropoutValue)
     }
 
     public static func load(from modelFolder: URL) throws -> PPDocLayoutV3ModelConfig {
@@ -141,13 +268,13 @@ public struct PPDocLayoutV3ModelConfig: Sendable, Codable, Equatable {
     }
 }
 
-// MARK: - Core modules (encoder-only subset)
+// MARK: - Core modules (full)
 
-final class PPDocLayoutV3EncoderOnlyRoot: Module {
-    @ModuleInfo(key: "model") var model: PPDocLayoutV3EncoderOnlyCore
+final class PPDocLayoutV3Root: Module {
+    @ModuleInfo(key: "model") var model: PPDocLayoutV3Core
 
     init(modelConfig: PPDocLayoutV3ModelConfig, numLabels: Int) {
-        _model.wrappedValue = PPDocLayoutV3EncoderOnlyCore(modelConfig: modelConfig, numLabels: numLabels)
+        _model.wrappedValue = PPDocLayoutV3Core(modelConfig: modelConfig, numLabels: numLabels)
         super.init()
     }
 
@@ -155,24 +282,37 @@ final class PPDocLayoutV3EncoderOnlyRoot: Module {
         try model.forward(pixelValues: pixelValues, options: options)
     }
 
-    func forwardRawOutputs(pixelValues: MLXArray, options: PPDocLayoutV3Model.Options) throws -> PPDocLayoutV3Model.RawOutputs {
-        try model.forwardRawOutputs(pixelValues: pixelValues, options: options)
+    func forwardRawOutputs(
+        pixelValues: MLXArray,
+        options: PPDocLayoutV3Model.Options,
+        encoderTopKIndicesOverride: [Int]? = nil
+    ) throws -> PPDocLayoutV3Model.RawOutputs {
+        try model.forwardRawOutputs(
+            pixelValues: pixelValues,
+            options: options,
+            encoderTopKIndicesOverride: encoderTopKIndicesOverride
+        )
     }
 }
 
-final class PPDocLayoutV3EncoderOnlyCore: Module {
+final class PPDocLayoutV3Core: Module {
     @ModuleInfo(key: "backbone") var backbone: PPDocLayoutV3ConvEncoderCore
 
     @ModuleInfo(key: "encoder_input_proj") var encoderInputProj: [(Conv2d, BatchNorm)]
+    @ModuleInfo(key: "encoder") var encoder: PPDocLayoutV3HybridEncoderCore
+
     @ModuleInfo(key: "decoder_input_proj") var decoderInputProj: [(Conv2d, BatchNorm)]
 
     @ModuleInfo(key: "enc_output") var encOutput: (Linear, LayerNorm)
     @ModuleInfo(key: "enc_score_head") var encScoreHead: Linear
     @ModuleInfo(key: "enc_bbox_head") var encBBoxHead: PPMLPPredictionHead
 
+    @ModuleInfo(key: "decoder") var decoder: PPDocLayoutV3DecoderCore
     @ModuleInfo(key: "decoder_norm") var decoderNorm: LayerNorm
     @ModuleInfo(key: "decoder_order_head") var decoderOrderHead: [Linear]
     @ModuleInfo(key: "decoder_global_pointer") var decoderGlobalPointer: PPGlobalPointer
+
+    @ModuleInfo(key: "mask_query_head") var maskQueryHead: PPMLPPredictionHead
 
     private let modelConfig: PPDocLayoutV3ModelConfig
     private let numLabels: Int
@@ -184,43 +324,83 @@ final class PPDocLayoutV3EncoderOnlyCore: Module {
         _backbone.wrappedValue = PPDocLayoutV3ConvEncoderCore()
 
         let bnEps = Float(modelConfig.batchNormEps ?? 1e-5)
-        _encoderInputProj.wrappedValue = [
+        _encoderInputProj.wrappedValue = modelConfig.encoderInChannels.map { inChannels in
             (
-                Conv2d(inputChannels: 512, outputChannels: modelConfig.dModel, kernelSize: 1, stride: 1, padding: 0, bias: false),
-                BatchNorm(featureCount: modelConfig.dModel, eps: bnEps)
-            ),
+                Conv2d(
+                    inputChannels: inChannels,
+                    outputChannels: modelConfig.encoderHiddenDim,
+                    kernelSize: 1,
+                    stride: 1,
+                    padding: 0,
+                    bias: false
+                ),
+                BatchNorm(featureCount: modelConfig.encoderHiddenDim, eps: bnEps)
+            )
+        }
+
+        _encoder.wrappedValue = PPDocLayoutV3HybridEncoderCore(modelConfig: modelConfig)
+
+        var decoderProj: [(Conv2d, BatchNorm)] = modelConfig.decoderInChannels.map { inChannels in
             (
-                Conv2d(inputChannels: 1024, outputChannels: modelConfig.dModel, kernelSize: 1, stride: 1, padding: 0, bias: false),
+                Conv2d(
+                    inputChannels: inChannels,
+                    outputChannels: modelConfig.dModel,
+                    kernelSize: 1,
+                    stride: 1,
+                    padding: 0,
+                    bias: false
+                ),
                 BatchNorm(featureCount: modelConfig.dModel, eps: bnEps)
-            ),
-            (
-                Conv2d(inputChannels: 2048, outputChannels: modelConfig.dModel, kernelSize: 1, stride: 1, padding: 0, bias: false),
-                BatchNorm(featureCount: modelConfig.dModel, eps: bnEps)
-            ),
-        ]
-        _decoderInputProj.wrappedValue = [
-            (
-                Conv2d(inputChannels: modelConfig.dModel, outputChannels: modelConfig.dModel, kernelSize: 1, stride: 1, padding: 0, bias: false),
-                BatchNorm(featureCount: modelConfig.dModel, eps: bnEps)
-            ),
-            (
-                Conv2d(inputChannels: modelConfig.dModel, outputChannels: modelConfig.dModel, kernelSize: 1, stride: 1, padding: 0, bias: false),
-                BatchNorm(featureCount: modelConfig.dModel, eps: bnEps)
-            ),
-            (
-                Conv2d(inputChannels: modelConfig.dModel, outputChannels: modelConfig.dModel, kernelSize: 1, stride: 1, padding: 0, bias: false),
-                BatchNorm(featureCount: modelConfig.dModel, eps: bnEps)
-            ),
-        ]
+            )
+        }
+
+        var inChannels = modelConfig.dModel
+        if modelConfig.numFeatureLevels > decoderProj.count {
+            for _ in decoderProj.count ..< modelConfig.numFeatureLevels {
+                decoderProj.append(
+                    (
+                        Conv2d(
+                            inputChannels: inChannels,
+                            outputChannels: modelConfig.dModel,
+                            kernelSize: 3,
+                            stride: 2,
+                            padding: 1,
+                            bias: false
+                        ),
+                        BatchNorm(featureCount: modelConfig.dModel, eps: bnEps)
+                    )
+                )
+                inChannels = modelConfig.dModel
+            }
+        }
+        _decoderInputProj.wrappedValue = decoderProj
 
         let lnEps = Float(modelConfig.layerNormEps ?? 1e-5)
-        _encOutput.wrappedValue = (Linear(modelConfig.dModel, modelConfig.dModel), LayerNorm(dimensions: modelConfig.dModel, eps: lnEps))
+        _encOutput.wrappedValue = (
+            Linear(modelConfig.dModel, modelConfig.dModel),
+            LayerNorm(dimensions: modelConfig.dModel, eps: lnEps)
+        )
         _encScoreHead.wrappedValue = Linear(modelConfig.dModel, numLabels)
-        _encBBoxHead.wrappedValue = PPMLPPredictionHead(inputDim: modelConfig.dModel, hiddenDim: modelConfig.dModel, outputDim: 4, numLayers: 3)
-        _decoderNorm.wrappedValue = LayerNorm(dimensions: modelConfig.dModel, eps: lnEps)
+        _encBBoxHead.wrappedValue = PPMLPPredictionHead(
+            inputDim: modelConfig.dModel,
+            hiddenDim: modelConfig.dModel,
+            outputDim: 4,
+            numLayers: 3
+        )
 
-        _decoderOrderHead.wrappedValue = (0 ..< max(modelConfig.decoderLayers, 1)).map { _ in Linear(modelConfig.dModel, modelConfig.dModel) }
+        _decoder.wrappedValue = PPDocLayoutV3DecoderCore(modelConfig: modelConfig)
+        _decoderNorm.wrappedValue = LayerNorm(dimensions: modelConfig.dModel, eps: lnEps)
+        _decoderOrderHead.wrappedValue = (0 ..< max(modelConfig.decoderLayers, 1)).map { _ in
+            Linear(modelConfig.dModel, modelConfig.dModel)
+        }
         _decoderGlobalPointer.wrappedValue = PPGlobalPointer(dModel: modelConfig.dModel, headSize: modelConfig.globalPointerHeadSize)
+
+        _maskQueryHead.wrappedValue = PPMLPPredictionHead(
+            inputDim: modelConfig.dModel,
+            hiddenDim: modelConfig.dModel,
+            outputDim: modelConfig.numPrototypes,
+            numLayers: 3
+        )
 
         super.init()
     }
@@ -235,8 +415,7 @@ final class PPDocLayoutV3EncoderOnlyCore: Module {
             scoreThreshold: options.scoreThreshold
         )
 
-        if detections.scores.isEmpty, raw.didFallbackToAllQueries == false {
-            // Ensure we always return at least one region for diagnostics/debuggability.
+        if detections.scores.isEmpty {
             detections = postProcessObjectDetection(
                 logits: raw.logits,
                 boxes: raw.predBoxes,
@@ -248,7 +427,11 @@ final class PPDocLayoutV3EncoderOnlyCore: Module {
         return detections
     }
 
-    func forwardRawOutputs(pixelValues: MLXArray, options _: PPDocLayoutV3Model.Options) throws -> PPDocLayoutV3Model.RawOutputs {
+    func forwardRawOutputs(
+        pixelValues: MLXArray,
+        options _: PPDocLayoutV3Model.Options,
+        encoderTopKIndicesOverride: [Int]? = nil
+    ) throws -> PPDocLayoutV3Model.RawOutputs {
         let pixelValues: MLXArray = if pixelValues.dtype == .bfloat16 { pixelValues.asType(.float32) } else { pixelValues }
 
         let features = backbone(pixelValues)
@@ -256,72 +439,238 @@ final class PPDocLayoutV3EncoderOnlyCore: Module {
             throw PPDocLayoutV3ModelError.invalidConfiguration("backbone returned \(features.count) feature maps, expected 4")
         }
 
-        // x4_feat is features[0] (stage1). We skip the hybrid encoder and use projected backbone features directly.
+        let x4Feat = features[0]
         let projected = zip(encoderInputProj.indices, features.dropFirst()).map { idx, feature in
             let (conv, norm) = encoderInputProj[idx]
             return norm(conv(feature))
         }
 
-        let sources = zip(decoderInputProj.indices, projected).map { idx, feature in
-            let (conv, norm) = decoderInputProj[idx]
-            return norm(conv(feature))
+        let encoderOutputs = encoder.forward(projected, x4Feat: x4Feat)
+
+        var sources: [MLXArray] = []
+        sources.reserveCapacity(max(modelConfig.numFeatureLevels, encoderOutputs.featureMaps.count))
+
+        for level in 0 ..< min(encoderOutputs.featureMaps.count, decoderInputProj.count) {
+            let (conv, norm) = decoderInputProj[level]
+            sources.append(norm(conv(encoderOutputs.featureMaps[level])))
+        }
+
+        if modelConfig.numFeatureLevels > sources.count, let last = encoderOutputs.featureMaps.last {
+            let start = sources.count
+            for level in start ..< min(modelConfig.numFeatureLevels, decoderInputProj.count) {
+                let (conv, norm) = decoderInputProj[level]
+                sources.append(norm(conv(last)))
+            }
         }
 
         var sourceFlatten: [MLXArray] = []
         sourceFlatten.reserveCapacity(sources.count)
 
-        var spatialShapes: [(h: Int, w: Int)] = []
-        spatialShapes.reserveCapacity(sources.count)
+        var spatialShapesList: [(height: Int, width: Int)] = []
+        spatialShapesList.reserveCapacity(sources.count)
 
+        let batch = sources.first?.dim(0) ?? 1
         for source in sources {
             let h = source.dim(1)
             let w = source.dim(2)
-            spatialShapes.append((h: h, w: w))
-            let flat = source.reshaped(source.dim(0), h * w, source.dim(3))
-            sourceFlatten.append(flat)
+            spatialShapesList.append((height: h, width: w))
+            sourceFlatten.append(source.reshaped(batch, h * w, source.dim(3)))
         }
 
-        let encoderHiddenStates = concatenated(sourceFlatten, axis: 1)
+        let sourceFlat = concatenated(sourceFlatten, axis: 1)
 
-        let (anchors, validMask) = generateAnchors(spatialShapes: spatialShapes, dtype: encoderHiddenStates.dtype)
-        let memory = encoderHiddenStates * validMask.asType(encoderHiddenStates.dtype)
+        var spatialShapePairs: [Int32] = []
+        spatialShapePairs.reserveCapacity(spatialShapesList.count * 2)
+        for shape in spatialShapesList {
+            spatialShapePairs.append(Int32(shape.height))
+            spatialShapePairs.append(Int32(shape.width))
+        }
+        let spatialShapes = MLXArray(spatialShapePairs).reshaped(spatialShapesList.count, 2)
+
+        var startIndices: [Int32] = []
+        startIndices.reserveCapacity(spatialShapesList.count)
+        var running: Int32 = 0
+        for shape in spatialShapesList {
+            startIndices.append(running)
+            running += Int32(shape.height * shape.width)
+        }
+        let levelStartIndex = MLXArray(startIndices)
+
+        let (anchors, validMask) = generateAnchors(
+            spatialShapes: spatialShapesList.map { (h: $0.height, w: $0.width) },
+            dtype: sourceFlat.dtype
+        )
+        let memory = sourceFlat * validMask.asType(sourceFlat.dtype)
 
         let outputMemory = encOutput.1(encOutput.0(memory))
-        let encLogits = encScoreHead(outputMemory)
-        let encBoxUnact = encBBoxHead(outputMemory) + anchors
+        let encOutputsClass = encScoreHead(outputMemory)
+        let encOutputsCoordLogits = encBBoxHead(outputMemory) + anchors
 
-        // Pick top-k queries from encoder outputs.
-        let maxScores = encLogits.max(axis: -1)
-        try checkedEval(maxScores)
-        let maxScoresArray = maxScores.asArray(Float.self)
-        let (topIndices, didFallbackToAll) = selectTopIndices(
-            scores: maxScoresArray,
-            k: modelConfig.numQueries
+        let maxScores = encOutputsClass.max(axis: -1) // [B, S]
+        let k = min(modelConfig.numQueries, maxScores.dim(1))
+        let stableTopK = ProcessInfo.processInfo.environment["LAYOUT_RUN_GOLDEN"] == "1"
+
+        let topkInd: MLXArray
+        if let override = encoderTopKIndicesOverride {
+            guard override.count == k else {
+                throw PPDocLayoutV3ModelError.invalidConfiguration(
+                    "encoderTopKIndicesOverride count \(override.count) does not match expected k=\(k)"
+                )
+            }
+            guard override.allSatisfy({ $0 >= 0 && $0 < maxScores.dim(1) }) else {
+                throw PPDocLayoutV3ModelError.invalidConfiguration("encoderTopKIndicesOverride contains out-of-range indices")
+            }
+
+            let indices = MLXArray(override.map(Int32.init)).reshaped(1, k)
+            topkInd = broadcast(indices, to: [batch, k])
+        } else if stableTopK {
+            topkInd = stableTopKIndices(maxScores: maxScores, k: k)
+        } else {
+            let sorted = argSort(-maxScores, axis: 1)
+            topkInd = sorted[0..., 0 ..< k]
+        }
+
+        let idxBoxes = broadcast(topkInd.expandedDimensions(axis: -1), to: [batch, k, 4])
+        let idxHidden = broadcast(topkInd.expandedDimensions(axis: -1), to: [batch, k, modelConfig.dModel])
+
+        let target = takeAlong(outputMemory, idxHidden, axis: 1)
+
+        var referencePointsUnact = takeAlong(encOutputsCoordLogits, idxBoxes, axis: 1)
+
+        if modelConfig.maskEnhanced {
+            let outQuery = decoderNorm(target)
+            let maskQueryEmbed = maskQueryHead(outQuery)
+
+            let maskFeat = encoderOutputs.maskFeat
+            let maskH = maskFeat.dim(1)
+            let maskW = maskFeat.dim(2)
+            let maskFlat = maskFeat
+                .reshaped(batch, maskH * maskW, modelConfig.numPrototypes)
+                .transposed(0, 2, 1)
+
+            let encOutMasks = matmul(maskQueryEmbed, maskFlat).reshaped(batch, k, maskH, maskW)
+            let zero = 0.0.asMLXArray(dtype: encOutMasks.dtype)
+            let boxes = maskToBoxCoordinate(encOutMasks .> zero, dtype: referencePointsUnact.dtype)
+            referencePointsUnact = inverseSigmoid(boxes)
+        }
+
+        let decoded = decoder.forward(
+            inputsEmbeds: target,
+            encoderHiddenStates: sourceFlat,
+            referencePointsUnact: referencePointsUnact,
+            spatialShapes: spatialShapes,
+            spatialShapesList: spatialShapesList,
+            levelStartIndex: levelStartIndex,
+            decoderNorm: decoderNorm,
+            decoderOrderHead: decoderOrderHead,
+            decoderGlobalPointer: decoderGlobalPointer,
+            classHead: encScoreHead,
+            bboxHead: encBBoxHead
         )
 
-        let topkInd = MLXArray(topIndices.map { Int32($0) }).reshaped(1, -1)
-        let k = topIndices.count
-
-        let idxLogits = broadcast(topkInd.reshaped(1, k, 1), to: [1, k, numLabels])
-        let idxBoxes = broadcast(topkInd.reshaped(1, k, 1), to: [1, k, 4])
-        let idxHidden = broadcast(topkInd.reshaped(1, k, 1), to: [1, k, modelConfig.dModel])
-
-        let logits = takeAlong(encLogits, idxLogits, axis: 1)
-        let boxes = sigmoid(takeAlong(encBoxUnact, idxBoxes, axis: 1))
-        let hidden = takeAlong(outputMemory, idxHidden, axis: 1)
-
-        let orderHead = decoderOrderHead[max(0, min(decoderOrderHead.count - 1, modelConfig.decoderLayers - 1))]
-        let orderHidden = orderHead(decoderNorm(hidden))
-        let orderLogits = decoderGlobalPointer(orderHidden)
-
-        try checkedEval(logits, boxes, orderLogits)
+        try checkedEval(decoded.logits, decoded.boxes, decoded.orderLogits)
 
         return PPDocLayoutV3Model.RawOutputs(
-            logits: logits,
-            predBoxes: boxes,
-            orderLogits: orderLogits,
-            didFallbackToAllQueries: didFallbackToAll
+            logits: decoded.logits,
+            predBoxes: decoded.boxes,
+            orderLogits: decoded.orderLogits,
+            encoderTopKIndices: topkInd,
+            didFallbackToAllQueries: false
         )
+    }
+
+    private func stableTopKIndices(maxScores: MLXArray, k: Int) -> MLXArray {
+        let batch = maxScores.dim(0)
+        let length = maxScores.dim(1)
+        if k <= 0 || length <= 0 { return MLXArray.zeros([batch, 0], dtype: .int32) }
+
+        let scores = maxScores.asType(.float32).asArray(Float.self)
+        let kk = min(k, length)
+
+        var selected = [Int32](repeating: 0, count: batch * kk)
+        for b in 0 ..< batch {
+            let rowOffset = b * length
+            var items: [(score: Float, index: Int32)] = []
+            items.reserveCapacity(length)
+            for i in 0 ..< length {
+                items.append((score: scores[rowOffset + i], index: Int32(i)))
+            }
+            items.sort { a, b in
+                if a.score != b.score { return a.score > b.score }
+                return a.index < b.index
+            }
+            for i in 0 ..< kk {
+                selected[b * kk + i] = items[i].index
+            }
+        }
+        return MLXArray(selected).reshaped(batch, kk)
+    }
+
+    private func maskToBoxCoordinate(_ mask: MLXArray, dtype: DType) -> MLXArray {
+        // mask shape [B, Q, H, W] (bool)
+        let batch = mask.dim(0)
+        let numQueries = mask.dim(1)
+        let height = mask.dim(2)
+        let width = mask.dim(3)
+
+        let gridY = arange(0, height, dtype: dtype)
+        let gridX = arange(0, width, dtype: dtype)
+        let grids = meshGrid([gridY, gridX], indexing: .ij)
+        let yy = grids[0]
+        let xx = grids[1]
+
+        let maskFloat = mask.asType(dtype)
+        let xMasked = xx * maskFloat
+        let yMasked = yy * maskFloat
+
+        let flat = height * width
+
+        let xMax = xMasked.reshaped(batch, numQueries, flat).max(axis: -1) + 1
+        let yMax = yMasked.reshaped(batch, numQueries, flat).max(axis: -1) + 1
+
+        let maxFloat = finfoMax(dtype: dtype)
+        let xForMin = which(mask, xMasked, maxFloat)
+        let yForMin = which(mask, yMasked, maxFloat)
+
+        let xMin = xForMin.reshaped(batch, numQueries, flat).min(axis: -1)
+        let yMin = yForMin.reshaped(batch, numQueries, flat).min(axis: -1)
+
+        var bbox = stacked([xMin, yMin, xMax, yMax], axis: -1) // [B, Q, 4] in xyxy
+
+        let nonEmpty = mask.any(axes: [-2, -1]).expandedDimensions(axis: -1).asType(dtype)
+        bbox *= nonEmpty
+
+        let norm = MLXArray([Float(width), Float(height), Float(width), Float(height)]).asType(dtype)
+        let normalized = bbox / norm
+
+        let x1 = normalized[0..., 0..., 0]
+        let y1 = normalized[0..., 0..., 1]
+        let x2 = normalized[0..., 0..., 2]
+        let y2 = normalized[0..., 0..., 3]
+
+        let cx = (x1 + x2) / 2
+        let cy = (y1 + y2) / 2
+        let w = x2 - x1
+        let h = y2 - y1
+
+        return stacked([cx, cy, w, h], axis: -1)
+    }
+
+    private func inverseSigmoid(_ x: MLXArray, eps: Float = 1e-5) -> MLXArray {
+        let x = clip(x, min: 0, max: 1)
+        let x1 = clip(x, min: eps)
+        let x2 = clip(1 - x, min: eps)
+        return log(x1 / x2)
+    }
+
+    private func finfoMax(dtype: DType) -> MLXArray {
+        let value = switch dtype {
+        case .float16:
+            Float(Float16.greatestFiniteMagnitude)
+        default:
+            Float.greatestFiniteMagnitude
+        }
+        return value.asMLXArray(dtype: dtype)
     }
 
     private func generateAnchors(spatialShapes: [(h: Int, w: Int)], dtype: DType) -> (anchors: MLXArray, validMask: MLXArray) {
@@ -354,28 +703,19 @@ final class PPDocLayoutV3EncoderOnlyCore: Module {
 
         let anchors = concatenated(anchorsByLevel, axis: 1)
         let eps: Float = 1e-2
-        let epsArray = eps.asMLXArray(dtype: dtype)
-        let oneMinus = (1.0 - eps).asMLXArray(dtype: dtype)
-
-        let gt = anchors .> epsArray
-        let lt = anchors .< oneMinus
+        // PyTorch MPS compares fp16 anchors against fp32 eps; match that behavior to keep top-k ordering stable.
+        let validityDType: DType = (dtype == .float16) ? .float32 : dtype
+        let anchorsValidity = anchors.asType(validityDType)
+        let epsArray = eps.asMLXArray(dtype: validityDType)
+        let oneMinus = (1.0 - eps).asMLXArray(dtype: validityDType)
+        let gt = anchorsValidity .> epsArray
+        let lt = anchorsValidity .< oneMinus
         let valid = logicalAnd(gt, lt).all(axes: [-1], keepDims: true)
 
         let anchorsLogit = log(anchors / (1 - anchors))
-        let maxFloat = Float32.greatestFiniteMagnitude.asMLXArray(dtype: dtype)
+        let maxFloat = finfoMax(dtype: dtype)
         let anchorsMasked = which(valid, anchorsLogit, maxFloat)
         return (anchorsMasked, valid)
-    }
-
-    private func selectTopIndices(scores: [Float], k: Int) -> (indices: [Int], didFallbackToAll: Bool) {
-        let k = max(1, k)
-        if scores.count <= k {
-            return (Array(scores.indices), true)
-        }
-
-        var indices = Array(scores.indices)
-        indices.sort { scores[$0] > scores[$1] }
-        return (Array(indices.prefix(k)), false)
     }
 
     private func postProcessObjectDetection(
