@@ -1,0 +1,125 @@
+[
+  [
+    {
+      "index": 0,
+      "label": "text",
+      "content": "<div align=\"center\">\n\n# GLM-4.5V and GLM-4.1V-Thinking: Towards Versatile Multimodal Reasoning with Scalable Reinforcement Learning\n\n</div>",
+      "bbox_2d": [
+        214,
+        122,
+        784,
+        198
+      ]
+    },
+    {
+      "index": 1,
+      "label": "text",
+      "content": "GLM-V Team",
+      "bbox_2d": [
+        448,
+        252,
+        552,
+        267
+      ]
+    },
+    {
+      "index": 2,
+      "label": "text",
+      "content": "Zhipu AI & Tsinghua University",
+      "bbox_2d": [
+        385,
+        280,
+        613,
+        296
+      ]
+    },
+    {
+      "index": 3,
+      "label": "text",
+      "content": "(For the complete list of authors, please refer to the Contribution section)",
+      "bbox_2d": [
+        257,
+        307,
+        738,
+        323
+      ]
+    },
+    {
+      "index": 4,
+      "label": "text",
+      "content": "## Abstract",
+      "bbox_2d": [
+        460,
+        357,
+        540,
+        374
+      ]
+    },
+    {
+      "index": 5,
+      "label": "text",
+      "content": "We present GLM-4.1V-Thinking and GLM-4.5V, a family of vision-language models (VLMs) designed to advance general-purpose multimodal understanding and reasoning. In this report, we share our key findings in the development of the reasoning-centric training framework. We first develop a capable vision foundation model with significant potential through large-scale pre-training, which arguably sets the upper bound for the final performance. We then propose Reinforcement Learning with Curriculum Sampling (RLCS) to unlock the full potential of the model, leading to comprehensive capability enhancement across a diverse range of tasks, including STEM problem solving, video understanding, content recognition, coding, grounding, GUI-based agents, and long document interpretation. In a comprehensive evaluation across 42 public benchmarks, GLM-4.5V achieves state-of-the-art performance on nearly all tasks among open-source models of similar size, and demonstrates competitive or even superior results compared to closed-source models such as Gemini-2.5-Flash on challenging tasks including Coding and GUI Agents. Meanwhile, the smaller GLM-4.1V-9B-Thinking remains highly competitiveachieving superior results to the much larger Qwen2.5-VL-72B on 29 benchmarks. We open-source both GLM-4.1V-9B-Thinking and GLM-4.5V. Code, models and more information are released at https://github.com/zai-org/ GLM-V.",
+      "bbox_2d": [
+        230,
+        390,
+        770,
+        652
+      ]
+    },
+    {
+      "index": 6,
+      "label": "image",
+      "content": "",
+      "bbox_2d": [
+        211,
+        667,
+        520,
+        829
+      ]
+    },
+    {
+      "index": 7,
+      "label": "text",
+      "content": "<div align=\"center\">\n\n(A) Comparison with baselines.\n\n</div>",
+      "bbox_2d": [
+        248,
+        832,
+        441,
+        845
+      ]
+    },
+    {
+      "index": 8,
+      "label": "image",
+      "content": "",
+      "bbox_2d": [
+        532,
+        670,
+        789,
+        826
+      ]
+    },
+    {
+      "index": 9,
+      "label": "text",
+      "content": "<div align=\"center\">\n\n(B) Reinforcement learning gains.\n\n</div>",
+      "bbox_2d": [
+        570,
+        832,
+        776,
+        845
+      ]
+    },
+    {
+      "index": 10,
+      "label": "text",
+      "content": "<div align=\"center\">\n\nFigure 1: (A) GLM-4.5V achieves efficient scaling based on its compact predecessor, GLM-4.1V 9B-Thinking, and compares favorably with Gemini-2.5-Flash, according to benchmark assessments. Table 2 presents full performance comparison. (B) Reinforcement learning substantially boosts the model's performance, with gains of up to +10.6% when experimented with GLM-4.5V.\n\n</div>",
+      "bbox_2d": [
+        171,
+        857,
+        828,
+        914
+      ]
+    }
+  ]
+]
