@@ -101,6 +101,10 @@ public struct ImageTensorConversionOptions: Sendable {
     }
 }
 
+public enum ImageTensorConversionError: Error, Sendable, Equatable {
+    case invalidImageExtent(CGRect)
+}
+
 public enum ImageTensorConverter {
     /// Convert a CIImage into a normalized `[1, H, W, C]` float tensor (channels last).
     ///
@@ -108,11 +112,10 @@ public enum ImageTensorConverter {
     ///   provide mean/std constants (or load them from the model snapshot).
     public static func toTensor(_ image: CIImage, options: ImageTensorConversionOptions = .init()) throws -> ImageTensor {
         let extent = image.extent.integral
-        let w = max(Int(extent.width), 0)
-        let h = max(Int(extent.height), 0)
-        guard w > 0, h > 0 else {
-            return ImageTensor(tensor: MLXArray(0), width: w, height: h)
-        }
+        guard extent.width > 0, extent.height > 0 else { throw ImageTensorConversionError.invalidImageExtent(extent) }
+
+        let w = Int(extent.width)
+        let h = Int(extent.height)
 
         let format = CIFormat.RGBA8
         let componentsPerPixel = 4

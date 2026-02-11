@@ -75,15 +75,22 @@ public struct PPDocLayoutV3Processor: Sendable {
         let targetHeight = CGFloat(max(height, 1))
         let size = CGSize(width: targetWidth, height: targetHeight)
 
-        let scaleX = targetWidth / image.extent.width
-        let scaleY = targetHeight / image.extent.height
+        let inputExtent = image.extent
+        guard inputExtent.width > 0, inputExtent.height > 0 else { return image }
+
+        let normalized = image.transformed(by: CGAffineTransform(translationX: -inputExtent.minX, y: -inputExtent.minY))
+
+        let scaleX = targetWidth / normalized.extent.width
+        let scaleY = targetHeight / normalized.extent.height
 
         let filter = CIFilter.bicubicScaleTransform()
-        filter.inputImage = image
+        filter.inputImage = normalized
         filter.scale = Float(scaleY)
         filter.aspectRatio = Float(scaleX / scaleY)
-        let scaledImage = filter.outputImage ?? image
+        let scaledImage = filter.outputImage ?? normalized
 
-        return scaledImage.cropped(to: CGRect(origin: .zero, size: size))
+        let scaledExtent = scaledImage.extent
+        let scaledNormalized = scaledImage.transformed(by: CGAffineTransform(translationX: -scaledExtent.minX, y: -scaledExtent.minY))
+        return scaledNormalized.cropped(to: CGRect(origin: .zero, size: size))
     }
 }
