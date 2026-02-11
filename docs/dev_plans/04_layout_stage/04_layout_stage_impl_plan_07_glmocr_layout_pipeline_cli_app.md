@@ -69,7 +69,8 @@ Implementation:
   - `--layout/--no-layout`
     - default: `true` for PDFs, `false` for non-PDF unless explicitly set
   - `--layout-parallelism auto|1|2` (default `auto`)
-  - `--emit-json <path>` (optional): write `OCRResult.document` as JSON (pretty-printed)
+  - `--emit-json <path>` (optional): write canonical block-list JSON (examples-compatible; `[[{index,label,content,bbox_2d}, ...], ...]`)
+  - `--emit-ocrdocument-json <path>` (optional): write `OCRResult.document` as structured `OCRDocument` JSON (pretty-printed)
 - When layout enabled, use `GLMOCRLayoutPipeline`; otherwise keep current `GLMOCRPipeline`.
 
 #### App (`Sources/GLMOCRApp/ContentView.swift`)
@@ -83,8 +84,9 @@ Implementation:
 
 ### Manual CLI check (Phase 04 exit criteria)
 - `swift run GLMOCRCLI --input <A4_scanned.pdf> --page 1 --layout --emit-json out.json`
-  - `stdout`: Markdown with sane reading order and image placeholders
-  - `out.json`: structured pages/regions with normalized bboxes and per-region content (or nil for skipped)
+  - `stdout`: Markdown with sane reading order; if images are present, the CLI writes crops to `./imgs/` (relative to `out.json`) and replaces image placeholders.
+  - `out.json`: canonical block-list JSON (examples-compatible)
+  - Use `--emit-ocrdocument-json` for the structured `OCRDocument` schema.
 
 ### Cancellation check
 - Start a multi-region job, then cancel (Ctrl-C in CLI) and confirm region tasks stop quickly.

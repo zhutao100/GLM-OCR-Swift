@@ -127,3 +127,4 @@ pre-commit run -a
   - [deepseek-ocr.swift](https://github.com/mzbac/deepseek-ocr.swift) for model `DeepSeek-OCR`: accessible at `../deepseek-ocr.swift`
   - [paddleocr-vl.swift](https://github.com/mlx-community/paddleocr-vl.swift) for model `PaddleOCR-VL`: accessible at `../paddleocr-vl.swift`
 - The official github repo [GLM-OCR](https://github.com/zai-org/GLM-OCR/): accessible at `../GLM-OCR`
+- when inspecting the reference implementation in Python, use the virtual env `venv313` by pretending `PYENV_VERSION=venv313 pyenv exec ` to the command.

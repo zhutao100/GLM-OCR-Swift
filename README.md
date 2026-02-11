@@ -21,7 +21,8 @@ This repo is intentionally structured as **core + adapter**:
   - Greedy token-by-token decode (with KV cache)
 - Phase 04 layout mode is implemented for single-page documents:
   - PP-DocLayout-V3 layout detection → region crop → per-region GLM-OCR → merged Markdown
-  - Optional structured `OCRDocument` JSON export from the CLI (`--emit-json`)
+  - Optional examples-compatible block-list JSON export from the CLI (`--emit-json`)
+  - Optional structured `OCRDocument` JSON export from the CLI (`--emit-ocrdocument-json`)
 
 ## Requirements
 
@@ -86,7 +87,7 @@ Run `swift run GLMOCRCLI --help` for the full list. Key flags:
 - `--download-base <path>` (optional)
 - `--download-only` (download without inference)
 - `--input <path>`, `--page <n>` (PDF only), `--task <preset>`, `--max-new-tokens <n>`
-- Layout mode: `--layout/--no-layout`, `--layout-parallelism auto|1|2`, `--emit-json <path>`
+- Layout mode: `--layout/--no-layout`, `--layout-parallelism auto|1|2`, `--emit-json <path>`, `--emit-ocrdocument-json <path>`
 
 ## Limitations / known gaps
 

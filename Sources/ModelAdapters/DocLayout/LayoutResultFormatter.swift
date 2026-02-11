@@ -80,12 +80,16 @@ public enum LayoutResultFormatter {
         var output = cleanContent(content)
 
         if nativeLabel == "doc_title" {
-            output = "# " + strippingLeadingHashes(output)
+            if !looksLikeHTMLBlock(output) {
+                output = "# " + strippingLeadingHashes(output)
+            }
         } else if nativeLabel == "paragraph_title" {
             if output.hasPrefix("- ") || output.hasPrefix("* ") {
                 output = trimmingLeadingWhitespace(String(output.dropFirst(2)))
             }
-            output = "## " + trimmingLeadingWhitespace(strippingLeadingHashes(output))
+            if !looksLikeHTMLBlock(output) {
+                output = "## " + trimmingLeadingWhitespace(strippingLeadingHashes(output))
+            }
         }
 
         if kind == .formula {
@@ -97,6 +101,11 @@ public enum LayoutResultFormatter {
         }
 
         return output
+    }
+
+    private static func looksLikeHTMLBlock(_ content: String) -> Bool {
+        let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.hasPrefix("<div") || trimmed.hasPrefix("<p") || trimmed.hasPrefix("<span")
     }
 
     private static func cleanContent(_ content: String) -> String {

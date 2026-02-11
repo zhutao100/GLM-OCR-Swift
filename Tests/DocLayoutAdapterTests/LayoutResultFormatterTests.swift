@@ -43,6 +43,38 @@ final class LayoutResultFormatterTests: XCTestCase {
         XCTAssertEqual(document.pages[0].regions.map(\.kind), [.text, .text, .text])
     }
 
+    func testTitleFormatting_preservesHTMLBlocks() {
+        let centeredTitle = "<div align=\"center\">\n\n# Document Title\n\n</div>"
+        let centeredSection = "<div align=\"center\">\n\n## Section Title\n\n</div>"
+
+        let pages = [
+            OCRPage(
+                index: 0,
+                regions: [
+                    OCRRegion(
+                        index: 0,
+                        kind: .unknown,
+                        nativeLabel: "doc_title",
+                        bbox: OCRNormalizedBBox(x1: 0, y1: 0, x2: 1000, y2: 20),
+                        content: centeredTitle
+                    ),
+                    OCRRegion(
+                        index: 1,
+                        kind: .unknown,
+                        nativeLabel: "paragraph_title",
+                        bbox: OCRNormalizedBBox(x1: 0, y1: 20, x2: 1000, y2: 40),
+                        content: centeredSection
+                    ),
+                ]
+            ),
+        ]
+
+        let (document, markdown) = LayoutResultFormatter.format(pages: pages)
+
+        XCTAssertEqual(markdown, "\(centeredTitle)\n\n\(centeredSection)")
+        XCTAssertEqual(document.pages[0].regions.map(\.content), [centeredTitle, centeredSection])
+    }
+
     func testFormulaWrappingAndFormulaNumberMerge() {
         let pages = [
             OCRPage(

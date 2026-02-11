@@ -1,4 +1,5 @@
 import ArgumentParser
+import CoreImage
 import Darwin
 import Dispatch
 import DocLayoutAdapter
@@ -99,8 +100,11 @@ struct GLMOCRCLI: AsyncParsableCommand {
     @Option(help: "Layout OCR parallelism: auto | 1 | 2")
     var layoutParallelism: LayoutParallelismArg = .auto
 
-    @Option(help: "Write structured OCRDocument JSON to path (layout mode only).")
+    @Option(help: "Write canonical block-list JSON (examples-compatible) to path (layout mode only).")
     var emitJson: String?
+
+    @Option(name: .customLong("emit-ocrdocument-json"), help: "Write structured OCRDocument JSON to path (layout mode only).")
+    var emitOCRDocumentJson: String?
 
     @Option(help: "Task preset: text | formula | table | json")
     var task: TaskPreset = .text
@@ -146,10 +150,13 @@ struct GLMOCRCLI: AsyncParsableCommand {
         if emitJson != nil, Self.normalizedNonEmpty(emitJson) == nil {
             throw ValidationError("--emit-json path must be non-empty")
         }
+        if emitOCRDocumentJson != nil, Self.normalizedNonEmpty(emitOCRDocumentJson) == nil {
+            throw ValidationError("--emit-ocrdocument-json path must be non-empty")
+        }
 
         if downloadOnly || devForwardPass {
-            if emitJson != nil {
-                throw ValidationError("--emit-json requires running inference")
+            if emitJson != nil || emitOCRDocumentJson != nil {
+                throw ValidationError("--emit-json/--emit-ocrdocument-json require running inference")
             }
             return
         }
@@ -166,10 +173,10 @@ struct GLMOCRCLI: AsyncParsableCommand {
             throw ValidationError("Input is a directory: \(url.path)")
         }
 
-        if emitJson != nil {
+        if emitJson != nil || emitOCRDocumentJson != nil {
             let layoutEnabled = Self.resolveLayoutEnabled(inputURL: url, layout: layout, noLayout: noLayout)
             guard layoutEnabled else {
-                throw ValidationError("--emit-json requires layout mode (pass --layout for non-PDF inputs)")
+                throw ValidationError("--emit-json/--emit-ocrdocument-json require layout mode (pass --layout for non-PDF inputs)")
             }
         }
     }
@@ -186,6 +193,7 @@ struct GLMOCRCLI: AsyncParsableCommand {
         let inputURL: URL? = Self.normalizedNonEmpty(input).map(Self.normalizedFileURL(fromPath:))
         let layoutEnabled = Self.resolveLayoutEnabled(inputURL: inputURL, layout: layout, noLayout: noLayout)
         let emitJsonURL: URL? = Self.normalizedNonEmpty(emitJson).map(Self.normalizedFileURL(fromPath:))
+        let emitOCRDocumentJsonURL: URL? = Self.normalizedNonEmpty(emitOCRDocumentJson).map(Self.normalizedFileURL(fromPath:))
 
         let taskPreset: OCRTask = switch task {
         case .text: .text
@@ -216,7 +224,8 @@ struct GLMOCRCLI: AsyncParsableCommand {
                 devForwardPass: devForwardPass,
                 layoutEnabled: layoutEnabled,
                 layoutOptions: layoutOptions,
-                emitJsonURL: emitJsonURL
+                emitJsonURL: emitJsonURL,
+                emitOCRDocumentJsonURL: emitOCRDocumentJsonURL
             )
         }
 
@@ -245,7 +254,8 @@ struct GLMOCRCLI: AsyncParsableCommand {
         devForwardPass: Bool,
         layoutEnabled: Bool,
         layoutOptions: GLMOCRLayoutOptions,
-        emitJsonURL: URL?
+        emitJsonURL: URL?,
+        emitOCRDocumentJsonURL: URL?
     ) async throws {
         let store: any ModelStore = HuggingFaceHubModelStore()
 
@@ -296,18 +306,50 @@ struct GLMOCRCLI: AsyncParsableCommand {
             )
             try await pipeline.ensureLoaded(progress: nil)
             let result = try await pipeline.recognize(.file(inputURL, page: page), task: taskPreset, options: generateOptions)
+            var markdown = result.text
 
             if let emitJsonURL {
                 guard let document = result.document else { throw ValidationError("Layout pipeline did not produce a document.") }
-                try writeDocumentJSON(document, to: emitJsonURL)
+                try writeBlockListJSON(document, to: emitJsonURL)
             }
 
-            print(result.text)
+            if let emitOCRDocumentJsonURL {
+                guard let document = result.document else { throw ValidationError("Layout pipeline did not produce a document.") }
+                try writeOCRDocumentJSON(document, to: emitOCRDocumentJsonURL)
+            }
+
+            if let baseOutputDir = (emitJsonURL ?? emitOCRDocumentJsonURL)?.deletingLastPathComponent() {
+                do {
+                    let pageIndex = inputURL.pathExtension.lowercased() == "pdf" ? max(page - 1, 0) : 0
+
+                    let pageImage: CIImage = if inputURL.pathExtension.lowercased() == "pdf" {
+                        try VisionIO.loadCIImage(fromPDF: inputURL, page: page, dpi: 200)
+                    } else {
+                        try VisionIO.loadCIImage(from: inputURL)
+                    }
+
+                    let placeholder = CIImage(color: .white).cropped(to: CGRect(x: 0, y: 0, width: 1, height: 1))
+                    var pageImages = Array(repeating: placeholder, count: pageIndex + 1)
+                    pageImages[pageIndex] = pageImage
+
+                    let imgsDir = baseOutputDir.appendingPathComponent("imgs")
+                    markdown = try MarkdownImageCropper.cropAndReplaceImages(
+                        markdown: markdown,
+                        pageImages: pageImages,
+                        outputDir: imgsDir,
+                        imagePrefix: "cropped"
+                    ).markdown
+                } catch {
+                    FileHandle.standardError.write(Data("Warning: failed to crop/replace image refs: \(error)\n".utf8))
+                }
+            }
+
+            print(markdown)
             return
         }
 
-        if emitJsonURL != nil {
-            throw ValidationError("--emit-json requires layout mode (pass --layout for non-PDF inputs)")
+        if emitJsonURL != nil || emitOCRDocumentJsonURL != nil {
+            throw ValidationError("--emit-json/--emit-ocrdocument-json require layout mode (pass --layout for non-PDF inputs)")
         }
 
         let pipeline = GLMOCRPipeline(modelID: modelID, revision: revision, downloadBase: downloadBaseURL)
@@ -317,9 +359,16 @@ struct GLMOCRCLI: AsyncParsableCommand {
         print(result.text)
     }
 
-    private static func writeDocumentJSON(_ document: OCRDocument, to url: URL) throws {
+    private static func writeBlockListJSON(_ document: OCRDocument, to url: URL) throws {
         let encoder = JSONEncoder()
-        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        encoder.outputFormatting = [.prettyPrinted, .withoutEscapingSlashes]
+        let data = try encoder.encode(document.toBlockListExport())
+        try data.write(to: url, options: .atomic)
+    }
+
+    private static func writeOCRDocumentJSON(_ document: OCRDocument, to url: URL) throws {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
         let data = try encoder.encode(document)
         try data.write(to: url, options: .atomic)
     }

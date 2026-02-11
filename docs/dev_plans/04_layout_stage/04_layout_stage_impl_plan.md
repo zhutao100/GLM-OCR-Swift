@@ -1,6 +1,6 @@
 # Phase 04 Implementation Plan — Layout + region OCR orchestration (Index)
 
-> Status: Extended (2026-02-11) — PP-DocLayout-V3 golden parity done; examples parity pending.
+> Status: Extended (2026-02-11) — examples parity implemented; PP-DocLayout-V3 golden parity still failing.
 
 ## Summary
 Implement the “full pipeline” path for documents: **PP-DocLayout-V3 layout detection → region cropping → per-region GLM-OCR → merge into ordered Markdown**, with **structured outputs (pages/regions/bboxes)** exposed via the public runtime types, plus **auto-tuned parallelism + cancellation**.
@@ -39,8 +39,9 @@ Each file below is intended to be completable + verifiable in a single implement
 
 ## Overall exit criteria (Phase 04)
 - Running `swift run GLMOCRCLI --input <A4_scanned.pdf> --page 1 --layout --emit-json out.json` produces:
-  - `stdout`: Markdown with **sane reading order** and image placeholders,
-  - `out.json`: structured pages/regions with normalized bboxes and per-region content (or nil for skipped).
+  - `stdout`: Markdown with **sane reading order**; when image placeholders exist, the CLI crops them into `imgs/` next to `out.json` and replaces the tags.
+  - `out.json`: canonical block-list JSON (`[[{index,label,content,bbox_2d}, ...], ...]`), matching `examples/result/*/*.json`.
+  - Use `--emit-ocrdocument-json` for the structured `OCRDocument` schema (pages/regions/bboxes).
 - Cancellation works:
   - canceling the task stops region processing quickly (no long hang).
 - Conventions respected:
@@ -59,3 +60,5 @@ The `examples/` regression indicates this is insufficient for reference-quality 
 The extension plan adds:
 - golden forward-pass parity checks for PP-DocLayout-V3, and
 - end-to-end output parity validation vs `examples/result/*`.
+
+Update: `PPDocLayoutV3Model` now includes a hybrid encoder + deformable decoder implementation, but the opt-in golden check is still failing and tracked by 04.8.

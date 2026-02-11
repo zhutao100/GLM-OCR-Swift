@@ -550,7 +550,7 @@
     "device": "mps",
     "dtype": "float16",
     "fixture_version": "v2",
-    "generated_at": "2026-02-11T11:56:47.868910+00:00",
+    "generated_at": "2026-02-11T19:27:51.625125+00:00",
     "model_id": "PaddlePaddle/PP-DocLayoutV3_safetensors",
     "pixel_layout": "NCHW_RGB_float16",
     "snapshot_hash": "a0abee1e2bb505e5662993235af873a5d89851e3",

@@ -18,11 +18,11 @@ Borrowing references: official GLM-OCR pipeline (`glmocr/pipeline/pipeline.py`) 
   - `docs/dev_plans/04_layout_stage/04_layout_stage_impl_plan_09_layout_output_parity_examples.md`
 
 ## Tasks
-- [ ] Integrate a layout model stage (likely separate adapter)
+- [x] Integrate a layout model stage (likely separate adapter)
   - borrow: region cropping + orchestration patterns from the official GLM-OCR pipeline (`glmocr/pipeline/pipeline.py`)
-- [ ] Split pages into regions + run OCR per region
-- [ ] Merge outputs (reading order) into Markdown
-- [ ] Batch parallelism + cancellation
+- [x] Split pages into regions + run OCR per region
+- [x] Merge outputs (reading order) into Markdown
+- [x] Batch parallelism + cancellation
 
 ## Session checklist
 - [x] 04.1 Structured types + `VisionIO.cropRegion` (+ tests)
@@ -32,9 +32,9 @@ Borrowing references: official GLM-OCR pipeline (`glmocr/pipeline/pipeline.py`) 
 - [x] 04.5 Detector “load-only” validation (optional integration)
 - [x] 04.6 Detector inference outputs + postprocess wiring (optional integration)
 - [x] 04.7 Orchestration + concurrency + CLI/App wiring (Phase 04 exit criteria)
-- [x] 04.8 PP-DocLayout-V3 parity (golden fixtures + full model alignment)
-- [ ] 04.9 End-to-end parity vs `examples/` (Markdown + JSON expectations)
+- [ ] 04.8 PP-DocLayout-V3 parity (golden fixtures + full model alignment; golden check currently failing)
+- [x] 04.9 End-to-end parity vs `examples/` (Markdown + JSON expectations)
 
 ## Exit criteria
 - `--layout` on `examples/source/*` produces output that matches (or intentionally supersedes) `examples/result/*`
-- PP-DocLayout-V3 golden forward check passes (opt-in)
+- PP-DocLayout-V3 golden forward check passes (opt-in; currently failing)

@@ -1,7 +1,10 @@
 # ADR 0003 — PP-DocLayout-V3 encoder-only detector inference (interim)
 
 ## Status
-Accepted (2026-02-10)
+Superseded (2026-02-11)
+
+> Note: `PPDocLayoutV3Model` now includes a hybrid encoder + deformable decoder implementation.
+> Golden forward-pass parity is tracked by Phase 04.8 (`PPDocLayoutV3GoldenIntegrationTests`).
 
 ## Context
 Phase 04 needs a fully local layout detector to produce ordered regions for downstream OCR.
