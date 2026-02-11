@@ -104,6 +104,7 @@ public struct GLMOCRModel: CausalLM, Sendable {
 
         let tokenizer = state.tokenizer
         let ids = tokenizer.specialTokenIDs
+        let stopTokenIDs = Self.stopTokenIDs(config: config, ids: ids)
 
         // Encode vision once; its token count determines how many <|image|> placeholders are required.
         let visionEmbeddings = state.core.model.visual(pixelValues)
@@ -154,7 +155,7 @@ public struct GLMOCRModel: CausalLM, Sendable {
         for _ in 0 ..< options.maxNewTokens {
             try Task.checkCancellation()
 
-            if nextTokenId == ids.eosId { break }
+            if stopTokenIDs.contains(nextTokenId) { break }
             generated.append(nextTokenId)
 
             let tokenArray = MLXArray([Int32(nextTokenId)]).reshaped(1, 1)
@@ -177,5 +178,12 @@ public struct GLMOCRModel: CausalLM, Sendable {
 
         let text = tokenizer.tokenizer.decode(tokens: generated, skipSpecialTokens: true)
         return (text, generated)
+    }
+
+    static func stopTokenIDs(config: GLMOCRConfig, ids: GLMOCRSpecialTokenIDs) -> Set<Int> {
+        let configured = (config.textConfig.eosTokenId ?? []).filter { $0 >= 0 }
+        var stop = Set(configured)
+        stop.insert(ids.eosId)
+        return stop
     }
 }
