@@ -34,7 +34,15 @@ public struct PPDocLayoutV3Processor: Sendable {
         let originalHeight = max(Int(image.extent.height.rounded(.down)), 1)
 
         let target: (width: Int, height: Int)? = preprocessorConfig?.targetSize(originalWidth: originalWidth, originalHeight: originalHeight)
-        let resized: CIImage = if let target { resizeDirectly(image, width: target.width, height: target.height) } else { image }
+        let resized: CIImage = if let target {
+            if target.width == originalWidth, target.height == originalHeight {
+                image
+            } else {
+                resizeDirectly(image, width: target.width, height: target.height)
+            }
+        } else {
+            image
+        }
 
         let w = max(Int(resized.extent.width.rounded(.down)), 1)
         let h = max(Int(resized.extent.height.rounded(.down)), 1)

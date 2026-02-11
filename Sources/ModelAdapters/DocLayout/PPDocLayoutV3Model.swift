@@ -21,6 +21,13 @@ public struct PPDocLayoutV3Model: Sendable {
         }
     }
 
+    struct RawOutputs: @unchecked Sendable {
+        var logits: MLXArray
+        var predBoxes: MLXArray
+        var orderLogits: MLXArray
+        var didFallbackToAllQueries: Bool
+    }
+
     final class State: @unchecked Sendable {
         let config: PPDocLayoutV3Config
         let modelConfig: PPDocLayoutV3ModelConfig
@@ -67,7 +74,9 @@ public struct PPDocLayoutV3Model: Sendable {
 
         do {
             let loader = WeightsLoader()
-            var weights = try loader.loadAll(from: modelFolder, dtype: .float32)
+            let wantFloat16 = ProcessInfo.processInfo.environment["LAYOUT_RUN_GOLDEN"] == "1"
+            let weightsDType: DType = wantFloat16 ? .float16 : .float32
+            var weights = try loader.loadAll(from: modelFolder, dtype: weightsDType)
 
             // Convert PyTorch conv weight layouts (O, I, kH, kW) to MLX (O, kH, kW, I).
             for (key, value) in weights where value.ndim == 4 {
@@ -97,6 +106,10 @@ public struct PPDocLayoutV3Model: Sendable {
 
     public func forward(pixelValues: MLXArray, options: Options = .init()) throws -> PPDocLayoutV3Postprocess.RawDetections {
         try state.core.forward(pixelValues: pixelValues, options: options)
+    }
+
+    func forwardRawOutputs(pixelValues: MLXArray, options: Options = .init()) throws -> RawOutputs {
+        try state.core.forwardRawOutputs(pixelValues: pixelValues, options: options)
     }
 }
 
@@ -140,6 +153,10 @@ final class PPDocLayoutV3EncoderOnlyRoot: Module {
 
     func forward(pixelValues: MLXArray, options: PPDocLayoutV3Model.Options) throws -> PPDocLayoutV3Postprocess.RawDetections {
         try model.forward(pixelValues: pixelValues, options: options)
+    }
+
+    func forwardRawOutputs(pixelValues: MLXArray, options: PPDocLayoutV3Model.Options) throws -> PPDocLayoutV3Model.RawOutputs {
+        try model.forwardRawOutputs(pixelValues: pixelValues, options: options)
     }
 }
 
@@ -209,7 +226,30 @@ final class PPDocLayoutV3EncoderOnlyCore: Module {
     }
 
     func forward(pixelValues: MLXArray, options: PPDocLayoutV3Model.Options) throws -> PPDocLayoutV3Postprocess.RawDetections {
-        let pixelValues = pixelValues.asType(.float32)
+        let raw = try forwardRawOutputs(pixelValues: pixelValues, options: options)
+
+        var detections = postProcessObjectDetection(
+            logits: raw.logits,
+            boxes: raw.predBoxes,
+            orderLogits: raw.orderLogits,
+            scoreThreshold: options.scoreThreshold
+        )
+
+        if detections.scores.isEmpty, raw.didFallbackToAllQueries == false {
+            // Ensure we always return at least one region for diagnostics/debuggability.
+            detections = postProcessObjectDetection(
+                logits: raw.logits,
+                boxes: raw.predBoxes,
+                orderLogits: raw.orderLogits,
+                scoreThreshold: -Float.infinity
+            )
+        }
+
+        return detections
+    }
+
+    func forwardRawOutputs(pixelValues: MLXArray, options _: PPDocLayoutV3Model.Options) throws -> PPDocLayoutV3Model.RawOutputs {
+        let pixelValues: MLXArray = if pixelValues.dtype == .bfloat16 { pixelValues.asType(.float32) } else { pixelValues }
 
         let features = backbone(pixelValues)
         guard features.count == 4 else {
@@ -276,24 +316,12 @@ final class PPDocLayoutV3EncoderOnlyCore: Module {
 
         try checkedEval(logits, boxes, orderLogits)
 
-        var detections = postProcessObjectDetection(
+        return PPDocLayoutV3Model.RawOutputs(
             logits: logits,
-            boxes: boxes,
+            predBoxes: boxes,
             orderLogits: orderLogits,
-            scoreThreshold: options.scoreThreshold
+            didFallbackToAllQueries: didFallbackToAll
         )
-
-        if detections.scores.isEmpty, didFallbackToAll == false {
-            // Ensure we always return at least one region for diagnostics/debuggability.
-            detections = postProcessObjectDetection(
-                logits: logits,
-                boxes: boxes,
-                orderLogits: orderLogits,
-                scoreThreshold: -Float.infinity
-            )
-        }
-
-        return detections
     }
 
     private func generateAnchors(spatialShapes: [(h: Int, w: Int)], dtype: DType) -> (anchors: MLXArray, validMask: MLXArray) {
