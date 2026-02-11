@@ -60,3 +60,5 @@ The current `PPDocLayoutV3Model` implementation is an **encoder-only subset** (n
 `scores`, `labels`, `boxes`, `order_seq` (with polygons synthesized from bbox when absent).
 
 Rationale + follow-ups are captured in `docs/decisions/0003-ppdoclayoutv3-encoder-only-inference.md`.
+
+Next step for parity: `docs/dev_plans/04_layout_stage/04_layout_stage_impl_plan_08_ppdoclayoutv3_parity_golden.md`.

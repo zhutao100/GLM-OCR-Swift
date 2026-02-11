@@ -1,6 +1,6 @@
 # Phase 04 Implementation Plan — Layout + region OCR orchestration (Index)
 
-> Status: Completed (2026-02-10).
+> Status: Extended (2026-02-11) — parity work in progress.
 
 ## Summary
 Implement the “full pipeline” path for documents: **PP-DocLayout-V3 layout detection → region cropping → per-region GLM-OCR → merge into ordered Markdown**, with **structured outputs (pages/regions/bboxes)** exposed via the public runtime types, plus **auto-tuned parallelism + cancellation**.
@@ -32,6 +32,8 @@ Each file below is intended to be completable + verifiable in a single implement
 5. `docs/dev_plans/04_layout_stage/04_layout_stage_impl_plan_05_ppdoclayoutv3_detector_load_only.md`
 6. `docs/dev_plans/04_layout_stage/04_layout_stage_impl_plan_06_ppdoclayoutv3_detector_inference.md`
 7. `docs/dev_plans/04_layout_stage/04_layout_stage_impl_plan_07_glmocr_layout_pipeline_cli_app.md`
+8. `docs/dev_plans/04_layout_stage/04_layout_stage_impl_plan_08_ppdoclayoutv3_parity_golden.md`
+9. `docs/dev_plans/04_layout_stage/04_layout_stage_impl_plan_09_layout_output_parity_examples.md`
 
 ---
 
@@ -49,3 +51,11 @@ Each file below is intended to be completable + verifiable in a single implement
 ## Assumptions / constraints
 - PP-DocLayout-V3 model outputs include an `order_seq` (or equivalent) used for reading order; if absent in the chosen snapshot, we fall back to stable `(y1,x1)` sorting and record a diagnostic note.
 - Default max layout batch size is 1 (matches official config) to minimize memory spikes on Apple Silicon.
+
+## Parity extension (2026-02-11)
+The initial Phase 04 implementation intentionally shipped with an **encoder-only** PP-DocLayout-V3 detector (see `docs/decisions/0003-ppdoclayoutv3-encoder-only-inference.md`).
+
+The `examples/` regression indicates this is insufficient for reference-quality layout outputs.
+The extension plan adds:
+- golden forward-pass parity checks for PP-DocLayout-V3, and
+- end-to-end output parity validation vs `examples/result/*`.

@@ -14,6 +14,8 @@ Borrowing references: official GLM-OCR pipeline (`glmocr/pipeline/pipeline.py`) 
   - `docs/dev_plans/04_layout_stage/04_layout_stage_impl_plan_05_ppdoclayoutv3_detector_load_only.md`
   - `docs/dev_plans/04_layout_stage/04_layout_stage_impl_plan_06_ppdoclayoutv3_detector_inference.md`
   - `docs/dev_plans/04_layout_stage/04_layout_stage_impl_plan_07_glmocr_layout_pipeline_cli_app.md`
+  - `docs/dev_plans/04_layout_stage/04_layout_stage_impl_plan_08_ppdoclayoutv3_parity_golden.md`
+  - `docs/dev_plans/04_layout_stage/04_layout_stage_impl_plan_09_layout_output_parity_examples.md`
 
 ## Tasks
 - [ ] Integrate a layout model stage (likely separate adapter)
@@ -30,6 +32,9 @@ Borrowing references: official GLM-OCR pipeline (`glmocr/pipeline/pipeline.py`) 
 - [x] 04.5 Detector “load-only” validation (optional integration)
 - [x] 04.6 Detector inference outputs + postprocess wiring (optional integration)
 - [x] 04.7 Orchestration + concurrency + CLI/App wiring (Phase 04 exit criteria)
+- [ ] 04.8 PP-DocLayout-V3 parity (golden fixtures + full model alignment)
+- [ ] 04.9 End-to-end parity vs `examples/` (Markdown + JSON expectations)
 
 ## Exit criteria
-- A4 scanned PDF page produces structured output with sane ordering
+- `--layout` on `examples/source/*` produces output that matches (or intentionally supersedes) `examples/result/*`
+- PP-DocLayout-V3 golden forward check passes (opt-in)
