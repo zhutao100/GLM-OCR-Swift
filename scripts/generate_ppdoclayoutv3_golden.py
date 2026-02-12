@@ -47,6 +47,14 @@ def _parse_args() -> argparse.Namespace:
         action="store_true",
         help="Include intermediate tensor samples (fixture v3) to localize parity drift.",
     )
+    parser.add_argument(
+        "--include-decoder-intermediates",
+        action="store_true",
+        help=(
+            "Include decoder (layer 0) internal tensor samples (fixture v4) to localize drift inside the decoder.\n"
+            "Implies --include-intermediates."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -201,6 +209,7 @@ def _sample_nhwc(x: "torch.Tensor") -> list[dict[str, Any]]:
     if b < 1:
         return []
 
+    batches = _unique_indices([0, 1, max(b - 1, 0)], length=b)
     spatial = _unique_in_bounds(
         [
             (0, 0),
@@ -215,10 +224,11 @@ def _sample_nhwc(x: "torch.Tensor") -> list[dict[str, Any]]:
     channels = _unique_indices([0, 1, 2, 7, 15, 31], length=c)
 
     samples: list[dict[str, Any]] = []
-    for y, x0 in spatial:
-        for ch in channels:
-            idx = [0, y, x0, ch]
-            samples.append({"index": idx, "value": _sample_scalar(x, idx)})
+    for bi in batches:
+        for y, x0 in spatial:
+            for ch in channels:
+                idx = [bi, y, x0, ch]
+                samples.append({"index": idx, "value": _sample_scalar(x, idx)})
     return samples
 
 
@@ -236,6 +246,38 @@ def _sample_bsc(x: "torch.Tensor") -> list[dict[str, Any]]:
         for ch in channels:
             idx = [0, si, ch]
             samples.append({"index": idx, "value": _sample_scalar(x, idx)})
+    return samples
+
+
+def _sample_bsc_wide(x: "torch.Tensor") -> list[dict[str, Any]]:
+    # x: [B,S,C]
+    b, s, c = [int(v) for v in x.shape]
+    if b < 1:
+        return []
+
+    seq = _unique_indices([0, 1, 2, 10, 49, 100, max(s - 1, 0)], length=s)
+    channels = _unique_indices(
+        [0, 1, 2, 7, 15, 31, 32, 33, 63, 64, 95, 96, 127, 128, 159, 160, 191, 192, 223, 224, max(c - 1, 0)],
+        length=c,
+    )
+
+    samples: list[dict[str, Any]] = []
+    for si in seq:
+        for ch in channels:
+            idx = [0, si, ch]
+            samples.append({"index": idx, "value": _sample_scalar(x, idx)})
+    return samples
+
+
+def _sample_c(x: "torch.Tensor") -> list[dict[str, Any]]:
+    # x: [C]
+    c = int(x.shape[0])
+    channels = _unique_indices([0, 1, 2, 7, 15, 31, max(c - 1, 0)], length=c)
+
+    samples: list[dict[str, Any]] = []
+    for ch in channels:
+        idx = [ch]
+        samples.append({"index": idx, "value": _sample_scalar(x, idx)})
     return samples
 
 
@@ -286,6 +328,96 @@ def _sample_enc_outputs_class(x: "torch.Tensor") -> list[dict[str, Any]]:
         for cl in classes:
             idx = [0, si, cl]
             samples.append({"index": idx, "value": _sample_scalar(x, idx)})
+    return samples
+
+
+def _sample_decoder_offsets(x: "torch.Tensor") -> list[dict[str, Any]]:
+    # x: [B,Q,H,L,P,2]
+    b, q, h, l, p, c = [int(v) for v in x.shape]
+    if b < 1:
+        return []
+    if c != 2:
+        raise ValueError(f"Expected last dim=2 for decoder offsets sampler, got shape={tuple(x.shape)}")
+
+    queries = _unique_indices([0, 1, 2], length=q)
+    heads = _unique_indices([0], length=h)
+    levels = list(range(l))
+    points = list(range(p))
+    coords = [0, 1]
+
+    samples: list[dict[str, Any]] = []
+    for qi in queries:
+        for hi in heads:
+            for li in levels:
+                for pi in points:
+                    for ci in coords:
+                        idx = [0, qi, hi, li, pi, ci]
+                        samples.append({"index": idx, "value": _sample_scalar(x, idx)})
+    return samples
+
+
+def _sample_decoder_attention_weights(x: "torch.Tensor") -> list[dict[str, Any]]:
+    # x: [B,Q,H,L,P]
+    b, q, h, l, p = [int(v) for v in x.shape]
+    if b < 1:
+        return []
+
+    queries = _unique_indices([0, 1, 2], length=q)
+    heads = _unique_indices([0], length=h)
+    levels = list(range(l))
+    points = list(range(p))
+
+    samples: list[dict[str, Any]] = []
+    for qi in queries:
+        for hi in heads:
+            for li in levels:
+                for pi in points:
+                    idx = [0, qi, hi, li, pi]
+                    samples.append({"index": idx, "value": _sample_scalar(x, idx)})
+    return samples
+
+
+def _sample_nqp2(x: "torch.Tensor") -> list[dict[str, Any]]:
+    # x: [N,Q,P,2]
+    n, q, p, c = [int(v) for v in x.shape]
+    if n < 1:
+        return []
+    if c != 2:
+        raise ValueError(f"Expected last dim=2 for nqp2 sampler, got shape={tuple(x.shape)}")
+
+    ns = _unique_indices([0, 1, max(n - 1, 0)], length=n)
+    queries = _unique_indices([0, 1, 2, 49, max(q - 1, 0)], length=q)
+    points = _unique_indices([0, 1, max(p - 1, 0)], length=p)
+    coords = [0, 1]
+
+    samples: list[dict[str, Any]] = []
+    for ni in ns:
+        for qi in queries:
+            for pi in points:
+                for ci in coords:
+                    idx = [ni, qi, pi, ci]
+                    samples.append({"index": idx, "value": _sample_scalar(x, idx)})
+    return samples
+
+
+def _sample_nqpc(x: "torch.Tensor") -> list[dict[str, Any]]:
+    # x: [N,Q,P,C]
+    n, q, p, c = [int(v) for v in x.shape]
+    if n < 1:
+        return []
+
+    ns = _unique_indices([0, 1, max(n - 1, 0)], length=n)
+    queries = _unique_indices([0, 1, 2, 49, max(q - 1, 0)], length=q)
+    points = _unique_indices([0, 1, max(p - 1, 0)], length=p)
+    channels = _unique_indices([0, 1, 2, 7, 15, 31], length=c)
+
+    samples: list[dict[str, Any]] = []
+    for ni in ns:
+        for qi in queries:
+            for pi in points:
+                for ch in channels:
+                    idx = [ni, qi, pi, ch]
+                    samples.append({"index": idx, "value": _sample_scalar(x, idx)})
     return samples
 
 
@@ -341,6 +473,8 @@ def _mask_to_box_coordinate(mask: "torch.Tensor", *, dtype: "torch.dtype") -> "t
 
 def main() -> None:
     args = _parse_args()
+    if args.include_decoder_intermediates:
+        args.include_intermediates = True
 
     model_folder: Path = _resolve_snapshot_folder(args.model_folder)
     out_path: Path = args.out.expanduser().resolve()
@@ -465,6 +599,7 @@ def main() -> None:
         from transformers.models.pp_doclayout_v3 import modeling_pp_doclayout_v3 as m
 
         model_core = model.model
+        decoder_level_tensors: dict[str, tuple[str, torch.Tensor]] = {}
         pixel_mask = inputs.get("pixel_mask")
         if pixel_mask is None:
             # Match Transformers default: if pixel_mask is omitted, it is treated as fully-valid.
@@ -552,6 +687,134 @@ def main() -> None:
                 reference_points = _mask_to_box_coordinate(enc_out_masks > 0, dtype=reference_points_unact.dtype)
                 reference_points_unact = _inverse_sigmoid(reference_points)
 
+            if args.include_decoder_intermediates:
+                decoder = model_core.decoder
+                decoder_layer0 = decoder.layers[0]
+                self_ln_weight = decoder_layer0.self_attn_layer_norm.weight.detach()
+                self_ln_bias = decoder_layer0.self_attn_layer_norm.bias.detach()
+                cross_ln_weight = decoder_layer0.encoder_attn_layer_norm.weight.detach()
+                cross_ln_bias = decoder_layer0.encoder_attn_layer_norm.bias.detach()
+
+                batch_ind = torch.arange(memory.shape[0], device=output_memory.device).unsqueeze(1)
+                target = output_memory[batch_ind, topk_ind]  # [B,Q,D]
+
+                hidden_states = target
+                hidden_states_in = hidden_states.detach()
+                reference_points = reference_points_unact.sigmoid()
+                reference_points_input = reference_points.unsqueeze(2)
+                object_query_pos = decoder.query_pos_head(reference_points)
+
+                residual = hidden_states
+                self_out, _ = decoder_layer0.self_attn(
+                    hidden_states=hidden_states,
+                    attention_mask=None,
+                    position_embeddings=object_query_pos,
+                )
+                self_sum = residual + self_out
+                self_sum_mean = self_sum.mean(-1, keepdim=True)
+                self_sum_var = self_sum.var(-1, unbiased=False, keepdim=True)
+                hidden_states = decoder_layer0.self_attn_layer_norm(self_sum)
+
+                hidden_states_pre_cross = hidden_states.detach()
+                hidden_states_pre_cross_mean = hidden_states_pre_cross.mean(-1, keepdim=True)
+
+                encoder_attn = decoder_layer0.encoder_attn
+                hs_with_pos = hidden_states + object_query_pos
+
+                value = encoder_attn.value_proj(source_flatten)
+                value = value.view(
+                    int(value.shape[0]),
+                    int(value.shape[1]),
+                    int(encoder_attn.n_heads),
+                    int(encoder_attn.d_model // encoder_attn.n_heads),
+                )
+
+                sampling_offsets = encoder_attn.sampling_offsets(hs_with_pos).view(
+                    int(hs_with_pos.shape[0]),
+                    int(hs_with_pos.shape[1]),
+                    int(encoder_attn.n_heads),
+                    int(encoder_attn.n_levels),
+                    int(encoder_attn.n_points),
+                    2,
+                )
+                attention_weights = encoder_attn.attention_weights(hs_with_pos).view(
+                    int(hs_with_pos.shape[0]),
+                    int(hs_with_pos.shape[1]),
+                    int(encoder_attn.n_heads),
+                    int(encoder_attn.n_levels * encoder_attn.n_points),
+                )
+                attention_weights = torch.softmax(attention_weights, -1).view(
+                    int(hs_with_pos.shape[0]),
+                    int(hs_with_pos.shape[1]),
+                    int(encoder_attn.n_heads),
+                    int(encoder_attn.n_levels),
+                    int(encoder_attn.n_points),
+                )
+
+                sampling_locations = (
+                    reference_points_input[:, :, None, :, None, :2]
+                    + sampling_offsets / encoder_attn.n_points * reference_points_input[:, :, None, :, None, 2:] * 0.5
+                )
+
+                spatial_shapes = torch.tensor(spatial_shapes_list, device=source_flatten.device, dtype=torch.long)
+                start_idx = [0]
+                for height, width in spatial_shapes_list[:-1]:
+                    start_idx.append(start_idx[-1] + int(height) * int(width))
+                level_start_index = torch.tensor(start_idx, device=source_flatten.device, dtype=torch.long)
+
+                # Mirror MultiScaleDeformableAttention internals (canonicalize to NHWC for Swift parity).
+                value_list = value.split([height * width for height, width in spatial_shapes_list], dim=1)
+                sampling_grids = 2 * sampling_locations - 1
+
+                for level_id, (height, width) in enumerate(spatial_shapes_list):
+                    value_l_ = (
+                        value_list[level_id]
+                        .flatten(2)
+                        .transpose(1, 2)
+                        .reshape(int(value.shape[0]) * int(encoder_attn.n_heads), int(value.shape[3]), height, width)
+                    )
+                    grid_l_ = sampling_grids[:, :, :, level_id].transpose(1, 2).flatten(0, 1)
+                    sampled_l_ = torch.nn.functional.grid_sample(
+                        value_l_,
+                        grid_l_,
+                        mode="bilinear",
+                        padding_mode="zeros",
+                        align_corners=False,
+                    )
+
+                    decoder_level_tensors[f"decoder.layers.0.encoder_attn.value.level{level_id}"] = (
+                        "NHWC",
+                        _nchw_to_nhwc(value_l_),
+                    )
+                    decoder_level_tensors[f"decoder.layers.0.encoder_attn.grid.level{level_id}"] = ("NQP2", grid_l_)
+                    decoder_level_tensors[f"decoder.layers.0.encoder_attn.sampled.level{level_id}"] = (
+                        "NQPC",
+                        sampled_l_.permute(0, 2, 3, 1).contiguous(),
+                    )
+
+                cross_out, _ = encoder_attn(
+                    hidden_states=hidden_states_pre_cross,
+                    encoder_hidden_states=source_flatten,
+                    position_embeddings=object_query_pos,
+                    reference_points=reference_points_input,
+                    spatial_shapes=spatial_shapes,
+                    spatial_shapes_list=spatial_shapes_list,
+                    level_start_index=level_start_index,
+                    attention_mask=None,
+                )
+                cross_out_mean = cross_out.mean(-1, keepdim=True)
+
+                cross_sum = hidden_states_pre_cross + cross_out
+                cross_sum_detached = cross_sum.detach()
+                cross_sum_mean = cross_sum_detached.mean(-1, keepdim=True)
+                cross_sum_var = cross_sum_detached.var(-1, unbiased=False, keepdim=True)
+                hidden_states_post_cross = decoder_layer0.encoder_attn_layer_norm(cross_sum)
+                hidden_states_out = decoder_layer0.final_layer_norm(hidden_states_post_cross + decoder_layer0.mlp(hidden_states_post_cross))
+
+                predicted_corners = decoder.bbox_embed(hidden_states_out)
+                reference_points_out = (predicted_corners + _inverse_sigmoid(reference_points)).sigmoid()
+                logits0 = decoder.class_embed(model_core.decoder_norm(hidden_states_out))
+
         # Canonical layout for cross-impl parity: use NHWC samples for feature maps.
         tensor_map: dict[str, tuple[str, torch.Tensor]] = {}
         tensor_map["pixel_values"] = ("NHWC", _nchw_to_nhwc(pixel_values))
@@ -580,6 +843,34 @@ def main() -> None:
         tensor_map["enc_outputs_coord_logits"] = ("BS4", enc_outputs_coord_logits)
         tensor_map["reference_points_unact"] = ("BS4", reference_points_unact)
 
+        if args.include_decoder_intermediates:
+            tensor_map.update(decoder_level_tensors)
+            tensor_map["decoder.layers.0.reference_points.in"] = ("BS4", reference_points)
+            tensor_map["decoder.layers.0.object_query_pos"] = ("BSC", object_query_pos)
+            tensor_map["decoder.layers.0.hidden_states.in"] = ("BSC_WIDE", hidden_states_in)
+            tensor_map["decoder.layers.0.self_attn.out"] = ("BSC_WIDE", self_out)
+            tensor_map["decoder.layers.0.self_attn_layer_norm.input_mean"] = ("BS1", self_sum_mean)
+            tensor_map["decoder.layers.0.self_attn_layer_norm.input_var"] = ("BS1", self_sum_var)
+            tensor_map["decoder.layers.0.self_attn_layer_norm.weight"] = ("C", self_ln_weight)
+            tensor_map["decoder.layers.0.self_attn_layer_norm.bias"] = ("C", self_ln_bias)
+            tensor_map["decoder.layers.0.hidden_states.pre_cross"] = ("BSC_WIDE", hidden_states_pre_cross)
+            tensor_map["decoder.layers.0.hidden_states.pre_cross_mean"] = ("BS1", hidden_states_pre_cross_mean)
+            tensor_map["decoder.layers.0.encoder_attn.sampling_offsets"] = ("BQHLP2", sampling_offsets)
+            tensor_map["decoder.layers.0.encoder_attn.attention_weights"] = ("BQHLP", attention_weights)
+            tensor_map["decoder.layers.0.encoder_attn.sampling_locations"] = ("BQHLP2", sampling_locations)
+            tensor_map["decoder.layers.0.encoder_attn.out"] = ("BSC_WIDE", cross_out)
+            tensor_map["decoder.layers.0.encoder_attn.out_mean"] = ("BS1", cross_out_mean)
+            tensor_map["decoder.layers.0.encoder_attn_layer_norm.input"] = ("BSC_WIDE", cross_sum_detached)
+            tensor_map["decoder.layers.0.encoder_attn_layer_norm.input_mean"] = ("BS1", cross_sum_mean)
+            tensor_map["decoder.layers.0.encoder_attn_layer_norm.input_var"] = ("BS1", cross_sum_var)
+            tensor_map["decoder.layers.0.encoder_attn_layer_norm.weight"] = ("C", cross_ln_weight)
+            tensor_map["decoder.layers.0.encoder_attn_layer_norm.bias"] = ("C", cross_ln_bias)
+            tensor_map["decoder.layers.0.hidden_states.post_cross"] = ("BSC", hidden_states_post_cross)
+            tensor_map["decoder.layers.0.hidden_states.out"] = ("BSC", hidden_states_out)
+            tensor_map["decoder.layers.0.bbox.predicted_corners"] = ("BS4", predicted_corners)
+            tensor_map["decoder.layers.0.reference_points.out"] = ("BS4", reference_points_out)
+            tensor_map["decoder.layers.0.logits"] = ("ENC_CLASS", logits0)
+
         order = [
             "pixel_values",
             "backbone.feature_maps.0",
@@ -606,6 +897,43 @@ def main() -> None:
             "reference_points_unact",
         ]
 
+        if args.include_decoder_intermediates:
+            order += [
+                "decoder.layers.0.reference_points.in",
+                "decoder.layers.0.object_query_pos",
+                "decoder.layers.0.hidden_states.in",
+                "decoder.layers.0.self_attn.out",
+                "decoder.layers.0.self_attn_layer_norm.input_mean",
+                "decoder.layers.0.self_attn_layer_norm.input_var",
+                "decoder.layers.0.self_attn_layer_norm.weight",
+                "decoder.layers.0.self_attn_layer_norm.bias",
+                "decoder.layers.0.hidden_states.pre_cross",
+                "decoder.layers.0.hidden_states.pre_cross_mean",
+                "decoder.layers.0.encoder_attn.sampling_offsets",
+                "decoder.layers.0.encoder_attn.attention_weights",
+                "decoder.layers.0.encoder_attn.sampling_locations",
+            ]
+            for level_id in range(len(spatial_shapes_list)):
+                order += [
+                    f"decoder.layers.0.encoder_attn.value.level{level_id}",
+                    f"decoder.layers.0.encoder_attn.grid.level{level_id}",
+                    f"decoder.layers.0.encoder_attn.sampled.level{level_id}",
+                ]
+            order += [
+                "decoder.layers.0.encoder_attn.out",
+                "decoder.layers.0.encoder_attn.out_mean",
+                "decoder.layers.0.encoder_attn_layer_norm.input",
+                "decoder.layers.0.encoder_attn_layer_norm.input_mean",
+                "decoder.layers.0.encoder_attn_layer_norm.input_var",
+                "decoder.layers.0.encoder_attn_layer_norm.weight",
+                "decoder.layers.0.encoder_attn_layer_norm.bias",
+                "decoder.layers.0.hidden_states.post_cross",
+                "decoder.layers.0.hidden_states.out",
+                "decoder.layers.0.bbox.predicted_corners",
+                "decoder.layers.0.reference_points.out",
+                "decoder.layers.0.logits",
+            ]
+
         tensors_out: dict[str, Any] = {}
         for name in order:
             if name not in tensor_map:
@@ -618,6 +946,10 @@ def main() -> None:
                 samples = _sample_nhwc(tensor)
             elif layout == "BSC":
                 samples = _sample_bsc(tensor)
+            elif layout == "BSC_WIDE":
+                samples = _sample_bsc_wide(tensor)
+            elif layout == "C":
+                samples = _sample_c(tensor)
             elif layout == "BS4":
                 samples = _sample_bs4(tensor)
             elif layout == "BS1":
@@ -625,6 +957,14 @@ def main() -> None:
             elif layout == "ENC_CLASS":
                 samples = _sample_enc_outputs_class(tensor)
                 layout = "BSC"
+            elif layout == "BQHLP2":
+                samples = _sample_decoder_offsets(tensor)
+            elif layout == "BQHLP":
+                samples = _sample_decoder_attention_weights(tensor)
+            elif layout == "NQP2":
+                samples = _sample_nqp2(tensor)
+            elif layout == "NQPC":
+                samples = _sample_nqpc(tensor)
             else:
                 raise ValueError(f"Unknown layout: {layout}")
 
@@ -640,7 +980,7 @@ def main() -> None:
 
     fixture: dict[str, Any] = {
         "metadata": {
-            "fixture_version": "v3" if args.include_intermediates else "v2",
+            "fixture_version": "v4" if args.include_decoder_intermediates else ("v3" if args.include_intermediates else "v2"),
             "model_id": model_id,
             "snapshot_hash": _snapshot_hash_from_path(model_folder),
             "source": "python/transformers",

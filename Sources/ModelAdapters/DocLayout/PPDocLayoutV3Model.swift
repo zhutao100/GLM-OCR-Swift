@@ -607,7 +607,8 @@ final class PPDocLayoutV3Core: Module {
             decoderOrderHead: decoderOrderHead,
             decoderGlobalPointer: decoderGlobalPointer,
             classHead: encScoreHead,
-            bboxHead: encBBoxHead
+            bboxHead: encBBoxHead,
+            probe: probe
         )
 
         try checkedEval(decoded.logits, decoded.boxes, decoded.orderLogits)

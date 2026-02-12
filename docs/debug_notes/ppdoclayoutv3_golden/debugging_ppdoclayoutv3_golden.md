@@ -12,9 +12,37 @@ Opt-in tests (require `LAYOUT_RUN_GOLDEN=1`):
 
 - `Tests/DocLayoutAdapterTests/PPDocLayoutV3GoldenIntegrationTests.swift` (fixture: MPS/float16)
 - `Tests/DocLayoutAdapterTests/PPDocLayoutV3GoldenFloat32IntegrationTests.swift` (fixture: CPU/float32)
-- `Tests/DocLayoutAdapterTests/PPDocLayoutV3IntermediateParityIntegrationTests.swift` (fixture v3 with intermediates; CPU/float32)
+- `Tests/DocLayoutAdapterTests/PPDocLayoutV3IntermediateParityIntegrationTests.swift` (fixtures: CPU/float32 v3 + v4)
 
 Fixtures live in `Tests/DocLayoutAdapterTests/Fixtures/`.
+
+## Outcome (2026-02-12)
+
+- Fixed the golden drift for snapshot `a0abee1e2bb505e5662993235af873a5d89851e3` (Transformers `5.1.0`):
+  - `PPDocLayoutV3GoldenFloat32IntegrationTests` passes (CPU/float32).
+  - `PPDocLayoutV3GoldenIntegrationTests` passes (MPS/float16).
+- Added a decoder-focused parity fixture (`ppdoclayoutv3_forward_golden_cpu_float32_v4.json`) to localize future drift inside decoder layer 0.
+
+## Root cause (2026-02-12): in-place mutation of decoder hidden states
+
+`MLXArray` is a reference type, and compound assignment operators like `+=` mutate the underlying array.
+
+In `PPDocLayoutV3MultiscaleDeformableAttentionCore.forward(...)`, we did:
+
+```swift
+var hiddenStates = hiddenStates
+hiddenStates += positionEmbeddings
+```
+
+That mutated the caller-owned `hiddenStates` used as the decoder layer residual, corrupting the cross-attn residual path and causing large downstream drift (decoder outputs, boxes, logits).
+
+Fix: use out-of-place addition:
+
+```swift
+hiddenStates = hiddenStates + positionEmbeddings
+```
+
+File: `Sources/ModelAdapters/DocLayout/PPDocLayoutV3Decoder.swift`.
 
 ## Snapshot + fixture facts (current baseline)
 
@@ -49,7 +77,7 @@ print("encoder:", sum(k.startswith("model.encoder.encoder") for k in keys))
 PY
 ```
 
-## The “fixture v3 intermediates” workflow (localize first divergence)
+## The intermediates workflow (v3/v4) (localize first divergence)
 
 ### Generate the fixture
 
@@ -61,6 +89,16 @@ PYENV_VERSION=venv313 pyenv exec python3 scripts/generate_ppdoclayoutv3_golden.p
   --device cpu \
   --include-intermediates \
   --out Tests/DocLayoutAdapterTests/Fixtures/ppdoclayoutv3_forward_golden_cpu_float32_v3.json
+```
+
+For decoder layer-0 internal probes (fixture v4):
+
+```bash
+PYENV_VERSION=venv313 pyenv exec python3 scripts/generate_ppdoclayoutv3_golden.py \
+  --model-folder "$LAYOUT_SNAPSHOT_PATH" \
+  --device cpu \
+  --include-decoder-intermediates \
+  --out Tests/DocLayoutAdapterTests/Fixtures/ppdoclayoutv3_forward_golden_cpu_float32_v4.json
 ```
 
 ### Run the intermediate parity test
@@ -97,23 +135,10 @@ If you add new intermediate captures around the encoder in Python, assume list m
 
 As of **2026-02-12**:
 
-- `PPDocLayoutV3IntermediateParityIntegrationTests` passes for the pre-decoder intermediates currently captured:
-  - `pixel_values`
-  - `backbone.feature_maps.*`
-  - `encoder_input_proj_conv.*` / `encoder_input_proj.*`
-  - `hybrid_encoder.feature_maps.*` / `hybrid_encoder.mask_feat`
-  - `source_flatten`, `anchors`, `valid_mask`, `memory`, `output_memory`
-  - `enc_outputs_class`, `enc_outputs_coord_logits`, `reference_points_unact`
-- `PPDocLayoutV3GoldenFloat32IntegrationTests` still fails with large output drift (logits and boxes).
+- `PPDocLayoutV3IntermediateParityIntegrationTests` passes for:
+  - fixture v3 (pre-decoder intermediates)
+  - fixture v4 (decoder layer-0 intermediates)
+- `PPDocLayoutV3GoldenFloat32IntegrationTests` passes.
+- `PPDocLayoutV3GoldenIntegrationTests` passes.
 
-Interpretation: drift is very likely **inside the decoder** (multi-scale deformable cross-attention and/or bbox refinement), since the encoder-side inputs to the decoder now match at sampled points.
-
-## Next recommended debug steps (decoder focus)
-
-1. Extend fixture v3 + Swift probe to capture a handful of **decoder internals** for a tiny set of indices:
-   - `sampling_offsets`, `attention_weights`, `sampling_locations` (first decoder layer; 1–3 queries; head 0; a couple levels/points)
-   - one `grid_sample` result vector slice for the same `(query, head, level, point)`
-2. Add a micro-test that compares `grid_sample(align_corners=false, padding_mode=zeros, mode=bilinear)` on a tiny tensor against PyTorch CPU.
-3. Once the first decoder mismatch is found, fix the earliest mismatch and re-run:
-   - `PPDocLayoutV3IntermediateParityIntegrationTests`
-   - `PPDocLayoutV3GoldenFloat32IntegrationTests`
+If drift reappears, the fastest path is to re-run the v4 parity test and look for accidental in-place ops (e.g. `+=`, `*=`) on tensors that might alias caller-owned values (especially decoder residual paths).

@@ -92,7 +92,9 @@ private func multiScaleDeformableAttentionCore(
     value: MLXArray,
     spatialShapesList: [(height: Int, width: Int)],
     samplingLocations: MLXArray,
-    attentionWeights: MLXArray
+    attentionWeights: MLXArray,
+    probe: PPDocLayoutV3IntermediateProbe? = nil,
+    probePrefix: String? = nil
 ) -> MLXArray {
     let batch = value.dim(0)
     let sequenceLength = value.dim(1)
@@ -126,6 +128,12 @@ private func multiScaleDeformableAttentionCore(
             .reshaped(batch * numHeads, numQueries, numPoints, 2)
 
         let sampled = gridSampleBilinearNHWC(valueLevel, grid: gridLevel)
+
+        if let probePrefix {
+            probe?.capture("\(probePrefix).value.level\(levelId)", tensor: valueLevel)
+            probe?.capture("\(probePrefix).grid.level\(levelId)", tensor: gridLevel)
+            probe?.capture("\(probePrefix).sampled.level\(levelId)", tensor: sampled)
+        }
         sampledByLevel.append(sampled)
 
         start += levelLen
@@ -185,11 +193,14 @@ final class PPDocLayoutV3MultiscaleDeformableAttentionCore: Module {
         spatialShapes: MLXArray,
         spatialShapesList: [(height: Int, width: Int)],
         levelStartIndex _: MLXArray? = nil,
-        attentionMask: MLXArray? = nil
+        attentionMask: MLXArray? = nil,
+        probe: PPDocLayoutV3IntermediateProbe? = nil,
+        probePrefix: String? = nil
     ) -> MLXArray {
         var hiddenStates = hiddenStates
         if let positionEmbeddings {
-            hiddenStates += positionEmbeddings
+            // swiftlint:disable:next shorthand_operator
+            hiddenStates = hiddenStates + positionEmbeddings
         }
 
         let batch = hiddenStates.dim(0)
@@ -234,11 +245,19 @@ final class PPDocLayoutV3MultiscaleDeformableAttentionCore: Module {
             fatalError("referencePoints last dim must be 2 or 4, got \(numCoordinates)")
         }
 
+        if let probePrefix {
+            probe?.capture("\(probePrefix).sampling_offsets", tensor: samplingOffsetsTensor)
+            probe?.capture("\(probePrefix).attention_weights", tensor: weights)
+            probe?.capture("\(probePrefix).sampling_locations", tensor: samplingLocations)
+        }
+
         let attended = multiScaleDeformableAttentionCore(
             value: value,
             spatialShapesList: spatialShapesList,
             samplingLocations: samplingLocations,
-            attentionWeights: weights
+            attentionWeights: weights,
+            probe: probe,
+            probePrefix: probePrefix
         )
         return outputProj(attended)
     }
@@ -282,7 +301,9 @@ final class PPDocLayoutV3DecoderLayerCore: Module {
         spatialShapes: MLXArray,
         spatialShapesList: [(height: Int, width: Int)],
         levelStartIndex: MLXArray,
-        encoderHiddenStates: MLXArray
+        encoderHiddenStates: MLXArray,
+        probe: PPDocLayoutV3IntermediateProbe? = nil,
+        probePrefix: String? = nil
     ) -> MLXArray {
         var hiddenStates = hiddenStates
 
@@ -292,8 +313,40 @@ final class PPDocLayoutV3DecoderLayerCore: Module {
             attentionMask: nil,
             positionEmbeddings: objectQueriesPositionEmbeddings
         )
-        hiddenStates = residual + selfOut
-        hiddenStates = selfAttnLayerNorm(hiddenStates)
+        if let probePrefix {
+            probe?.capture("\(probePrefix).self_attn.out", tensor: selfOut)
+        }
+
+        let selfSum = residual + selfOut
+        if let probePrefix {
+            if let weight = selfAttnLayerNorm.weight {
+                probe?.capture("\(probePrefix).self_attn_layer_norm.weight", tensor: weight)
+            }
+            if let bias = selfAttnLayerNorm.bias {
+                probe?.capture("\(probePrefix).self_attn_layer_norm.bias", tensor: bias)
+            }
+
+            let hiddenSize = selfSum.dim(2)
+            let denom = Float(hiddenSize).asMLXArray(dtype: selfSum.dtype)
+
+            let mean = selfSum.sum(axis: 2) / denom
+            let meanExpanded = mean.expandedDimensions(axis: -1)
+            let variance = ((selfSum - meanExpanded) * (selfSum - meanExpanded)).sum(axis: 2) / denom
+
+            probe?.capture("\(probePrefix).self_attn_layer_norm.input_mean", tensor: meanExpanded)
+            probe?.capture("\(probePrefix).self_attn_layer_norm.input_var", tensor: variance.expandedDimensions(axis: -1))
+        }
+
+        hiddenStates = selfAttnLayerNorm(selfSum)
+        if let probePrefix {
+            let captureTensor = hiddenStates + 0.0.asMLXArray(dtype: hiddenStates.dtype)
+            probe?.capture("\(probePrefix).hidden_states.pre_cross", tensor: captureTensor)
+
+            let hiddenSize = captureTensor.dim(2)
+            let denom = Float(hiddenSize).asMLXArray(dtype: captureTensor.dtype)
+            let mean = captureTensor.sum(axis: 2) / denom
+            probe?.capture("\(probePrefix).hidden_states.pre_cross_mean", tensor: mean.expandedDimensions(axis: -1))
+        }
 
         residual = hiddenStates
         let crossOut = encoderAttn.forward(
@@ -304,10 +357,46 @@ final class PPDocLayoutV3DecoderLayerCore: Module {
             spatialShapes: spatialShapes,
             spatialShapesList: spatialShapesList,
             levelStartIndex: levelStartIndex,
-            attentionMask: nil
+            attentionMask: nil,
+            probe: probe,
+            probePrefix: probePrefix.map { "\($0).encoder_attn" }
         )
-        hiddenStates = residual + crossOut
-        hiddenStates = encoderAttnLayerNorm(hiddenStates)
+        if let probePrefix {
+            probe?.capture("\(probePrefix).encoder_attn.out", tensor: crossOut)
+
+            let hiddenSize = crossOut.dim(2)
+            let denom = Float(hiddenSize).asMLXArray(dtype: crossOut.dtype)
+            let mean = crossOut.sum(axis: 2) / denom
+            probe?.capture("\(probePrefix).encoder_attn.out_mean", tensor: mean.expandedDimensions(axis: -1))
+        }
+        let crossSum = residual + crossOut
+        if let probePrefix {
+            let captureTensor = crossSum + 0.0.asMLXArray(dtype: crossSum.dtype)
+            probe?.capture("\(probePrefix).encoder_attn_layer_norm.input", tensor: captureTensor)
+
+            if let weight = encoderAttnLayerNorm.weight {
+                probe?.capture("\(probePrefix).encoder_attn_layer_norm.weight", tensor: weight)
+            }
+            if let bias = encoderAttnLayerNorm.bias {
+                probe?.capture("\(probePrefix).encoder_attn_layer_norm.bias", tensor: bias)
+            }
+
+            let hiddenSize = captureTensor.dim(2)
+            let denom = Float(hiddenSize).asMLXArray(dtype: captureTensor.dtype)
+
+            let mean = captureTensor.sum(axis: 2) / denom
+            let meanExpanded = mean.expandedDimensions(axis: -1)
+            let variance = ((captureTensor - meanExpanded) * (captureTensor - meanExpanded)).sum(axis: 2) / denom
+
+            probe?.capture("\(probePrefix).encoder_attn_layer_norm.input_mean", tensor: meanExpanded)
+            probe?.capture("\(probePrefix).encoder_attn_layer_norm.input_var", tensor: variance.expandedDimensions(axis: -1))
+        }
+
+        hiddenStates = encoderAttnLayerNorm(crossSum)
+        if let probePrefix {
+            let captureTensor = hiddenStates + 0.0.asMLXArray(dtype: hiddenStates.dtype)
+            probe?.capture("\(probePrefix).hidden_states.post_cross", tensor: captureTensor)
+        }
 
         residual = hiddenStates
         hiddenStates = fc2(activation(fc1(hiddenStates)))
@@ -352,7 +441,8 @@ final class PPDocLayoutV3DecoderCore: Module {
         decoderOrderHead: [Linear],
         decoderGlobalPointer: PPGlobalPointer,
         classHead: Linear,
-        bboxHead: PPMLPPredictionHead
+        bboxHead: PPMLPPredictionHead,
+        probe: PPDocLayoutV3IntermediateProbe? = nil
     ) -> (logits: MLXArray, boxes: MLXArray, orderLogits: MLXArray) {
         var hiddenStates = inputsEmbeds
         var referencePoints = sigmoid(referencePointsUnact)
@@ -364,6 +454,11 @@ final class PPDocLayoutV3DecoderCore: Module {
             let referencePointsInput = referencePoints.expandedDimensions(axis: 2)
             let objectQueryPos = queryPosHead(referencePoints)
 
+            let layerPrefix = "decoder.layers.\(idx)"
+            probe?.capture("\(layerPrefix).reference_points.in", tensor: referencePoints)
+            probe?.capture("\(layerPrefix).object_query_pos", tensor: objectQueryPos)
+            probe?.capture("\(layerPrefix).hidden_states.in", tensor: hiddenStates)
+
             hiddenStates = layers[idx].forward(
                 hiddenStates: hiddenStates,
                 objectQueriesPositionEmbeddings: objectQueryPos,
@@ -371,15 +466,22 @@ final class PPDocLayoutV3DecoderCore: Module {
                 spatialShapes: spatialShapes,
                 spatialShapesList: spatialShapesList,
                 levelStartIndex: levelStartIndex,
-                encoderHiddenStates: encoderHiddenStates
+                encoderHiddenStates: encoderHiddenStates,
+                probe: probe,
+                probePrefix: layerPrefix
             )
+
+            probe?.capture("\(layerPrefix).hidden_states.out", tensor: hiddenStates + 0.0.asMLXArray(dtype: hiddenStates.dtype))
 
             let predictedCorners = bboxHead(hiddenStates)
             let newReferencePoints = sigmoid(predictedCorners + inverseSigmoid(referencePoints))
             referencePoints = newReferencePoints
+            probe?.capture("\(layerPrefix).bbox.predicted_corners", tensor: predictedCorners)
+            probe?.capture("\(layerPrefix).reference_points.out", tensor: referencePoints)
 
             let outQuery = decoderNorm(hiddenStates)
             logits = classHead(outQuery)
+            probe?.capture("\(layerPrefix).logits", tensor: logits)
 
             let validQuery = outQuery // no denoising during inference
             let orderHidden = decoderOrderHead[idx](validQuery)

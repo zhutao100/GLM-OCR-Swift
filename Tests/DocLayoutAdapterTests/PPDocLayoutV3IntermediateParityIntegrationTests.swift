@@ -6,6 +6,14 @@ import XCTest
 
 final class PPDocLayoutV3IntermediateParityIntegrationTests: XCTestCase {
     func testForwardRawOutputs_cpuFloat32_intermediates_matchPython() async throws {
+        try await assertIntermediatesMatchFixture(named: "ppdoclayoutv3_forward_golden_cpu_float32_v3")
+    }
+
+    func testForwardRawOutputs_cpuFloat32_decoderIntermediates_matchPython() async throws {
+        try await assertIntermediatesMatchFixture(named: "ppdoclayoutv3_forward_golden_cpu_float32_v4")
+    }
+
+    private func assertIntermediatesMatchFixture(named fixtureName: String) async throws {
         guard DocLayoutTestEnv.runGolden else {
             throw XCTSkip("Set LAYOUT_RUN_GOLDEN=1 to enable this integration test.")
         }
@@ -13,7 +21,7 @@ final class PPDocLayoutV3IntermediateParityIntegrationTests: XCTestCase {
             throw XCTSkip("Set LAYOUT_SNAPSHOT_PATH to a local PP-DocLayout-V3 HF snapshot folder to enable this test.")
         }
 
-        let fixtureData = try DocLayoutTestEnv.goldenFixtureData(name: "ppdoclayoutv3_forward_golden_cpu_float32_v3")
+        let fixtureData = try DocLayoutTestEnv.goldenFixtureData(name: fixtureName)
         let fixture = try JSONDecoder().decode(PPDocLayoutV3ForwardGoldenFixture.self, from: fixtureData)
 
         guard fixture.metadata.dtype == "float32" else {
@@ -48,6 +56,7 @@ final class PPDocLayoutV3IntermediateParityIntegrationTests: XCTestCase {
             encoderTopKIndicesOverride: fixture.encoderTopKIndices,
             probe: probe
         )
+        probe.finalize()
 
         let atol: Float = 1e-3
 
@@ -67,15 +76,21 @@ final class PPDocLayoutV3IntermediateParityIntegrationTests: XCTestCase {
                 index.map(String.init).joined(separator: ",")
             }
 
-            let expectedByIndex = Dictionary(uniqueKeysWithValues: expected.samples.map { (key($0.index), $0.value) })
             let actualByIndex = Dictionary(uniqueKeysWithValues: actual.samples.map { (key($0.index), $0.value) })
 
-            for (k, expectedValue) in expectedByIndex {
+            for sample in expected.samples {
+                let k = key(sample.index)
                 guard let actualValue = actualByIndex[k] else {
                     XCTFail("Missing Swift sample tensor=\(name) index=\(k)")
-                    continue
+                    return
                 }
-                XCTAssertEqual(actualValue, expectedValue, accuracy: atol, "tensor=\(name) index=\(k)")
+
+                let expectedValue = sample.value
+                let diff = abs(actualValue - expectedValue)
+                if diff > atol {
+                    XCTFail("tensor=\(name) index=\(k) expected=\(expectedValue) actual=\(actualValue) diff=\(diff) atol=\(atol)")
+                    return
+                }
             }
         }
     }

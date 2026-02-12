@@ -1,6 +1,6 @@
 ## PP-DocLayout-V3 Golden Drift Debug Effort Plan (toward parity)
 
-> Status (2026-02-12): fixture v3 + Swift intermediate parity harness landed; Python generator bug fixed; pre-decoder parity matches at sampled points; golden drift likely in decoder.
+> Status (2026-02-12): ✅ fixed. CPU/float32 + MPS/float16 golden tests pass. Root cause was an in-place mutation (`+=`) of decoder hidden states in cross-attn position embedding addition; fixture v4 was added to cover decoder layer-0 intermediates.
 
 ### Summary / Goal
 Fix the Swift port so the opt-in golden tests match the Python/Transformers reference **without loosening tolerances**:
@@ -11,6 +11,12 @@ Primary strategy: **localize the first divergence** by extending the golden fixt
 
 For current “how to run + what we learned”, see:
 - `docs/debug_notes/ppdoclayoutv3_golden/debugging_ppdoclayoutv3_golden.md`
+
+### Outcome (2026-02-12)
+
+- Fixed golden drift by removing an accidental in-place op in `PPDocLayoutV3MultiscaleDeformableAttentionCore.forward(...)`:
+  - `hiddenStates += positionEmbeddings` → `hiddenStates = hiddenStates + positionEmbeddings`
+- Added a decoder-focused parity fixture (`ppdoclayoutv3_forward_golden_cpu_float32_v4.json`) + probes to localize future drift inside decoder layer 0.
 
 ---
 
