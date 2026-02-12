@@ -52,11 +52,11 @@ public struct PPDocLayoutV3Processor: Sendable {
 
         if let config = preprocessorConfig {
             if config.doRescale == false {
-                pixelValues *= 255.0
+                pixelValues = pixelValues * 255.0
             } else if let factor = config.rescaleFactor {
                 let scale = Float(factor * 255.0)
                 if scale != 1 {
-                    pixelValues *= scale
+                    pixelValues = pixelValues * scale
                 }
             }
 

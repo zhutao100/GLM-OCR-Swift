@@ -681,7 +681,7 @@ final class PPDocLayoutV3Core: Module {
         var bbox = stacked([xMin, yMin, xMax, yMax], axis: -1) // [B, Q, 4] in xyxy
 
         let nonEmpty = mask.any(axes: [-2, -1]).expandedDimensions(axis: -1).asType(dtype)
-        bbox *= nonEmpty
+        bbox = bbox * nonEmpty
 
         let norm = MLXArray([Float(width), Float(height), Float(width), Float(height)]).asType(dtype)
         let normalized = bbox / norm
@@ -1196,7 +1196,7 @@ final class HGNetV2BasicLayerCore: Module, UnaryLayer {
         hidden = aggregation[0](hidden)
         hidden = aggregation[1](hidden)
         if residual {
-            hidden += identity
+            hidden = hidden + identity
         }
         return hidden
     }

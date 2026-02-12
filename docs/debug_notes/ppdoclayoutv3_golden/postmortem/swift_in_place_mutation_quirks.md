@@ -1,10 +1,9 @@
 ## Recap of the fix
 
-The core fix was made as line 202 of `Sources/ModelAdapters/DocLayout/PPDocLayoutV3Decoder.swift`,
+The core fix was made in `PPDocLayoutV3MultiscaleDeformableAttentionCore.forward(...)` in `Sources/ModelAdapters/DocLayout/PPDocLayoutV3Decoder.swift`:
 
 ```swift
 -            hiddenStates += positionEmbeddings
-+            // swiftlint:disable:next shorthand_operator
 +            hiddenStates = hiddenStates + positionEmbeddings
 ```
 
@@ -22,7 +21,7 @@ To make the failure localizable, you added **intermediate parity fixtures**:
 * **v3**: “pre-decoder” intermediates (`ppdoclayoutv3_forward_golden_cpu_float32_v3.json`)
 * **v4**: **decoder layer-0** internals (`ppdoclayoutv3_forward_golden_cpu_float32_v4.json`)
 
-(These are laid out in `docs/debug_notes/ppdoclayoutv3_golden/debugging_ppdoclayoutv3_golden.md`, and mirrored in `docs/debug_notes/ppdoclayoutv3_golden/debug_plan.md`.)
+(These are laid out in `docs/debug_notes/ppdoclayoutv3_golden/debugging_ppdoclayoutv3_golden.md`, and the original step-by-step plan is archived at `docs/debug_notes/ppdoclayoutv3_golden/archive/2026-02-12/debug_plan.md`.)
 
 ### **Swift implementation: `MLXArray` aliasing + compound assignment in decoder cross-attn (real divergence)**
 
@@ -42,7 +41,6 @@ Because `MLXArray` behaves like a **reference-semantic handle**, the `+=` mutate
 Fix (current):
 
 ```swift
-// swiftlint:disable:next shorthand_operator
 hiddenStates = hiddenStates + positionEmbeddings
 ```
 
@@ -52,6 +50,11 @@ You also added a regression test:
   which asserts the attention block does **not** mutate the input `hiddenStates`.
 
 Net result: CPU/float32 golden + MPS/float16 golden + v3/v4 parity all pass again.
+
+Follow-ups (landed):
+
+- Disabled SwiftLint’s `shorthand_operator` rule in `.swiftlint.yml` so the linter no longer pushes `x = x + y` into `x += y` in MLX code paths.
+- Removed remaining compound assignments on `MLXArray` across the repo as a defensive rule-of-thumb.
 
 
 ## The introduction of the bug
@@ -112,6 +115,8 @@ You already did the safest short-term thing (`// swiftlint:disable:next shorthan
 - Implement via config instead of inline comments:
   - Prefer `per_file_ignores` for just the affected files (or a glob for `Sources/ModelAdapters/**` if you want it broader).
   - Or disable the rule globally if this repo regularly manipulates reference-semantic tensor handles.
+
+This repo now uses the “disable via config” option to avoid accidental reintroduction during lint-only refactors.
 
 2) **Keep the rule, but avoid the trigger pattern**
 - Rewrite to a functional form SwiftLint won’t rewrite:

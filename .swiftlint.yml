@@ -9,6 +9,10 @@ line_length:
   error: 200
 
 disabled_rules:
+  # `MLXArray` has reference semantics; compound assignment (e.g. `+=`) can mutate
+  # aliased tensors in-place. Prefer out-of-place ops (`x = x + y`) in MLX code.
+  # See `docs/debug_notes/ppdoclayoutv3_golden/postmortem/swift_in_place_mutation_quirks.md`.
+  - shorthand_operator
   - function_parameter_count
   - identifier_name
   - trailing_comma

@@ -485,7 +485,7 @@ final class PPDocLayoutV3MaskFeatFPNCore: Module {
             for idx in 1 ..< reordered.count {
                 let scaled = scaleHeads[idx](reordered[idx])
                 let resized = resizeBilinear(scaled, toHeight: targetH, toWidth: targetW)
-                output += resized
+                output = output + resized
             }
         }
 
@@ -640,7 +640,7 @@ final class PPDocLayoutV3HybridEncoderCore: Module {
 
         var maskFeat = maskFeatureHead.forward(panFeatureMaps)
         maskFeat = Upsample(scaleFactor: 2.0, mode: .linear(alignCorners: false))(maskFeat)
-        maskFeat += encoderMaskLateral(x4Feat)
+        maskFeat = maskFeat + encoderMaskLateral(x4Feat)
         maskFeat = encoderMaskOutput(maskFeat)
 
         return PPDocLayoutV3HybridEncoderOutputs(featureMaps: panFeatureMaps, maskFeat: maskFeat)

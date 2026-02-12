@@ -199,7 +199,6 @@ final class PPDocLayoutV3MultiscaleDeformableAttentionCore: Module {
     ) -> MLXArray {
         var hiddenStates = hiddenStates
         if let positionEmbeddings {
-            // swiftlint:disable:next shorthand_operator
             hiddenStates = hiddenStates + positionEmbeddings
         }
 
@@ -214,7 +213,7 @@ final class PPDocLayoutV3MultiscaleDeformableAttentionCore: Module {
 
         var value = valueProj(encoderHiddenStates)
         if let attentionMask {
-            value *= attentionMask.asType(value.dtype).expandedDimensions(axis: -1)
+            value = value * attentionMask.asType(value.dtype).expandedDimensions(axis: -1)
         }
 
         let headDim = max(dModel / max(nHeads, 1), 1)

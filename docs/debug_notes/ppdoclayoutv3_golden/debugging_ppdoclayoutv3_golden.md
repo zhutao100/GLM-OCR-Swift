@@ -4,6 +4,10 @@ This note is the “single place to start” for future debugging sessions aroun
 
 Last updated: **2026-02-12**
 
+See also:
+
+- Postmortem: `docs/debug_notes/ppdoclayoutv3_golden/postmortem/swift_in_place_mutation_quirks.md`
+
 ## What’s being debugged
 
 Swift target: `DocLayoutAdapter` (MLX Swift port of `transformers.PPDocLayoutV3ForObjectDetection`).
@@ -22,6 +26,7 @@ Fixtures live in `Tests/DocLayoutAdapterTests/Fixtures/`.
   - `PPDocLayoutV3GoldenFloat32IntegrationTests` passes (CPU/float32).
   - `PPDocLayoutV3GoldenIntegrationTests` passes (MPS/float16).
 - Added a decoder-focused parity fixture (`ppdoclayoutv3_forward_golden_cpu_float32_v4.json`) to localize future drift inside decoder layer 0.
+- Disabled SwiftLint’s `shorthand_operator` rule and removed `MLXArray` compound assignments (`+=`, `*=`, etc.) to reduce the risk of future aliasing drift.
 
 ## Root cause (2026-02-12): in-place mutation of decoder hidden states
 
@@ -142,3 +147,5 @@ As of **2026-02-12**:
 - `PPDocLayoutV3GoldenIntegrationTests` passes.
 
 If drift reappears, the fastest path is to re-run the v4 parity test and look for accidental in-place ops (e.g. `+=`, `*=`) on tensors that might alias caller-owned values (especially decoder residual paths).
+
+Archived notes from the original investigation are kept under `docs/debug_notes/ppdoclayoutv3_golden/archive/2026-02-12/`.
