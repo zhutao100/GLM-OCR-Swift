@@ -10,17 +10,21 @@ Build a **fully native macOS (Apple Silicon) GLM-OCR app** in Swift using:
 - **Hugging Face Swift tooling** (`HubApi.snapshot` today; tokenizer integration planned) for model download + tokenizer loading
 - A maintainable architecture that supports future consolidation into a multi-model OCR workbench.
 
-## Current reality (2026-02-09)
+## Current reality (2026-02-12)
 
 - The repo builds and tests cleanly (`swift test`).
 - `ModelStore` snapshot download + HF cache resolution is implemented.
-- OCR inference is still stubbed (vision preprocessing, tokenizer/chat template, weights loading, model port, decode loop).
+- End-to-end OCR runs locally (MLX Swift) for:
+  - a single image or a single PDF page (CLI + App),
+  - optional layout mode (PP-DocLayout-V3 → region OCR → merged Markdown + structured `OCRDocument`).
+- Integration tests for downloaded models are **opt-in** via env vars; see `docs/golden_checks.md`.
 
 ## Non-negotiables
 
 1. **Preserve module boundaries**
    - `VLMRuntimeKit` must stay model-agnostic.
-   - `GLMOCRAdapter` contains *only* GLM-OCR-specific glue.
+   - `DocLayoutAdapter` contains *only* PP-DocLayout-V3-specific glue.
+   - `GLMOCRAdapter` contains *only* GLM-OCR-specific glue (and orchestration that composes the layout adapter).
    - UI code lives only in `GLMOCRApp`.
 
 2. **Docs must stay in sync**
@@ -38,23 +42,38 @@ Build a **fully native macOS (Apple Silicon) GLM-OCR app** in Swift using:
   - `ModelStore/ModelStore.swift` — HF cache resolution + snapshot download
   - `TokenizerKit/PromptTemplate.swift` — `<image>` placeholder splitting + task→instruction mapping
   - `OCRTypes.swift` — public pipeline API (`OCRPipeline`, `OCRTask`, `GenerateOptions`, `OCRResult`)
-  - `VisionIO/VisionIO.swift` — CIImage load (tensor conversion is currently a stub)
+  - `OCRDocumentTypes.swift` — structured output types (`OCRDocument`, pages/regions/bboxes)
+  - `OCRBlockListExport.swift` — examples-compatible block-list JSON export
+  - `VisionIO/VisionIO.swift` — image/PDF decode + CIImage→MLX tensor conversion
+  - `VisionIO/VisionCrop.swift` — normalized bbox/polygon region crop
+  - `MarkdownImageCropper.swift` — crop+replace `![](page=...,bbox=[...])` refs for `--emit-json` outputs
   - `Generation/Generation.swift` — generation façade (`CausalLM`, `GreedyGenerator`)
-  - `Weights/Weights.swift` — weights loader placeholder
-- `Sources/ModelAdapters/GLMOCR/` — GLM-OCR-specific adapter
-  - `GLMOCRPipeline.swift` — orchestration actor (download → load → recognize)
-  - `GLMOCRModel.swift` — model placeholder (generate is unimplemented)
-  - `GLMOCRProcessor.swift` — prompt policy placeholder
+  - `Generation/KVCache.swift` — KV cache primitives
+  - `Weights/Weights.swift` — safetensors loading helpers (adapter-specific mapping lives in adapters)
+- `Sources/ModelAdapters/DocLayout/` — PP-DocLayout-V3 adapter (layout detection)
+  - `PPDocLayoutV3Detector.swift` — snapshot load + inference + postprocess wiring
+  - `PPDocLayoutV3Model.swift` — hybrid encoder + deformable decoder forward
+  - `PPDocLayoutV3Postprocess.swift` — NMS + containment merge + ordering
+  - `LayoutResultFormatter.swift` — regions → merged Markdown
+- `Sources/ModelAdapters/GLMOCR/` — GLM-OCR adapter
+  - `GLMOCRPipeline.swift` — download → load → recognize (single image/page)
+  - `GLMOCRLayoutPipeline.swift` — layout detect → per-region OCR → merge (single page)
+  - `GLMOCRModel.swift` — model definition + weight-loading + forward + greedy decode
+  - `GLMOCRChatTemplate.swift` — GLM-OCR chat-template tokenization (`[gMASK]<sop>` + image placeholders)
+  - `GLMOCRImageProcessor.swift` — GLM-OCR resize/normalize policy
+  - `GLMOCRTokenizer.swift` — tokenizer load + special token ID validation
   - `GLMOCRDefaults.swift` — default model id/revision/globs
 - `Sources/GLMOCRCLI/GLMOCRCLI.swift` — CLI entrypoint
 - `Sources/GLMOCRApp/` — SwiftUI app scaffold
-- `Tests/VLMRuntimeKitTests/` — focused unit tests for deterministic helpers
+- `Tests/VLMRuntimeKitTests/` — deterministic unit tests (no model downloads)
+- `Tests/DocLayoutAdapterTests/` — layout adapter tests (golden tests are opt-in)
+- `Tests/GLMOCRAdapterTests/` — GLM-OCR adapter tests (integration/golden tests are opt-in)
 
 ## Docs: what to read first (by task)
 
 - **Triage / “what is broken?”**
   - `docs/overview.md` (status + pointers)
-  - run `swift test`, then reproduce with `swift run GLMOCRCLI --help`
+  - run `swift test`, then reproduce with `swift run GLMOCRCLI --help` / `swift run GLMOCRCLI --input …`
 - **Feature work (runtime / pipeline)**
   - `docs/architecture.md` (boundaries + dataflow)
   - relevant phase in `docs/dev_plans/`
@@ -62,6 +81,11 @@ Build a **fully native macOS (Apple Silicon) GLM-OCR app** in Swift using:
 - **Bugfix (small, local)**
   - search usage with `rg` (types above are the main entry points)
   - add a unit test in `Tests/VLMRuntimeKitTests/` when the fix is deterministic
+- **Parity / golden work**
+  - `docs/golden_checks.md` (workflow + env vars)
+  - `docs/debug_notes/ppdoclayoutv3_golden/debugging_ppdoclayoutv3_golden.md` (layout golden drift playbook)
+- **Release / distribution**
+  - `docs/dev_plans/05_gui_polish_distribution.md` (source of truth; packaging is still planned)
 - **Docs-only changes**
   - keep `README.md`, `AGENTS.md`, and `docs/*` consistent; prefer linking over duplication
 
@@ -70,6 +94,7 @@ Build a **fully native macOS (Apple Silicon) GLM-OCR app** in Swift using:
 ```bash
 swift build
 swift test
+scripts/build_mlx_metallib.sh -c debug
 swift run GLMOCRCLI --help
 swift run GLMOCRApp
 ```
@@ -98,6 +123,7 @@ pre-commit run -a
 - Fail with typed errors (`enum: Error`) rather than `fatalError`, unless the failure is truly unrecoverable.
 - When working with MLX,
   - no compound assignment on tensors unless you can prove non-aliasing.
+  - prefer out-of-place ops in residual paths (`x = x + y`, not `x += y`) to avoid accidental aliasing drift.
 
 ## MLX vs PyTorch (MPS) dtype quirks (parity-critical)
 

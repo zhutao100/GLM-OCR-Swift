@@ -32,9 +32,9 @@ Borrowing references: official GLM-OCR pipeline (`glmocr/pipeline/pipeline.py`) 
 - [x] 04.5 Detector “load-only” validation (optional integration)
 - [x] 04.6 Detector inference outputs + postprocess wiring (optional integration)
 - [x] 04.7 Orchestration + concurrency + CLI/App wiring (Phase 04 exit criteria)
-- [ ] 04.8 PP-DocLayout-V3 parity (golden fixtures + full model alignment; golden check currently failing)
+- [x] 04.8 PP-DocLayout-V3 parity (golden fixtures + regression guard; see `docs/golden_checks.md`)
 - [x] 04.9 End-to-end parity vs `examples/` (Markdown + JSON expectations)
 
 ## Exit criteria
 - `--layout` on `examples/source/*` produces output that matches (or intentionally supersedes) `examples/result/*`
-- PP-DocLayout-V3 golden forward check passes (opt-in; currently failing)
+- PP-DocLayout-V3 golden forward check passes (opt-in; see `docs/golden_checks.md` and `docs/debug_notes/ppdoclayoutv3_golden/debugging_ppdoclayoutv3_golden.md`)

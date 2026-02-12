@@ -4,7 +4,7 @@
 Superseded (2026-02-11)
 
 > Note: `PPDocLayoutV3Model` now includes a hybrid encoder + deformable decoder implementation.
-> Golden forward-pass parity is tracked by Phase 04.8 (`PPDocLayoutV3GoldenIntegrationTests`).
+> Golden forward-pass parity is tracked by Phase 04.8 (`PPDocLayoutV3GoldenIntegrationTests`) and has a passing baseline; see `docs/debug_notes/ppdoclayoutv3_golden/debugging_ppdoclayoutv3_golden.md`.
 
 ## Context
 Phase 04 needs a fully local layout detector to produce ordered regions for downstream OCR.

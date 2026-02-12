@@ -43,7 +43,7 @@ Responsibilities:
 - `PPDocLayoutV3Config`: minimal `config.json` decoding (e.g. `id2label`) (**implemented**)
 - `PPDocLayoutV3Processor`: resize/normalize policy (**implemented**)
 - `PPDocLayoutV3Mappings`: layout label → task/kind policy (**implemented**)
-- `PPDocLayoutV3Model`: MLX inference + weight-loading (hybrid encoder + deformable decoder; golden parity pending)
+- `PPDocLayoutV3Model`: MLX inference + weight-loading (hybrid encoder + deformable decoder; opt-in golden baselines pass for a pinned snapshot)
 - `PPDocLayoutV3Postprocess`: NMS + containment merge + ordering (**implemented**)
 - `PPDocLayoutV3Detector`: snapshot load + inference + postprocess wiring (**implemented**)
 - `LayoutResultFormatter`: regions → merged Markdown (**implemented**)
@@ -78,7 +78,7 @@ PDF page -> VisionIO -> PPDocLayoutV3Detector -> [regions]
      -> LayoutResultFormatter -> OCRResult(text + document)
 ```
 
-### Current implementation note (2026-02-10)
+### Current implementation note (2026-02-12)
 
 Phase 03 MVP and Phase 04 layout mode now run end-to-end for a single image or a single PDF page:
 
@@ -98,6 +98,8 @@ Remaining work is largely “quality + UX”: parity validation vs the official 
 ## Numerical parity & golden checks
 
 When porting models (or changing preprocessing/generation), use the opt-in golden workflow described in `docs/golden_checks.md` to keep `swift test` fast by default while still enabling deterministic parity checks when needed.
+
+For PP-DocLayout-V3 golden drift debugging, start at `docs/debug_notes/ppdoclayoutv3_golden/debugging_ppdoclayoutv3_golden.md`.
 
 ## Extension points
 

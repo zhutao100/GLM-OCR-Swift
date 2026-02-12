@@ -217,7 +217,7 @@ This matches the public description of the system pipeline (“layout analysis�
 
 #### Stage C — Parallel region OCR via an inference backend
 
-This repo’s **default mode** is *not* local in-process inference; it’s a **client** that calls an external backend:
+In the upstream `glmocr` Python SDK, the **default mode** is *not* local in-process inference; it’s a **client** that calls an external backend:
 
 * For OpenAI-compatible backends (`vLLM`, `sglang`, `mlx-vlm.server`, etc.), it calls `/v1/chat/completions` with:
 

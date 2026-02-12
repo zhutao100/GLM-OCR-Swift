@@ -1,6 +1,6 @@
 # Phase 04 Implementation Plan — Layout + region OCR orchestration (Index)
 
-> Status: Extended (2026-02-11) — examples parity implemented; PP-DocLayout-V3 golden parity still failing.
+> Status: Complete (2026-02-12) — examples parity implemented; PP-DocLayout-V3 opt-in golden baselines pass.
 
 ## Summary
 Implement the “full pipeline” path for documents: **PP-DocLayout-V3 layout detection → region cropping → per-region GLM-OCR → merge into ordered Markdown**, with **structured outputs (pages/regions/bboxes)** exposed via the public runtime types, plus **auto-tuned parallelism + cancellation**.
@@ -61,4 +61,4 @@ The extension plan adds:
 - golden forward-pass parity checks for PP-DocLayout-V3, and
 - end-to-end output parity validation vs `examples/result/*`.
 
-Update: `PPDocLayoutV3Model` now includes a hybrid encoder + deformable decoder implementation, but the opt-in golden check is still failing and tracked by 04.8.
+Update (2026-02-12): `PPDocLayoutV3Model` now includes a hybrid encoder + deformable decoder implementation, and the opt-in golden tests pass for the tracked baseline snapshot. If drift reappears, start at `docs/debug_notes/ppdoclayoutv3_golden/debugging_ppdoclayoutv3_golden.md`.

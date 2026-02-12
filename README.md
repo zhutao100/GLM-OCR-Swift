@@ -2,14 +2,15 @@
 
 A native macOS (Apple Silicon) SwiftPM workspace for building a local **GLM-OCR** app in Swift.
 
-This repo is intentionally structured as **core + adapter**:
+This repo is intentionally structured as **core + adapters**:
 
 - `Sources/VLMRuntimeKit/` — model-agnostic runtime utilities (model download/cache, prompt helpers, shared types)
+- `Sources/ModelAdapters/DocLayout/` — PP-DocLayout-V3 layout detector (layout mode support)
 - `Sources/ModelAdapters/GLMOCR/` — GLM-OCR-specific glue (defaults/config/prompt policy/pipeline)
 - `Sources/GLMOCRCLI/` — CLI harness (model download + pipeline wiring)
 - `Sources/GLMOCRApp/` — SwiftUI UI scaffold (single-file drop + run)
 
-## Current status (2026-02-10)
+## Current status (2026-02-12)
 
 - `swift build` / `swift test` pass.
 - CLI + App run (single file/image/PDF input).
@@ -40,16 +41,17 @@ swift test
 # CLI usage (no model download)
 swift run GLMOCRCLI --help
 
-# Launch the SwiftUI app scaffold
+# One-time: build MLX's metal shader library next to SwiftPM-built executables
+scripts/build_mlx_metallib.sh -c debug
+
+# OCR a single PDF page (prints Markdown to stdout; first run downloads models)
+swift run GLMOCRCLI --input examples/source/GLM-4.5V_Page_1.pdf --page 1 > out.md
+
+# Launch the SwiftUI app scaffold (drag/drop one image or PDF)
 swift run GLMOCRApp
 ```
 
-One-time (required for any MLX execution via SwiftPM):
-
-```bash
-# Build MLX's metal shader library next to SwiftPM-built executables
-scripts/build_mlx_metallib.sh -c debug
-```
+Note: if you `rm -rf .build` or switch build configs, re-run `scripts/build_mlx_metallib.sh` so the current build products have a colocated `mlx.metallib`.
 
 Developer (Phase 02): single forward pass (logits only):
 
@@ -114,9 +116,9 @@ Keep the detailed plan in `docs/dev_plans/`. Near-term work:
 
 ## Documentation Changelog
 
-- Added: explicit “Current status”, runnable quickstart, and configuration details (HF cache precedence + CLI flags).
-- Removed/clarified: claims of job queue/settings/export (not implemented yet).
-- Restructured: consistent module paths (`Sources/...`) and a single doc index (`docs/overview.md`) to avoid duplication.
+- Added: `DocLayoutAdapter` module mention + a runnable OCR example command using `examples/source/`.
+- Removed/clarified: stale “OCR is stubbed” / “golden parity is failing” notes that no longer match the repo.
+- Clarified: Quickstart now includes the required `mlx.metallib` step and a concrete CLI OCR invocation.
 
 ## License
 

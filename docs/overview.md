@@ -2,11 +2,11 @@
 
 This folder is the structured reference for the repo. For the runnable quickstart, start at `README.md`.
 
-## Current status (2026-02-10)
+## Current status (2026-02-12)
 
 What exists and works today:
 
-- SwiftPM package with `VLMRuntimeKit`, `GLMOCRAdapter`, `GLMOCRCLI`, `GLMOCRApp`
+- SwiftPM package with `VLMRuntimeKit`, `DocLayoutAdapter`, `GLMOCRAdapter`, `GLMOCRCLI`, `GLMOCRApp`
 - `swift test` passes (focused unit tests for deterministic helpers)
 - Hugging Face snapshot download + cache resolution is implemented (`VLMRuntimeKit/ModelStore`)
 - CLI/App scaffolding is wired to the pipeline (download → load → recognize)
@@ -17,12 +17,13 @@ What exists and works today:
 What is still stubbed / not implemented yet:
 
 - Quality/parity validation vs the official MLX Python example on a curated image set
-- Multi-page document workflows + export/UX polish (Phase 04/05)
+- Multi-page document workflows + export/UX polish (Phase 05)
 
 ## Where things live (source of truth)
 
 - Architecture and module boundaries: `docs/architecture.md`
 - Numerical parity & golden fixtures (developer workflow): `docs/golden_checks.md`
+- Golden drift debugging notes (PP-DocLayout-V3): `docs/debug_notes/ppdoclayoutv3_golden/`
 - Roadmap and prioritized TODOs: `docs/dev_plans/`
 - Decisions that affect interfaces/layout: `docs/decisions/`
 - GLM-OCR model notes (special tokens, templates, pipeline behavior): `docs/GLM-OCR_model.md`
