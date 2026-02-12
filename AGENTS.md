@@ -96,6 +96,8 @@ pre-commit run -a
 - Default to `Sendable` value types; use `actor` for mutable shared state.
 - Avoid global singletons (except lightweight statics for constants).
 - Fail with typed errors (`enum: Error`) rather than `fatalError`, unless the failure is truly unrecoverable.
+- When working with MLX,
+  - no compound assignment on tensors unless you can prove non-aliasing.
 
 ## MLX vs PyTorch (MPS) dtype quirks (parity-critical)
 
