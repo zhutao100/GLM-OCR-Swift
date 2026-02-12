@@ -1,8 +1,19 @@
-Below are the **PP-DocLayout-V3 pipeline misalignments** I found by comparing your Swift port against the **Hugging Face Transformers** reference implementation, focusing on differences that can plausibly produce **large** output drift (far beyond the tolerances used by your golden test).
+# PP-DocLayout-V3 misalignment audit (effort 1)
+
+This note is a **hypothesis list** produced by comparing the Swift port against the Hugging Face Transformers reference.
+
+Important: many items are **snapshot-dependent**. Validate against the actual HF snapshot used by the golden fixtures before implementing a fix.
+
+For the current verified snapshot facts + reproduction commands, see:
+- `docs/debug_notes/ppdoclayoutv3_golden/debugging_ppdoclayoutv3_golden.md`
 
 ---
 
-## 1) High-confidence root cause: AIFI positional embeddings are **wrongly enabled** in eval
+Below are the **PP-DocLayout-V3 pipeline misalignments** worth checking, focusing on differences that can plausibly produce **large** output drift (far beyond the tolerances used by your golden test).
+
+---
+
+## 1) Hypothesis: AIFI positional embeddings should be **disabled** in eval when `eval_size` is set
 
 ### What the reference does (Transformers)
 
@@ -36,7 +47,7 @@ for layer in layers {
 
 ### Why this can blow up the golden check
 
-Your model config has `eval_size: [800, 800]` (as in the HF snapshot). In the reference, that means **positional embeddings are omitted in eval**, but your Swift adds them.
+If a snapshot’s `config.json` has `eval_size != null`, then in the reference **positional embeddings are omitted in eval**, but a Swift port that always injects them will drift.
 
 Because AIFI is applied to `encode_proj_layers = [2]` (so it *does* run), this single mismatch can cascade through:
 
@@ -60,6 +71,13 @@ Implement the same gating:
 
 This is the single highest-leverage change I see for getting the golden test to pass.
 
+### Snapshot note (2026-02-12)
+
+For the snapshot hash used by the checked-in golden fixtures (`a0abee…`), `config.json` has:
+- `eval_size: null`
+
+So the reference **does compute** positional embeddings in eval for that snapshot, and this hypothesis is **not expected to explain** the current golden drift.
+
 ---
 
 ## 2) Confirmed: “use_lab” is **Learnable Affine Block**, not color LAB conversion
@@ -72,7 +90,7 @@ This is mostly good news: your Swift HGNetV2 path *does* implement the affine bl
 
 ## 3) Medium-confidence secondary issues worth auditing (after #1)
 
-These are “could cause drift” items, but I’d fix #1 first because it’s the only one that cleanly explains **large** divergence.
+These are “could cause drift” items. If #1 applies for your snapshot (i.e. `eval_size != null`), fix it first; otherwise skip to the items below.
 
 ### 3.1 HGNetV2 MaxPool `ceil_mode=True` vs MLX default
 
@@ -118,11 +136,12 @@ This tends to produce moderate drift if wrong, but your implementation looks dir
 
 ## Recommended next step (fastest path to isolate)
 
-1. **Patch AIFI positional embedding gating** to match Transformers eval behavior (`eval_size != nil` → pos embeddings **off** in eval).
-2. Re-run `PPDocLayoutV3GoldenIntegrationTests`.
-3. If still failing:
+1. Use the fixture v3 intermediate parity workflow to localize the first real divergence:
+   - `PPDocLayoutV3IntermediateParityIntegrationTests` (pre-decoder intermediates)
+2. If encoder-side intermediates match but logits/boxes drift:
+   - move the probes into the decoder (`sampling_locations` / `grid_sample`), then fix the first mismatch.
+3. If intermediates diverge earlier:
 
-   * Temporarily bypass AIFI entirely (skip encode_proj_layers stage) to see if the remaining pipeline matches.
-   * Then move to the medium-confidence list (pool/interp/grid_sample).
+   - fix the earliest failing stage (preprocess → backbone → hybrid encoder → flatten/anchors).
 
 [1]: https://raw.githubusercontent.com/huggingface/transformers/v5.1.0/src/transformers/models/hgnet_v2/modeling_hgnet_v2.py "raw.githubusercontent.com"

@@ -57,7 +57,16 @@ In Python/PyTorch, tensors coming from preprocessors or device transfers may be 
 
 This reduces “works on CPU, fails on GPU/MPS” issues in fixture generation scripts.
 
-### 6) Minimize version drift in preprocessing
+### 6) Beware in-place mutation when instrumenting the Python reference
+
+When building “intermediate parity” fixtures, be careful with Python containers passed into modules:
+
+- some models mutate lists/dicts of tensors in-place (e.g. reassigning feature levels),
+- which can silently corrupt what you think you are recording.
+
+Example: Transformers’ `PPDocLayoutV3HybridEncoder` mutates its input features list (it reassigns `feats[level]` for `encode_proj_layers`), so fixture generators must pass a copy to keep “pre-encoder” tensors stable.
+
+### 7) Minimize version drift in preprocessing
 
 Hugging Face processors can change behavior across versions and “fast vs slow” implementations.
 
@@ -66,7 +75,7 @@ Guideline:
 - Treat the image processor/tokenizer configuration as part of the golden fixture.
 - Prefer recording the reference library versions and any critical processor flags (e.g. `use_fast`) in the fixture metadata or the generator output.
 
-### 7) If the model performs internal selection, record the indices
+### 8) If the model performs internal selection, record the indices
 
 Many detectors are effectively “two-stage”: the decoder queries are created by selecting top-scoring encoder locations.
 Tiny numeric drift (device kernels, dtype promotions, half precision rounding) can change the **ordering** of that selection even when the underlying features are close.
@@ -82,7 +91,7 @@ Guideline:
 
 This makes golden slices compare like-for-like, instead of accidentally comparing different objects.
 
-### 8) Use dtype-appropriate sentinel values for masking
+### 9) Use dtype-appropriate sentinel values for masking
 
 Masking often uses “very large” numbers so that invalid entries disappear under `min/max/topk`.
 In half precision, `Float.greatestFiniteMagnitude` does **not** fit and becomes `inf`, which can turn downstream ops into `NaN` (especially if you later apply `log`, `exp`, or reduce across mixed valid/invalid values).
@@ -92,7 +101,7 @@ Guideline:
 - Use dtype-aware finite maxima (e.g. `Float16.greatestFiniteMagnitude` when running FP16).
 - Be deliberate about dtype promotions in comparisons (some backends compare FP16 values against FP32 scalars).
 
-### 9) Boundary-sensitive ops can amplify tiny errors
+### 10) Boundary-sensitive ops can amplify tiny errors
 
 `grid_sample(align_corners=false)` and deformable attention are highly sensitive to sampling locations near the `[0, 1]` boundary.
 In FP16, rounding can push an “almost-in-bounds” coordinate slightly out of bounds, triggering zero padding and disproportionately large downstream drift.
@@ -113,6 +122,25 @@ Guideline:
 - `LAYOUT_DEBUG_DTYPE=1` prints dtype summaries during PP-DocLayoutV3 golden tests.
 - `LAYOUT_FORCE_PIXEL_FLOAT32=1` forces PP-DocLayoutV3 `pixel_values` to `.float32` (diagnostic toggle).
 - `LAYOUT_WEIGHTS_DTYPE=float16|float32|bfloat16` overrides the PP-DocLayoutV3 weights dtype at load time (diagnostic toggle).
+
+### PP-DocLayout-V3 intermediate parity (fixture v3)
+
+To localize drift before touching logits/boxes, generate a CPU/float32 fixture with intermediate scalar samples:
+
+```bash
+PYENV_VERSION=venv313 pyenv exec python3 scripts/generate_ppdoclayoutv3_golden.py \
+  --model-folder "$LAYOUT_SNAPSHOT_PATH" \
+  --device cpu \
+  --include-intermediates \
+  --out Tests/DocLayoutAdapterTests/Fixtures/ppdoclayoutv3_forward_golden_cpu_float32_v3.json
+```
+
+Then run the opt-in intermediate parity test:
+
+```bash
+LAYOUT_RUN_GOLDEN=1 LAYOUT_SNAPSHOT_PATH=<snapshot> \
+  swift test --filter PPDocLayoutV3IntermediateParityIntegrationTests
+```
 
 ## Practical checklist (when adding or updating a golden fixture)
 

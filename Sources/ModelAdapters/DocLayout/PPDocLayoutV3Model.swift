@@ -128,12 +128,14 @@ public struct PPDocLayoutV3Model: Sendable {
     func forwardRawOutputs(
         pixelValues: MLXArray,
         options: Options = .init(),
-        encoderTopKIndicesOverride: [Int]? = nil
+        encoderTopKIndicesOverride: [Int]? = nil,
+        probe: PPDocLayoutV3IntermediateProbe? = nil
     ) throws -> RawOutputs {
         try state.core.forwardRawOutputs(
             pixelValues: pixelValues,
             options: options,
-            encoderTopKIndicesOverride: encoderTopKIndicesOverride
+            encoderTopKIndicesOverride: encoderTopKIndicesOverride,
+            probe: probe
         )
     }
 }
@@ -300,12 +302,14 @@ final class PPDocLayoutV3Root: Module {
     func forwardRawOutputs(
         pixelValues: MLXArray,
         options: PPDocLayoutV3Model.Options,
-        encoderTopKIndicesOverride: [Int]? = nil
+        encoderTopKIndicesOverride: [Int]? = nil,
+        probe: PPDocLayoutV3IntermediateProbe? = nil
     ) throws -> PPDocLayoutV3Model.RawOutputs {
         try model.forwardRawOutputs(
             pixelValues: pixelValues,
             options: options,
-            encoderTopKIndicesOverride: encoderTopKIndicesOverride
+            encoderTopKIndicesOverride: encoderTopKIndicesOverride,
+            probe: probe
         )
     }
 }
@@ -445,22 +449,37 @@ final class PPDocLayoutV3Core: Module {
     func forwardRawOutputs(
         pixelValues: MLXArray,
         options _: PPDocLayoutV3Model.Options,
-        encoderTopKIndicesOverride: [Int]? = nil
+        encoderTopKIndicesOverride: [Int]? = nil,
+        probe: PPDocLayoutV3IntermediateProbe? = nil
     ) throws -> PPDocLayoutV3Model.RawOutputs {
         let pixelValues: MLXArray = if pixelValues.dtype == .bfloat16 { pixelValues.asType(.float32) } else { pixelValues }
+        probe?.capture("pixel_values", tensor: pixelValues)
 
         let features = backbone(pixelValues)
         guard features.count == 4 else {
             throw PPDocLayoutV3ModelError.invalidConfiguration("backbone returned \(features.count) feature maps, expected 4")
         }
+        for (idx, feature) in features.enumerated() {
+            probe?.capture("backbone.feature_maps.\(idx)", tensor: feature)
+        }
 
         let x4Feat = features[0]
-        let projected = zip(encoderInputProj.indices, features.dropFirst()).map { idx, feature in
+        var projected: [MLXArray] = []
+        projected.reserveCapacity(encoderInputProj.count)
+        for (idx, feature) in zip(encoderInputProj.indices, features.dropFirst()) {
             let (conv, norm) = encoderInputProj[idx]
-            return norm(conv(feature))
+            let convOut = conv(feature)
+            probe?.capture("encoder_input_proj_conv.\(idx)", tensor: convOut)
+            let normOut = norm(convOut)
+            probe?.capture("encoder_input_proj.\(idx)", tensor: normOut)
+            projected.append(normOut)
         }
 
         let encoderOutputs = encoder.forward(projected, x4Feat: x4Feat)
+        for (idx, feature) in encoderOutputs.featureMaps.enumerated() {
+            probe?.capture("hybrid_encoder.feature_maps.\(idx)", tensor: feature)
+        }
+        probe?.capture("hybrid_encoder.mask_feat", tensor: encoderOutputs.maskFeat)
 
         var sources: [MLXArray] = []
         sources.reserveCapacity(max(modelConfig.numFeatureLevels, encoderOutputs.featureMaps.count))
@@ -493,6 +512,7 @@ final class PPDocLayoutV3Core: Module {
         }
 
         let sourceFlat = concatenated(sourceFlatten, axis: 1)
+        probe?.capture("source_flatten", tensor: sourceFlat)
 
         var spatialShapePairs: [Int32] = []
         spatialShapePairs.reserveCapacity(spatialShapesList.count * 2)
@@ -515,11 +535,17 @@ final class PPDocLayoutV3Core: Module {
             spatialShapes: spatialShapesList.map { (h: $0.height, w: $0.width) },
             dtype: sourceFlat.dtype
         )
+        probe?.capture("anchors", tensor: anchors)
+        probe?.capture("valid_mask", tensor: validMask)
         let memory = sourceFlat * validMask.asType(sourceFlat.dtype)
+        probe?.capture("memory", tensor: memory)
 
         let outputMemory = encOutput.1(encOutput.0(memory))
+        probe?.capture("output_memory", tensor: outputMemory)
         let encOutputsClass = encScoreHead(outputMemory)
+        probe?.capture("enc_outputs_class", tensor: encOutputsClass)
         let encOutputsCoordLogits = encBBoxHead(outputMemory) + anchors
+        probe?.capture("enc_outputs_coord_logits", tensor: encOutputsCoordLogits)
 
         let maxScores = encOutputsClass.max(axis: -1) // [B, S]
         let k = min(modelConfig.numQueries, maxScores.dim(1))
@@ -568,6 +594,7 @@ final class PPDocLayoutV3Core: Module {
             let boxes = maskToBoxCoordinate(encOutMasks .> zero, dtype: referencePointsUnact.dtype)
             referencePointsUnact = inverseSigmoid(boxes)
         }
+        probe?.capture("reference_points_unact", tensor: referencePointsUnact)
 
         let decoded = decoder.forward(
             inputsEmbeds: target,

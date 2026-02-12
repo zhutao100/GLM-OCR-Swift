@@ -9,7 +9,7 @@ Date: **2026-02-12**
 - The PP-DocLayout-V3 golden mismatch is **not explained by an obvious dtype mismatch** in the Swift pipeline.
 - The Swift golden run is **already float16 end-to-end** (inputs + weights), matching the Python/Transformers MPS fixture (`torch_dtype=float16`).
 - Forcing alternate dtypes (pixel values to float32, or weights to float32) **does not make the MPS/float16 fixture pass**.
-- The remaining evidence points to a **semantic parity gap** (most likely in **multi-scale deformable attention / `grid_sample`**) rather than “MLX vs PyTorch MPS dtype quirks” being the root cause.
+- New evidence (fixture v3 intermediates): encoder-side intermediates match on CPU/float32 at sampled points, while output logits/boxes still drift → drift is very likely **inside the decoder** (multi-scale deformable attention / `grid_sample` / bbox refinement), not preprocessing/backbone/encoder.
 
 ## Reproduce
 
@@ -109,7 +109,32 @@ Reasons:
 
 DType differences can still **amplify** drift, but the current evidence suggests the port is missing **semantic parity** somewhere.
 
-## Most likely next place to debug: deformable attention / `grid_sample`
+## New evidence: fixture v3 “intermediate parity” localizes drift past the encoder
+
+As of **2026-02-12**, we have an opt-in fixture that stores intermediate tensor scalar samples:
+- `Tests/DocLayoutAdapterTests/Fixtures/ppdoclayoutv3_forward_golden_cpu_float32_v3.json`
+
+And an opt-in integration test that compares those samples against the Swift port:
+- `Tests/DocLayoutAdapterTests/PPDocLayoutV3IntermediateParityIntegrationTests.swift`
+
+Run:
+
+```bash
+LAYOUT_RUN_GOLDEN=1 LAYOUT_SNAPSHOT_PATH=<snapshot_path> \
+  swift test --filter PPDocLayoutV3IntermediateParityIntegrationTests
+```
+
+Result:
+
+- The parity test passes for the **pre-decoder intermediates currently captured** (up through `reference_points_unact`) with `atol=1e-3`.
+- The v1 CPU/float32 golden still fails with large output drift (`PPDocLayoutV3GoldenFloat32IntegrationTests`).
+
+Interpretation: drift is very likely inside the **decoder** (multi-scale deformable cross-attention and/or bbox refinement).
+
+For the full “how to run + gotchas (Python in-place list mutation)”, see:
+- `docs/debug_notes/ppdoclayoutv3_golden/debugging_ppdoclayoutv3_golden.md`
+
+## Most likely next place to debug: decoder deformable attention / `grid_sample`
 
 PP-DocLayout-V3 relies heavily on:
 
@@ -128,16 +153,15 @@ In the HF reference, deformable attention is implemented using `torch.nn.functio
 
 ## Recommended next debugging steps (actionable)
 
-1. Add “intermediate probes” to localize drift early:
-   - backbone feature maps (per-level mean/std + a tiny slice)
-   - anchors + valid masks
-   - encoder `enc_outputs_class` max scores and top-k indices
-   - sampling locations + a few sampled values before/after `grid_sample`
-2. Compare a single level/one query/one head end-to-end:
-   - choose indices that are comfortably in-bounds (avoid `[0,1]` borders)
-   - verify `align_corners=false` math by hand on a few coordinates
-3. Use GLM-OCR’s approach as a template:
-   - the passing golden check has a “print stats when env var is set” workflow; add an analogous switch for PP-DocLayout-V3 intermediate tensors.
+1. Extend fixture v3 + Swift probes into the decoder:
+   - capture `sampling_offsets`, `attention_weights`, `sampling_locations` for the first decoder layer (very small index set)
+   - capture one `grid_sample` output vector slice for the same indices
+2. Add a tiny standalone micro-test for `grid_sample`:
+   - generate a small tensor + grid in Python and store expected output
+   - compare to Swift `gridSampleBilinearNHWC`
+3. Once the first decoder mismatch is found, fix that stage and re-run:
+   - `PPDocLayoutV3IntermediateParityIntegrationTests`
+   - `PPDocLayoutV3GoldenFloat32IntegrationTests`
 
 ## Related knobs and docs
 

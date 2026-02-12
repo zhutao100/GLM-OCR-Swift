@@ -61,11 +61,38 @@ struct PPDocLayoutV3ForwardGoldenFixture: Decodable, Sendable {
         }
     }
 
+    struct Intermediates: Decodable, Sendable {
+        struct Tensor: Decodable, Sendable {
+            struct Stats: Decodable, Sendable {
+                let mean: Float
+                let std: Float
+                let min: Float
+                let max: Float
+            }
+
+            struct Sample: Decodable, Sendable {
+                let index: [Int]
+                let value: Float
+            }
+
+            let layout: String
+            let shape: [Int]
+            let dtype: String
+            let stats: Stats
+            let samples: [Sample]
+        }
+
+        let order: [String]
+        let tensors: [String: Tensor]
+    }
+
     let metadata: Metadata
     let processor: ProcessorSummary
     let model: ModelSummary
 
     let encoderTopKIndices: [Int]?
+
+    let intermediates: Intermediates?
 
     let queryIndices: [Int]
     let classIndices: [Int]
@@ -77,6 +104,7 @@ struct PPDocLayoutV3ForwardGoldenFixture: Decodable, Sendable {
         case processor
         case model
         case encoderTopKIndices = "encoder_topk_indices"
+        case intermediates
         case queryIndices = "query_indices"
         case classIndices = "class_indices"
         case logitsSlice = "logits_slice"

@@ -1,11 +1,16 @@
 ## PP-DocLayout-V3 Golden Drift Debug Effort Plan (toward parity)
 
+> Status (2026-02-12): fixture v3 + Swift intermediate parity harness landed; Python generator bug fixed; pre-decoder parity matches at sampled points; golden drift likely in decoder.
+
 ### Summary / Goal
 Fix the Swift port so the opt-in golden tests match the Python/Transformers reference **without loosening tolerances**:
 - `PPDocLayoutV3GoldenFloat32IntegrationTests` (CPU/float32 fixture) passes first (your chosen priority).
 - Then `PPDocLayoutV3GoldenIntegrationTests` (MPS/float16 fixture) passes.
 
 Primary strategy: **localize the first divergence** by extending the golden fixture to include **small, deterministic intermediate slices**, then fix the earliest mismatching stage.
+
+For current “how to run + what we learned”, see:
+- `docs/debug_notes/ppdoclayoutv3_golden/debugging_ppdoclayoutv3_golden.md`
 
 ---
 
@@ -17,6 +22,9 @@ Before changing code, record what’s *actually true* for the snapshot used by t
   - `model.safetensors`: **no** `model.encoder.transformer_layers.*` keys; AIFI weights are under `model.encoder.encoder.*`.
 
 Outcome: treat `misalignment_audit_effort_1.md` and `misalignment_audit_effort_2.md` as **hypotheses to validate per-snapshot**, not as guaranteed current root causes. Keep their checks in mind (gating + keypaths), but do not assume they explain the current drift.
+
+As of 2026-02-12 those snapshot facts were verified and recorded in:
+- `docs/debug_notes/ppdoclayoutv3_golden/debugging_ppdoclayoutv3_golden.md`
 
 ---
 
@@ -78,11 +86,18 @@ Probe in this exact order (so the Swift test can fail “at first mismatch”):
 6. **Encoder heads pre-topk**
    - `enc_outputs_class` sample by `[b,s,cls]` for a small set of `cls` (e.g., `[0,1,2,5,10, num_labels-1]`)
    - `enc_outputs_coord_logits` sample by `[b,s,4]`
-7. **Decoder (first layer only, single probe)**
-   - `sampling_locations` for indices `[b=0, q in {0,1,2}, head=0, level in {0,1}, point in {0,1}, xy]`
-   - A tiny `grid_sample` sanity probe: pick one `(q,point)` and dump the sampled vector for first 8 dims of `head_dim`
+7. **Decoder (next extension)**
+   - Not captured yet in v3; see `docs/debug_notes/ppdoclayoutv3_golden/debugging_ppdoclayoutv3_golden.md` for recommended “decoder probe” indices to add next.
 
 This set is designed to tell you unambiguously whether drift starts at preprocessing, backbone, hybrid encoder, flattening/anchors, or deformable attention.
+
+### 2.1.1 Pitfall: HybridEncoder mutates the input features list (Python)
+Transformers’ `PPDocLayoutV3HybridEncoder` mutates the input `feats` list in-place (it reassigns selected feature levels for `encode_proj_layers`).
+
+If the Python generator passes `proj_feats` directly into `model_core.encoder(...)`, then later samples from `proj_feats` are **mis-labeled** (you end up recording post-encoder tensors as `encoder_input_proj.*`).
+
+Fix (now implemented): call the encoder with a copy:
+- `model_core.encoder(list(proj_feats), x4_feat)`
 
 ### 2.2 Generate the CPU/float32 v3 fixture
 Command (explicit):
@@ -99,19 +114,17 @@ Create a new XCTest (keep existing v1 tests unchanged) that:
 
 ### 3.1 Where to implement probes in Swift (decision-complete)
 Add env-gated probe capture plumbing to the runtime (not ad-hoc prints):
-- Add a small internal “probe recorder” type in `DocLayoutAdapter` (e.g., `PPDocLayoutV3ProbeRecorder`) that can be passed through:
+- Add a small internal “probe recorder” type in `DocLayoutAdapter` (implemented as `PPDocLayoutV3IntermediateProbe`) that can be passed through:
   - `PPDocLayoutV3Model.forwardRawOutputs(...)`
-  - Backbone forward
-  - HybridEncoder forward
-  - Decoder deformable attention forward
+  - (future) decoder deformable attention forward
 
 Rule: when probe recorder is `nil`, overhead must be near-zero.
 
 ### 3.2 Comparison tolerances (CPU/float32)
-Use stage-appropriate tolerances (tight, but realistic across frameworks):
-- Preprocess + backbone + projections + hybrid encoder outputs: `atol=1e-4`, `rtol=1e-4`
-- Flatten/anchors/valid_mask: `atol=1e-5`, `rtol=0`
-- Deformable attention probes: `atol=1e-4`, `rtol=1e-4`
+Use stage-appropriate tolerances (tight, but realistic across frameworks).
+
+As of 2026-02-12, the intermediate parity test uses:
+- scalar probes: `atol=1e-3` (MLX vs PyTorch CPU can differ by a few 1e-4 even in float32)
 
 (If these are too strict, loosen only *after* confirming the first mismatch stage; do not blanket-loosen.)
 
@@ -200,8 +213,8 @@ Before finishing:
 - Ensure probes are **env-gated** and do not affect normal inference.
 - Remove any transient debug printing; keep only structured probes + tests.
 - Update docs:
-  - Add a short note to `docs/debug_notes/ppdoclayoutv3_golden/debugging_ppdoclayoutv3_golden.md` summarizing:
-    - the validated snapshot facts (eval_size null; no transformer_layers keys for this snapshot),
+  - Keep `docs/debug_notes/ppdoclayoutv3_golden/debugging_ppdoclayoutv3_golden.md` updated with:
+    - validated snapshot facts,
     - the earliest divergence stage found,
     - the fix applied and why it matches Transformers 5.1.0 behavior.
 
