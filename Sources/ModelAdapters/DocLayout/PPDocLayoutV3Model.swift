@@ -48,7 +48,7 @@ public struct PPDocLayoutV3Model: Sendable {
         self.state = state
     }
 
-    public static func load(from modelFolder: URL) throws -> PPDocLayoutV3Model {
+    public static func load(from modelFolder: URL, weightsDTypeOverride: DType? = nil) throws -> PPDocLayoutV3Model {
         guard modelFolder.isFileURL else { throw PPDocLayoutV3ModelError.invalidModelFolder(modelFolder) }
         var isDirectory: ObjCBool = false
         guard FileManager.default.fileExists(atPath: modelFolder.path, isDirectory: &isDirectory),
@@ -77,7 +77,22 @@ public struct PPDocLayoutV3Model: Sendable {
         do {
             let loader = WeightsLoader()
             let wantFloat16 = ProcessInfo.processInfo.environment["LAYOUT_RUN_GOLDEN"] == "1"
-            let weightsDType: DType = wantFloat16 ? .float16 : .float32
+            let weightsDType: DType = if let weightsDTypeOverride {
+                weightsDTypeOverride
+            } else if let raw = ProcessInfo.processInfo.environment["LAYOUT_WEIGHTS_DTYPE"]?.lowercased() {
+                switch raw {
+                case "float16", "fp16":
+                    .float16
+                case "float32", "fp32":
+                    .float32
+                case "bfloat16", "bf16":
+                    .bfloat16
+                default:
+                    wantFloat16 ? .float16 : .float32
+                }
+            } else {
+                wantFloat16 ? .float16 : .float32
+            }
             var weights = try loader.loadAll(from: modelFolder, dtype: weightsDType)
 
             // Convert PyTorch conv weight layouts (O, I, kH, kW) to MLX (O, kH, kW, I).

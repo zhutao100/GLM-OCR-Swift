@@ -110,6 +110,9 @@ Guideline:
 - `GLMOCR_DEBUG_VISION=1` prints vision embedding stats in the forward-pass golden test to help localize drift.
 - `LAYOUT_SNAPSHOT_PATH=<snapshot_path>` points `DocLayoutAdapterTests` at a local PP-DocLayoutV3 HF snapshot.
 - `LAYOUT_RUN_GOLDEN=1` enables opt-in PP-DocLayoutV3 golden checks.
+- `LAYOUT_DEBUG_DTYPE=1` prints dtype summaries during PP-DocLayoutV3 golden tests.
+- `LAYOUT_FORCE_PIXEL_FLOAT32=1` forces PP-DocLayoutV3 `pixel_values` to `.float32` (diagnostic toggle).
+- `LAYOUT_WEIGHTS_DTYPE=float16|float32|bfloat16` overrides the PP-DocLayoutV3 weights dtype at load time (diagnostic toggle).
 
 ## Practical checklist (when adding or updating a golden fixture)
 
