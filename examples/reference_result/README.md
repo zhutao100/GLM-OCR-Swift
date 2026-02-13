@@ -1,0 +1,1 @@
+This directory contains the reference generation result mirrored from the official [zai-org/GLM-OCR](https://github.com/zai-org/GLM-OCR) github repo as the golden reference to verify the parity/port quality.

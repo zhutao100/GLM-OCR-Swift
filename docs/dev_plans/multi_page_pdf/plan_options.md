@@ -2,7 +2,7 @@
 
 **Status (2026-02-13):** draft (design/options); Option B is recommended below.
 
-Below are three implementation plans (from “surgical” to “proper API”) to replace `--page` with an optional fuzzy `--pages` and add a matching page specifier in the SwiftUI app, while keeping the **multi-page Markdown/JSON output style** consistent with `examples/result/GLM-4.5V_Pages_1_2_3`.
+Below are three implementation plans (from “surgical” to “proper API”) to replace `--page` with an optional fuzzy `--pages` and add a matching page specifier in the SwiftUI app, while keeping the **multi-page Markdown/JSON output style** consistent with `examples/reference_result/GLM-4.5V_Pages_1_2_3`.
 
 ---
 
@@ -141,7 +141,7 @@ Today the CLI re-renders one page image for cropping. For multi-page:
 * Render only needed PDF pages (`VisionIO.loadCIImage(fromPDF: url, page: pageIndex + 1, dpi: ...)`); use placeholders for other indices.
 * Re-run `MarkdownImageCropper.cropAndReplaceImages(...)`
 
-This keeps the “examples/result/*” behavior: Markdown contains `![Image p-i](imgs/...)`, with images written to `<outputDir>/imgs`.
+This keeps the “examples/reference_result/*” behavior: Markdown contains `![Image p-i](imgs/...)`, with images written to `<outputDir>/imgs`.
 
 #### 4) App page specifier (simple)
 
@@ -166,7 +166,7 @@ File: `Sources/GLMOCRApp/ContentView.swift`
 * Extend `LayoutExamplesParityIntegrationTests` with a new test:
 
   * Input: `examples/source/GLM-4.5V_Pages_1_2_3.pdf`
-  * Expected: `examples/result/GLM-4.5V_Pages_1_2_3/*.md/.json`
+  * Expected: `examples/reference_result/GLM-4.5V_Pages_1_2_3/*.md/.json`
   * Implement aggregation in test exactly like CLI does
 
 ---
@@ -320,7 +320,7 @@ You said “adds a corresponding page picker/specifier.” Here are two concrete
 
 2. Output:
 
-* Layout mode multi-page Markdown joins pages with `\n\n` and uses the same placeholder/cropper conventions so it matches `examples/result/GLM-4.5V_Pages_1_2_3`
+* Layout mode multi-page Markdown joins pages with `\n\n` and uses the same placeholder/cropper conventions so it matches `examples/reference_result/GLM-4.5V_Pages_1_2_3`
 * Block-list JSON export is a `[[...], [...], ...]` list of pages (already supported by `OCRDocument.toBlockListExport()` when `document.pages` is multi-page)
 
 3. App:

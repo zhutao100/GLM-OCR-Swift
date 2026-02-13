@@ -38,8 +38,8 @@ final class LayoutExamplesParityIntegrationTests: XCTestCase {
 
         let repoRoot = Self.repoRootURL()
         let sourcePDF = repoRoot.appendingPathComponent("examples/source/GLM-4.5V_Page_1.pdf")
-        let expectedMDURL = repoRoot.appendingPathComponent("examples/result/GLM-4.5V_Page_1/GLM-4.5V_Page_1.md")
-        let expectedJSONURL = repoRoot.appendingPathComponent("examples/result/GLM-4.5V_Page_1/GLM-4.5V_Page_1.json")
+        let expectedMDURL = repoRoot.appendingPathComponent("examples/reference_result/GLM-4.5V_Page_1/GLM-4.5V_Page_1.md")
+        let expectedJSONURL = repoRoot.appendingPathComponent("examples/reference_result/GLM-4.5V_Page_1/GLM-4.5V_Page_1.json")
 
         let expectedMarkdown = try String(contentsOf: expectedMDURL, encoding: .utf8)
         let expectedJSON = try JSONDecoder().decode(OCRBlockListExport.self, from: Data(contentsOf: expectedJSONURL))
@@ -85,7 +85,7 @@ final class LayoutExamplesParityIntegrationTests: XCTestCase {
 
         let expectedImagePaths = Self.extractMarkdownImagePaths(expectedMarkdown)
         let actualImagePaths = Self.extractMarkdownImagePaths(actualMarkdown)
-        XCTAssertEqual(actualImagePaths, expectedImagePaths, "Markdown image refs mismatch vs examples/result/…")
+        XCTAssertEqual(actualImagePaths, expectedImagePaths, "Markdown image refs mismatch vs examples/reference_result/…")
         XCTAssertFalse(actualMarkdown.contains("![](page="), "Expected placeholder image refs to be replaced.")
 
         let actualJSON = document.toBlockListExport()

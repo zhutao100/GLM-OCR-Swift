@@ -3,4 +3,4 @@ This directory contains the examples mirrored from the official github repo [GLM
 # Layout
 
 - `source/` - contains test files naming `[FILENAME].[EXTENSION]`
-- `result/[FILENAME]/` - contains the corresponding canonical/reference OCR result in the formats of Markdown/Json.
+- `reference_result/[FILENAME]/` - contains the corresponding canonical/reference OCR result in the formats of Markdown/Json.

@@ -2,10 +2,10 @@
 
 > Status: Implemented (2026-02-11) — **structural parity + image crop/replace + canonical JSON schema**.
 >
-> Note: Full *text content* parity vs `examples/result/*` is model-output-dependent and is **not asserted** yet.
+> Note: Full *text content* parity vs `examples/reference_result/*` is model-output-dependent and is **not asserted** yet.
 
 ## Goal
-Make `swift run GLMOCRCLI --layout` produce outputs that **match the canonical `examples/result/*` artifacts**:
+Make `swift run GLMOCRCLI --layout` produce outputs that **match the canonical `examples/reference_result/*` artifacts**:
 - Markdown reading order and formatting
 - JSON block list semantics (labels, bboxes, content)
 
@@ -14,8 +14,8 @@ This phase is end-to-end: detector → crop → region OCR → formatter → emi
 ## Inputs / references
 - Canonical fixtures:
   - `examples/source/`
-  - `examples/result/*/*.md`
-  - `examples/result/*/*.json`
+  - `examples/reference_result/*/*.md`
+  - `examples/reference_result/*/*.json`
 - Official behavior:
   - `../GLM-OCR/glmocr/pipeline/pipeline.py`
   - `../GLM-OCR/glmocr/postprocess/result_formatter.py`
@@ -25,12 +25,12 @@ This phase is end-to-end: detector → crop → region OCR → formatter → emi
 
 ### 1) Define “match” precisely (avoid vague parity)
 For each `examples/source/<name>.pdf`:
-- JSON parity target: `examples/result/<name>/<name>.json`
+- JSON parity target: `examples/reference_result/<name>/<name>.json`
   - same number of blocks per page
   - label parity (`text` / `image`)
   - bbox parity (0..1000 space, within a small integer tolerance; current regression uses `±15`)
   - content parity (current regression is **structural**: image blocks must have empty content; text blocks must be non-empty)
-- Markdown parity target: `examples/result/<name>/<name>.md`
+- Markdown parity target: `examples/reference_result/<name>/<name>.md`
   - image references match the canonical `![Image p-i](imgs/...)` form (crop + replace)
   - no remaining placeholder tags (`![](page=...,bbox=[...])`)
   - note: the current opt-in regression checks **image refs only**, not full Markdown text content
@@ -43,14 +43,14 @@ Audit `Sources/ModelAdapters/DocLayout/LayoutResultFormatter.swift` against:
 
 ### 3) Emit JSON in the canonical schema
 Make `--emit-json` write the canonical schema:
-`[[{index,label,content,bbox_2d}, ...], ...]` so it matches `examples/result/*/*.json`.
+`[[{index,label,content,bbox_2d}, ...], ...]` so it matches `examples/reference_result/*/*.json`.
 
 Keep the Swift-native structured schema available via an explicit flag: `--emit-ocrdocument-json`.
 
 ### 4) Add an opt-in end-to-end regression check for `examples/`
 Add a new integration test (opt-in) that:
 - runs the layout pipeline on `examples/source/GLM-4.5V_Page_1.pdf` (page 1)
-- compares produced Markdown/JSON against `examples/result/GLM-4.5V_Page_1/*` (structural parity)
+- compares produced Markdown/JSON against `examples/reference_result/GLM-4.5V_Page_1/*` (structural parity)
 
 Gating:
 - require `GLMOCR_RUN_EXAMPLES=1` to enable (to keep CI hermetic), similar to golden checks
@@ -61,11 +61,11 @@ Gating:
 ### 5) Re-run the original repro command
 Validate:
 `swift run GLMOCRCLI --input examples/source/GLM-4.5V_Page_1.pdf --layout --emit-json /tmp/GLM-4.5V_Page_1.json > /tmp/GLM-4.5V_Page_1_layout.txt`
-and compare against `examples/result/GLM-4.5V_Page_1/*`.
+and compare against `examples/reference_result/GLM-4.5V_Page_1/*`.
 
 Notes:
 - When `--emit-json` is provided, the CLI writes cropped images to `<emit-json dir>/imgs/` and replaces image placeholders in the Markdown output so it matches the `![Image p-i](imgs/...)` form.
 
 ## Exit criteria
 - The `examples/` opt-in regression check passes for at least `GLM-4.5V_Page_1.pdf`.
-- The original repro command produces outputs that match the canonical `examples/result/*` within the defined tolerances.
+- The original repro command produces outputs that match the canonical `examples/reference_result/*` within the defined tolerances.

@@ -40,7 +40,7 @@ Each file below is intended to be completable + verifiable in a single implement
 ## Overall exit criteria (Phase 04)
 - Running `swift run GLMOCRCLI --input <A4_scanned.pdf> --page 1 --layout --emit-json out.json` produces:
   - `stdout`: Markdown with **sane reading order**; when image placeholders exist, the CLI crops them into `imgs/` next to `out.json` and replaces the tags.
-  - `out.json`: canonical block-list JSON (`[[{index,label,content,bbox_2d}, ...], ...]`), matching `examples/result/*/*.json`.
+  - `out.json`: canonical block-list JSON (`[[{index,label,content,bbox_2d}, ...], ...]`), matching `examples/reference_result/*/*.json`.
   - Use `--emit-ocrdocument-json` for the structured `OCRDocument` schema (pages/regions/bboxes).
 - Cancellation works:
   - canceling the task stops region processing quickly (no long hang).
@@ -59,6 +59,6 @@ The initial Phase 04 implementation intentionally shipped with an **encoder-only
 The `examples/` regression indicates this is insufficient for reference-quality layout outputs.
 The extension plan adds:
 - golden forward-pass parity checks for PP-DocLayout-V3, and
-- end-to-end output parity validation vs `examples/result/*`.
+- end-to-end output parity validation vs `examples/reference_result/*`.
 
 Update (2026-02-12): `PPDocLayoutV3Model` now includes a hybrid encoder + deformable decoder implementation, and the opt-in golden tests pass for the tracked baseline snapshot. If drift reappears, start at `docs/debug_notes/ppdoclayoutv3_golden/debugging_ppdoclayoutv3_golden.md`.

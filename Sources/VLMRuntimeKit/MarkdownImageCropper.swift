@@ -56,7 +56,7 @@ public enum MarkdownImageCropper {
     ///   - markdown: Source Markdown containing placeholder tags.
     ///   - pageImages: Page images indexed by `pageIndex`.
     ///   - outputDir: Directory to write the cropped JPEGs into (typically `<output>/imgs`).
-    ///   - imagePrefix: Output filename prefix (default: `cropped`, matching `examples/result/*`).
+    ///   - imagePrefix: Output filename prefix (default: `cropped`, matching `examples/reference_result/*`).
     ///
     /// - Returns: Updated markdown and the list of saved image URLs.
     public static func cropAndReplaceImages(

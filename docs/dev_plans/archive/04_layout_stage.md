@@ -38,5 +38,5 @@ Borrowing references: official GLM-OCR pipeline (`glmocr/pipeline/pipeline.py`) 
 - [x] 04.9 End-to-end parity vs `examples/` (Markdown + JSON expectations)
 
 ## Exit criteria
-- `--layout` on `examples/source/*` produces output that matches (or intentionally supersedes) `examples/result/*`
+- `--layout` on `examples/source/*` produces output that matches (or intentionally supersedes) `examples/reference_result/*`
 - PP-DocLayout-V3 golden forward check passes (opt-in; see `docs/golden_checks.md` and `docs/debug_notes/ppdoclayoutv3_golden/debugging_ppdoclayoutv3_golden.md`)

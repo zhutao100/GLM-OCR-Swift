@@ -1,6 +1,6 @@
 # Multi-page PDF support
 
-**Objective:** extend PDF OCR to multiple pages (CLI + App) by replacing `--page` with an optional fuzzy `--pages` spec. For PDFs, omitting `--pages` processes **all** pages. Output should match `examples/result/GLM-4.5V_Pages_1_2_3`.
+**Objective:** extend PDF OCR to multiple pages (CLI + App) by replacing `--page` with an optional fuzzy `--pages` spec. For PDFs, omitting `--pages` processes **all** pages. Output should match `examples/reference_result/GLM-4.5V_Pages_1_2_3`.
 
 **Status (2026-02-13):** planning — draft parser/API options exist; implementation not started.
 
@@ -41,6 +41,6 @@
   - PDF + `--pages 1,2,4` → processes pages 1,2,4 only.
   - Non-PDF + `--pages ...` → clear validation error.
 - Output:
-  - Layout Markdown joins pages with exactly `\n\n` (no page headers), matching `examples/result/GLM-4.5V_Pages_1_2_3`.
+  - Layout Markdown joins pages with exactly `\n\n` (no page headers), matching `examples/reference_result/GLM-4.5V_Pages_1_2_3`.
   - `--emit-json` emits `[[...], ...]` with `count == selectedPages.count` and stable page ordering.
 - App: PDF pages spec UI matches CLI semantics and runs multi-page OCR.
