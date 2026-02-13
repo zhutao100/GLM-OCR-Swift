@@ -4,18 +4,20 @@
 
 Borrowing references: official GLM-OCR pipeline (`glmocr/pipeline/pipeline.py`) + notes in `docs/reference_projects.md`.
 
+**Status (2026-02-12):** complete — layout mode is implemented (single-page) and examples parity + opt-in PP-DocLayout-V3 golden baselines pass.
+
 ## Implementation plans
-- Index: `docs/dev_plans/04_layout_stage/04_layout_stage_impl_plan.md`
+- Index: `docs/dev_plans/archive/04_layout_stage/04_layout_stage_impl_plan.md`
 - Session-sized subplans:
-  - `docs/dev_plans/04_layout_stage/04_layout_stage_impl_plan_01_runtime_types_and_crop.md`
-  - `docs/dev_plans/04_layout_stage/04_layout_stage_impl_plan_02_doclayout_adapter_scaffold_config.md`
-  - `docs/dev_plans/04_layout_stage/04_layout_stage_impl_plan_03_layout_postprocess.md`
-  - `docs/dev_plans/04_layout_stage/04_layout_stage_impl_plan_04_layout_result_formatter.md`
-  - `docs/dev_plans/04_layout_stage/04_layout_stage_impl_plan_05_ppdoclayoutv3_detector_load_only.md`
-  - `docs/dev_plans/04_layout_stage/04_layout_stage_impl_plan_06_ppdoclayoutv3_detector_inference.md`
-  - `docs/dev_plans/04_layout_stage/04_layout_stage_impl_plan_07_glmocr_layout_pipeline_cli_app.md`
-  - `docs/dev_plans/04_layout_stage/04_layout_stage_impl_plan_08_ppdoclayoutv3_parity_golden.md`
-  - `docs/dev_plans/04_layout_stage/04_layout_stage_impl_plan_09_layout_output_parity_examples.md`
+  - `docs/dev_plans/archive/04_layout_stage/04_layout_stage_impl_plan_01_runtime_types_and_crop.md`
+  - `docs/dev_plans/archive/04_layout_stage/04_layout_stage_impl_plan_02_doclayout_adapter_scaffold_config.md`
+  - `docs/dev_plans/archive/04_layout_stage/04_layout_stage_impl_plan_03_layout_postprocess.md`
+  - `docs/dev_plans/archive/04_layout_stage/04_layout_stage_impl_plan_04_layout_result_formatter.md`
+  - `docs/dev_plans/archive/04_layout_stage/04_layout_stage_impl_plan_05_ppdoclayoutv3_detector_load_only.md`
+  - `docs/dev_plans/archive/04_layout_stage/04_layout_stage_impl_plan_06_ppdoclayoutv3_detector_inference.md`
+  - `docs/dev_plans/archive/04_layout_stage/04_layout_stage_impl_plan_07_glmocr_layout_pipeline_cli_app.md`
+  - `docs/dev_plans/archive/04_layout_stage/04_layout_stage_impl_plan_08_ppdoclayoutv3_parity_golden.md`
+  - `docs/dev_plans/archive/04_layout_stage/04_layout_stage_impl_plan_09_layout_output_parity_examples.md`
 
 ## Tasks
 - [x] Integrate a layout model stage (likely separate adapter)

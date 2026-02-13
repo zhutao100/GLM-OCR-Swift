@@ -1,5 +1,7 @@
 # Phase 04.2 Implementation Plan — DocLayoutAdapter scaffolding + config/mappings
 
+> Status: Complete (2026-02-12) — implemented; kept in archive for reference.
+
 ## Goal
 Introduce a dedicated **layout-only model adapter target** (`DocLayoutAdapter`) and load/own all PP-DocLayout-V3 configuration + label/task mappings, without implementing inference yet.
 

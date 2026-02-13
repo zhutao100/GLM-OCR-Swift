@@ -24,13 +24,13 @@ What is still stubbed / not implemented yet:
 - Architecture and module boundaries: `docs/architecture.md`
 - Numerical parity & golden fixtures (developer workflow): `docs/golden_checks.md`
 - Golden drift debugging notes (PP-DocLayout-V3): `docs/debug_notes/ppdoclayoutv3_golden/`
-- Roadmap and prioritized TODOs: `docs/dev_plans/`
-- Decisions that affect interfaces/layout: `docs/decisions/`
+- Roadmap and prioritized TODOs: `docs/dev_plans/README.md`
+- Decisions that affect interfaces/layout: `docs/decisions/README.md`
 - GLM-OCR model notes (special tokens, templates, pipeline behavior): `docs/GLM-OCR_model.md`
 - Reference Swift OCR ports and a borrowing map: `docs/reference_projects.md`
 
 ## “I’m looking for…”
 
 - **How to build/run:** `README.md`
-- **Where to implement feature X:** `docs/dev_plans/` + `docs/architecture.md`
+- **Where to implement feature X:** `docs/dev_plans/README.md` + `docs/architecture.md`
 - **Why we chose core+adapter:** `docs/decisions/0001-core-adapter.md`

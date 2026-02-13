@@ -1,12 +1,14 @@
 # Phase 03 Implementation Plan — MVP single image / single PDF page → text
 
+> Status: Complete (2026-02-09) — implemented; kept in archive for reference.
+
 ## Summary
 Deliver true end-to-end OCR for **one image** or **one PDF page** by filling the remaining stubs in:
 - `VLMRuntimeKit/VisionIO` (PDF render + CIImage→MLX tensor conversion)
 - `GLMOCRAdapter` (GLM-OCR chat template + image token alignment + greedy decode loop)
 - `GLMOCRCLI` / `GLMOCRApp` (PDF page selection + wiring to new runtime)
 
-Target outcomes match `docs/dev_plans/03_mvp_single_image.md` exit criteria:
+Target outcomes match `docs/dev_plans/archive/03_mvp_single_image.md` exit criteria:
 - `swift run GLMOCRCLI --input <path>` prints OCR text for image/PDF-page
 - App runs OCR for dropped image/PDF and shows output
 - Manual parity check vs official MLX Python example on 3–5 images
@@ -237,7 +239,7 @@ Acceptance:
 ---
 
 ## Docs updates (must stay truthful)
-1. Update `docs/dev_plans/03_mvp_single_image.md`:
+1. Update `docs/dev_plans/archive/03_mvp_single_image.md`:
    - tick completed checkboxes, update status date, add a short “Known gaps” note if KV-cache is deferred.
 2. If `CausalLM` / generation public API changes, update `docs/architecture.md` to reflect multimodal generation input shape.
 3. If KV-cache is implemented, add a short ADR in `docs/decisions/` describing:
@@ -253,7 +255,7 @@ Acceptance:
 - `swift run GLMOCRCLI --input ./some.png` prints OCR text.
 - `swift run GLMOCRCLI --input ./some.pdf --page 1` prints OCR text.
 - App: drop image/PDF → Run → output appears.
-- Manual parity: run official MLX Python example on 3–5 images and compare outputs qualitatively (layout + key text); record notes in `docs/dev_plans/03_mvp_single_image.md`.
+- Manual parity: run official MLX Python example on 3–5 images and compare outputs qualitatively (layout + key text); record notes in `docs/dev_plans/archive/03_mvp_single_image.md`.
 
 ---
 

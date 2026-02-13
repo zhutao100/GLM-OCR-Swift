@@ -1,6 +1,8 @@
-# Phase 05 — GUI polish + distribution
+# GUI polish + distribution
 
 **Objective:** shippable macOS app.
+
+**Status (2026-02-12):** deferred until the core modules are complete.
 
 Borrowing references: `docs/reference_projects.md` (mlx-swift-examples / mlx-swift-chat UI patterns, DeepSeek OCR distribution/CLI patterns).
 

@@ -1,5 +1,7 @@
 # Phase 02 Implementation Plan — GLM-OCR model port (MLX Swift) + weights mapping + forward-pass harness
 
+> Status: Complete (2026-02-09) — implemented; kept in archive for reference.
+
 ## Summary
 Implement the **GLM-OCR model core in MLX Swift** (vision encoder + fusion + GLM decoder) and load the official HF snapshot weights (`model.safetensors`) so we can run a **single deterministic forward pass** that produces logits (no decode loop yet). This phase also validates tokenizer special tokens and adds opt-in golden checks against Python.
 
@@ -221,7 +223,7 @@ Add `scripts/generate_glmocr_golden.py` (manual workflow, not run by CI):
 
 ## 6) Documentation/consistency updates (in-phase hygiene)
 - Update `docs/GLM-OCR_model.md` to match the snapshot truth (token IDs and `head_dim=128`), so Phase 03 work doesn’t build on incorrect numbers.
-- Add a short note to `docs/dev_plans/02_model_port.md` describing:
+- Add a short note to `docs/dev_plans/archive/02_model_port.md` describing:
   - MTP weights (`layers.16.*`) are present and filtered in Phase 02 unless implemented.
 
 ---

@@ -100,7 +100,7 @@ Run `swift run GLMOCRCLI --help` for the full list. Key flags:
 
 ## Next steps (roadmap)
 
-Keep the detailed plan in `docs/dev_plans/`. Near-term work:
+Keep the detailed plan in `docs/dev_plans/README.md`. Near-term work:
 
 1. Phase 05: multi-page workflows + export/UX polish.
 2. Quality/parity validation vs the official pipeline + curated test set.
@@ -109,7 +109,7 @@ Keep the detailed plan in `docs/dev_plans/`. Near-term work:
 
 - `docs/overview.md` — docs index + “what exists today”
 - `docs/architecture.md` — module boundaries + current vs planned dataflow
-- `docs/dev_plans/` — phased plan (source of truth for roadmap)
+- `docs/dev_plans/README.md` — phased plan (source of truth for roadmap)
 - `docs/GLM-OCR_model.md` — GLM-OCR model notes (tokens, templates, pipeline behavior)
 - `docs/reference_projects.md` — reference Swift OCR ports + borrowing map
 - `AGENTS.md` — agent operating guide for working in this repo

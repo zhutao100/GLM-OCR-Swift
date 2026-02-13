@@ -1,5 +1,7 @@
 # Phase 04.5 Implementation Plan — PP-DocLayout-V3 detector: processor + load-only validation
 
+> Status: Complete (2026-02-12) — implemented; kept in archive for reference.
+
 ## Goal
 Implement everything needed to **download/cache** the PP-DocLayout-V3 snapshot, **parse config**, and **validate weights presence** in a “load-only” path.
 

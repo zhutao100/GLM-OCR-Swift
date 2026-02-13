@@ -25,15 +25,15 @@ Primary reference behavior:
 ## Session-sized implementation plans (recommended order)
 Each file below is intended to be completable + verifiable in a single implementation session.
 
-1. `docs/dev_plans/04_layout_stage/04_layout_stage_impl_plan_01_runtime_types_and_crop.md`
-2. `docs/dev_plans/04_layout_stage/04_layout_stage_impl_plan_02_doclayout_adapter_scaffold_config.md`
-3. `docs/dev_plans/04_layout_stage/04_layout_stage_impl_plan_03_layout_postprocess.md`
-4. `docs/dev_plans/04_layout_stage/04_layout_stage_impl_plan_04_layout_result_formatter.md`
-5. `docs/dev_plans/04_layout_stage/04_layout_stage_impl_plan_05_ppdoclayoutv3_detector_load_only.md`
-6. `docs/dev_plans/04_layout_stage/04_layout_stage_impl_plan_06_ppdoclayoutv3_detector_inference.md`
-7. `docs/dev_plans/04_layout_stage/04_layout_stage_impl_plan_07_glmocr_layout_pipeline_cli_app.md`
-8. `docs/dev_plans/04_layout_stage/04_layout_stage_impl_plan_08_ppdoclayoutv3_parity_golden.md`
-9. `docs/dev_plans/04_layout_stage/04_layout_stage_impl_plan_09_layout_output_parity_examples.md`
+1. `docs/dev_plans/archive/04_layout_stage/04_layout_stage_impl_plan_01_runtime_types_and_crop.md`
+2. `docs/dev_plans/archive/04_layout_stage/04_layout_stage_impl_plan_02_doclayout_adapter_scaffold_config.md`
+3. `docs/dev_plans/archive/04_layout_stage/04_layout_stage_impl_plan_03_layout_postprocess.md`
+4. `docs/dev_plans/archive/04_layout_stage/04_layout_stage_impl_plan_04_layout_result_formatter.md`
+5. `docs/dev_plans/archive/04_layout_stage/04_layout_stage_impl_plan_05_ppdoclayoutv3_detector_load_only.md`
+6. `docs/dev_plans/archive/04_layout_stage/04_layout_stage_impl_plan_06_ppdoclayoutv3_detector_inference.md`
+7. `docs/dev_plans/archive/04_layout_stage/04_layout_stage_impl_plan_07_glmocr_layout_pipeline_cli_app.md`
+8. `docs/dev_plans/archive/04_layout_stage/04_layout_stage_impl_plan_08_ppdoclayoutv3_parity_golden.md`
+9. `docs/dev_plans/archive/04_layout_stage/04_layout_stage_impl_plan_09_layout_output_parity_examples.md`
 
 ---
 
@@ -54,7 +54,7 @@ Each file below is intended to be completable + verifiable in a single implement
 - Default max layout batch size is 1 (matches official config) to minimize memory spikes on Apple Silicon.
 
 ## Parity extension (2026-02-11)
-The initial Phase 04 implementation intentionally shipped with an **encoder-only** PP-DocLayout-V3 detector (see `docs/decisions/0003-ppdoclayoutv3-encoder-only-inference.md`).
+The initial Phase 04 implementation intentionally shipped with an **encoder-only** PP-DocLayout-V3 detector (see `docs/decisions/obsolete_archive/0003-ppdoclayoutv3-encoder-only-inference.md`).
 
 The `examples/` regression indicates this is insufficient for reference-quality layout outputs.
 The extension plan adds:

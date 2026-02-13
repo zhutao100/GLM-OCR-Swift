@@ -1,5 +1,7 @@
 # Phase 04.1 Implementation Plan — Structured output types + region cropping
 
+> Status: Complete (2026-02-12) — implemented; kept in archive for reference.
+
 ## Goal
 Expose a structured document result (`pages/regions/bboxes`) via **public runtime types**, and provide a **model-agnostic Core Image cropping primitive** that operates on the official **normalized 0–1000** coordinate space.
 

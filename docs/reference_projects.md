@@ -324,13 +324,14 @@ HF Swift tooling already provides model download + progress hooks suitable for a
 
    * `OCRJob` queue with cancellation + progress + streaming decode; use proven SwiftUI inference patterns from mlx-swift-chat / mlx-swift-examples. ([GitHub][9])
 
-These map directly to the repo’s phase plans in `docs/dev_plans/`:
+These map to the repo’s phase plans in `docs/dev_plans/` (early phases are archived; active work uses trackers):
 
-* Phase 01: `docs/dev_plans/01_modelstore.md`
-* Phase 02: `docs/dev_plans/02_model_port.md`
-* Phase 03: `docs/dev_plans/03_mvp_single_image.md`
-* Phase 04: `docs/dev_plans/04_layout_stage.md`
-* Phase 05: `docs/dev_plans/05_gui_polish_distribution.md`
+* Phase 01: `docs/dev_plans/archive/01_modelstore.md`
+* Phase 02: `docs/dev_plans/archive/02_model_port.md`
+* Phase 03: `docs/dev_plans/archive/03_mvp_single_image.md`
+* Phase 04: `docs/dev_plans/archive/04_layout_stage.md`
+* Phase 05 (multi-page PDFs): `docs/dev_plans/multi_page_pdf/tracker.md`
+* Phase 05 (GUI + distribution): `docs/dev_plans/gui_polish_distribution/tracker.md`
 
 [4]: https://github.com/mzbac/deepseek-ocr.swift "GitHub - mzbac/deepseek-ocr.swift"
 [5]: https://github.com/mzbac/deepseek-ocr2.swift "GitHub - mzbac/deepseek-ocr2.swift"

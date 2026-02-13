@@ -1,5 +1,7 @@
 # Phase 04.4 Implementation Plan — LayoutResultFormatter (regions → Markdown)
 
+> Status: Complete (2026-02-12) — implemented; kept in archive for reference.
+
 ## Goal
 Port the official Markdown merge/formatting rules into a deterministic formatter that:
 - preserves reading order,

@@ -1,5 +1,7 @@
 # Phase 04.3 Implementation Plan — Layout postprocess (NMS + merge + ordering)
 
+> Status: Complete (2026-02-12) — implemented; kept in archive for reference.
+
 ## Goal
 Port the official PP-DocLayout-V3 postprocess logic into deterministic Swift primitives so that:
 - raw detector outputs can be converted into ordered regions,

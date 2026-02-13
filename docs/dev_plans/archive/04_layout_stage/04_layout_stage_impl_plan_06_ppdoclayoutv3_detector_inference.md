@@ -1,5 +1,7 @@
 # Phase 04.6 Implementation Plan — PP-DocLayout-V3 detector: inference outputs + postprocess wiring
 
+> Status: Complete (2026-02-12) — implemented; kept in archive for reference.
+
 ## Goal
 Implement PP-DocLayout-V3 inference locally in MLX Swift and produce the raw outputs needed by postprocess:
 - `scores`, `labels`, `boxes`, `order_seq`
@@ -59,6 +61,6 @@ If env var `LAYOUT_SNAPSHOT_PATH` is set:
 The current `PPDocLayoutV3Model` implementation is an **encoder-only subset** (no deformable decoder) that still emits the raw detection invariants needed by `PPDocLayoutV3Postprocess`:
 `scores`, `labels`, `boxes`, `order_seq` (with polygons synthesized from bbox when absent).
 
-Rationale + follow-ups are captured in `docs/decisions/0003-ppdoclayoutv3-encoder-only-inference.md`.
+Rationale + follow-ups are captured in `docs/decisions/obsolete_archive/0003-ppdoclayoutv3-encoder-only-inference.md`.
 
-Next step for parity: `docs/dev_plans/04_layout_stage/04_layout_stage_impl_plan_08_ppdoclayoutv3_parity_golden.md`.
+Next step for parity: `docs/dev_plans/archive/04_layout_stage/04_layout_stage_impl_plan_08_ppdoclayoutv3_parity_golden.md`.

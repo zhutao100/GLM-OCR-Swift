@@ -76,7 +76,7 @@ Build a **fully native macOS (Apple Silicon) GLM-OCR app** in Swift using:
   - run `swift test`, then reproduce with `swift run GLMOCRCLI --help` / `swift run GLMOCRCLI --input …`
 - **Feature work (runtime / pipeline)**
   - `docs/architecture.md` (boundaries + dataflow)
-  - relevant phase in `docs/dev_plans/`
+  - relevant phase in `docs/dev_plans/README.md`
   - add/update an ADR in `docs/decisions/` if you introduce a new interface, cache layout, or tokenization scheme
 - **Bugfix (small, local)**
   - search usage with `rg` (types above are the main entry points)
@@ -85,7 +85,7 @@ Build a **fully native macOS (Apple Silicon) GLM-OCR app** in Swift using:
   - `docs/golden_checks.md` (workflow + env vars)
   - `docs/debug_notes/ppdoclayoutv3_golden/debugging_ppdoclayoutv3_golden.md` (layout golden drift playbook)
 - **Release / distribution**
-  - `docs/dev_plans/05_gui_polish_distribution.md` (source of truth; packaging is still planned)
+  - `docs/dev_plans/gui_polish_distribution/tracker.md` (source of truth; packaging is still planned)
 - **Docs-only changes**
   - keep `README.md`, `AGENTS.md`, and `docs/*` consistent; prefer linking over duplication
 
@@ -134,7 +134,7 @@ pre-commit run -a
 
 ## Work plan checkpoints
 
-- Phase plans: `docs/dev_plans/`
+- Phase plans: `docs/dev_plans/README.md`
 
 ## References
 
