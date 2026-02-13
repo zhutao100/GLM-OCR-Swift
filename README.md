@@ -49,6 +49,9 @@ swift run GLMOCRCLI --input examples/source/GLM-4.5V_Page_1.pdf --page 1 > out.m
 
 # Launch the SwiftUI app scaffold (drag/drop one image or PDF)
 swift run GLMOCRApp
+
+# (Re-)generate `examples/result`
+scripts/run_examples.sh
 ```
 
 Note: if you `rm -rf .build` or switch build configs, re-run `scripts/build_mlx_metallib.sh` so the current build products have a colocated `mlx.metallib`.
