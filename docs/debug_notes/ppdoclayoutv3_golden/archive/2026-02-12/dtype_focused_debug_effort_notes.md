@@ -29,7 +29,7 @@ LAYOUT_SNAPSHOT_PATH=<snapshot_path> LAYOUT_RUN_GOLDEN=1 LAYOUT_DEBUG_DTYPE=1 \
 ### 2) GLM-OCR golden (passes)
 
 ```bash
-GLMOCR_TEST_MODEL_FOLDER=<snapshot_path> GLMOCR_RUN_GOLDEN=1 \
+GLMOCR_SNAPSHOT_PATH=<snapshot_path> GLMOCR_RUN_GOLDEN=1 \
   swift test --filter GLMOCRForwardPassIntegrationTests/testForwardPass_goldenSlice_matchesPython
 ```
 

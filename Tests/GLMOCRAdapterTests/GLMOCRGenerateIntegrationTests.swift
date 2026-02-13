@@ -10,7 +10,7 @@ final class GLMOCRGenerateIntegrationTests: XCTestCase {
             throw XCTSkip("Set GLMOCR_TEST_RUN_GENERATE=1 to enable this integration test.")
         }
         guard let modelFolder = GLMOCRTestEnv.modelFolderURL else {
-            throw XCTSkip("Set GLMOCR_TEST_MODEL_FOLDER to a local HF snapshot folder to enable this test.")
+            throw XCTSkip("Set GLMOCR_SNAPSHOT_PATH to a local HF snapshot folder to enable this test.")
         }
 
         try ensureMLXMetalLibraryColocated(for: Self.self)

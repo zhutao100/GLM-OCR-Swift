@@ -55,7 +55,7 @@ Add a new integration test (opt-in) that:
 Gating:
 - require `GLMOCR_RUN_EXAMPLES=1` to enable (to keep CI hermetic), similar to golden checks
 - require local model snapshot availability:
-  - `GLMOCR_TEST_MODEL_FOLDER` (GLM-OCR snapshot folder)
+  - `GLMOCR_SNAPSHOT_PATH` (GLM-OCR snapshot folder)
   - `LAYOUT_SNAPSHOT_PATH` (PP-DocLayout-V3 snapshot folder)
 
 ### 5) Re-run the original repro command

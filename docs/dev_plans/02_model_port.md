@@ -36,12 +36,12 @@ scripts/build_mlx_metallib.sh -c debug
 
 ## Opt-in integration tests
 - Tokenizer + special token IDs (requires local snapshot):
-  - `GLMOCR_TEST_MODEL_FOLDER=<path> swift test`
+  - `GLMOCR_SNAPSHOT_PATH=<path> swift test`
 - Forward pass smoke (also requires `mlx.metallib`):
-  - `GLMOCR_TEST_MODEL_FOLDER=<path> GLMOCR_TEST_RUN_FORWARD_PASS=1 swift test`
+  - `GLMOCR_SNAPSHOT_PATH=<path> GLMOCR_TEST_RUN_FORWARD_PASS=1 swift test`
 - Python/Transformers parity golden (also requires `mlx.metallib`):
   - `python3 scripts/generate_glmocr_golden.py --model-folder <path>`
-  - `GLMOCR_TEST_MODEL_FOLDER=<path> GLMOCR_RUN_GOLDEN=1 swift test`
+  - `GLMOCR_SNAPSHOT_PATH=<path> GLMOCR_RUN_GOLDEN=1 swift test`
 
 Parity notes:
 - Keep device/dtype aligned between the fixture generator and Swift parity runs; see `docs/golden_checks.md`.

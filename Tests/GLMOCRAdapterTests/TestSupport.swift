@@ -3,7 +3,7 @@ import XCTest
 
 enum GLMOCRTestEnv {
     static var modelFolderURL: URL? {
-        guard let value = ProcessInfo.processInfo.environment["GLMOCR_TEST_MODEL_FOLDER"], !value.isEmpty else {
+        guard let value = ProcessInfo.processInfo.environment["GLMOCR_SNAPSHOT_PATH"], !value.isEmpty else {
             return nil
         }
         return URL(fileURLWithPath: (value as NSString).expandingTildeInPath).standardizedFileURL

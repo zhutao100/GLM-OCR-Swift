@@ -223,12 +223,12 @@ Acceptance:
 
 ### 2) GLMOCRAdapterTests (integration-style, env-gated)
 - New: `GLMOCRChatTemplateIntegrationTests`
-  - Env: `GLMOCR_TEST_MODEL_FOLDER`
+  - Env: `GLMOCR_SNAPSHOT_PATH`
   - Build prompt for `.text`, assert:
     - prefix IDs include `gMaskId`, `sopId`, `userId`
     - `<|image|>` repeated exactly `numImageTokens` for a known input size (use a synthetic CIImage preprocessed to a known H/W).
 - New: `GLMOCRSingleImageEndToEndIntegrationTests`
-  - Env: `GLMOCR_TEST_MODEL_FOLDER`, `GLMOCR_TEST_IMAGE_PATH`
+  - Env: `GLMOCR_SNAPSHOT_PATH`, `GLMOCR_TEST_IMAGE_PATH`
   - Run `GLMOCRPipeline.recognize(...)` and assert output is non-empty (do not golden-text assert yet).
 
 ### 3) Update existing tests if signatures change
@@ -249,7 +249,7 @@ Acceptance:
 
 ## Acceptance checklist (what “done” means)
 - `swift test` passes without env vars.
-- With `GLMOCR_TEST_MODEL_FOLDER` set (and `mlx.metallib` colocated), integration tests pass.
+- With `GLMOCR_SNAPSHOT_PATH` set (and `mlx.metallib` colocated), integration tests pass.
 - `swift run GLMOCRCLI --input ./some.png` prints OCR text.
 - `swift run GLMOCRCLI --input ./some.pdf --page 1` prints OCR text.
 - App: drop image/PDF → Run → output appears.

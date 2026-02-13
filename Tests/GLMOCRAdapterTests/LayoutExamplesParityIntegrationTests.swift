@@ -26,7 +26,7 @@ final class LayoutExamplesParityIntegrationTests: XCTestCase {
             throw XCTSkip("Set GLMOCR_RUN_EXAMPLES=1 to enable this end-to-end examples parity test.")
         }
         guard let glmModelFolder = GLMOCRTestEnv.modelFolderURL else {
-            throw XCTSkip("Set GLMOCR_TEST_MODEL_FOLDER to a local GLM-OCR HF snapshot folder to enable this test.")
+            throw XCTSkip("Set GLMOCR_SNAPSHOT_PATH to a local GLM-OCR HF snapshot folder to enable this test.")
         }
         guard let rawLayoutFolder = ProcessInfo.processInfo.environment["LAYOUT_SNAPSHOT_PATH"], !rawLayoutFolder.isEmpty else {
             throw XCTSkip("Set LAYOUT_SNAPSHOT_PATH to a local PP-DocLayout-V3 HF snapshot folder to enable this test.")

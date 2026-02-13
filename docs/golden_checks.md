@@ -114,7 +114,7 @@ Guideline:
 
 ## Repo-specific switches (parity workflow)
 
-- `GLMOCR_TEST_MODEL_FOLDER=<snapshot_path>` points tests at a local HF snapshot.
+- `GLMOCR_SNAPSHOT_PATH=<snapshot_path>` points tests at a local HF snapshot.
 - `GLMOCR_RUN_GOLDEN=1` enables opt-in golden checks (and may enable “parity mode” numeric settings).
 - `GLMOCR_DEBUG_VISION=1` prints vision embedding stats in the forward-pass golden test to help localize drift.
 - `LAYOUT_SNAPSHOT_PATH=<snapshot_path>` points `DocLayoutAdapterTests` at a local PP-DocLayoutV3 HF snapshot.
@@ -151,7 +151,7 @@ LAYOUT_RUN_GOLDEN=1 LAYOUT_SNAPSHOT_PATH=<snapshot> \
    - snapshot hash, prompt, preprocessing config summary
    - device + dtype (and any forced-float32 blocks); if not embedded in JSON, ensure it is printed/logged by the generator script output.
 3. Run the opt-in test:
-   - `GLMOCR_TEST_MODEL_FOLDER=<snapshot> GLMOCR_RUN_GOLDEN=1 swift test`
+   - `GLMOCR_SNAPSHOT_PATH=<snapshot> GLMOCR_RUN_GOLDEN=1 swift test`
    - `LAYOUT_SNAPSHOT_PATH=<snapshot> LAYOUT_RUN_GOLDEN=1 swift test`
 4. If it fails:
    - turn on `GLMOCR_DEBUG_VISION=1`
