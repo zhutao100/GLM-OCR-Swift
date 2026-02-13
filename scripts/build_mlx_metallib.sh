@@ -37,6 +37,7 @@ root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$root_dir"
 
 bin_path="$(swift build -c "$config" --show-bin-path)"
+mkdir -p $bin_path
 
 mlx_checkout="$root_dir/.build/checkouts/mlx-swift"
 mlx_src="$mlx_checkout/Source/Cmlx/mlx"
