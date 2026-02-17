@@ -131,11 +131,7 @@ while IFS= read -r -d '' input_path; do
 
   echo "----"
   echo "input : $base"
-  echo "output: $(python3 - <<PY
-import os
-print(os.path.relpath("$out_dir", "$root_dir"))
-PY
-)"
+  echo "output: examples/result/$name"
   # Always run in layout mode so we can emit block-list JSON.
   # PDF layout auto-enables anyway; for images, --layout is required for --emit-json.
   if "$cli_path" \

@@ -2,6 +2,8 @@
 
 **Status (2026-02-13):** reference-only — these phases are complete and kept for historical context.
 
+Note: some CLI/App details evolved after these phases (for example `--page` was replaced by `--pages` for multi-page PDFs). For current behavior, start from `README.md` / `docs/overview.md`.
+
 ## Contents
 - Phase 00: `docs/dev_plans/archive/00_scaffold.md`
 - Phase 01: `docs/dev_plans/archive/01_modelstore.md`

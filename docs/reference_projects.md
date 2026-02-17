@@ -212,8 +212,8 @@ From the official MLX example: the reference Apple-Silicon path is currently Pyt
 
 **Implication:** for a macOS GUI app, you should plan for two milestones:
 
-1. **MVP**: single-image / single-page GLM-OCR → Markdown/text (**implemented**)
-2. **Layout mode**: **layout stage** (DocLayout) + multi-region OCR orchestration (parallel runs + merge) (**implemented**)
+1. **MVP**: single-image / PDF (single/multi-page) GLM-OCR → Markdown/text (**implemented**)
+2. **Layout mode**: DocLayout (PP-DocLayout-V3) + multi-region OCR orchestration + merged Markdown/JSON exports (**implemented**)
 
 ---
 
@@ -246,21 +246,28 @@ This matches your “Apple-native end state” goal while avoiding early scope c
 ### Suggested public API for the shared core (so future consolidation is easy)
 
 ```swift
-public protocol OCRPipeline {
-  associatedtype Input
+public protocol OCRPipeline: Sendable {
+  associatedtype Input: Sendable
   func recognize(_ input: Input, task: OCRTask, options: GenerateOptions) async throws -> OCRResult
 }
 
-public enum OCRTask {
+public enum OCRTask: Sendable, Equatable, Hashable {
   case text
   case formula
   case table
   case structuredJSON(schema: String)
 }
 
-public struct OCRResult: Sendable {
+public struct GenerateOptions: Sendable, Equatable {
+  public var maxNewTokens: Int
+  public var temperature: Float
+  public var topP: Float
+}
+
+public struct OCRResult: Sendable, Codable, Equatable {
   public var text: String
   public var rawTokens: [Int]?
+  public var document: OCRDocument?
   public var diagnostics: Diagnostics
 }
 ```
@@ -273,7 +280,7 @@ public struct OCRResult: Sendable {
 
 * **Core idea:** replicate the reference repos’ structure; use `Hub.snapshot` + `AutoTokenizer` from HF Swift tooling for model distribution, then MLX Swift for inference. ([GitHub][12])
 * **Pros:** best startup time, simplest UX, easiest to notarize; no Python/Rust runtime baggage.
-* **Cons:** you must implement/port GLM-OCR model architecture + (eventually) layout stage.
+* **Cons:** ongoing work is mostly “quality + UX”: parity validation, performance tuning, and export/distribution polish.
 
 ### Option 2 — **SwiftUI app on top of MLX Swift LM (if GLM-OCR can be integrated)**
 
@@ -306,32 +313,17 @@ HF Swift tooling already provides model download + progress hooks suitable for a
 
 ---
 
-## 8) Immediate next steps (top 5 engineering tasks)
+## 8) Next steps (source of truth)
 
-1. **Lock the GLM-OCR interface contract**
+The roadmap lives in `docs/dev_plans/README.md`. Current trackers:
 
-   * Define prompt presets (Text/Formula/Table/JSON extraction) and output format expectations from the model card. ([Hugging Face][10])
-2. **Build `ModelStore` + downloader**
+* Quality/parity validation: `docs/dev_plans/quality_parity/tracker.md`
+* GUI polish + distribution: `docs/dev_plans/gui_polish_distribution/tracker.md`
 
-   * Use HF snapshot downloads with progress + resumability; local cache layout in `Application Support`. ([GitHub][12])
-3. **Implement `VisionIO` for GUI inputs**
+Completed work is kept either as:
 
-   * drag/drop images + **PDFKit page rendering** → CIImage → MLXArray, borrowing the reference repos’ conversion/normalize patterns.
-4. **Spike GLM-OCR model load in Swift**
-
-   * Minimal “load config + load weights + run one forward pass” harness; decide whether you can target `mlx-swift-lm` or need bespoke modules.
-5. **SwiftUI job system**
-
-   * `OCRJob` queue with cancellation + progress + streaming decode; use proven SwiftUI inference patterns from mlx-swift-chat / mlx-swift-examples. ([GitHub][9])
-
-These map to the repo’s phase plans in `docs/dev_plans/` (early phases are archived; active work uses trackers):
-
-* Phase 01: `docs/dev_plans/archive/01_modelstore.md`
-* Phase 02: `docs/dev_plans/archive/02_model_port.md`
-* Phase 03: `docs/dev_plans/archive/03_mvp_single_image.md`
-* Phase 04: `docs/dev_plans/archive/04_layout_stage.md`
-* Phase 05 (multi-page PDFs): `docs/dev_plans/multi_page_pdf/tracker.md`
-* Phase 05 (GUI + distribution): `docs/dev_plans/gui_polish_distribution/tracker.md`
+* completed trackers (e.g. `docs/dev_plans/multi_page_pdf/tracker.md`), or
+* archived phase docs under `docs/dev_plans/archive/`.
 
 [4]: https://github.com/mzbac/deepseek-ocr.swift "GitHub - mzbac/deepseek-ocr.swift"
 [5]: https://github.com/mzbac/deepseek-ocr2.swift "GitHub - mzbac/deepseek-ocr2.swift"

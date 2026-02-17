@@ -6,6 +6,8 @@ Borrowing references: official GLM-OCR pipeline (`glmocr/pipeline/pipeline.py`) 
 
 **Status (2026-02-12):** complete — layout mode is implemented (single-page) and examples parity + opt-in PP-DocLayout-V3 golden baselines pass.
 
+Note: multi-page PDF support (including layout mode) was added later; see `docs/dev_plans/multi_page_pdf/tracker.md`.
+
 ## Implementation plans
 - Index: `docs/dev_plans/archive/04_layout_stage/04_layout_stage_impl_plan.md`
 - Session-sized subplans:

@@ -7,15 +7,15 @@ This repository is intended to be safely evolvable by **agentic coding tools** a
 Build a **fully native macOS (Apple Silicon) GLM-OCR app** in Swift using:
 
 - **MLX Swift** for inference
-- **Hugging Face Swift tooling** (`HubApi.snapshot` today; tokenizer integration planned) for model download + tokenizer loading
+- **Hugging Face `swift-transformers`** (`HubApi.snapshot` + `AutoTokenizer`) for model download + tokenizer loading
 - A maintainable architecture that supports future consolidation into a multi-model OCR workbench.
 
-## Current reality (2026-02-12)
+## Current reality (2026-02-17)
 
 - The repo builds and tests cleanly (`swift test`).
 - `ModelStore` snapshot download + HF cache resolution is implemented.
 - End-to-end OCR runs locally (MLX Swift) for:
-  - a single image or a single PDF page (CLI + App),
+  - a single image or a PDF (single/multi-page) (CLI + App),
   - optional layout mode (PP-DocLayout-V3 → region OCR → merged Markdown + structured `OCRDocument`).
 - Integration tests for downloaded models are **opt-in** via env vars; see `docs/golden_checks.md`.
 
@@ -44,6 +44,7 @@ Build a **fully native macOS (Apple Silicon) GLM-OCR app** in Swift using:
   - `OCRTypes.swift` — public pipeline API (`OCRPipeline`, `OCRTask`, `GenerateOptions`, `OCRResult`)
   - `OCRDocumentTypes.swift` — structured output types (`OCRDocument`, pages/regions/bboxes)
   - `OCRBlockListExport.swift` — examples-compatible block-list JSON export
+  - `PDFPagesSpec.swift` — fuzzy PDF page spec parser/resolver (CLI/App `--pages`)
   - `VisionIO/VisionIO.swift` — image/PDF decode + CIImage→MLX tensor conversion
   - `VisionIO/VisionCrop.swift` — normalized bbox/polygon region crop
   - `MarkdownImageCropper.swift` — crop+replace `![](page=...,bbox=[...])` refs for `--emit-json` outputs
@@ -56,8 +57,8 @@ Build a **fully native macOS (Apple Silicon) GLM-OCR app** in Swift using:
   - `PPDocLayoutV3Postprocess.swift` — NMS + containment merge + ordering
   - `LayoutResultFormatter.swift` — regions → merged Markdown
 - `Sources/ModelAdapters/GLMOCR/` — GLM-OCR adapter
-  - `GLMOCRPipeline.swift` — download → load → recognize (single image/page)
-  - `GLMOCRLayoutPipeline.swift` — layout detect → per-region OCR → merge (single page)
+  - `GLMOCRPipeline.swift` — download → load → recognize (single image/page; `recognizePDF` loops pages)
+  - `GLMOCRLayoutPipeline.swift` — layout detect → per-region OCR → merge (single page; `recognizePDF` loops pages)
   - `GLMOCRModel.swift` — model definition + weight-loading + forward + greedy decode
   - `GLMOCRChatTemplate.swift` — GLM-OCR chat-template tokenization (`[gMASK]<sop>` + image placeholders)
   - `GLMOCRImageProcessor.swift` — GLM-OCR resize/normalize policy
@@ -82,6 +83,7 @@ Build a **fully native macOS (Apple Silicon) GLM-OCR app** in Swift using:
   - search usage with `rg` (types above are the main entry points)
   - add a unit test in `Tests/VLMRuntimeKitTests/` when the fix is deterministic
 - **Parity / golden work**
+  - `docs/dev_plans/quality_parity/tracker.md` (roadmap + workflows)
   - `docs/golden_checks.md` (workflow + env vars)
   - `docs/debug_notes/ppdoclayoutv3_golden/debugging_ppdoclayoutv3_golden.md` (layout golden drift playbook)
 - **Release / distribution**

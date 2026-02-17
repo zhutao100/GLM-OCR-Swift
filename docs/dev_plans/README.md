@@ -1,10 +1,13 @@
 # Development plans
 
-**Status (2026-02-13):** active — current work is tracked via per-topic trackers; completed early phases live under `docs/dev_plans/archive/`.
+**Status (2026-02-17):** active — current work is tracked via per-topic trackers; completed early phases live under `docs/dev_plans/archive/`.
 
 ## Active trackers
-- Multi-page PDFs: `docs/dev_plans/multi_page_pdf/tracker.md`
+- Quality/parity validation: `docs/dev_plans/quality_parity/tracker.md`
 - GUI polish + distribution: `docs/dev_plans/gui_polish_distribution/tracker.md`
+
+## Completed trackers (kept for reference)
+- Multi-page PDFs: `docs/dev_plans/multi_page_pdf/tracker.md`
 
 ## Archive (completed phases)
 - Phase 00 (scaffold): `docs/dev_plans/archive/00_scaffold.md`

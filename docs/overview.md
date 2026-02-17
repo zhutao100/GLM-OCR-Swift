@@ -2,7 +2,7 @@
 
 This folder is the structured reference for the repo. For the runnable quickstart, start at `README.md`.
 
-## Current status (2026-02-12)
+## Current status (2026-02-17)
 
 What exists and works today:
 
@@ -16,8 +16,8 @@ What exists and works today:
 
 What is still stubbed / not implemented yet:
 
-- Quality/parity validation vs the official MLX Python example on a curated image set
-- Export/UX polish (Phase 05)
+- Quality/parity validation beyond the current opt-in examples set (tracked in `docs/dev_plans/quality_parity/tracker.md`)
+- Export/UX polish + distribution packaging (tracked in `docs/dev_plans/gui_polish_distribution/tracker.md`)
 
 ## Where things live (source of truth)
 
@@ -33,4 +33,5 @@ What is still stubbed / not implemented yet:
 
 - **How to build/run:** `README.md`
 - **Where to implement feature X:** `docs/dev_plans/README.md` + `docs/architecture.md`
+- **How to validate parity/quality:** `docs/dev_plans/quality_parity/tracker.md` + `docs/golden_checks.md`
 - **Why we chose core+adapter:** `docs/decisions/0001-core-adapter.md`

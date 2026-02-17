@@ -2,7 +2,7 @@
 
 **Objective:** shippable macOS app.
 
-**Status (2026-02-12):** deferred until the core modules are complete.
+**Status (2026-02-17):** deferred — core OCR pipelines exist; prioritize quality/parity validation first, then return here for export/UX + packaging.
 
 Borrowing references: `docs/reference_projects.md` (mlx-swift-examples / mlx-swift-chat UI patterns, DeepSeek OCR distribution/CLI patterns).
 

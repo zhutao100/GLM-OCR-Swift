@@ -10,9 +10,11 @@ Responsibilities:
 - `TokenizerKit`: prompt/template helpers (placeholder splitting + task→instruction mapping; **implemented**)
 - `OCRTypes`: shared pipeline protocol + result types (including optional structured document output; **implemented**)
 - `OCRBlockListExport`: canonical `[[{index,label,content,bbox_2d}, ...], ...]` JSON export (examples-compatible; **implemented**)
+- `PDFPagesSpec`: fuzzy `--pages` parsing + resolution (CLI/App shared semantics; **implemented**)
 - `VisionIO`: vision IO helpers
   - image file → `CIImage` (**implemented**)
   - PDF page rendering + CIImage→MLX tensor conversion (**implemented**)
+  - PDF page count helper (**implemented**)
   - normalized bbox/polygon region crop (**implemented**)
   - CIImage → JPEG writer (**implemented**)
 - `MarkdownImageCropper`: extract `![](page=…,bbox=[…])` refs and crop+replace to `![Image p-i](imgs/…)` (**implemented**)
