@@ -18,6 +18,18 @@ final class VisionIOTests: XCTestCase {
         XCTAssertGreaterThan(image.extent.height, 0)
     }
 
+    func testPDFPageCount_returnsCorrectCount() throws {
+        let pdfData = try makeTwoPagePDF()
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("vlmruntimekit_visionio_pagecount_test_\(UUID().uuidString)")
+            .appendingPathExtension("pdf")
+        try pdfData.write(to: url)
+        defer { _ = try? FileManager.default.removeItem(at: url) }
+
+        let count = try VisionIO.pdfPageCount(url: url)
+        XCTAssertEqual(count, 2)
+    }
+
     func testImageTensorConverter_convertsAndNormalizes() throws {
         try ensureMLXMetalLibraryColocated()
 
@@ -61,6 +73,30 @@ final class VisionIOTests: XCTestCase {
         ctx.endPDFPage()
         ctx.closePDF()
 
+        return data as Data
+    }
+
+    private func makeTwoPagePDF() throws -> Data {
+        let data = NSMutableData()
+        guard let consumer = CGDataConsumer(data: data as CFMutableData) else {
+            throw XCTSkip("CGDataConsumer init failed")
+        }
+
+        var mediaBox = CGRect(x: 0, y: 0, width: 200, height: 200)
+        guard let ctx = CGContext(consumer: consumer, mediaBox: &mediaBox, nil) else {
+            throw XCTSkip("PDF CGContext init failed")
+        }
+
+        for idx in 0 ..< 2 {
+            ctx.beginPDFPage(nil)
+            ctx.setFillColor(CGColor(gray: 1, alpha: 1))
+            ctx.fill(mediaBox)
+            ctx.setFillColor(CGColor(red: 0, green: 0, blue: 0, alpha: 1))
+            ctx.fill(CGRect(x: 20 + CGFloat(idx) * 10, y: 20, width: 120, height: 60))
+            ctx.endPDFPage()
+        }
+
+        ctx.closePDF()
         return data as Data
     }
 

@@ -16,7 +16,7 @@ Options:
 
 Notes:
   - Ensures mlx.metallib exists in the SwiftPM bin directory for the chosen -c profile.
-  - Skips examples/source/GLM-4.5V_Pages_1_2_3.pdf (multi-page PDF not supported yet).
+  - PDFs default to OCR’ing all pages (use GLMOCRCLI --pages to restrict).
 EOF
 }
 
@@ -121,12 +121,6 @@ while IFS= read -r -d '' input_path; do
 
   base="$(basename "$input_path")"
   name="${base%.*}"
-
-  if [[ "$base" == "GLM-4.5V_Pages_1_2_3.pdf" ]]; then
-    echo "skip (multi-page PDF not supported yet): $base" >&2
-    skipped+=("$base")
-    continue
-  fi
 
   out_dir="$out_root/$name"
   rm -rf "$out_dir"

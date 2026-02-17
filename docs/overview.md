@@ -11,13 +11,13 @@ What exists and works today:
 - Hugging Face snapshot download + cache resolution is implemented (`VLMRuntimeKit/ModelStore`)
 - CLI/App scaffolding is wired to the pipeline (download → load → recognize)
 - GLM-OCR model architecture + safetensors weight loading + tokenizer validation
-- End-to-end MVP OCR for a single image / single PDF page (vision preprocessing + chat template + greedy decode + KV cache)
-- Phase 04 layout mode for single-page documents (layout detection → region OCR → Markdown merge + structured `OCRDocument`)
+- End-to-end MVP OCR for a single image / PDF (single/multi-page) (vision preprocessing + chat template + greedy decode + KV cache)
+- Phase 04 layout mode (layout detection → region OCR → Markdown merge + structured `OCRDocument`)
 
 What is still stubbed / not implemented yet:
 
 - Quality/parity validation vs the official MLX Python example on a curated image set
-- Multi-page document workflows + export/UX polish (Phase 05)
+- Export/UX polish (Phase 05)
 
 ## Where things live (source of truth)
 

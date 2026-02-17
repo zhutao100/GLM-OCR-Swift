@@ -92,6 +92,86 @@ final class LayoutExamplesParityIntegrationTests: XCTestCase {
         try Self.assertJSONParity(actual: actualJSON, expected: expectedJSON, bboxTolerance: 15)
     }
 
+    func testGLM45V_Pages1_2_3_layoutOutput_matchesExamples() async throws {
+        guard ProcessInfo.processInfo.environment["GLMOCR_RUN_EXAMPLES"] == "1" else {
+            throw XCTSkip("Set GLMOCR_RUN_EXAMPLES=1 to enable this end-to-end examples parity test.")
+        }
+        guard let glmModelFolder = GLMOCRTestEnv.modelFolderURL else {
+            throw XCTSkip("Set GLMOCR_SNAPSHOT_PATH to a local GLM-OCR HF snapshot folder to enable this test.")
+        }
+        guard let rawLayoutFolder = ProcessInfo.processInfo.environment["LAYOUT_SNAPSHOT_PATH"], !rawLayoutFolder.isEmpty else {
+            throw XCTSkip("Set LAYOUT_SNAPSHOT_PATH to a local PP-DocLayout-V3 HF snapshot folder to enable this test.")
+        }
+
+        let layoutFolder = URL(fileURLWithPath: (rawLayoutFolder as NSString).expandingTildeInPath).standardizedFileURL
+
+        try ensureMLXMetalLibraryColocated(for: Self.self)
+
+        let repoRoot = Self.repoRootURL()
+        let sourcePDF = repoRoot.appendingPathComponent("examples/source/GLM-4.5V_Pages_1_2_3.pdf")
+        let expectedMDURL = repoRoot.appendingPathComponent("examples/reference_result/GLM-4.5V_Pages_1_2_3/GLM-4.5V_Pages_1_2_3.md")
+        let expectedJSONURL = repoRoot.appendingPathComponent("examples/reference_result/GLM-4.5V_Pages_1_2_3/GLM-4.5V_Pages_1_2_3.json")
+
+        let expectedMarkdown = try String(contentsOf: expectedMDURL, encoding: .utf8)
+        let expectedJSON = try JSONDecoder().decode(OCRBlockListExport.self, from: Data(contentsOf: expectedJSONURL))
+
+        let store = StaticModelStore(
+            foldersByModelID: [
+                GLMOCRDefaults.modelID: glmModelFolder,
+                PPDocLayoutV3Defaults.modelID: layoutFolder,
+            ]
+        )
+
+        let pipeline = GLMOCRLayoutPipeline(
+            modelID: GLMOCRDefaults.modelID,
+            revision: GLMOCRDefaults.revision,
+            downloadBase: nil,
+            store: store
+        )
+        try await pipeline.ensureLoaded(progress: nil)
+
+        let result = try await pipeline.recognizePDF(
+            url: sourcePDF,
+            pagesSpec: PDFPagesSpec.parse("1-3"),
+            options: .init(maxNewTokens: 2048, temperature: 0, topP: 1)
+        )
+        guard let document = result.document else {
+            XCTFail("Layout pipeline did not produce OCRResult.document")
+            return
+        }
+
+        let refs = MarkdownImageCropper.extractImageRefs(result.text)
+        let neededPageIndices = Set(refs.map(\.pageIndex))
+        let maxPageIndex = neededPageIndices.max() ?? -1
+
+        let placeholder = CIImage(color: .white).cropped(to: CGRect(x: 0, y: 0, width: 1, height: 1))
+        var pageImages = Array(repeating: placeholder, count: max(maxPageIndex + 1, 1))
+        for pageIndex in neededPageIndices {
+            pageImages[pageIndex] = try VisionIO.loadCIImage(fromPDF: sourcePDF, page: pageIndex + 1, dpi: 200)
+        }
+
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent("glmocr_examples_\(UUID().uuidString)")
+        let imgsDir = tempDir.appendingPathComponent("imgs")
+
+        let (actualMarkdown, saved) = try MarkdownImageCropper.cropAndReplaceImages(
+            markdown: result.text,
+            pageImages: pageImages,
+            outputDir: imgsDir,
+            imagePrefix: "cropped"
+        )
+
+        let expectedImageCount = expectedJSON.flatMap(\.self).count(where: { $0.label == "image" })
+        XCTAssertEqual(saved.count, expectedImageCount, "Expected to crop \(expectedImageCount) images.")
+
+        let expectedImagePaths = Self.extractMarkdownImagePaths(expectedMarkdown)
+        let actualImagePaths = Self.extractMarkdownImagePaths(actualMarkdown)
+        XCTAssertEqual(actualImagePaths, expectedImagePaths, "Markdown image refs mismatch vs examples/reference_result/…")
+        XCTAssertFalse(actualMarkdown.contains("![](page="), "Expected placeholder image refs to be replaced.")
+
+        let actualJSON = document.toBlockListExport()
+        try Self.assertJSONParity(actual: actualJSON, expected: expectedJSON, bboxTolerance: 15)
+    }
+
     private static func repoRootURL(file: StaticString = #filePath) -> URL {
         URL(fileURLWithPath: "\(file)")
             .deletingLastPathComponent() // GLMOCRAdapterTests

@@ -2,6 +2,8 @@
 
 **Status (2026-02-13):** draft (design/options); Option B is recommended below.
 
+**Implemented (2026-02-17):** Option B shipped (with `--page` removed outright); see `docs/dev_plans/multi_page_pdf/tracker.md`.
+
 Below are three implementation plans (from “surgical” to “proper API”) to replace `--page` with an optional fuzzy `--pages` and add a matching page specifier in the SwiftUI app, while keeping the **multi-page Markdown/JSON output style** consistent with `examples/reference_result/GLM-4.5V_Pages_1_2_3`.
 
 ---

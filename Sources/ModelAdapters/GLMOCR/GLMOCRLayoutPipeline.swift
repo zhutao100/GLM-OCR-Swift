@@ -38,13 +38,19 @@ public enum GLMOCRLayoutPipelineError: Error, Sendable, Equatable {
     case inputNotFound(URL)
     case inputIsDirectory(URL)
     case invalidPDFPageIndex(Int)
+    case expectedPDF(URL)
     case unsupportedInput
+    case missingDocument
+    case unexpectedDocumentPageCount(Int)
     case unexpectedAbandonRegion(label: String)
 }
 
 /// Orchestrates: page → layout regions → crop → per-region GLM-OCR → merged Markdown + `OCRDocument`.
 public actor GLMOCRLayoutPipeline: OCRPipeline {
     public typealias Input = GLMOCRInput
+
+    private let modelID: String
+    private let revision: String
 
     private let ocrPipeline: GLMOCRPipeline
     private let layoutDetector: PPDocLayoutV3Detector
@@ -61,6 +67,8 @@ public actor GLMOCRLayoutPipeline: OCRPipeline {
         layoutOptions: GLMOCRLayoutOptions = .init(),
         pdfDPI: Int = 200
     ) {
+        self.modelID = modelID
+        self.revision = revision
         ocrPipeline = GLMOCRPipeline(
             modelID: modelID,
             revision: revision,
@@ -78,6 +86,49 @@ public actor GLMOCRLayoutPipeline: OCRPipeline {
         async let loadOCR: Void = ocrPipeline.ensureLoaded(progress: progress)
         async let loadLayout: Void = layoutDetector.ensureLoaded(progress: progress)
         _ = try await (loadOCR, loadLayout)
+    }
+
+    public func recognizePDF(url: URL, pagesSpec: PDFPagesSpec = .all, options: GenerateOptions) async throws -> OCRResult {
+        guard url.pathExtension.lowercased() == "pdf" else {
+            throw GLMOCRLayoutPipelineError.expectedPDF(url)
+        }
+
+        try await ensureLoaded(progress: nil)
+
+        let pageCount = try VisionIO.pdfPageCount(url: url)
+        let pages = try pagesSpec.resolve(pageCount: pageCount)
+
+        var pageMarkdowns: [String] = []
+        pageMarkdowns.reserveCapacity(pages.count)
+
+        var collectedPages: [OCRPage] = []
+        collectedPages.reserveCapacity(pages.count)
+
+        for page in pages {
+            try Task.checkCancellation()
+
+            let result = try await recognize(.file(url, page: page), task: .text, options: options)
+            pageMarkdowns.append(result.text)
+
+            guard let document = result.document else {
+                throw GLMOCRLayoutPipelineError.missingDocument
+            }
+            guard document.pages.count == 1, let only = document.pages.first else {
+                throw GLMOCRLayoutPipelineError.unexpectedDocumentPageCount(document.pages.count)
+            }
+            collectedPages.append(only)
+        }
+
+        let mergedPages = collectedPages.sorted(by: { $0.index < $1.index })
+        let mergedDocument = OCRDocument(pages: mergedPages)
+        let markdown = pageMarkdowns.joined(separator: "\n\n")
+
+        return OCRResult(
+            text: markdown,
+            rawTokens: nil,
+            document: mergedDocument,
+            diagnostics: .init(modelID: modelID, revision: revision)
+        )
     }
 
     public func recognize(_ input: GLMOCRInput, task: OCRTask, options: GenerateOptions) async throws -> OCRResult {
@@ -179,7 +230,7 @@ public actor GLMOCRLayoutPipeline: OCRPipeline {
         let pageIndex = url.pathExtension.lowercased() == "pdf" ? (page - 1) : 0
         let (document, markdown) = LayoutResultFormatter.format(pages: [OCRPage(index: pageIndex, regions: regions)])
 
-        return OCRResult(text: markdown, rawTokens: nil, document: document, diagnostics: .init())
+        return OCRResult(text: markdown, rawTokens: nil, document: document, diagnostics: .init(modelID: modelID, revision: revision))
     }
 
     private func validateFileInput(_ input: GLMOCRInput) throws -> (url: URL, page: Int) {

@@ -88,8 +88,8 @@ struct GLMOCRCLI: AsyncParsableCommand {
     @Option(help: "Input image or PDF file path.")
     var input: String?
 
-    @Option(help: "PDF page (1-based). Only used when --input is a PDF.")
-    var page: Int = 1
+    @Option(help: "PDF pages: all | 1 | 1-3 | 1,2,4 | [1-3] | mixed lists. Omit for all pages (PDF only).")
+    var pages: String?
 
     @Flag(name: .customLong("layout"), help: "Enable layout mode (default: on for PDFs, off otherwise).")
     var layout: Bool = false
@@ -131,16 +131,16 @@ struct GLMOCRCLI: AsyncParsableCommand {
     private static func resolveLayoutEnabled(inputURL: URL?, layout: Bool, noLayout: Bool) -> Bool {
         let explicit: Bool? = layout ? true : (noLayout ? false : nil)
         if let explicit { return explicit }
-        let isPDF = inputURL?.pathExtension.lowercased() == "pdf"
-        return isPDF
+        return inputURL?.pathExtension.lowercased() == "pdf"
     }
 
     mutating func validate() throws {
         guard maxNewTokens > 0 else {
             throw ValidationError("--max-new-tokens must be > 0")
         }
-        guard page > 0 else {
-            throw ValidationError("--page must be >= 1")
+
+        if pages != nil, Self.normalizedNonEmpty(pages) == nil {
+            throw ValidationError("--pages must be non-empty")
         }
 
         if layout, noLayout {
@@ -173,6 +173,17 @@ struct GLMOCRCLI: AsyncParsableCommand {
             throw ValidationError("Input is a directory: \(url.path)")
         }
 
+        if Self.normalizedNonEmpty(pages) != nil, url.pathExtension.lowercased() != "pdf" {
+            throw ValidationError("--pages is only valid for PDF inputs")
+        }
+        if url.pathExtension.lowercased() == "pdf" {
+            do {
+                _ = try PDFPagesSpec.parse(Self.normalizedNonEmpty(pages))
+            } catch {
+                throw ValidationError("--pages: \(error.localizedDescription)")
+            }
+        }
+
         if emitJson != nil || emitOCRDocumentJson != nil {
             let layoutEnabled = Self.resolveLayoutEnabled(inputURL: url, layout: layout, noLayout: noLayout)
             guard layoutEnabled else {
@@ -185,7 +196,7 @@ struct GLMOCRCLI: AsyncParsableCommand {
         let modelID = model
         let modelRevision = revision
         let maxNewTokens = maxNewTokens
-        let page = page
+        let pagesSpec = try PDFPagesSpec.parse(Self.normalizedNonEmpty(pages))
         let downloadOnly = downloadOnly
         let devForwardPass = devForwardPass
         let downloadBaseURL: URL? = Self.normalizedNonEmpty(downloadBase).map(Self.normalizedFileURL(fromPath:))
@@ -217,7 +228,7 @@ struct GLMOCRCLI: AsyncParsableCommand {
                 revision: modelRevision,
                 downloadBaseURL: downloadBaseURL,
                 inputURL: inputURL,
-                page: page,
+                pagesSpec: pagesSpec,
                 taskPreset: taskPreset,
                 generateOptions: generateOptions,
                 downloadOnly: downloadOnly,
@@ -247,7 +258,7 @@ struct GLMOCRCLI: AsyncParsableCommand {
         revision: String,
         downloadBaseURL: URL?,
         inputURL: URL?,
-        page: Int,
+        pagesSpec: PDFPagesSpec,
         taskPreset: OCRTask,
         generateOptions: GenerateOptions,
         downloadOnly: Bool,
@@ -305,7 +316,11 @@ struct GLMOCRCLI: AsyncParsableCommand {
                 layoutOptions: layoutOptions
             )
             try await pipeline.ensureLoaded(progress: nil)
-            let result = try await pipeline.recognize(.file(inputURL, page: page), task: taskPreset, options: generateOptions)
+            let result: OCRResult = if inputURL.pathExtension.lowercased() == "pdf" {
+                try await pipeline.recognizePDF(url: inputURL, pagesSpec: pagesSpec, options: generateOptions)
+            } else {
+                try await pipeline.recognize(.file(inputURL, page: 1), task: taskPreset, options: generateOptions)
+            }
             var markdown = result.text
 
             if let emitJsonURL {
@@ -320,17 +335,20 @@ struct GLMOCRCLI: AsyncParsableCommand {
 
             if let baseOutputDir = (emitJsonURL ?? emitOCRDocumentJsonURL)?.deletingLastPathComponent() {
                 do {
-                    let pageIndex = inputURL.pathExtension.lowercased() == "pdf" ? max(page - 1, 0) : 0
-
-                    let pageImage: CIImage = if inputURL.pathExtension.lowercased() == "pdf" {
-                        try VisionIO.loadCIImage(fromPDF: inputURL, page: page, dpi: 200)
-                    } else {
-                        try VisionIO.loadCIImage(from: inputURL)
-                    }
+                    let refs = MarkdownImageCropper.extractImageRefs(markdown)
+                    let neededPageIndices = Set(refs.map(\.pageIndex))
+                    let maxPageIndex = neededPageIndices.max() ?? -1
 
                     let placeholder = CIImage(color: .white).cropped(to: CGRect(x: 0, y: 0, width: 1, height: 1))
-                    var pageImages = Array(repeating: placeholder, count: pageIndex + 1)
-                    pageImages[pageIndex] = pageImage
+                    var pageImages = Array(repeating: placeholder, count: max(maxPageIndex + 1, 1))
+
+                    if inputURL.pathExtension.lowercased() == "pdf" {
+                        for pageIndex in neededPageIndices {
+                            pageImages[pageIndex] = try VisionIO.loadCIImage(fromPDF: inputURL, page: pageIndex + 1, dpi: 200)
+                        }
+                    } else {
+                        pageImages[0] = try VisionIO.loadCIImage(from: inputURL)
+                    }
 
                     let imgsDir = baseOutputDir.appendingPathComponent("imgs")
                     markdown = try MarkdownImageCropper.cropAndReplaceImages(
@@ -355,7 +373,11 @@ struct GLMOCRCLI: AsyncParsableCommand {
         let pipeline = GLMOCRPipeline(modelID: modelID, revision: revision, downloadBase: downloadBaseURL)
         try await pipeline.ensureLoaded(progress: nil)
 
-        let result = try await pipeline.recognize(.file(inputURL, page: page), task: taskPreset, options: generateOptions)
+        let result: OCRResult = if inputURL.pathExtension.lowercased() == "pdf" {
+            try await pipeline.recognizePDF(url: inputURL, pagesSpec: pagesSpec, task: taskPreset, options: generateOptions)
+        } else {
+            try await pipeline.recognize(.file(inputURL, page: 1), task: taskPreset, options: generateOptions)
+        }
         print(result.text)
     }
 

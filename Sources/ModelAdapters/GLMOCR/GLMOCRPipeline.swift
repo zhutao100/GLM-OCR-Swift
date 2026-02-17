@@ -17,7 +17,9 @@ public enum GLMOCRInput: Sendable, Equatable {
     case file(URL, page: Int)
     case predecodedText(String)
 
-    public static func fileURL(_ url: URL) -> GLMOCRInput { .file(url, page: 1) }
+    public static func fileURL(_ url: URL) -> GLMOCRInput {
+        .file(url, page: 1)
+    }
 }
 
 /// Main pipeline entrypoint.
@@ -121,6 +123,33 @@ public actor GLMOCRPipeline: OCRPipeline {
         }
 
         return try await recognize(ciImage: ciImage, task: task, options: options)
+    }
+
+    public func recognizePDF(url: URL, pagesSpec: PDFPagesSpec = .all, task: OCRTask, options: GenerateOptions) async throws -> OCRResult {
+        guard url.pathExtension.lowercased() == "pdf" else {
+            throw GLMOCRPipelineError.unsupportedInput(url)
+        }
+
+        try await ensureLoaded(progress: nil)
+
+        let pageCount = try VisionIO.pdfPageCount(url: url)
+        let pages = try pagesSpec.resolve(pageCount: pageCount)
+
+        var pageTexts: [String] = []
+        pageTexts.reserveCapacity(pages.count)
+
+        for page in pages {
+            try Task.checkCancellation()
+            let result = try await recognize(.file(url, page: page), task: task, options: options)
+            pageTexts.append(result.text)
+        }
+
+        return OCRResult(
+            text: pageTexts.joined(separator: "\n\n"),
+            rawTokens: nil,
+            document: nil,
+            diagnostics: .init(modelID: modelID, revision: revision)
+        )
     }
 
     func recognize(ciImage: CIImage, task: OCRTask, options: GenerateOptions) async throws -> OCRResult {

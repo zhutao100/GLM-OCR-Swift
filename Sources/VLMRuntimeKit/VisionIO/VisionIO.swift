@@ -22,6 +22,17 @@ public enum VisionIO {
         return ci
     }
 
+    public static func pdfPageCount(url: URL) throws -> Int {
+        #if canImport(PDFKit)
+            guard let doc = PDFDocument(url: url) else {
+                throw VisionIOError.cannotRenderPDF(url)
+            }
+            return doc.pageCount
+        #else
+            throw VisionIOError.cannotRenderPDF(url)
+        #endif
+    }
+
     /// Render a single PDF page into a CIImage.
     ///
     /// - Parameters:

@@ -2,7 +2,7 @@
 
 **Objective:** extend PDF OCR to multiple pages (CLI + App) by replacing `--page` with an optional fuzzy `--pages` spec. For PDFs, omitting `--pages` processes **all** pages. Output should match `examples/reference_result/GLM-4.5V_Pages_1_2_3`.
 
-**Status (2026-02-13):** planning — draft parser/API options exist; implementation not started.
+**Status (2026-02-17):** implemented (Option B) — multi-page PDF support shipped in CLI + App; `--page` removed.
 
 ## Plan options (design)
 - `docs/dev_plans/multi_page_pdf/plan_options.md` (Option B recommended)
@@ -11,7 +11,7 @@
 - **Indexing:** user `--pages` and `VisionIO.loadCIImage(fromPDF:page:)` are **1-based**; `OCRPage.index` and Markdown `![](page=<n>,bbox=...)` are **0-based** (`pageIndex = page - 1`).
 - **Ordering:** resolve `--pages` into a **deduped, ascending** list for stable output (ignore user input order).
 - **Non-PDF behavior:** if `--pages` is provided for a non-PDF input, **error** (avoid silent no-op).
-- **Back-compat:** decide whether to keep `--page` as a deprecated alias (stderr warning) or remove it outright.
+- **Back-compat:** remove `--page` outright (no deprecated alias).
 
 ## Scope
 - Runtime (`VLMRuntimeKit`):
@@ -22,17 +22,17 @@
 - App (`GLMOCRApp`): add a PDF-only pages specifier UI and use the same `PDFPagesSpec` semantics.
 
 ## Tasks (Option B)
-- [ ] Lock the decisions above (alias, ordering, non-PDF behavior).
-- [ ] Add `PDFPagesSpec` + tests (`Tests/VLMRuntimeKitTests/`).
-- [ ] Add `VisionIO.pdfPageCount(url:)` + tests (create a multi-page temp PDF).
-- [ ] Add multi-page entrypoints:
-  - [ ] `GLMOCRLayoutPipeline.recognizePDF(url:pages:options:)`
-  - [ ] `GLMOCRPipeline.recognizePDF(url:pages:task:options:)`
-- [ ] Update CLI flags + help + validation (`--pages` optional; PDF + omitted == all pages).
-- [ ] Update CLI cropping path to render **only** PDF pages referenced by Markdown placeholders (via `MarkdownImageCropper.extractImageRefs`), not every selected page.
-- [ ] Update App UI + wiring (PDF-only page spec input + validation).
-- [ ] Extend examples parity coverage for `examples/source/GLM-4.5V_Pages_1_2_3.pdf` (opt-in; requires local snapshots like the existing page-1 parity test).
-- [ ] Update docs (`README.md`; `docs/architecture.md` if public API shape changes).
+- [x] Lock the decisions above (alias, ordering, non-PDF behavior).
+- [x] Add `PDFPagesSpec` + tests (`Tests/VLMRuntimeKitTests/`).
+- [x] Add `VisionIO.pdfPageCount(url:)` + tests (create a multi-page temp PDF).
+- [x] Add multi-page entrypoints:
+  - [x] `GLMOCRLayoutPipeline.recognizePDF(url:pagesSpec:options:)`
+  - [x] `GLMOCRPipeline.recognizePDF(url:pagesSpec:task:options:)`
+- [x] Update CLI flags + help + validation (`--pages` optional; PDF + omitted == all pages).
+- [x] Update CLI cropping path to render **only** PDF pages referenced by Markdown placeholders (via `MarkdownImageCropper.extractImageRefs`), not every selected page.
+- [x] Update App UI + wiring (PDF-only page spec input + validation).
+- [x] Extend examples parity coverage for `examples/source/GLM-4.5V_Pages_1_2_3.pdf` (opt-in; requires local snapshots like the existing page-1 parity test).
+- [x] Update docs (`README.md`; `docs/architecture.md` if public API shape changes).
 
 ## Exit criteria
 - CLI:

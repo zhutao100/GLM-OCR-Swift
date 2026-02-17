@@ -15,12 +15,12 @@ This repo is intentionally structured as **core + adapters**:
 - `swift build` / `swift test` pass.
 - CLI + App run (single file/image/PDF input).
 - Hugging Face snapshot download + cache resolution is implemented (`VLMRuntimeKit/ModelStore`).
-- End-to-end MVP OCR works for a single image or a single PDF page:
+- End-to-end MVP OCR works for a single image or a PDF (single/multi-page):
   - Vision decode + PDF page rendering
   - CIImage → MLX tensor conversion + normalization
   - GLM chat-template tokenization (`[gMASK]<sop>` + image placeholders)
   - Greedy token-by-token decode (with KV cache)
-- Phase 04 layout mode is implemented for single-page documents:
+- Phase 04 layout mode is implemented (PDF/images):
   - PP-DocLayout-V3 layout detection → region crop → per-region GLM-OCR → merged Markdown
   - Optional examples-compatible block-list JSON export from the CLI (`--emit-json`)
   - Optional structured `OCRDocument` JSON export from the CLI (`--emit-ocrdocument-json`)
@@ -44,8 +44,11 @@ swift run GLMOCRCLI --help
 # One-time: build MLX's metal shader library next to SwiftPM-built executables
 scripts/build_mlx_metallib.sh -c debug
 
-# OCR a single PDF page (prints Markdown to stdout; first run downloads models)
-swift run GLMOCRCLI --input examples/source/GLM-4.5V_Page_1.pdf --page 1 > out.md
+# OCR a PDF (prints Markdown to stdout; first run downloads models)
+swift run GLMOCRCLI --input examples/source/GLM-4.5V_Page_1.pdf --pages 1 > out.md
+
+# OCR multiple PDF pages
+swift run GLMOCRCLI --input examples/source/GLM-4.5V_Pages_1_2_3.pdf --pages 1-3 > out.md
 
 # Launch the SwiftUI app scaffold (drag/drop one image or PDF)
 swift run GLMOCRApp
@@ -91,14 +94,14 @@ Run `swift run GLMOCRCLI --help` for the full list. Key flags:
 - `--revision` (default: `main`)
 - `--download-base <path>` (optional)
 - `--download-only` (download without inference)
-- `--input <path>`, `--page <n>` (PDF only), `--task <preset>`, `--max-new-tokens <n>`
+- `--input <path>`, `--pages <spec>` (PDF only; omit for all pages), `--task <preset>`, `--max-new-tokens <n>`
 - Layout mode: `--layout/--no-layout`, `--layout-parallelism auto|1|2`, `--emit-json <path>`, `--emit-ocrdocument-json <path>`
 
 ## Limitations / known gaps
 
 - Quality/parity vs the official MLX Python example is not yet validated on a curated image set.
-- Layout mode currently runs a **single PDF page** at a time (CLI `--page`; App uses page 1).
-- App currently uses page 1 for PDFs (no page picker yet).
+- Layout Markdown image placeholders are only replaced with saved crops when an output directory is available (e.g. via `--emit-json` / `--emit-ocrdocument-json`).
+- Large PDFs may be slower (PDF pages are rendered one-by-one; no shared render session yet).
 - App has no queue/settings/export UI yet; it’s a single-file scaffold used to iterate on pipeline wiring.
 
 ## Next steps (roadmap)

@@ -78,9 +78,9 @@ PDF page -> VisionIO -> PPDocLayoutV3Detector -> [regions]
      -> LayoutResultFormatter -> OCRResult(text + document)
 ```
 
-### Current implementation note (2026-02-12)
+### Current implementation note (2026-02-17)
 
-Phase 03 MVP and Phase 04 layout mode now run end-to-end for a single image or a single PDF page:
+Phase 03 MVP and Phase 04 layout mode now run end-to-end for a single image or a PDF (single/multi-page):
 
 - decode (image / PDF page render),
 - resize/normalize → `pixelValues`,
@@ -93,7 +93,7 @@ Layout mode additionally performs:
 - region crop → per-region GLM-OCR (text/table/formula),
 - `LayoutResultFormatter` merge into Markdown + `OCRDocument`.
 
-Remaining work is largely “quality + UX”: parity validation vs the official MLX Python example, multi-page/document orchestration, and app export/UX polish.
+Remaining work is largely “quality + UX”: parity validation vs the official MLX Python example, large-PDF performance improvements, and app export/UX polish.
 
 ## Numerical parity & golden checks
 
