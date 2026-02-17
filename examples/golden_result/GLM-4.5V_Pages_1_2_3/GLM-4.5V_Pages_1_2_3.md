@@ -36,9 +36,6 @@ We present GLM-4.1V-Thinking and GLM-4.5V, a family of vision-language models (V
 
 </div>
 
-<br>
-<br>
-
 arXiv:2507.01006v5 [cs.CV] 15 Aug 2025
 
 ---
@@ -55,12 +52,6 @@ We summarize our key findings from the development process below and provide mor
 
 *   **Multi-domain reinforcement learning demonstrates robust cross-domain generalization and mutual facilitation.** Training on one domain boosts performance in others, and joint training across domains yields even greater improvements in each. (See Section 6.3)
 *   **Dynamically selecting the most informative rollout problems is essential for both efficiency and performance.** Therefore, we propose strategies including Reinforcement Learning with Curriculum
-
-<br>
-2
-
----
-
 Sampling (RLCS) and dynamic sampling expansion via ratio-based Exponential Moving Average (EMA). (See Section 5.3)
 *   **A robust and precise reward system is critical for multi-domain RL.** When training a unified VLM across diverse skills, even a slight weakness in the reward signal for one capability can collapse the entire process. (See Section 5.2)
 
@@ -89,6 +80,3 @@ $$
 To further enhance spatial awareness on the language side, we extend RoPE to 3D-RoPE in the LLM. This extension provides superior spatial understanding for multimodal contexts, while preserving the original model’s text-related capabilities.
 
 After addressing spatial adaptation, we turn to temporal modeling in video inputs. For videos, we insert a time index token after each frame token, where the time index is implemented by encoding each frame’s timestamp as a string. Unlike multi-image inputs, video frames form a temporally coherent sequence. This design explicitly informs the model of the real-world timestamps and temporal distances between frames, thereby boosting its temporal understanding and grounding capabilities.
-
-<br>
-3
