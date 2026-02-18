@@ -46,6 +46,7 @@ Treat `golden_result` as:
 - `scripts/run_examples.sh` regenerates `examples/result/*` from `examples/source/*` in layout mode.
 - `LayoutExamplesParityIntegrationTests.swift` runs opt-in parity tests for a small PDF set against `examples/reference_result/*`.
 - `examples/golden_result/*` mirrors the example set but currently emphasizes Markdown (and, for PDFs, cropped images).
+- `scripts/compare_examples.py` generates report-only parity/quality diffs between `examples/result/*` and the baselines.
 
 ---
 
@@ -59,6 +60,7 @@ Treat `golden_result` as:
 - Supports:
   - Markdown comparison
   - image asset checks (for `imgs/*`)
+  - Implemented by: `scripts/compare_examples.py --lane quality`
 
 2) **Reference parity report**
 - Input: `examples/result/<name>` + `examples/reference_result/<name>`
@@ -67,12 +69,14 @@ Treat `golden_result` as:
   - Markdown comparison
   - JSON comparison (schema + bbox tolerance)
   - image asset checks
+  - Implemented by: `scripts/compare_examples.py --lane parity`
 
 3) **Per-example status table**
 - A single markdown table showing:
   - parity status (pass / expected diffs / fail)
   - quality status (gap size / pass / target not met yet)
   - next action and owner (optional)
+  - Implemented by: `scripts/compare_examples.py --lane both` → `.build/quality_parity/summary.md`
 
 ### B) Opt-in automated checks
 
@@ -108,6 +112,9 @@ Use a layered approach so we can tighten over time:
 Pragmatic guidance:
 - For **parity lane**, prefer **exact match after normalization**. If that’s too strict, allow only narrowly-scoped fuzzing (e.g., whitespace).
 - For **quality lane**, start with **report-only**, then enforce thresholds once an example reaches a stable “good” state.
+
+Current implementation note:
+- `scripts/compare_examples.py` currently implements **Level 0 normalization** + exact match checks, emits unified diffs, and records a simple similarity ratio for visibility (no enforced thresholds yet).
 
 ### 2) JSON comparison (parity lane)
 

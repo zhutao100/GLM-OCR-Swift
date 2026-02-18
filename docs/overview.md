@@ -16,7 +16,7 @@ What exists and works today:
 
 What is still stubbed / not implemented yet:
 
-- Quality/parity validation beyond the current opt-in examples set (tracked in `docs/dev_plans/quality_parity/tracker.md`)
+- Threshold-gated quality/parity validation (a report-only examples harness exists; tracked in `docs/dev_plans/quality_parity/tracker.md`)
 - Export/UX polish + distribution packaging (tracked in `docs/dev_plans/gui_polish_distribution/tracker.md`)
 
 ## Where things live (source of truth)

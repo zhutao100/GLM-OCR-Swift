@@ -82,6 +82,12 @@ struct GLMOCRCLI: AsyncParsableCommand {
     @Option(help: "Hugging Face revision (branch/tag/commit).")
     var revision: String = GLMOCRDefaults.revision
 
+    @Option(name: .customLong("layout-model"), help: "Layout model id to download/use (layout mode only).")
+    var layoutModel: String = PPDocLayoutV3Defaults.modelID
+
+    @Option(name: .customLong("layout-revision"), help: "Layout Hugging Face revision (branch/tag/commit) (layout mode only).")
+    var layoutRevision: String = PPDocLayoutV3Defaults.revision
+
     @Option(help: "Hub download base directory (defaults to Hugging Face hub cache).")
     var downloadBase: String?
 
@@ -195,6 +201,8 @@ struct GLMOCRCLI: AsyncParsableCommand {
     mutating func run() async throws {
         let modelID = model
         let modelRevision = revision
+        let layoutModelID = layoutModel
+        let layoutModelRevision = layoutRevision
         let maxNewTokens = maxNewTokens
         let pagesSpec = try PDFPagesSpec.parse(Self.normalizedNonEmpty(pages))
         let downloadOnly = downloadOnly
@@ -226,6 +234,8 @@ struct GLMOCRCLI: AsyncParsableCommand {
             try await Self.runWork(
                 modelID: modelID,
                 revision: modelRevision,
+                layoutModelID: layoutModelID,
+                layoutRevision: layoutModelRevision,
                 downloadBaseURL: downloadBaseURL,
                 inputURL: inputURL,
                 pagesSpec: pagesSpec,
@@ -256,6 +266,8 @@ struct GLMOCRCLI: AsyncParsableCommand {
     private static func runWork(
         modelID: String,
         revision: String,
+        layoutModelID: String,
+        layoutRevision: String,
         downloadBaseURL: URL?,
         inputURL: URL?,
         pagesSpec: PDFPagesSpec,
@@ -279,11 +291,10 @@ struct GLMOCRCLI: AsyncParsableCommand {
         }
 
         if layoutEnabled {
-            let layoutModelID = PPDocLayoutV3Defaults.modelID
             let layoutPrinter = DownloadProgressPrinter(modelID: layoutModelID)
             let layoutRequest = ModelSnapshotRequest(
                 modelID: layoutModelID,
-                revision: PPDocLayoutV3Defaults.revision,
+                revision: layoutRevision,
                 matchingGlobs: PPDocLayoutV3Defaults.downloadGlobs
             )
             _ = try await store.resolveSnapshot(layoutRequest, downloadBase: downloadBaseURL) { progress in
@@ -312,10 +323,12 @@ struct GLMOCRCLI: AsyncParsableCommand {
             let pipeline = GLMOCRLayoutPipeline(
                 modelID: modelID,
                 revision: revision,
+                layoutModelID: layoutModelID,
+                layoutRevision: layoutRevision,
                 downloadBase: downloadBaseURL,
                 layoutOptions: layoutOptions
             )
-            try await pipeline.ensureLoaded(progress: nil)
+            try await pipeline.ensureLoaded()
             let result: OCRResult = if inputURL.pathExtension.lowercased() == "pdf" {
                 try await pipeline.recognizePDF(url: inputURL, pagesSpec: pagesSpec, options: generateOptions)
             } else {

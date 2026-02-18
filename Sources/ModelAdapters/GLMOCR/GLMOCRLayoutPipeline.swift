@@ -61,6 +61,9 @@ public actor GLMOCRLayoutPipeline: OCRPipeline {
         modelID: String = GLMOCRDefaults.modelID,
         revision: String = GLMOCRDefaults.revision,
         downloadGlobs: [String] = GLMOCRDefaults.downloadGlobs,
+        layoutModelID: String = PPDocLayoutV3Defaults.modelID,
+        layoutRevision: String = PPDocLayoutV3Defaults.revision,
+        layoutDownloadGlobs: [String] = PPDocLayoutV3Defaults.downloadGlobs,
         downloadBase: URL? = nil,
         store: any ModelStore = HuggingFaceHubModelStore(),
         processor: GLMOCRProcessor = .init(),
@@ -77,7 +80,13 @@ public actor GLMOCRLayoutPipeline: OCRPipeline {
             store: store,
             processor: processor
         )
-        layoutDetector = PPDocLayoutV3Detector(downloadBase: downloadBase, store: store)
+        layoutDetector = PPDocLayoutV3Detector(
+            modelID: layoutModelID,
+            revision: layoutRevision,
+            downloadGlobs: layoutDownloadGlobs,
+            downloadBase: downloadBase,
+            store: store
+        )
         self.layoutOptions = layoutOptions
         self.pdfDPI = pdfDPI
     }

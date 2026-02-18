@@ -7,21 +7,32 @@ Batch-run GLMOCRCLI over examples/source and write outputs to examples/result,
 mirroring the folder layout of examples/reference_result.
 
 Usage:
-  scripts/run_examples.sh [-c debug|release] [--clean]
+  scripts/run_examples.sh [-c debug|release] [--clean] [--glm-revision <rev>] [--layout-revision <rev>]
 
 Options:
   -c, --configuration  SwiftPM build configuration (default: release)
   --clean              Remove examples/result before running
+  --glm-model <id>     GLM-OCR HF model id (default: GLMOCRCLI default)
+  --glm-revision <rev> GLM-OCR HF revision (branch/tag/commit) (default: GLMOCRCLI default)
+  --layout-model <id>  Layout HF model id (default: GLMOCRCLI default)
+  --layout-revision <rev> Layout HF revision (branch/tag/commit) (default: GLMOCRCLI default)
+  --download-base <dir> Hub download base directory (default: HF hub cache)
   -h, --help           Show help
 
 Notes:
   - Ensures mlx.metallib exists in the SwiftPM bin directory for the chosen -c profile.
   - PDFs default to OCR’ing all pages (use GLMOCRCLI --pages to restrict).
+  - For deterministic parity/quality baselines, prefer pinned revisions (see docs/dev_plans/quality_parity/tracker.md).
 EOF
 }
 
 config="release"
 clean="0"
+glm_model=""
+glm_revision=""
+layout_model=""
+layout_revision=""
+download_base=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -29,6 +40,16 @@ while [[ $# -gt 0 ]]; do
       config="${2:-}"; shift 2 ;;
     --clean)
       clean="1"; shift ;;
+    --glm-model)
+      glm_model="${2:-}"; shift 2 ;;
+    --glm-revision)
+      glm_revision="${2:-}"; shift 2 ;;
+    --layout-model)
+      layout_model="${2:-}"; shift 2 ;;
+    --layout-revision)
+      layout_revision="${2:-}"; shift 2 ;;
+    --download-base)
+      download_base="${2:-}"; shift 2 ;;
     -h|--help)
       usage; exit 0 ;;
     *)
@@ -134,11 +155,24 @@ while IFS= read -r -d '' input_path; do
   echo "output: examples/result/$name"
   # Always run in layout mode so we can emit block-list JSON.
   # PDF layout auto-enables anyway; for images, --layout is required for --emit-json.
-  if "$cli_path" \
-      --layout \
-      --input "$input_path" \
-      --emit-json "$json_out" \
-      > "$md_out"; then
+  cli_args=(--layout --input "$input_path" --emit-json "$json_out")
+  if [[ -n "$glm_model" ]]; then
+    cli_args+=(--model "$glm_model")
+  fi
+  if [[ -n "$glm_revision" ]]; then
+    cli_args+=(--revision "$glm_revision")
+  fi
+  if [[ -n "$layout_model" ]]; then
+    cli_args+=(--layout-model "$layout_model")
+  fi
+  if [[ -n "$layout_revision" ]]; then
+    cli_args+=(--layout-revision "$layout_revision")
+  fi
+  if [[ -n "$download_base" ]]; then
+    cli_args+=(--download-base "$download_base")
+  fi
+
+  if "$cli_path" "${cli_args[@]}" > "$md_out"; then
     succeeded+=("$base")
   else
     echo "ERROR: failed processing $base (continuing)" >&2

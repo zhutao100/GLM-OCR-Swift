@@ -97,7 +97,9 @@ Cache directory precedence in `VLMRuntimeKit`:
 Run `swift run GLMOCRCLI --help` for the full list. Key flags:
 
 - `--model` (default: `zai-org/GLM-OCR`)
-- `--revision` (default: `main`)
+- `--revision` (default: pinned commit for deterministic comparisons; see `docs/dev_plans/quality_parity/tracker.md`; pass `main` for latest)
+- `--layout-model` (default: `PaddlePaddle/PP-DocLayoutV3_safetensors`) (layout mode only)
+- `--layout-revision` (default: pinned commit for deterministic comparisons; see `docs/dev_plans/quality_parity/tracker.md`; pass `main` for latest) (layout mode only)
 - `--download-base <path>` (optional)
 - `--download-only` (download without inference)
 - `--input <path>`, `--pages <spec>` (PDF only; omit for all pages), `--task <preset>`, `--max-new-tokens <n>`
