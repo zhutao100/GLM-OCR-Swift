@@ -1,5 +1,6 @@
-@testable import VLMRuntimeKit
 import XCTest
+
+@testable import VLMRuntimeKit
 
 final class PromptTemplateTests: XCTestCase {
     func testSplitByImagePlaceholder() throws {

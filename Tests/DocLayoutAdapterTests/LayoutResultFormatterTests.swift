@@ -30,7 +30,7 @@ final class LayoutResultFormatterTests: XCTestCase {
                         content: "Hello\nWorld"
                     ),
                 ]
-            ),
+            )
         ]
 
         let (document, markdown) = LayoutResultFormatter.format(pages: pages)
@@ -39,7 +39,8 @@ final class LayoutResultFormatterTests: XCTestCase {
 
         XCTAssertEqual(document.pages.count, 1)
         XCTAssertEqual(document.pages[0].regions.map(\.index), [0, 1, 2])
-        XCTAssertEqual(document.pages[0].regions.map(\.content), ["# Document Title", "## Section Title", "Hello\n\nWorld"])
+        XCTAssertEqual(
+            document.pages[0].regions.map(\.content), ["# Document Title", "## Section Title", "Hello\n\nWorld"])
         XCTAssertEqual(document.pages[0].regions.map(\.kind), [.text, .text, .text])
     }
 
@@ -66,7 +67,7 @@ final class LayoutResultFormatterTests: XCTestCase {
                         content: centeredSection
                     ),
                 ]
-            ),
+            )
         ]
 
         let (document, markdown) = LayoutResultFormatter.format(pages: pages)
@@ -95,7 +96,7 @@ final class LayoutResultFormatterTests: XCTestCase {
                         content: "(1)"
                     ),
                 ]
-            ),
+            )
         ]
 
         let (document, markdown) = LayoutResultFormatter.format(pages: pages)
@@ -127,7 +128,7 @@ final class LayoutResultFormatterTests: XCTestCase {
                         content: "national"
                     ),
                 ]
-            ),
+            )
         ]
 
         let (document, markdown) = LayoutResultFormatter.format(pages: pages)
@@ -148,9 +149,9 @@ final class LayoutResultFormatterTests: XCTestCase {
                         nativeLabel: "image",
                         bbox: OCRNormalizedBBox(x1: 10, y1: 20, x2: 30, y2: 40),
                         content: nil
-                    ),
+                    )
                 ]
-            ),
+            )
         ]
 
         let (_, markdown) = LayoutResultFormatter.format(pages: pages)

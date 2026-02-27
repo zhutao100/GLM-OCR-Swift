@@ -7,7 +7,7 @@ final class PPDocLayoutPostprocessTests: XCTestCase {
         let config = makeConfig()
         let raw = PPDocLayoutV3Postprocess.RawDetections(
             scores: [0.9, 0.8],
-            labels: [22, 22], // text
+            labels: [22, 22],  // text
             boxes: [
                 OCRNormalizedBBox(x1: 0, y1: 0, x2: 500, y2: 500),
                 OCRNormalizedBBox(x1: 50, y1: 50, x2: 550, y2: 550),
@@ -31,7 +31,7 @@ final class PPDocLayoutPostprocessTests: XCTestCase {
         let config = makeConfig()
         let raw = PPDocLayoutV3Postprocess.RawDetections(
             scores: [0.9, 0.8],
-            labels: [22, 21], // text vs table
+            labels: [22, 21],  // text vs table
             boxes: [
                 OCRNormalizedBBox(x1: 0, y1: 0, x2: 500, y2: 500),
                 OCRNormalizedBBox(x1: 50, y1: 50, x2: 550, y2: 550),
@@ -54,8 +54,8 @@ final class PPDocLayoutPostprocessTests: XCTestCase {
             scores: [0.5, 0.6],
             labels: [22, 21],
             boxes: [
-                OCRNormalizedBBox(x1: 0, y1: 0, x2: 1000, y2: 1000), // container
-                OCRNormalizedBBox(x1: 100, y1: 100, x2: 200, y2: 200), // contained
+                OCRNormalizedBBox(x1: 0, y1: 0, x2: 1000, y2: 1000),  // container
+                OCRNormalizedBBox(x1: 100, y1: 100, x2: 200, y2: 200),  // contained
             ],
             orderSeq: [1, 2]
         )
@@ -75,8 +75,8 @@ final class PPDocLayoutPostprocessTests: XCTestCase {
             scores: [0.5, 0.6],
             labels: [22, 21],
             boxes: [
-                OCRNormalizedBBox(x1: 0, y1: 0, x2: 1000, y2: 1000), // container
-                OCRNormalizedBBox(x1: 100, y1: 100, x2: 200, y2: 200), // contained
+                OCRNormalizedBBox(x1: 0, y1: 0, x2: 1000, y2: 1000),  // container
+                OCRNormalizedBBox(x1: 100, y1: 100, x2: 200, y2: 200),  // contained
             ],
             orderSeq: [1, 2]
         )
@@ -96,8 +96,8 @@ final class PPDocLayoutPostprocessTests: XCTestCase {
             scores: [0.5, 0.6],
             labels: [22, 21],
             boxes: [
-                OCRNormalizedBBox(x1: 0, y1: 0, x2: 1000, y2: 1000), // container (class 22)
-                OCRNormalizedBBox(x1: 100, y1: 100, x2: 200, y2: 200), // contained
+                OCRNormalizedBBox(x1: 0, y1: 0, x2: 1000, y2: 1000),  // container (class 22)
+                OCRNormalizedBBox(x1: 100, y1: 100, x2: 200, y2: 200),  // contained
             ]
         )
 
@@ -120,8 +120,8 @@ final class PPDocLayoutPostprocessTests: XCTestCase {
             scores: [0.5, 0.6],
             labels: [22, 21],
             boxes: [
-                OCRNormalizedBBox(x1: 0, y1: 0, x2: 1000, y2: 1000), // container
-                OCRNormalizedBBox(x1: 100, y1: 100, x2: 200, y2: 200), // contained (class 21)
+                OCRNormalizedBBox(x1: 0, y1: 0, x2: 1000, y2: 1000),  // container
+                OCRNormalizedBBox(x1: 100, y1: 100, x2: 200, y2: 200),  // contained (class 21)
             ]
         )
 
@@ -142,7 +142,7 @@ final class PPDocLayoutPostprocessTests: XCTestCase {
         let config = makeConfig()
         let raw = PPDocLayoutV3Postprocess.RawDetections(
             scores: [0.9, 0.8],
-            labels: [22, 14], // text container, image contained
+            labels: [22, 14],  // text container, image contained
             boxes: [
                 OCRNormalizedBBox(x1: 0, y1: 0, x2: 1000, y2: 1000),
                 OCRNormalizedBBox(x1: 100, y1: 100, x2: 200, y2: 200),
@@ -187,9 +187,9 @@ final class PPDocLayoutPostprocessTests: XCTestCase {
             scores: [0.1, 0.1, 0.1],
             labels: [22, 21, 14],
             boxes: [
-                OCRNormalizedBBox(x1: 50, y1: 100, x2: 60, y2: 110), // y=100
-                OCRNormalizedBBox(x1: 100, y1: 50, x2: 110, y2: 60), // y=50, x=100
-                OCRNormalizedBBox(x1: 10, y1: 50, x2: 20, y2: 60), // y=50, x=10
+                OCRNormalizedBBox(x1: 50, y1: 100, x2: 60, y2: 110),  // y=100
+                OCRNormalizedBBox(x1: 100, y1: 50, x2: 110, y2: 60),  // y=50, x=100
+                OCRNormalizedBBox(x1: 10, y1: 50, x2: 20, y2: 60),  // y=50, x=10
             ],
             orderSeq: nil
         )

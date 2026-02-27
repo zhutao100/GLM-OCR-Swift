@@ -32,7 +32,8 @@ public struct Diagnostics: Sendable, Codable, Equatable {
     public var timings: [String: Double]
     public var notes: [String]
 
-    public init(modelID: String? = nil, revision: String? = nil, timings: [String: Double] = [:], notes: [String] = []) {
+    public init(modelID: String? = nil, revision: String? = nil, timings: [String: Double] = [:], notes: [String] = [])
+    {
         self.modelID = modelID
         self.revision = revision
         self.timings = timings
@@ -47,7 +48,8 @@ public struct OCRResult: Sendable, Codable, Equatable {
     public var document: OCRDocument?
     public var diagnostics: Diagnostics
 
-    public init(text: String, rawTokens: [Int]? = nil, document: OCRDocument? = nil, diagnostics: Diagnostics = .init()) {
+    public init(text: String, rawTokens: [Int]? = nil, document: OCRDocument? = nil, diagnostics: Diagnostics = .init())
+    {
         self.text = text
         self.rawTokens = rawTokens
         self.document = document

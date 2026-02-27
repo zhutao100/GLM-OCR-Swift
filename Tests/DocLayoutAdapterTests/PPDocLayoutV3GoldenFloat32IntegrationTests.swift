@@ -1,8 +1,9 @@
 import CoreImage
-@testable import DocLayoutAdapter
 import Foundation
 import MLX
 import XCTest
+
+@testable import DocLayoutAdapter
 
 final class PPDocLayoutV3GoldenFloat32IntegrationTests: XCTestCase {
     func testForwardRawOutputs_cpuFloat32_goldenSlice_matchesPython() async throws {
@@ -55,7 +56,9 @@ final class PPDocLayoutV3GoldenFloat32IntegrationTests: XCTestCase {
             if let pythonTopK {
                 let encoderIndex = pythonTopK[pythonQueryIndex]
                 guard let mapped = swiftTopK.firstIndex(of: encoderIndex) else {
-                    XCTFail("Python encoder index \(encoderIndex) not found in Swift top-k. pythonQuery=\(pythonQueryIndex)")
+                    XCTFail(
+                        "Python encoder index \(encoderIndex) not found in Swift top-k. pythonQuery=\(pythonQueryIndex)"
+                    )
                     continue
                 }
                 swiftQueryIndex = mapped
@@ -77,7 +80,7 @@ final class PPDocLayoutV3GoldenFloat32IntegrationTests: XCTestCase {
 
             let box = raw.predBoxes[0, swiftQueryIndex].asArray(Float.self)
             XCTAssertEqual(box.count, 4)
-            for i in 0 ..< 4 {
+            for i in 0..<4 {
                 let expected = fixture.predBoxesSlice[rowIndex][i]
                 let actual = box[i]
                 XCTAssertEqual(

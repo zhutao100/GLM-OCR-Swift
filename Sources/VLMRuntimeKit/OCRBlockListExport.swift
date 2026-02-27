@@ -25,9 +25,9 @@ public struct OCRBlockListItem: Sendable, Codable, Equatable {
 
 public typealias OCRBlockListExport = [[OCRBlockListItem]]
 
-public extension OCRDocument {
+extension OCRDocument {
     /// Convert to the block-list schema used by the reference `examples/reference_result/*/*.json`.
-    func toBlockListExport() -> OCRBlockListExport {
+    public func toBlockListExport() -> OCRBlockListExport {
         pages
             .sorted { $0.index < $1.index }
             .map { page in

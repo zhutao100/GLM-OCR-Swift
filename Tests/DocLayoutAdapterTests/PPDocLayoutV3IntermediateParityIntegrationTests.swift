@@ -1,8 +1,9 @@
 import CoreImage
-@testable import DocLayoutAdapter
 import Foundation
 import MLX
 import XCTest
+
+@testable import DocLayoutAdapter
 
 final class PPDocLayoutV3IntermediateParityIntegrationTests: XCTestCase {
     func testForwardRawOutputs_cpuFloat32_intermediates_matchPython() async throws {
@@ -88,7 +89,9 @@ final class PPDocLayoutV3IntermediateParityIntegrationTests: XCTestCase {
                 let expectedValue = sample.value
                 let diff = abs(actualValue - expectedValue)
                 if diff > atol {
-                    XCTFail("tensor=\(name) index=\(k) expected=\(expectedValue) actual=\(actualValue) diff=\(diff) atol=\(atol)")
+                    XCTFail(
+                        "tensor=\(name) index=\(k) expected=\(expectedValue) actual=\(actualValue) diff=\(diff) atol=\(atol)"
+                    )
                     return
                 }
             }

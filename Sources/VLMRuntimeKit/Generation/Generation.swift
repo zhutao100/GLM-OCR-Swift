@@ -8,7 +8,9 @@ public enum GenerationError: Error, Sendable {
 /// Model-agnostic generation façade.
 /// Adapters can wrap their model into this interface.
 public protocol CausalLM: Sendable {
-    func generate(prompt: String, pixelValues: MLXArray?, options: GenerateOptions) async throws -> (text: String, tokenIDs: [Int]?)
+    func generate(prompt: String, pixelValues: MLXArray?, options: GenerateOptions) async throws -> (
+        text: String, tokenIDs: [Int]?
+    )
 }
 
 public struct GreedyGenerator: Sendable {

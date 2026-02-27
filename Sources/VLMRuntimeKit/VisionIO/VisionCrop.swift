@@ -77,7 +77,7 @@ extension VisionIO {
     }
 
     private static func isValidNormalizedBBox(_ bbox: OCRNormalizedBBox) -> Bool {
-        let range = 0 ... 1000
+        let range = 0...1000
         guard range.contains(bbox.x1), range.contains(bbox.y1), range.contains(bbox.x2), range.contains(bbox.y2) else {
             return false
         }
@@ -96,17 +96,20 @@ extension VisionIO {
         let maskHeight = max(Int(cropRect.height.rounded(.up)), 1)
 
         let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB()
-        let bitmapInfo = CGBitmapInfo.byteOrder32Big.union(CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue))
+        let bitmapInfo = CGBitmapInfo.byteOrder32Big.union(
+            CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue))
 
-        guard let ctx = CGContext(
-            data: nil,
-            width: maskWidth,
-            height: maskHeight,
-            bitsPerComponent: 8,
-            bytesPerRow: 0,
-            space: colorSpace,
-            bitmapInfo: bitmapInfo.rawValue
-        ) else {
+        guard
+            let ctx = CGContext(
+                data: nil,
+                width: maskWidth,
+                height: maskHeight,
+                bitsPerComponent: 8,
+                bytesPerRow: 0,
+                space: colorSpace,
+                bitmapInfo: bitmapInfo.rawValue
+            )
+        else {
             throw VisionCropError.cannotCreateMaskContext(width: maskWidth, height: maskHeight)
         }
 

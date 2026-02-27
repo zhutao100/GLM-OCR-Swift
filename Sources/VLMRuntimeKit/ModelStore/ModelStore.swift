@@ -46,7 +46,9 @@ public struct HuggingFaceHubModelStore: ModelStore {
 
         let hub = HubApi(downloadBase: base, useOfflineMode: false)
         do {
-            return try await hub.snapshot(from: request.modelID, revision: request.revision, matching: request.matchingGlobs) { p in
+            return try await hub.snapshot(
+                from: request.modelID, revision: request.revision, matching: request.matchingGlobs
+            ) { p in
                 progress?(p)
             }
         } catch {
@@ -72,7 +74,9 @@ public struct HuggingFaceHubModelStore: ModelStore {
         homeDirectory: URL
     ) throws -> URL {
         if let explicitBase {
-            guard explicitBase.isFileURL else { throw ModelStoreError.invalidBaseDirectory("downloadBase must be a file URL") }
+            guard explicitBase.isFileURL else {
+                throw ModelStoreError.invalidBaseDirectory("downloadBase must be a file URL")
+            }
             return explicitBase.standardizedFileURL
         }
 
@@ -81,7 +85,9 @@ public struct HuggingFaceHubModelStore: ModelStore {
             guard let trimmed, !trimmed.isEmpty else { return nil }
 
             if trimmed == "~" { return homeDirectory.path }
-            if trimmed.hasPrefix("~/") { return homeDirectory.appendingPathComponent(String(trimmed.dropFirst(2))).path }
+            if trimmed.hasPrefix("~/") {
+                return homeDirectory.appendingPathComponent(String(trimmed.dropFirst(2))).path
+            }
             return trimmed
         }
 

@@ -28,7 +28,9 @@ final class LayoutExamplesParityIntegrationTests: XCTestCase {
         guard let glmModelFolder = GLMOCRTestEnv.modelFolderURL else {
             throw XCTSkip("Set GLMOCR_SNAPSHOT_PATH to a local GLM-OCR HF snapshot folder to enable this test.")
         }
-        guard let rawLayoutFolder = ProcessInfo.processInfo.environment["LAYOUT_SNAPSHOT_PATH"], !rawLayoutFolder.isEmpty else {
+        guard let rawLayoutFolder = ProcessInfo.processInfo.environment["LAYOUT_SNAPSHOT_PATH"],
+            !rawLayoutFolder.isEmpty
+        else {
             throw XCTSkip("Set LAYOUT_SNAPSHOT_PATH to a local PP-DocLayout-V3 HF snapshot folder to enable this test.")
         }
 
@@ -38,8 +40,10 @@ final class LayoutExamplesParityIntegrationTests: XCTestCase {
 
         let repoRoot = Self.repoRootURL()
         let sourcePDF = repoRoot.appendingPathComponent("examples/source/GLM-4.5V_Page_1.pdf")
-        let expectedMDURL = repoRoot.appendingPathComponent("examples/reference_result/GLM-4.5V_Page_1/GLM-4.5V_Page_1.md")
-        let expectedJSONURL = repoRoot.appendingPathComponent("examples/reference_result/GLM-4.5V_Page_1/GLM-4.5V_Page_1.json")
+        let expectedMDURL = repoRoot.appendingPathComponent(
+            "examples/reference_result/GLM-4.5V_Page_1/GLM-4.5V_Page_1.md")
+        let expectedJSONURL = repoRoot.appendingPathComponent(
+            "examples/reference_result/GLM-4.5V_Page_1/GLM-4.5V_Page_1.json")
 
         let expectedMarkdown = try String(contentsOf: expectedMDURL, encoding: .utf8)
         let expectedJSON = try JSONDecoder().decode(OCRBlockListExport.self, from: Data(contentsOf: expectedJSONURL))
@@ -70,7 +74,8 @@ final class LayoutExamplesParityIntegrationTests: XCTestCase {
         }
 
         let pageImage = try VisionIO.loadCIImage(fromPDF: sourcePDF, page: 1, dpi: 200)
-        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent("glmocr_examples_\(UUID().uuidString)")
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(
+            "glmocr_examples_\(UUID().uuidString)")
         let imgsDir = tempDir.appendingPathComponent("imgs")
 
         let (actualMarkdown, saved) = try MarkdownImageCropper.cropAndReplaceImages(
@@ -85,7 +90,8 @@ final class LayoutExamplesParityIntegrationTests: XCTestCase {
 
         let expectedImagePaths = Self.extractMarkdownImagePaths(expectedMarkdown)
         let actualImagePaths = Self.extractMarkdownImagePaths(actualMarkdown)
-        XCTAssertEqual(actualImagePaths, expectedImagePaths, "Markdown image refs mismatch vs examples/reference_result/…")
+        XCTAssertEqual(
+            actualImagePaths, expectedImagePaths, "Markdown image refs mismatch vs examples/reference_result/…")
         XCTAssertFalse(actualMarkdown.contains("![](page="), "Expected placeholder image refs to be replaced.")
 
         let actualJSON = document.toBlockListExport()
@@ -99,7 +105,9 @@ final class LayoutExamplesParityIntegrationTests: XCTestCase {
         guard let glmModelFolder = GLMOCRTestEnv.modelFolderURL else {
             throw XCTSkip("Set GLMOCR_SNAPSHOT_PATH to a local GLM-OCR HF snapshot folder to enable this test.")
         }
-        guard let rawLayoutFolder = ProcessInfo.processInfo.environment["LAYOUT_SNAPSHOT_PATH"], !rawLayoutFolder.isEmpty else {
+        guard let rawLayoutFolder = ProcessInfo.processInfo.environment["LAYOUT_SNAPSHOT_PATH"],
+            !rawLayoutFolder.isEmpty
+        else {
             throw XCTSkip("Set LAYOUT_SNAPSHOT_PATH to a local PP-DocLayout-V3 HF snapshot folder to enable this test.")
         }
 
@@ -109,8 +117,10 @@ final class LayoutExamplesParityIntegrationTests: XCTestCase {
 
         let repoRoot = Self.repoRootURL()
         let sourcePDF = repoRoot.appendingPathComponent("examples/source/GLM-4.5V_Pages_1_2_3.pdf")
-        let expectedMDURL = repoRoot.appendingPathComponent("examples/reference_result/GLM-4.5V_Pages_1_2_3/GLM-4.5V_Pages_1_2_3.md")
-        let expectedJSONURL = repoRoot.appendingPathComponent("examples/reference_result/GLM-4.5V_Pages_1_2_3/GLM-4.5V_Pages_1_2_3.json")
+        let expectedMDURL = repoRoot.appendingPathComponent(
+            "examples/reference_result/GLM-4.5V_Pages_1_2_3/GLM-4.5V_Pages_1_2_3.md")
+        let expectedJSONURL = repoRoot.appendingPathComponent(
+            "examples/reference_result/GLM-4.5V_Pages_1_2_3/GLM-4.5V_Pages_1_2_3.json")
 
         let expectedMarkdown = try String(contentsOf: expectedMDURL, encoding: .utf8)
         let expectedJSON = try JSONDecoder().decode(OCRBlockListExport.self, from: Data(contentsOf: expectedJSONURL))
@@ -150,7 +160,8 @@ final class LayoutExamplesParityIntegrationTests: XCTestCase {
             pageImages[pageIndex] = try VisionIO.loadCIImage(fromPDF: sourcePDF, page: pageIndex + 1, dpi: 200)
         }
 
-        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent("glmocr_examples_\(UUID().uuidString)")
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(
+            "glmocr_examples_\(UUID().uuidString)")
         let imgsDir = tempDir.appendingPathComponent("imgs")
 
         let (actualMarkdown, saved) = try MarkdownImageCropper.cropAndReplaceImages(
@@ -165,7 +176,8 @@ final class LayoutExamplesParityIntegrationTests: XCTestCase {
 
         let expectedImagePaths = Self.extractMarkdownImagePaths(expectedMarkdown)
         let actualImagePaths = Self.extractMarkdownImagePaths(actualMarkdown)
-        XCTAssertEqual(actualImagePaths, expectedImagePaths, "Markdown image refs mismatch vs examples/reference_result/…")
+        XCTAssertEqual(
+            actualImagePaths, expectedImagePaths, "Markdown image refs mismatch vs examples/reference_result/…")
         XCTAssertFalse(actualMarkdown.contains("![](page="), "Expected placeholder image refs to be replaced.")
 
         let actualJSON = document.toBlockListExport()
@@ -174,13 +186,14 @@ final class LayoutExamplesParityIntegrationTests: XCTestCase {
 
     private static func repoRootURL(file: StaticString = #filePath) -> URL {
         URL(fileURLWithPath: "\(file)")
-            .deletingLastPathComponent() // GLMOCRAdapterTests
-            .deletingLastPathComponent() // Tests
-            .deletingLastPathComponent() // repo root
+            .deletingLastPathComponent()  // GLMOCRAdapterTests
+            .deletingLastPathComponent()  // Tests
+            .deletingLastPathComponent()  // repo root
     }
 
     private static func normalizedText(_ text: String) -> String {
-        let normalized = text
+        let normalized =
+            text
             .replacingOccurrences(of: "\r\n", with: "\n")
             .replacingOccurrences(of: "\r", with: "\n")
 
@@ -195,7 +208,7 @@ final class LayoutExamplesParityIntegrationTests: XCTestCase {
         let pattern = #"\!\[Image[^\]]*\]\(([^)]+)\)"#
         guard let regex = try? NSRegularExpression(pattern: pattern) else { return [] }
 
-        let nsRange = NSRange(markdown.startIndex ..< markdown.endIndex, in: markdown)
+        let nsRange = NSRange(markdown.startIndex..<markdown.endIndex, in: markdown)
         let matches = regex.matches(in: markdown, range: nsRange)
 
         var paths: [String] = []
@@ -233,18 +246,29 @@ final class LayoutExamplesParityIntegrationTests: XCTestCase {
         XCTAssertEqual(actual.count, expected.count, "Page count mismatch", file: file, line: line)
 
         for (pageIdx, (actualPage, expectedPage)) in zip(actual, expected).enumerated() {
-            XCTAssertEqual(actualPage.count, expectedPage.count, "Block count mismatch on page \(pageIdx)", file: file, line: line)
+            XCTAssertEqual(
+                actualPage.count, expectedPage.count, "Block count mismatch on page \(pageIdx)", file: file, line: line)
 
             for (blockIdx, (a, e)) in zip(actualPage, expectedPage).enumerated() {
-                XCTAssertEqual(a.index, e.index, "Index mismatch on page \(pageIdx) block \(blockIdx)", file: file, line: line)
-                XCTAssertEqual(a.label, e.label, "Label mismatch on page \(pageIdx) block \(blockIdx)", file: file, line: line)
+                XCTAssertEqual(
+                    a.index, e.index, "Index mismatch on page \(pageIdx) block \(blockIdx)", file: file, line: line)
+                XCTAssertEqual(
+                    a.label, e.label, "Label mismatch on page \(pageIdx) block \(blockIdx)", file: file, line: line)
 
                 if a.label == "image" {
-                    XCTAssertTrue(a.content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, "Image blocks must have empty content", file: file, line: line)
-                    XCTAssertTrue(e.content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, "Expected image blocks must have empty content", file: file, line: line)
+                    XCTAssertTrue(
+                        a.content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                        "Image blocks must have empty content", file: file, line: line)
+                    XCTAssertTrue(
+                        e.content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                        "Expected image blocks must have empty content", file: file, line: line)
                 } else {
-                    XCTAssertFalse(a.content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, "Text blocks must have non-empty content", file: file, line: line)
-                    XCTAssertFalse(e.content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, "Expected text blocks must have non-empty content", file: file, line: line)
+                    XCTAssertFalse(
+                        a.content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                        "Text blocks must have non-empty content", file: file, line: line)
+                    XCTAssertFalse(
+                        e.content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                        "Expected text blocks must have non-empty content", file: file, line: line)
                 }
 
                 XCTAssertEqual(a.bbox2d.count, 4, "Actual bbox_2d must have 4 elements", file: file, line: line)

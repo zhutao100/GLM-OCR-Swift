@@ -1,7 +1,8 @@
-@testable import DocLayoutAdapter
 import Foundation
 import MLX
 import XCTest
+
+@testable import DocLayoutAdapter
 
 final class PPDocLayoutV3DecoderMutationTests: XCTestCase {
     func testMultiscaleDeformableAttention_doesNotMutateHiddenStatesWhenAddingPositionEmbeddings() throws {
@@ -21,10 +22,10 @@ final class PPDocLayoutV3DecoderMutationTests: XCTestCase {
         let modelConfig = try JSONDecoder().decode(PPDocLayoutV3ModelConfig.self, from: configData)
         let attention = PPDocLayoutV3MultiscaleDeformableAttentionCore(modelConfig: modelConfig)
 
-        let hiddenStates = MLXArray((0 ..< 16).map { Float($0) / 10 }).reshaped(1, 2, 8)
-        let positionEmbeddings = MLXArray((0 ..< 16).map { Float($0) / 100 }).reshaped(1, 2, 8)
+        let hiddenStates = MLXArray((0..<16).map { Float($0) / 10 }).reshaped(1, 2, 8)
+        let positionEmbeddings = MLXArray((0..<16).map { Float($0) / 100 }).reshaped(1, 2, 8)
 
-        let encoderHiddenStates = MLXArray((0 ..< 32).map { Float($0) / 20 }).reshaped(1, 4, 8)
+        let encoderHiddenStates = MLXArray((0..<32).map { Float($0) / 20 }).reshaped(1, 4, 8)
         let referencePoints = MLXArray([Float](repeating: 0.5, count: 1 * 2 * 1 * 4)).reshaped(1, 2, 1, 4)
         let spatialShapes = MLXArray([Int32(2), Int32(2)]).reshaped(1, 2)
 

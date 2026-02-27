@@ -109,31 +109,31 @@ public enum PPDocLayoutV3Postprocess {
     /// Default containment merge policy mirrored from the official `glmocr/config.yaml`
     /// (`pipeline.layout.layout_merge_bboxes_mode`).
     public static let defaultMergeModeByClassID: [Int: MergeMode] = [
-        0: .large, // abstract
-        1: .large, // algorithm
-        2: .large, // aside_text
-        3: .large, // chart
-        4: .large, // content
-        5: .large, // display_formula
-        6: .large, // doc_title
-        7: .large, // figure_title
-        8: .large, // footer
-        9: .large, // footer_image
-        10: .large, // footnote
-        11: .large, // formula_number
-        12: .large, // header
-        13: .large, // header_image
-        14: .large, // image
-        15: .large, // inline_formula
-        16: .large, // number
-        17: .large, // paragraph_title
-        18: .small, // reference
-        19: .large, // reference_content
-        20: .large, // seal
-        21: .large, // table
-        22: .large, // text
-        23: .large, // vertical_text
-        24: .large, // vision_footnote
+        0: .large,  // abstract
+        1: .large,  // algorithm
+        2: .large,  // aside_text
+        3: .large,  // chart
+        4: .large,  // content
+        5: .large,  // display_formula
+        6: .large,  // doc_title
+        7: .large,  // figure_title
+        8: .large,  // footer
+        9: .large,  // footer_image
+        10: .large,  // footnote
+        11: .large,  // formula_number
+        12: .large,  // header
+        13: .large,  // header_image
+        14: .large,  // image
+        15: .large,  // inline_formula
+        16: .large,  // number
+        17: .large,  // paragraph_title
+        18: .small,  // reference
+        19: .large,  // reference_content
+        20: .large,  // seal
+        21: .large,  // table
+        22: .large,  // text
+        23: .large,  // vertical_text
+        24: .large,  // vision_footnote
     ]
 
     /// Apply deterministic post-processing and return ordered regions + diagnostics notes.
@@ -172,7 +172,7 @@ public enum PPDocLayoutV3Postprocess {
 
         var detections: [Detection] = []
         detections.reserveCapacity(count)
-        for i in 0 ..< count {
+        for i in 0..<count {
             detections.append(
                 Detection(
                     classID: raw.labels[i],
@@ -186,7 +186,8 @@ public enum PPDocLayoutV3Postprocess {
         detections.removeAll { !isValidNormalizedBBox($0.bbox) }
 
         if options.applyNMS {
-            detections = nms(detections, iouSameClass: options.iouSameClass, iouDifferentClass: options.iouDifferentClass)
+            detections = nms(
+                detections, iouSameClass: options.iouSameClass, iouDifferentClass: options.iouDifferentClass)
         }
 
         let preserveClassIDs = preserveIndices(id2label: config.id2label)
@@ -246,11 +247,12 @@ public enum PPDocLayoutV3Postprocess {
             let taskType = PPDocLayoutV3Mappings.labelTaskMapping[label] ?? .abandon
             let orderValue: Int? = if let o = det.order, o > 0 { o } else { nil }
 
-            let polygon: [OCRNormalizedPoint] = if let poly = det.polygon, poly.count >= 3 {
-                poly.map { clampNormalizedPoint($0) }
-            } else {
-                bboxPolygon(bbox)
-            }
+            let polygon: [OCRNormalizedPoint] =
+                if let poly = det.polygon, poly.count >= 3 {
+                    poly.map { clampNormalizedPoint($0) }
+                } else {
+                    bboxPolygon(bbox)
+                }
 
             regions.append(
                 ProcessedRegion(
@@ -301,8 +303,14 @@ private func nms(_ detections: [Detection], iouSameClass: Float, iouDifferentCla
 }
 
 private func iou(_ a: OCRNormalizedBBox, _ b: OCRNormalizedBBox) -> Float {
-    let ax1 = Float(a.x1), ay1 = Float(a.y1), ax2 = Float(a.x2), ay2 = Float(a.y2)
-    let bx1 = Float(b.x1), by1 = Float(b.y1), bx2 = Float(b.x2), by2 = Float(b.y2)
+    let ax1 = Float(a.x1)
+    let ay1 = Float(a.y1)
+    let ax2 = Float(a.x2)
+    let ay2 = Float(a.y2)
+    let bx1 = Float(b.x1)
+    let by1 = Float(b.y1)
+    let bx2 = Float(b.x2)
+    let by2 = Float(b.y2)
 
     let x1 = max(ax1, bx1)
     let y1 = max(ay1, by1)
@@ -324,7 +332,9 @@ private func preserveIndices(id2label: [Int: String]) -> Set<Int> {
     return Set(id2label.compactMap { preserveLabels.contains($0.value) ? $0.key : nil })
 }
 
-private func applyContainmentMergeGlobal(_ detections: [Detection], preserveClassIDs: Set<Int>, mode: PPDocLayoutV3Postprocess.MergeMode) -> [Detection] {
+private func applyContainmentMergeGlobal(
+    _ detections: [Detection], preserveClassIDs: Set<Int>, mode: PPDocLayoutV3Postprocess.MergeMode
+) -> [Detection] {
     guard detections.count > 1 else { return detections }
     guard mode != .union else { return detections }
 
@@ -384,8 +394,8 @@ private func checkContainment(
     var containsOther = Array(repeating: false, count: n)
     var containedByOther = Array(repeating: false, count: n)
 
-    for i in 0 ..< n {
-        for j in 0 ..< n {
+    for i in 0..<n {
+        for j in 0..<n {
             if i == j { continue }
             if preserveClassIDs.contains(detections[i].classID) { continue }
 
@@ -414,8 +424,14 @@ private func checkContainment(
 }
 
 private func isContained(_ box: OCRNormalizedBBox, in container: OCRNormalizedBBox) -> Bool {
-    let x1 = Float(box.x1), y1 = Float(box.y1), x2 = Float(box.x2), y2 = Float(box.y2)
-    let X1 = Float(container.x1), Y1 = Float(container.y1), X2 = Float(container.x2), Y2 = Float(container.y2)
+    let x1 = Float(box.x1)
+    let y1 = Float(box.y1)
+    let x2 = Float(box.x2)
+    let y2 = Float(box.y2)
+    let X1 = Float(container.x1)
+    let Y1 = Float(container.y1)
+    let X2 = Float(container.x2)
+    let Y2 = Float(container.y2)
 
     let boxArea = max(0, x2 - x1) * max(0, y2 - y1)
     guard boxArea > 0 else { return false }
@@ -437,13 +453,18 @@ private func fallbackSortKey(_ bbox: OCRNormalizedBBox) -> (Int, Int, Int, Int) 
     (bbox.y1, bbox.x1, bbox.y2, bbox.x2)
 }
 
-private func ratio(for det: Detection, options: PPDocLayoutV3Postprocess.Options) -> PPDocLayoutV3Postprocess.UnclipRatio? {
+private func ratio(for det: Detection, options: PPDocLayoutV3Postprocess.Options) -> PPDocLayoutV3Postprocess
+    .UnclipRatio?
+{
     if let ratios = options.unclipRatioByClassID, let ratio = ratios[det.classID] { return ratio }
     return options.unclipRatio
 }
 
 private func unclipBBox(_ bbox: OCRNormalizedBBox, ratio: PPDocLayoutV3Postprocess.UnclipRatio) -> OCRNormalizedBBox {
-    let x1 = Float(bbox.x1), y1 = Float(bbox.y1), x2 = Float(bbox.x2), y2 = Float(bbox.y2)
+    let x1 = Float(bbox.x1)
+    let y1 = Float(bbox.y1)
+    let x2 = Float(bbox.x2)
+    let y2 = Float(bbox.y2)
     let width = x2 - x1
     let height = y2 - y1
     guard width > 0, height > 0 else { return bbox }
@@ -467,7 +488,7 @@ private func unclipBBox(_ bbox: OCRNormalizedBBox, ratio: PPDocLayoutV3Postproce
 }
 
 private func isValidNormalizedBBox(_ bbox: OCRNormalizedBBox) -> Bool {
-    let range = 0 ... 1000
+    let range = 0...1000
     guard range.contains(bbox.x1), range.contains(bbox.y1), range.contains(bbox.x2), range.contains(bbox.y2) else {
         return false
     }

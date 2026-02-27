@@ -1,6 +1,7 @@
 import Foundation
-@testable import GLMOCRAdapter
 import XCTest
+
+@testable import GLMOCRAdapter
 
 final class GLMOCRChatTemplateIntegrationTests: XCTestCase {
     func testBuildInputIDs_insertsExpectedImageTokenCount() async throws {

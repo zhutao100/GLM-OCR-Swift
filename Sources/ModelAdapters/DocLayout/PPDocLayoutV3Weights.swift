@@ -57,7 +57,8 @@ public enum PPDocLayoutV3Weights {
         guard resolvedURL.isFileURL else { throw PPDocLayoutV3WeightsError.invalidURL(modelFolder) }
 
         var isDirectory: ObjCBool = false
-        guard FileManager.default.fileExists(atPath: resolvedURL.path, isDirectory: &isDirectory), isDirectory.boolValue else {
+        guard FileManager.default.fileExists(atPath: resolvedURL.path, isDirectory: &isDirectory), isDirectory.boolValue
+        else {
             throw PPDocLayoutV3WeightsError.invalidURL(resolvedURL)
         }
 
@@ -132,10 +133,12 @@ private enum SafetensorsHeader {
         }
 
         if headerLength == 0 || headerLength > 32 * 1024 * 1024 {
-            throw PPDocLayoutV3WeightsError.invalidSafetensorsHeader(resolvedURL, "invalid header length \(headerLength)")
+            throw PPDocLayoutV3WeightsError.invalidSafetensorsHeader(
+                resolvedURL, "invalid header length \(headerLength)")
         }
 
-        guard let headerData = try handle.read(upToCount: Int(headerLength)), headerData.count == Int(headerLength) else {
+        guard let headerData = try handle.read(upToCount: Int(headerLength)), headerData.count == Int(headerLength)
+        else {
             throw PPDocLayoutV3WeightsError.invalidSafetensorsHeader(resolvedURL, "truncated header")
         }
 

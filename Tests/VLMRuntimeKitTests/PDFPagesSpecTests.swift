@@ -18,21 +18,21 @@ final class PDFPagesSpecTests: XCTestCase {
     }
 
     func testParse_singlePage() throws {
-        XCTAssertEqual(try PDFPagesSpec.parse("1"), .explicit([1 ... 1]))
+        XCTAssertEqual(try PDFPagesSpec.parse("1"), .explicit([1...1]))
     }
 
     func testParse_range() throws {
-        XCTAssertEqual(try PDFPagesSpec.parse("1-3"), .explicit([1 ... 3]))
-        XCTAssertEqual(try PDFPagesSpec.parse("[1-3]"), .explicit([1 ... 3]))
-        XCTAssertEqual(try PDFPagesSpec.parse(" [ 1 - 3 ] "), .explicit([1 ... 3]))
+        XCTAssertEqual(try PDFPagesSpec.parse("1-3"), .explicit([1...3]))
+        XCTAssertEqual(try PDFPagesSpec.parse("[1-3]"), .explicit([1...3]))
+        XCTAssertEqual(try PDFPagesSpec.parse(" [ 1 - 3 ] "), .explicit([1...3]))
     }
 
     func testParse_list_normalizesAndMerges() throws {
-        XCTAssertEqual(try PDFPagesSpec.parse("1,2,4"), .explicit([1 ... 2, 4 ... 4]))
-        XCTAssertEqual(try PDFPagesSpec.parse("3,1,2"), .explicit([1 ... 3]))
-        XCTAssertEqual(try PDFPagesSpec.parse("1, [3-5], 9"), .explicit([1 ... 1, 3 ... 5, 9 ... 9]))
-        XCTAssertEqual(try PDFPagesSpec.parse("1, [3 - 5], 9"), .explicit([1 ... 1, 3 ... 5, 9 ... 9]))
-        XCTAssertEqual(try PDFPagesSpec.parse("1,1,2"), .explicit([1 ... 2]))
+        XCTAssertEqual(try PDFPagesSpec.parse("1,2,4"), .explicit([1...2, 4...4]))
+        XCTAssertEqual(try PDFPagesSpec.parse("3,1,2"), .explicit([1...3]))
+        XCTAssertEqual(try PDFPagesSpec.parse("1, [3-5], 9"), .explicit([1...1, 3...5, 9...9]))
+        XCTAssertEqual(try PDFPagesSpec.parse("1, [3 - 5], 9"), .explicit([1...1, 3...5, 9...9]))
+        XCTAssertEqual(try PDFPagesSpec.parse("1,1,2"), .explicit([1...2]))
     }
 
     func testParse_mixingAllWithExplicit_throws() throws {

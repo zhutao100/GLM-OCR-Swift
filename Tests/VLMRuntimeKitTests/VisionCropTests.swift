@@ -40,7 +40,8 @@ final class VisionCropTests: XCTestCase {
     }
 
     // swiftlint:disable:next large_tuple
-    private func renderRGBA8Pixel(in image: CIImage, x: Int, y: Int) throws -> (r: UInt8, g: UInt8, b: UInt8, a: UInt8) {
+    private func renderRGBA8Pixel(in image: CIImage, x: Int, y: Int) throws -> (r: UInt8, g: UInt8, b: UInt8, a: UInt8)
+    {
         let context = CIContext(options: [.useSoftwareRenderer: true])
         let bounds = CGRect(x: x, y: y, width: 1, height: 1)
 

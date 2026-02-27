@@ -51,10 +51,10 @@ final class GLMOCRVisionAttention: Module {
         let (batch, seqLen, hidden) = (x.dim(0), x.dim(1), x.dim(2))
         precondition(hidden == heads * headDim)
 
-        let packed = qkv(x) // [B, S, 3H]
+        let packed = qkv(x)  // [B, S, 3H]
 
         let q = packed[0..., 0..., ..<hidden]
-        let k = packed[0..., 0..., hidden ..< (hidden * 2)]
+        let k = packed[0..., 0..., hidden..<(hidden * 2)]
         let v = packed[0..., 0..., (hidden * 2)...]
 
         var qh = q.reshaped(batch, seqLen, heads, headDim).transposed(0, 2, 1, 3)
@@ -202,7 +202,7 @@ final class GLMOCRVisionModel: Module {
             patchSize: patchSize
         )
 
-        blocks = (0 ..< depth).map { _ in
+        blocks = (0..<depth).map { _ in
             GLMOCRVisionBlock(
                 hiddenSize: hiddenSize,
                 intermediateSize: intermediateSize,
@@ -235,7 +235,7 @@ final class GLMOCRVisionModel: Module {
     /// Returns fused vision embeddings with shape `[B, N, outHidden]`.
     func callAsFunction(_ pixelValues: MLXArray) -> MLXArray {
         // pixelValues expected shape: [B, D, H, W, C] (channels last)
-        let patches = patchEmbed(pixelValues) // [B, D', H', W', hidden]
+        let patches = patchEmbed(pixelValues)  // [B, D', H', W', hidden]
         let batch = patches.dim(0)
         let depth = patches.dim(1)
         let gridH = patches.dim(2)
@@ -256,7 +256,7 @@ final class GLMOCRVisionModel: Module {
         let x2d = x.reshaped(batch, depth, gridH, gridW, hidden)
         // Merge depth into batch for 2D conv, then restore.
         let x2dFlat = x2d.reshaped(batch * depth, gridH, gridW, hidden)
-        let down = downsample(x2dFlat) // [B*D, H/merge, W/merge, outHidden]
+        let down = downsample(x2dFlat)  // [B*D, H/merge, W/merge, outHidden]
 
         let outHidden = down.dim(3)
         let downH = down.dim(1)
@@ -280,12 +280,12 @@ final class GLMOCRVisionModel: Module {
             return (empty, empty)
         }
 
-        let positions = (MLXArray(Array(0 ..< half)).asType(.float32) * 2) / Float(dim)
-        let invFreq = 1.0 / pow(theta, positions) // [half]
+        let positions = (MLXArray(Array(0..<half)).asType(.float32) * 2) / Float(dim)
+        let invFreq = 1.0 / pow(theta, positions)  // [half]
 
         let maxGrid = max(gridH, gridW)
-        let seq = MLXArray(Array(0 ..< maxGrid)).asType(.float32) // [maxGrid]
-        let freqsFull = seq.expandedDimensions(axis: -1) * invFreq // [maxGrid, half]
+        let seq = MLXArray(Array(0..<maxGrid)).asType(.float32)  // [maxGrid]
+        let freqsFull = seq.expandedDimensions(axis: -1) * invFreq  // [maxGrid, half]
 
         let seqLen = gridT * gridH * gridW
         var hIds: [Int] = []
@@ -293,9 +293,9 @@ final class GLMOCRVisionModel: Module {
         hIds.reserveCapacity(seqLen)
         wIds.reserveCapacity(seqLen)
 
-        for _ in 0 ..< gridT {
-            for h in 0 ..< gridH {
-                for w in 0 ..< gridW {
+        for _ in 0..<gridT {
+            for h in 0..<gridH {
+                for w in 0..<gridW {
                     hIds.append(h)
                     wIds.append(w)
                 }
@@ -305,10 +305,10 @@ final class GLMOCRVisionModel: Module {
         let hIndex = MLXArray(hIds)
         let wIndex = MLXArray(wIds)
 
-        let freqsH = freqsFull[hIndex] // [seqLen, half]
+        let freqsH = freqsFull[hIndex]  // [seqLen, half]
         let freqsW = freqsFull[wIndex]
-        let rotaryPos = concatenated([freqsH, freqsW], axis: -1) // [seqLen, dim]
-        let emb = concatenated([rotaryPos, rotaryPos], axis: -1) // [seqLen, headDim]
+        let rotaryPos = concatenated([freqsH, freqsW], axis: -1)  // [seqLen, dim]
+        let emb = concatenated([rotaryPos, rotaryPos], axis: -1)  // [seqLen, headDim]
 
         let cos = cos(emb).reshaped(1, 1, seqLen, headDim)
         let sin = sin(emb).reshaped(1, 1, seqLen, headDim)

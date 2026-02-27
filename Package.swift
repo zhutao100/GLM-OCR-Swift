@@ -5,7 +5,7 @@ import PackageDescription
 let package = Package(
     name: "GLMOCRSwift",
     platforms: [
-        .macOS(.v14),
+        .macOS(.v14)
     ],
     products: [
         .library(name: "VLMRuntimeKit", targets: ["VLMRuntimeKit"]),
@@ -28,10 +28,10 @@ let package = Package(
                 .product(name: "Transformers", package: "swift-transformers"),
             ],
             swiftSettings: [
-                .enableExperimentalFeature("StrictConcurrency"),
+                .enableExperimentalFeature("StrictConcurrency")
             ],
             linkerSettings: [
-                .linkedFramework("PDFKit"),
+                .linkedFramework("PDFKit")
             ]
         ),
         .target(
@@ -43,7 +43,7 @@ let package = Package(
             ],
             path: "Sources/ModelAdapters/DocLayout",
             swiftSettings: [
-                .enableExperimentalFeature("StrictConcurrency"),
+                .enableExperimentalFeature("StrictConcurrency")
             ]
         ),
         .target(
@@ -57,7 +57,7 @@ let package = Package(
             ],
             path: "Sources/ModelAdapters/GLMOCR",
             swiftSettings: [
-                .enableExperimentalFeature("StrictConcurrency"),
+                .enableExperimentalFeature("StrictConcurrency")
             ]
         ),
         .executableTarget(
@@ -67,7 +67,7 @@ let package = Package(
                 "VLMRuntimeKit",
             ],
             swiftSettings: [
-                .enableExperimentalFeature("StrictConcurrency"),
+                .enableExperimentalFeature("StrictConcurrency")
             ]
         ),
         .executableTarget(
@@ -78,40 +78,40 @@ let package = Package(
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
             ],
             swiftSettings: [
-                .enableExperimentalFeature("StrictConcurrency"),
+                .enableExperimentalFeature("StrictConcurrency")
             ]
         ),
         .testTarget(
             name: "VLMRuntimeKitTests",
             dependencies: [
-                "VLMRuntimeKit",
+                "VLMRuntimeKit"
             ],
             swiftSettings: [
-                .enableExperimentalFeature("StrictConcurrency"),
+                .enableExperimentalFeature("StrictConcurrency")
             ]
         ),
         .testTarget(
             name: "DocLayoutAdapterTests",
             dependencies: [
-                "DocLayoutAdapter",
+                "DocLayoutAdapter"
             ],
             resources: [
-                .process("Fixtures"),
+                .process("Fixtures")
             ],
             swiftSettings: [
-                .enableExperimentalFeature("StrictConcurrency"),
+                .enableExperimentalFeature("StrictConcurrency")
             ]
         ),
         .testTarget(
             name: "GLMOCRAdapterTests",
             dependencies: [
-                "GLMOCRAdapter",
+                "GLMOCRAdapter"
             ],
             resources: [
-                .process("Fixtures"),
+                .process("Fixtures")
             ],
             swiftSettings: [
-                .enableExperimentalFeature("StrictConcurrency"),
+                .enableExperimentalFeature("StrictConcurrency")
             ]
         ),
     ]

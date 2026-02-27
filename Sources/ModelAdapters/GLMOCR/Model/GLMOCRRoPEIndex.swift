@@ -12,8 +12,8 @@ enum GLMOCRRoPEIndexError: Error, Sendable {
 /// Port of Transformers `GlmOcrModel.get_rope_index` for the common single-image case.
 enum GLMOCRRoPEIndex {
     struct Output: @unchecked Sendable {
-        let positionIds: MLXArray // [3, B, S] int32
-        let ropeDeltas: MLXArray // [B, 1] int32
+        let positionIds: MLXArray  // [3, B, S] int32
+        let ropeDeltas: MLXArray  // [B, 1] int32
     }
 
     static func compute(
@@ -38,7 +38,7 @@ enum GLMOCRRoPEIndex {
         var positionStorage = [Int32](repeating: 0, count: 3 * batch * seqLen)
         var ropeDeltas = [Int32](repeating: 0, count: batch)
 
-        for b in 0 ..< batch {
+        for b in 0..<batch {
             let row = inputIds[b].asArray(Int32.self).map(Int.init)
 
             var videoFlag = false
@@ -69,7 +69,7 @@ enum GLMOCRRoPEIndex {
 
                 switch group.type {
                 case .text:
-                    for i in 0 ..< length {
+                    for i in 0..<length {
                         let value = Int32(stIdx + i)
                         let pos = group.start + i
                         temporal[pos] = value
@@ -93,7 +93,7 @@ enum GLMOCRRoPEIndex {
                     }
 
                     let perT = llmH * llmW
-                    for i in 0 ..< length {
+                    for i in 0..<length {
                         let pos = group.start + i
                         let t = i / perT
                         let rem = i % perT
@@ -114,7 +114,7 @@ enum GLMOCRRoPEIndex {
             ropeDeltas[b] = Int32(maxPosition + 1 - seqLen)
 
             let base = b * seqLen
-            for i in 0 ..< seqLen {
+            for i in 0..<seqLen {
                 positionStorage[(0 * batch * seqLen) + base + i] = temporal[i]
                 positionStorage[(1 * batch * seqLen) + base + i] = height[i]
                 positionStorage[(2 * batch * seqLen) + base + i] = width[i]
@@ -145,7 +145,7 @@ enum GLMOCRRoPEIndex {
 
         var current = types[0]
         var start = 0
-        for i in 1 ..< types.count {
+        for i in 1..<types.count {
             if types[i] != current {
                 groups.append(TypeGroup(type: current, start: start, end: i))
                 current = types[i]

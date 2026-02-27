@@ -29,20 +29,24 @@ public struct PPDocLayoutV3Processor: Sendable {
         self.fallbackMeanStd = fallbackMeanStd
     }
 
-    public func process(_ image: CIImage, preprocessorConfig: PPDocLayoutV3PreprocessorConfig?) throws -> PPDocLayoutV3ProcessedImage {
+    public func process(_ image: CIImage, preprocessorConfig: PPDocLayoutV3PreprocessorConfig?) throws
+        -> PPDocLayoutV3ProcessedImage
+    {
         let originalWidth = max(Int(image.extent.width.rounded(.down)), 1)
         let originalHeight = max(Int(image.extent.height.rounded(.down)), 1)
 
-        let target: (width: Int, height: Int)? = preprocessorConfig?.targetSize(originalWidth: originalWidth, originalHeight: originalHeight)
-        let resized: CIImage = if let target {
-            if target.width == originalWidth, target.height == originalHeight {
-                image
+        let target: (width: Int, height: Int)? = preprocessorConfig?.targetSize(
+            originalWidth: originalWidth, originalHeight: originalHeight)
+        let resized: CIImage =
+            if let target {
+                if target.width == originalWidth, target.height == originalHeight {
+                    image
+                } else {
+                    resizeDirectly(image, width: target.width, height: target.height)
+                }
             } else {
-                resizeDirectly(image, width: target.width, height: target.height)
+                image
             }
-        } else {
-            image
-        }
 
         let w = max(Int(resized.extent.width.rounded(.down)), 1)
         let h = max(Int(resized.extent.height.rounded(.down)), 1)
@@ -72,7 +76,8 @@ public struct PPDocLayoutV3Processor: Sendable {
         return PPDocLayoutV3ProcessedImage(pixelValues: pixelValues, width: w, height: h)
     }
 
-    private func normalize(_ pixelValues: MLXArray, mean: (Float, Float, Float), std: (Float, Float, Float)) -> MLXArray {
+    private func normalize(_ pixelValues: MLXArray, mean: (Float, Float, Float), std: (Float, Float, Float)) -> MLXArray
+    {
         let meanArray = MLXArray([mean.0, mean.1, mean.2])
         let stdArray = MLXArray([std.0, std.1, std.2])
         return (pixelValues - meanArray) / stdArray
@@ -98,7 +103,8 @@ public struct PPDocLayoutV3Processor: Sendable {
         let scaledImage = filter.outputImage ?? normalized
 
         let scaledExtent = scaledImage.extent
-        let scaledNormalized = scaledImage.transformed(by: CGAffineTransform(translationX: -scaledExtent.minX, y: -scaledExtent.minY))
+        let scaledNormalized = scaledImage.transformed(
+            by: CGAffineTransform(translationX: -scaledExtent.minX, y: -scaledExtent.minY))
         return scaledNormalized.cropped(to: CGRect(origin: .zero, size: size))
     }
 }

@@ -28,7 +28,7 @@ enum GLMOCRFusion {
 
         let fused = textEmbeddings
 
-        for b in 0 ..< batch {
+        for b in 0..<batch {
             let rowIds = inputIds[b].asArray(Int32.self).map(Int.init)
             let positions = rowIds.enumerated().compactMap { i, id in id == imageTokenId ? i : nil }
 

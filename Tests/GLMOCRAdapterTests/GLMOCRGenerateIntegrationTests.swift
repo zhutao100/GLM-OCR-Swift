@@ -1,8 +1,9 @@
 import Foundation
-@testable import GLMOCRAdapter
 import MLX
 import VLMRuntimeKit
 import XCTest
+
+@testable import GLMOCRAdapter
 
 final class GLMOCRGenerateIntegrationTests: XCTestCase {
     func testGenerateOneToken_smoke() async throws {

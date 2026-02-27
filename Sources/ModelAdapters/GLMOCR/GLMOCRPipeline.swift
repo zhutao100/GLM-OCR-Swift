@@ -84,14 +84,14 @@ public actor GLMOCRPipeline: OCRPipeline {
 
     public func recognize(_ input: GLMOCRInput, task: OCRTask, options: GenerateOptions) async throws -> OCRResult {
         // Starter behavior: allow “predecodedText” for UI wiring tests even without a model.
-        if case let .predecodedText(text) = input {
+        if case .predecodedText(let text) = input {
             return OCRResult(text: text, rawTokens: nil, diagnostics: .init(modelID: modelID, revision: revision))
         }
 
         let url: URL
         let page: Int
         switch input {
-        case let .file(u, p):
+        case .file(let u, let p):
             url = u
             page = p
         case .predecodedText:
@@ -116,16 +116,19 @@ public actor GLMOCRPipeline: OCRPipeline {
         }
         guard model != nil else { throw GLMOCRPipelineError.modelNotLoaded }
 
-        let ciImage: CIImage = if normalizedURL.pathExtension.lowercased() == "pdf" {
-            try VisionIO.loadCIImage(fromPDF: normalizedURL, page: page, dpi: 200)
-        } else {
-            try VisionIO.loadCIImage(from: normalizedURL)
-        }
+        let ciImage: CIImage =
+            if normalizedURL.pathExtension.lowercased() == "pdf" {
+                try VisionIO.loadCIImage(fromPDF: normalizedURL, page: page, dpi: 200)
+            } else {
+                try VisionIO.loadCIImage(from: normalizedURL)
+            }
 
         return try await recognize(ciImage: ciImage, task: task, options: options)
     }
 
-    public func recognizePDF(url: URL, pagesSpec: PDFPagesSpec = .all, task: OCRTask, options: GenerateOptions) async throws -> OCRResult {
+    public func recognizePDF(url: URL, pagesSpec: PDFPagesSpec = .all, task: OCRTask, options: GenerateOptions)
+        async throws -> OCRResult
+    {
         guard url.pathExtension.lowercased() == "pdf" else {
             throw GLMOCRPipelineError.unsupportedInput(url)
         }
@@ -194,11 +197,13 @@ public actor GLMOCRPipeline: OCRPipeline {
             return result
         }
 
-        return try await withTaskCancellationHandler(operation: {
-            try await work.value
-        }, onCancel: {
-            work.cancel()
-        })
+        return try await withTaskCancellationHandler(
+            operation: {
+                try await work.value
+            },
+            onCancel: {
+                work.cancel()
+            })
     }
 
     private func finishLoad(modelFolder: URL, model: GLMOCRModel) {
@@ -217,7 +222,8 @@ public actor GLMOCRPipeline: OCRPipeline {
         }
     }
 
-    private func loadMeanStd(from modelFolder: URL) throws -> (mean: (Float, Float, Float), std: (Float, Float, Float))? {
+    private func loadMeanStd(from modelFolder: URL) throws -> (mean: (Float, Float, Float), std: (Float, Float, Float))?
+    {
         let url = modelFolder.appendingPathComponent("preprocessor_config.json")
         guard FileManager.default.fileExists(atPath: url.path) else { return nil }
 

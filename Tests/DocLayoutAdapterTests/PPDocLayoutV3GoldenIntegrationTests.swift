@@ -1,8 +1,9 @@
 import CoreImage
-@testable import DocLayoutAdapter
 import Foundation
 import MLX
 import XCTest
+
+@testable import DocLayoutAdapter
 
 final class PPDocLayoutV3GoldenIntegrationTests: XCTestCase {
     func testForwardRawOutputs_goldenSlice_matchesPython() async throws {
@@ -17,7 +18,8 @@ final class PPDocLayoutV3GoldenIntegrationTests: XCTestCase {
         let fixture = try JSONDecoder().decode(PPDocLayoutV3ForwardGoldenFixture.self, from: fixtureData)
 
         guard fixture.metadata.dtype == "float16" else {
-            throw XCTSkip("Golden fixture dtype must be float16 (expected when generated on mps). Regenerate with --device mps.")
+            throw XCTSkip(
+                "Golden fixture dtype must be float16 (expected when generated on mps). Regenerate with --device mps.")
         }
 
         try ensureMLXMetalLibraryColocated(for: Self.self)
@@ -41,11 +43,9 @@ final class PPDocLayoutV3GoldenIntegrationTests: XCTestCase {
 
         if ProcessInfo.processInfo.environment["LAYOUT_DEBUG_DTYPE"] == "1" {
             let msg =
-                "PPDocLayoutV3 dtype debug: " +
-                "processed.pixelValues=\(processed.pixelValues.dtype) " +
-                "forward.pixelValues=\(pixelValues.dtype) " +
-                "raw.logits=\(raw.logits.dtype) " +
-                "raw.predBoxes=\(raw.predBoxes.dtype)\n"
+                "PPDocLayoutV3 dtype debug: " + "processed.pixelValues=\(processed.pixelValues.dtype) "
+                + "forward.pixelValues=\(pixelValues.dtype) " + "raw.logits=\(raw.logits.dtype) "
+                + "raw.predBoxes=\(raw.predBoxes.dtype)\n"
             FileHandle.standardError.write(Data(msg.utf8))
         }
 
@@ -73,7 +73,9 @@ final class PPDocLayoutV3GoldenIntegrationTests: XCTestCase {
             if let pythonTopK {
                 let encoderIndex = pythonTopK[pythonQueryIndex]
                 guard let mapped = swiftTopK.firstIndex(of: encoderIndex) else {
-                    XCTFail("Python encoder index \(encoderIndex) not found in Swift top-k. pythonQuery=\(pythonQueryIndex)")
+                    XCTFail(
+                        "Python encoder index \(encoderIndex) not found in Swift top-k. pythonQuery=\(pythonQueryIndex)"
+                    )
                     continue
                 }
                 swiftQueryIndex = mapped
@@ -95,7 +97,7 @@ final class PPDocLayoutV3GoldenIntegrationTests: XCTestCase {
 
             let box = raw.predBoxes[0, swiftQueryIndex].asType(.float32).asArray(Float.self)
             XCTAssertEqual(box.count, 4)
-            for i in 0 ..< 4 {
+            for i in 0..<4 {
                 let expected = fixture.predBoxesSlice[rowIndex][i]
                 let actual = box[i]
                 XCTAssertEqual(

@@ -1,9 +1,10 @@
 import CoreGraphics
 import CoreImage
 import Foundation
-@testable import GLMOCRAdapter
 import MLX
 import XCTest
+
+@testable import GLMOCRAdapter
 
 final class GLMOCRTokenizerIntegrationTests: XCTestCase {
     func testSpecialTokenIDs_matchSnapshot() async throws {
@@ -152,7 +153,8 @@ final class GLMOCRForwardPassIntegrationTests: XCTestCase {
                 }
 
                 FileHandle.standardError.write(Data("VISION_STATS mean=\(mean) std_unbiased=\(std)\n".utf8))
-                FileHandle.standardError.write(Data("VISION_ROW0 first5=\(Array(row0.prefix(5))) l2=\(l2(row0))\n".utf8))
+                FileHandle.standardError.write(
+                    Data("VISION_ROW0 first5=\(Array(row0.prefix(5))) l2=\(l2(row0))\n".utf8))
                 FileHandle.standardError.write(
                     Data("VISION_ROWLAST first5=\(Array(rowLast.prefix(5))) l2=\(l2(rowLast))\n".utf8)
                 )
@@ -207,7 +209,8 @@ final class GLMOCRForwardPassIntegrationTests: XCTestCase {
         return try processor.process(image, config: config)
     }
 
-    private func loadMeanStd(from modelFolder: URL) throws -> (mean: (Float, Float, Float), std: (Float, Float, Float))? {
+    private func loadMeanStd(from modelFolder: URL) throws -> (mean: (Float, Float, Float), std: (Float, Float, Float))?
+    {
         let url = modelFolder.appendingPathComponent("preprocessor_config.json")
         guard FileManager.default.fileExists(atPath: url.path) else { return nil }
 
@@ -227,9 +230,9 @@ final class GLMOCRForwardPassIntegrationTests: XCTestCase {
         let bDenom = max((width - 1) + (height - 1), 1)
 
         var pixels = [UInt8](repeating: 0, count: width * height * 4)
-        for y in 0 ..< height {
+        for y in 0..<height {
             let g = (y * 255) / hDenom
-            for x in 0 ..< width {
+            for x in 0..<width {
                 let r = (x * 255) / wDenom
                 let b = ((x + y) * 255) / bDenom
                 let idx = (y * width + x) * 4
@@ -250,19 +253,21 @@ final class GLMOCRForwardPassIntegrationTests: XCTestCase {
             CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
         )
 
-        guard let cg = CGImage(
-            width: width,
-            height: height,
-            bitsPerComponent: 8,
-            bitsPerPixel: 32,
-            bytesPerRow: width * 4,
-            space: colorSpace,
-            bitmapInfo: bitmapInfo,
-            provider: provider,
-            decode: nil,
-            shouldInterpolate: false,
-            intent: .defaultIntent
-        ) else {
+        guard
+            let cg = CGImage(
+                width: width,
+                height: height,
+                bitsPerComponent: 8,
+                bitsPerPixel: 32,
+                bytesPerRow: width * 4,
+                space: colorSpace,
+                bitmapInfo: bitmapInfo,
+                provider: provider,
+                decode: nil,
+                shouldInterpolate: false,
+                intent: .defaultIntent
+            )
+        else {
             throw DeterministicImageError.cgImageCreationFailed
         }
 

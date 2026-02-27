@@ -9,20 +9,22 @@ public enum VisionWriteError: Error, Sendable, Equatable {
     case cannotFinalizeDestination(URL)
 }
 
-public extension VisionIO {
+extension VisionIO {
     /// Write a CIImage as a JPEG file.
-    static func writeJPEG(_ image: CIImage, to url: URL, quality: CGFloat = 0.95) throws {
+    public static func writeJPEG(_ image: CIImage, to url: URL, quality: CGFloat = 0.95) throws {
         let context = CIContext(options: nil)
         guard let cgImage = context.createCGImage(image, from: image.extent) else {
             throw VisionWriteError.cannotCreateCGImage
         }
 
-        guard let destination = CGImageDestinationCreateWithURL(
-            url as CFURL,
-            UTType.jpeg.identifier as CFString,
-            1,
-            nil
-        ) else {
+        guard
+            let destination = CGImageDestinationCreateWithURL(
+                url as CFURL,
+                UTType.jpeg.identifier as CFString,
+                1,
+                nil
+            )
+        else {
             throw VisionWriteError.cannotCreateDestination(url)
         }
 

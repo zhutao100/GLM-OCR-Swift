@@ -39,8 +39,8 @@ final class GLMOCRSelfAttention: Module {
     ) -> MLXArray {
         let (batch, seqLen) = (x.dim(0), x.dim(1))
 
-        var q = wq(x).reshaped(batch, seqLen, heads, headDim).transposed(0, 2, 1, 3) // [B, H, S, D]
-        var k = wk(x).reshaped(batch, seqLen, kvHeads, headDim).transposed(0, 2, 1, 3) // [B, KvH, S, D]
+        var q = wq(x).reshaped(batch, seqLen, heads, headDim).transposed(0, 2, 1, 3)  // [B, H, S, D]
+        var k = wk(x).reshaped(batch, seqLen, kvHeads, headDim).transposed(0, 2, 1, 3)  // [B, KvH, S, D]
         let v = wv(x).reshaped(batch, seqLen, kvHeads, headDim).transposed(0, 2, 1, 3)
 
         // Apply GLM-style interleaved RoPE to the first `rotaryDim` features.
@@ -70,11 +70,12 @@ final class GLMOCRSelfAttention: Module {
             values = v
         }
 
-        let effectiveMask: MLXFast.ScaledDotProductAttentionMaskMode = if let cache, cache.offset > 0, seqLen == 1 {
-            .none
-        } else {
-            mask
-        }
+        let effectiveMask: MLXFast.ScaledDotProductAttentionMaskMode =
+            if let cache, cache.offset > 0, seqLen == 1 {
+                .none
+            } else {
+                mask
+            }
 
         let attn = MLXFast.scaledDotProductAttention(
             queries: q,
@@ -211,7 +212,7 @@ final class GLMOCRLanguageModel: Module {
         )
 
         _embedTokens.wrappedValue = Embedding(embeddingCount: vocabSize, dimensions: hiddenSize)
-        layers = (0 ..< numLayers).map { _ in
+        layers = (0..<numLayers).map { _ in
             GLMOCRDecoderLayer(
                 hiddenSize: hiddenSize,
                 intermediateSize: intermediateSize,
@@ -247,12 +248,12 @@ final class GLMOCRLanguageModel: Module {
         if let positionIds {
             ids = positionIds
         } else {
-            let base = MLXArray(Array(0 ..< seqLen)).reshaped(1, 1, seqLen)
+            let base = MLXArray(Array(0..<seqLen)).reshaped(1, 1, seqLen)
             ids = broadcast(base, to: [3, batch, seqLen])
         }
 
         let (cosBase, sinBase) = rotaryEmbedding.cosSin(positionIds: ids, dtype: embeddings.dtype)
-        let cos = cosBase.expandedDimensions(axis: 1) // [B, 1, S, rotaryDim]
+        let cos = cosBase.expandedDimensions(axis: 1)  // [B, 1, S, rotaryDim]
         let sin = sinBase.expandedDimensions(axis: 1)
 
         var h = embeddings

@@ -3,7 +3,9 @@ import XCTest
 
 final class PPDocLayoutV3PreprocessorConfigTests: XCTestCase {
     func testDecodeMinimalConfig_fixtureDecodesRequiredFields() throws {
-        guard let url = Bundle.module.url(forResource: "ppdoclayoutv3_preprocessor_config_minimal", withExtension: "json") else {
+        guard
+            let url = Bundle.module.url(forResource: "ppdoclayoutv3_preprocessor_config_minimal", withExtension: "json")
+        else {
             XCTFail("Missing fixture ppdoclayoutv3_preprocessor_config_minimal.json")
             return
         }

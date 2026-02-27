@@ -1,7 +1,8 @@
 import CoreImage
-@testable import GLMOCRAdapter
 import MLX
 import XCTest
+
+@testable import GLMOCRAdapter
 
 final class GLMOCRImageProcessorTests: XCTestCase {
     func testProcess_handlesNonZeroOriginExtent() throws {

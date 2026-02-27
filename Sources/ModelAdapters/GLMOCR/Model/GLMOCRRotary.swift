@@ -40,7 +40,7 @@ struct GLMOCRTextRotaryEmbedding: @unchecked Sendable {
 
         let half = max(rotaryDim / 2, 0)
         if half > 0 {
-            let positions = (MLXArray(0 ..< half).asType(.float32) * 2) / Float(rotaryDim)
+            let positions = (MLXArray(0..<half).asType(.float32) * 2) / Float(rotaryDim)
             invFreq = 1.0 / pow(ropeTheta, positions)
         } else {
             invFreq = MLXArray.zeros([0], dtype: .float32)
@@ -61,12 +61,12 @@ struct GLMOCRTextRotaryEmbedding: @unchecked Sendable {
             return (empty, empty)
         }
 
-        let pos = positionIds.asType(.float32) // [3, B, S]
-        let freqs = pos.expandedDimensions(axis: -1) * invFreq // [3, B, S, rotaryDim/2]
+        let pos = positionIds.asType(.float32)  // [3, B, S]
+        let freqs = pos.expandedDimensions(axis: -1) * invFreq  // [3, B, S, rotaryDim/2]
 
         // Apply mRoPE section mixing: select temporal/height/width stream per section.
-        let mixed = applyMrope(freqs: freqs, section: mropeSection) // [B, S, rotaryDim/2]
-        let emb = concatenated([mixed, mixed], axis: -1) // [B, S, rotaryDim]
+        let mixed = applyMrope(freqs: freqs, section: mropeSection)  // [B, S, rotaryDim/2]
+        let emb = concatenated([mixed, mixed], axis: -1)  // [B, S, rotaryDim]
 
         let cosEmb = cos(emb)
         let sinEmb = sin(emb)
@@ -97,7 +97,7 @@ struct GLMOCRTextRotaryEmbedding: @unchecked Sendable {
             let end = min(start + size, total)
             guard end > start else { continue }
             let stream = idx % 3
-            chunks.append(freqs[stream, 0..., 0..., start ..< end])
+            chunks.append(freqs[stream, 0..., 0..., start..<end])
             start = end
             if start >= total { break }
         }

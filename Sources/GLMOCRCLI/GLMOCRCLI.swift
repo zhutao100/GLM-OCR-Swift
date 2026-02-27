@@ -85,7 +85,9 @@ struct GLMOCRCLI: AsyncParsableCommand {
     @Option(name: .customLong("layout-model"), help: "Layout model id to download/use (layout mode only).")
     var layoutModel: String = PPDocLayoutV3Defaults.modelID
 
-    @Option(name: .customLong("layout-revision"), help: "Layout Hugging Face revision (branch/tag/commit) (layout mode only).")
+    @Option(
+        name: .customLong("layout-revision"),
+        help: "Layout Hugging Face revision (branch/tag/commit) (layout mode only).")
     var layoutRevision: String = PPDocLayoutV3Defaults.revision
 
     @Option(help: "Hub download base directory (defaults to Hugging Face hub cache).")
@@ -109,7 +111,9 @@ struct GLMOCRCLI: AsyncParsableCommand {
     @Option(help: "Write canonical block-list JSON (examples-compatible) to path (layout mode only).")
     var emitJson: String?
 
-    @Option(name: .customLong("emit-ocrdocument-json"), help: "Write structured OCRDocument JSON to path (layout mode only).")
+    @Option(
+        name: .customLong("emit-ocrdocument-json"),
+        help: "Write structured OCRDocument JSON to path (layout mode only).")
     var emitOCRDocumentJson: String?
 
     @Option(help: "Task preset: text | formula | table | json")
@@ -193,7 +197,8 @@ struct GLMOCRCLI: AsyncParsableCommand {
         if emitJson != nil || emitOCRDocumentJson != nil {
             let layoutEnabled = Self.resolveLayoutEnabled(inputURL: url, layout: layout, noLayout: noLayout)
             guard layoutEnabled else {
-                throw ValidationError("--emit-json/--emit-ocrdocument-json require layout mode (pass --layout for non-PDF inputs)")
+                throw ValidationError(
+                    "--emit-json/--emit-ocrdocument-json require layout mode (pass --layout for non-PDF inputs)")
             }
         }
     }
@@ -212,22 +217,25 @@ struct GLMOCRCLI: AsyncParsableCommand {
         let inputURL: URL? = Self.normalizedNonEmpty(input).map(Self.normalizedFileURL(fromPath:))
         let layoutEnabled = Self.resolveLayoutEnabled(inputURL: inputURL, layout: layout, noLayout: noLayout)
         let emitJsonURL: URL? = Self.normalizedNonEmpty(emitJson).map(Self.normalizedFileURL(fromPath:))
-        let emitOCRDocumentJsonURL: URL? = Self.normalizedNonEmpty(emitOCRDocumentJson).map(Self.normalizedFileURL(fromPath:))
+        let emitOCRDocumentJsonURL: URL? = Self.normalizedNonEmpty(emitOCRDocumentJson).map(
+            Self.normalizedFileURL(fromPath:))
 
-        let taskPreset: OCRTask = switch task {
-        case .text: .text
-        case .formula: .formula
-        case .table: .table
-        case .json: .structuredJSON(schema: "{\n  \"type\": \"object\"\n}")
-        }
+        let taskPreset: OCRTask =
+            switch task {
+            case .text: .text
+            case .formula: .formula
+            case .table: .table
+            case .json: .structuredJSON(schema: "{\n  \"type\": \"object\"\n}")
+            }
 
         let generateOptions = GenerateOptions(maxNewTokens: maxNewTokens, temperature: 0, topP: 1)
 
-        let concurrencyPolicy: LayoutConcurrencyPolicy = switch layoutParallelism {
-        case .auto: .auto
-        case .one: .fixed(1)
-        case .two: .fixed(2)
-        }
+        let concurrencyPolicy: LayoutConcurrencyPolicy =
+            switch layoutParallelism {
+            case .auto: .auto
+            case .one: .fixed(1)
+            case .two: .fixed(2)
+            }
         let layoutOptions = GLMOCRLayoutOptions(concurrency: concurrencyPolicy, maxConcurrentRegionsCap: 2)
 
         let workTask = Task {
@@ -283,7 +291,8 @@ struct GLMOCRCLI: AsyncParsableCommand {
         let store: any ModelStore = HuggingFaceHubModelStore()
 
         let glmPrinter = DownloadProgressPrinter(modelID: modelID)
-        let glmRequest = ModelSnapshotRequest(modelID: modelID, revision: revision, matchingGlobs: GLMOCRDefaults.downloadGlobs)
+        let glmRequest = ModelSnapshotRequest(
+            modelID: modelID, revision: revision, matchingGlobs: GLMOCRDefaults.downloadGlobs)
         let glmFolder = try await store.resolveSnapshot(glmRequest, downloadBase: downloadBaseURL) { progress in
             let completed = progress.completedUnitCount
             let total = progress.totalUnitCount
@@ -329,20 +338,25 @@ struct GLMOCRCLI: AsyncParsableCommand {
                 layoutOptions: layoutOptions
             )
             try await pipeline.ensureLoaded()
-            let result: OCRResult = if inputURL.pathExtension.lowercased() == "pdf" {
-                try await pipeline.recognizePDF(url: inputURL, pagesSpec: pagesSpec, options: generateOptions)
-            } else {
-                try await pipeline.recognize(.file(inputURL, page: 1), task: taskPreset, options: generateOptions)
-            }
+            let result: OCRResult =
+                if inputURL.pathExtension.lowercased() == "pdf" {
+                    try await pipeline.recognizePDF(url: inputURL, pagesSpec: pagesSpec, options: generateOptions)
+                } else {
+                    try await pipeline.recognize(.file(inputURL, page: 1), task: taskPreset, options: generateOptions)
+                }
             var markdown = result.text
 
             if let emitJsonURL {
-                guard let document = result.document else { throw ValidationError("Layout pipeline did not produce a document.") }
+                guard let document = result.document else {
+                    throw ValidationError("Layout pipeline did not produce a document.")
+                }
                 try writeBlockListJSON(document, to: emitJsonURL)
             }
 
             if let emitOCRDocumentJsonURL {
-                guard let document = result.document else { throw ValidationError("Layout pipeline did not produce a document.") }
+                guard let document = result.document else {
+                    throw ValidationError("Layout pipeline did not produce a document.")
+                }
                 try writeOCRDocumentJSON(document, to: emitOCRDocumentJsonURL)
             }
 
@@ -357,7 +371,8 @@ struct GLMOCRCLI: AsyncParsableCommand {
 
                     if inputURL.pathExtension.lowercased() == "pdf" {
                         for pageIndex in neededPageIndices {
-                            pageImages[pageIndex] = try VisionIO.loadCIImage(fromPDF: inputURL, page: pageIndex + 1, dpi: 200)
+                            pageImages[pageIndex] = try VisionIO.loadCIImage(
+                                fromPDF: inputURL, page: pageIndex + 1, dpi: 200)
                         }
                     } else {
                         pageImages[0] = try VisionIO.loadCIImage(from: inputURL)
@@ -380,17 +395,20 @@ struct GLMOCRCLI: AsyncParsableCommand {
         }
 
         if emitJsonURL != nil || emitOCRDocumentJsonURL != nil {
-            throw ValidationError("--emit-json/--emit-ocrdocument-json require layout mode (pass --layout for non-PDF inputs)")
+            throw ValidationError(
+                "--emit-json/--emit-ocrdocument-json require layout mode (pass --layout for non-PDF inputs)")
         }
 
         let pipeline = GLMOCRPipeline(modelID: modelID, revision: revision, downloadBase: downloadBaseURL)
         try await pipeline.ensureLoaded(progress: nil)
 
-        let result: OCRResult = if inputURL.pathExtension.lowercased() == "pdf" {
-            try await pipeline.recognizePDF(url: inputURL, pagesSpec: pagesSpec, task: taskPreset, options: generateOptions)
-        } else {
-            try await pipeline.recognize(.file(inputURL, page: 1), task: taskPreset, options: generateOptions)
-        }
+        let result: OCRResult =
+            if inputURL.pathExtension.lowercased() == "pdf" {
+                try await pipeline.recognizePDF(
+                    url: inputURL, pagesSpec: pagesSpec, task: taskPreset, options: generateOptions)
+            } else {
+                try await pipeline.recognize(.file(inputURL, page: 1), task: taskPreset, options: generateOptions)
+            }
         print(result.text)
     }
 
@@ -420,7 +438,7 @@ struct GLMOCRCLI: AsyncParsableCommand {
 
         let grid = imageSize / patchSize
         let downGrid = grid / mergeSize
-        let numImageTokens = downGrid * downGrid // depth collapses to 1 when D == temporalPatchSize
+        let numImageTokens = downGrid * downGrid  // depth collapses to 1 when D == temporalPatchSize
 
         MLXRandom.seed(0)
         let pixelValues = MLXRandom.normal([1, temporalPatchSize, imageSize, imageSize, 3]).asType(.bfloat16)

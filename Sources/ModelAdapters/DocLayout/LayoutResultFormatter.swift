@@ -287,7 +287,8 @@ public enum LayoutResultFormatter {
             if block.nativeLabel == "formula_number" {
                 if i + 1 < regions.count, regions[i + 1].kind == .formula {
                     let next = regions[i + 1]
-                    let numberClean = cleanFormulaNumber(block.content?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "")
+                    let numberClean = cleanFormulaNumber(
+                        block.content?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "")
 
                     var mergedBlock = next
                     if let formula = next.content, formula.hasSuffix("\n$$") {
@@ -303,7 +304,8 @@ public enum LayoutResultFormatter {
 
             if block.kind == .formula {
                 if i + 1 < regions.count, regions[i + 1].nativeLabel == "formula_number" {
-                    let numberClean = cleanFormulaNumber(regions[i + 1].content?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "")
+                    let numberClean = cleanFormulaNumber(
+                        regions[i + 1].content?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "")
 
                     var mergedBlock = block
                     if let formula = block.content, formula.hasSuffix("\n$$") {
@@ -359,11 +361,13 @@ public enum LayoutResultFormatter {
             }
 
             var didMerge = false
-            for j in (i + 1) ..< regions.count {
+            for j in (i + 1)..<regions.count {
                 guard regions[j].kind == .text, let nextContent = regions[j].content else { continue }
 
                 let nextStripped = trimmingLeadingWhitespace(nextContent)
-                guard let firstScalar = nextStripped.unicodeScalars.first, CharacterSet.lowercaseLetters.contains(firstScalar) else {
+                guard let firstScalar = nextStripped.unicodeScalars.first,
+                    CharacterSet.lowercaseLetters.contains(firstScalar)
+                else {
                     continue
                 }
 
@@ -398,13 +402,16 @@ public enum LayoutResultFormatter {
 
         var regions = regions
 
-        for i in 1 ..< (regions.count - 1) {
+        for i in 1..<(regions.count - 1) {
             let current = regions[i]
             let prev = regions[i - 1]
             let next = regions[i + 1]
 
-            guard current.nativeLabel == "text", prev.nativeLabel == "text", next.nativeLabel == "text" else { continue }
-            guard let currentContent = current.content, let prevContent = prev.content, let nextContent = next.content else { continue }
+            guard current.nativeLabel == "text", prev.nativeLabel == "text", next.nativeLabel == "text" else {
+                continue
+            }
+            guard let currentContent = current.content, let prevContent = prev.content, let nextContent = next.content
+            else { continue }
             guard !currentContent.hasPrefix("- ") else { continue }
             guard prevContent.hasPrefix("- "), nextContent.hasPrefix("- ") else { continue }
 
@@ -505,14 +512,15 @@ public enum LayoutResultFormatter {
                     var j = idx
                     while j < content.endIndex {
                         let afterBackslash = content.index(after: j)
-                        guard afterBackslash < content.endIndex, content[j] == "\\", content[afterBackslash] == "_" else { break }
+                        guard afterBackslash < content.endIndex, content[j] == "\\", content[afterBackslash] == "_"
+                        else { break }
                         runCount += 1
                         j = content.index(after: afterBackslash)
                     }
 
                     let kept = min(runCount, maxRepeats)
                     if kept > 0 {
-                        for _ in 0 ..< kept {
+                        for _ in 0..<kept {
                             output.append(contentsOf: "\\_")
                         }
                     }
@@ -529,13 +537,13 @@ public enum LayoutResultFormatter {
     }
 }
 
-private extension Character {
-    var isASCIIAlpha: Bool {
+extension Character {
+    fileprivate var isASCIIAlpha: Bool {
         guard let scalar = unicodeScalars.first, unicodeScalars.count == 1 else { return false }
         return (scalar.value >= 65 && scalar.value <= 90) || (scalar.value >= 97 && scalar.value <= 122)
     }
 
-    var isDigit: Bool {
+    fileprivate var isDigit: Bool {
         unicodeScalars.allSatisfy { CharacterSet.decimalDigits.contains($0) }
     }
 }

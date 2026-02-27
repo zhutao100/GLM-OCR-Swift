@@ -21,7 +21,7 @@ public enum MarkdownImageCropper {
         let pattern = #"!\[\]\(page=(\d+),bbox=(\[[\d,\s]+\])\)"#
         guard let regex = try? NSRegularExpression(pattern: pattern) else { return [] }
 
-        let nsRange = NSRange(markdown.startIndex ..< markdown.endIndex, in: markdown)
+        let nsRange = NSRange(markdown.startIndex..<markdown.endIndex, in: markdown)
         let matches = regex.matches(in: markdown, range: nsRange)
 
         var refs: [MarkdownImageRef] = []
@@ -31,8 +31,8 @@ public enum MarkdownImageCropper {
             guard match.numberOfRanges >= 3 else { continue }
 
             guard let fullRange = Range(match.range(at: 0), in: markdown),
-                  let pageRange = Range(match.range(at: 1), in: markdown),
-                  let bboxRange = Range(match.range(at: 2), in: markdown)
+                let pageRange = Range(match.range(at: 1), in: markdown),
+                let bboxRange = Range(match.range(at: 2), in: markdown)
             else {
                 continue
             }

@@ -87,7 +87,7 @@ final class VisionIOTests: XCTestCase {
             throw XCTSkip("PDF CGContext init failed")
         }
 
-        for idx in 0 ..< 2 {
+        for idx in 0..<2 {
             ctx.beginPDFPage(nil)
             ctx.setFillColor(CGColor(gray: 1, alpha: 1))
             ctx.fill(mediaBox)
@@ -109,10 +109,11 @@ final class VisionIOTests: XCTestCase {
         let colocated = binaryDir.appendingPathComponent("mlx.metallib")
         if FileManager.default.fileExists(atPath: colocated.path) { return }
 
-        let binRoot = binaryDir
-            .deletingLastPathComponent() // Contents
-            .deletingLastPathComponent() // *.xctest
-            .deletingLastPathComponent() // <bin>
+        let binRoot =
+            binaryDir
+            .deletingLastPathComponent()  // Contents
+            .deletingLastPathComponent()  // *.xctest
+            .deletingLastPathComponent()  // <bin>
         let built = binRoot.appendingPathComponent("mlx.metallib")
         guard FileManager.default.fileExists(atPath: built.path) else {
             throw XCTSkip("mlx.metallib not found at \(built.path). Run scripts/build_mlx_metallib.sh first.")

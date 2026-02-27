@@ -29,24 +29,25 @@ public struct GLMOCRProcessor: Sendable {
     }
 
     public func makePrompt(for task: OCRTask) -> String {
-        let instruction: String = switch task {
-        case .text, .table, .formula:
-            taskPromptMapping[task] ?? defaultPrompt
-        case let .structuredJSON(schema):
-            "Extract structured data and return JSON that matches this schema:\n\n\(schema)"
-        }
+        let instruction: String =
+            switch task {
+            case .text, .table, .formula:
+                taskPromptMapping[task] ?? defaultPrompt
+            case .structuredJSON(let schema):
+                "Extract structured data and return JSON that matches this schema:\n\n\(schema)"
+            }
 
         return "\(imagePlaceholder)\n\(instruction)"
     }
 }
 
-public extension GLMOCRProcessor {
-    static let officialDefaultPrompt: String =
-        "Recognize the text in the image and output in Markdown format.\n" +
-        "Preserve the original layout (headings/paragraphs/tables/formulas).\n" +
-        "Do not fabricate content that does not exist in the image."
+extension GLMOCRProcessor {
+    public static let officialDefaultPrompt: String =
+        "Recognize the text in the image and output in Markdown format.\n"
+        + "Preserve the original layout (headings/paragraphs/tables/formulas).\n"
+        + "Do not fabricate content that does not exist in the image."
 
-    static let officialTaskPromptMapping: [OCRTask: String] = [
+    public static let officialTaskPromptMapping: [OCRTask: String] = [
         .text: "Text Recognition:",
         .table: "Table Recognition:",
         .formula: "Formula Recognition:",

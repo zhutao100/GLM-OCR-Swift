@@ -66,19 +66,21 @@ final class AppViewModel: ObservableObject {
                 let isPDF = url.pathExtension.lowercased() == "pdf"
                 let pagesSpec = try isPDF ? (PDFPagesSpec.parse(pdfPagesSpec)) : .all
 
-                let result: OCRResult = if isPDF {
-                    if layoutMode {
-                        try await layoutPipeline.recognizePDF(url: url, pagesSpec: pagesSpec, options: options)
+                let result: OCRResult =
+                    if isPDF {
+                        if layoutMode {
+                            try await layoutPipeline.recognizePDF(url: url, pagesSpec: pagesSpec, options: options)
+                        } else {
+                            try await pipeline.recognizePDF(
+                                url: url, pagesSpec: pagesSpec, task: task, options: options)
+                        }
                     } else {
-                        try await pipeline.recognizePDF(url: url, pagesSpec: pagesSpec, task: task, options: options)
+                        if layoutMode {
+                            try await layoutPipeline.recognize(.file(url, page: 1), task: task, options: options)
+                        } else {
+                            try await pipeline.recognize(.file(url, page: 1), task: task, options: options)
+                        }
                     }
-                } else {
-                    if layoutMode {
-                        try await layoutPipeline.recognize(.file(url, page: 1), task: task, options: options)
-                    } else {
-                        try await pipeline.recognize(.file(url, page: 1), task: task, options: options)
-                    }
-                }
                 output = result.text
                 if let document = result.document {
                     let encoder = JSONEncoder()
@@ -120,13 +122,13 @@ struct ContentView: View {
                 switch vm.status {
                 case .idle:
                     Text("Idle")
-                case let .downloading(s):
+                case .downloading(let s):
                     Text(s)
                 case .ready:
                     Text("Ready")
-                case let .running(s):
+                case .running(let s):
                     Text(s)
-                case let .error(e):
+                case .error(let e):
                     Text("Error: \(e)")
                         .foregroundStyle(.red)
                 }
@@ -166,7 +168,7 @@ struct ContentView: View {
                 }
             }
 
-            Stepper("Max tokens: \(vm.maxNewTokens)", value: $vm.maxNewTokens, in: 128 ... 8192, step: 128)
+            Stepper("Max tokens: \(vm.maxNewTokens)", value: $vm.maxNewTokens, in: 128...8192, step: 128)
                 .frame(width: 250)
 
             Spacer()

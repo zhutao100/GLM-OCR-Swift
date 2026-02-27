@@ -99,7 +99,8 @@ final class PPDocLayoutV3EncoderLayerCore: Module {
         activation = PPDocLayoutV3Activation(modelConfig.encoderActivationFunction)
 
         let hiddenSize = modelConfig.encoderHiddenDim
-        _selfAttn.wrappedValue = PPDocLayoutV3SelfAttentionCore(hiddenSize: hiddenSize, numHeads: modelConfig.encoderAttentionHeads)
+        _selfAttn.wrappedValue = PPDocLayoutV3SelfAttentionCore(
+            hiddenSize: hiddenSize, numHeads: modelConfig.encoderAttentionHeads)
 
         let lnEps = Float(modelConfig.layerNormEps ?? 1e-5)
         _selfAttnLayerNorm.wrappedValue = LayerNorm(dimensions: hiddenSize, eps: lnEps)
@@ -194,7 +195,7 @@ final class PPDocLayoutV3AIFILayerCore: Module, UnaryLayer {
         )
 
         let layerCount = max(modelConfig.encoderLayers, 0)
-        _layers.wrappedValue = (0 ..< layerCount).map { _ in PPDocLayoutV3EncoderLayerCore(modelConfig: modelConfig) }
+        _layers.wrappedValue = (0..<layerCount).map { _ in PPDocLayoutV3EncoderLayerCore(modelConfig: modelConfig) }
         super.init()
     }
 
@@ -319,7 +320,7 @@ final class PPDocLayoutV3CSPRepLayerCore: Module, UnaryLayer {
             activation: activation
         )
 
-        _bottlenecks.wrappedValue = (0 ..< numBlocks).map { _ in PPDocLayoutV3RepVggBlockCore(modelConfig: modelConfig) }
+        _bottlenecks.wrappedValue = (0..<numBlocks).map { _ in PPDocLayoutV3RepVggBlockCore(modelConfig: modelConfig) }
 
         if hiddenChannels != outChannels {
             _conv3.wrappedValue = PPDocLayoutV3ConvNormLayerCore(
@@ -400,7 +401,7 @@ final class PPDocLayoutV3ScaleHeadCore: Module, UnaryLayer {
         var layerModules: [Module] = []
         layerModules.reserveCapacity(headLength * 2)
 
-        for k in 0 ..< headLength {
+        for k in 0..<headLength {
             let tempIn = (k == 0) ? inChannels : featureChannels
             layerModules.append(
                 PPDocLayoutV3ConvLayerCore(
@@ -482,7 +483,7 @@ final class PPDocLayoutV3MaskFeatFPNCore: Module {
         let targetW = output.dim(2)
 
         if reordered.count > 1 {
-            for idx in 1 ..< reordered.count {
+            for idx in 1..<reordered.count {
                 let scaled = scaleHeads[idx](reordered[idx])
                 let resized = resizeBilinear(scaled, toHeight: targetH, toWidth: targetW)
                 output = output + resized
@@ -561,9 +562,9 @@ final class PPDocLayoutV3HybridEncoderCore: Module {
         let activation = modelConfig.activationFunction
 
         let aifiCount = encodeProjLayers.count
-        _encoder.wrappedValue = (0 ..< aifiCount).map { _ in PPDocLayoutV3AIFILayerCore(modelConfig: modelConfig) }
+        _encoder.wrappedValue = (0..<aifiCount).map { _ in PPDocLayoutV3AIFILayerCore(modelConfig: modelConfig) }
 
-        _lateralConvs.wrappedValue = (0 ..< numFpnStages).map { _ in
+        _lateralConvs.wrappedValue = (0..<numFpnStages).map { _ in
             PPDocLayoutV3ConvNormLayerCore(
                 modelConfig: modelConfig,
                 inChannels: modelConfig.encoderHiddenDim,
@@ -574,9 +575,9 @@ final class PPDocLayoutV3HybridEncoderCore: Module {
                 activation: activation
             )
         }
-        _fpnBlocks.wrappedValue = (0 ..< numFpnStages).map { _ in PPDocLayoutV3CSPRepLayerCore(modelConfig: modelConfig) }
+        _fpnBlocks.wrappedValue = (0..<numFpnStages).map { _ in PPDocLayoutV3CSPRepLayerCore(modelConfig: modelConfig) }
 
-        _downsampleConvs.wrappedValue = (0 ..< numFpnStages).map { _ in
+        _downsampleConvs.wrappedValue = (0..<numFpnStages).map { _ in
             PPDocLayoutV3ConvNormLayerCore(
                 modelConfig: modelConfig,
                 inChannels: modelConfig.encoderHiddenDim,
@@ -586,7 +587,7 @@ final class PPDocLayoutV3HybridEncoderCore: Module {
                 activation: activation
             )
         }
-        _panBlocks.wrappedValue = (0 ..< numFpnStages).map { _ in PPDocLayoutV3CSPRepLayerCore(modelConfig: modelConfig) }
+        _panBlocks.wrappedValue = (0..<numFpnStages).map { _ in PPDocLayoutV3CSPRepLayerCore(modelConfig: modelConfig) }
 
         _maskFeatureHead.wrappedValue = PPDocLayoutV3MaskFeatFPNCore(modelConfig: modelConfig)
         _encoderMaskLateral.wrappedValue = PPDocLayoutV3ConvLayerCore(
@@ -612,7 +613,7 @@ final class PPDocLayoutV3HybridEncoderCore: Module {
 
         var fpnFeatureMaps: [MLXArray] = [featureMaps[featureMaps.count - 1]]
         if !fpnBlocks.isEmpty {
-            for idx in 0 ..< fpnBlocks.count {
+            for idx in 0..<fpnBlocks.count {
                 let backboneIndex = numFpnStages - idx - 1
                 let backboneFeatureMap = featureMaps[backboneIndex]
                 var top = fpnFeatureMaps[fpnFeatureMaps.count - 1]
@@ -628,7 +629,7 @@ final class PPDocLayoutV3HybridEncoderCore: Module {
 
         var panFeatureMaps: [MLXArray] = [fpnFeatureMaps[0]]
         if !panBlocks.isEmpty {
-            for idx in 0 ..< panBlocks.count {
+            for idx in 0..<panBlocks.count {
                 let top = panFeatureMaps[panFeatureMaps.count - 1]
                 let fpn = fpnFeatureMaps[idx + 1]
                 let downsampled = downsampleConvs[idx](top)

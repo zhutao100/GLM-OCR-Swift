@@ -73,7 +73,9 @@ public actor PPDocLayoutV3Detector {
     public func detect(ciImage: CIImage) async throws -> [OCRRegion] {
         try await ensureLoaded()
 
-        guard let modelFolder else { throw PPDocLayoutV3ModelError.invalidConfiguration("snapshot folder is not loaded") }
+        guard let modelFolder else {
+            throw PPDocLayoutV3ModelError.invalidConfiguration("snapshot folder is not loaded")
+        }
         guard let config else { throw PPDocLayoutV3ModelError.invalidConfiguration("config.json is not loaded") }
 
         if model == nil {
@@ -106,7 +108,7 @@ public actor PPDocLayoutV3Detector {
             if region.taskType == .abandon { continue }
 
             let kind = PPDocLayoutV3Mappings.labelToVisualizationKind[region.nativeLabel] ?? .unknown
-            let content: String? = nil // filled by OCR stage; kept nil for skipped regions too
+            let content: String? = nil  // filled by OCR stage; kept nil for skipped regions too
 
             output.append(
                 OCRRegion(

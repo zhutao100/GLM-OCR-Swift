@@ -6,12 +6,12 @@ import XCTest
 final class MarkdownImageCropperTests: XCTestCase {
     func testExtractImageRefs_parsesPageAndBBox() throws {
         let md = """
-        Title
+            Title
 
-        ![](page=0,bbox=[57, 199, 884, 444])
+            ![](page=0,bbox=[57, 199, 884, 444])
 
-        ![](page=12,bbox=[1,2,3,4])
-        """
+            ![](page=12,bbox=[1,2,3,4])
+            """
 
         let refs = MarkdownImageCropper.extractImageRefs(md)
         XCTAssertEqual(refs.count, 2)
@@ -26,10 +26,10 @@ final class MarkdownImageCropperTests: XCTestCase {
 
     func testCropAndReplaceImages_writesJPEGs_andReplacesTags() throws {
         let md = """
-        ![](page=0,bbox=[0, 0, 500, 500])
+            ![](page=0,bbox=[0, 0, 500, 500])
 
-        ![](page=0,bbox=[500, 500, 1000, 1000])
-        """
+            ![](page=0,bbox=[500, 500, 1000, 1000])
+            """
 
         let image = CIImage(color: CIColor(red: 0.2, green: 0.3, blue: 0.4, alpha: 1))
             .cropped(to: CGRect(x: 0, y: 0, width: 100, height: 100))

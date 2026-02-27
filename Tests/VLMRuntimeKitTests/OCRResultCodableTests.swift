@@ -5,21 +5,23 @@ import XCTest
 final class OCRResultCodableTests: XCTestCase {
     func testOCRResult_codableRoundTrip_withStructuredDocument() throws {
         let document = OCRDocument(pages: [
-            OCRPage(index: 0, regions: [
-                OCRRegion(
-                    index: 0,
-                    kind: .text,
-                    nativeLabel: "doc_text",
-                    bbox: OCRNormalizedBBox(x1: 0, y1: 0, x2: 1000, y2: 1000),
-                    polygon: [
-                        .init(x: 0, y: 0),
-                        .init(x: 1000, y: 0),
-                        .init(x: 1000, y: 1000),
-                        .init(x: 0, y: 1000),
-                    ],
-                    content: "hello"
-                ),
-            ]),
+            OCRPage(
+                index: 0,
+                regions: [
+                    OCRRegion(
+                        index: 0,
+                        kind: .text,
+                        nativeLabel: "doc_text",
+                        bbox: OCRNormalizedBBox(x1: 0, y1: 0, x2: 1000, y2: 1000),
+                        polygon: [
+                            .init(x: 0, y: 0),
+                            .init(x: 1000, y: 0),
+                            .init(x: 1000, y: 1000),
+                            .init(x: 0, y: 1000),
+                        ],
+                        content: "hello"
+                    )
+                ])
         ])
 
         let result = OCRResult(

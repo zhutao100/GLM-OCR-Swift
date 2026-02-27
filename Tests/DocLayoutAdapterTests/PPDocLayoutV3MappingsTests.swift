@@ -20,7 +20,8 @@ final class PPDocLayoutV3MappingsTests: XCTestCase {
 
     func testVisualizationMappingIsSubsetOfTaskMapping() {
         for label in PPDocLayoutV3Mappings.labelToVisualizationKind.keys {
-            XCTAssertNotNil(PPDocLayoutV3Mappings.labelTaskMapping[label], "Missing labelTaskMapping entry for '\(label)'")
+            XCTAssertNotNil(
+                PPDocLayoutV3Mappings.labelTaskMapping[label], "Missing labelTaskMapping entry for '\(label)'")
         }
     }
 }

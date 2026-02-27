@@ -1,20 +1,21 @@
-@testable import GLMOCRAdapter
 import XCTest
+
+@testable import GLMOCRAdapter
 
 final class GLMOCRStopTokenPolicyTests: XCTestCase {
     func testStopTokenIDs_usesConfiguredEOS() throws {
         let json = """
-        {
-          "model_type": "glm_ocr",
-          "text_config": {
-            "pad_token_id": 59246,
-            "eos_token_id": [59246, 59253]
-          },
-          "vision_config": {
-            "hidden_size": 1024
-          }
-        }
-        """
+            {
+              "model_type": "glm_ocr",
+              "text_config": {
+                "pad_token_id": 59246,
+                "eos_token_id": [59246, 59253]
+              },
+              "vision_config": {
+                "hidden_size": 1024
+              }
+            }
+            """
 
         let config = try JSONDecoder().decode(GLMOCRConfig.self, from: Data(json.utf8))
         let ids = GLMOCRSpecialTokenIDs(
@@ -35,17 +36,17 @@ final class GLMOCRStopTokenPolicyTests: XCTestCase {
 
     func testStopTokenIDs_includesTokenizerEOS_whenConfigHasDifferentStopIDs() throws {
         let json = """
-        {
-          "model_type": "glm_ocr",
-          "text_config": {
-            "pad_token_id": 59246,
-            "eos_token_id": [59253]
-          },
-          "vision_config": {
-            "hidden_size": 1024
-          }
-        }
-        """
+            {
+              "model_type": "glm_ocr",
+              "text_config": {
+                "pad_token_id": 59246,
+                "eos_token_id": [59253]
+              },
+              "vision_config": {
+                "hidden_size": 1024
+              }
+            }
+            """
 
         let config = try JSONDecoder().decode(GLMOCRConfig.self, from: Data(json.utf8))
         let ids = GLMOCRSpecialTokenIDs(
@@ -66,16 +67,16 @@ final class GLMOCRStopTokenPolicyTests: XCTestCase {
 
     func testStopTokenIDs_fallsBackToTokenizerEOS_whenConfigMissingEOS() throws {
         let json = """
-        {
-          "model_type": "glm_ocr",
-          "text_config": {
-            "pad_token_id": 59246
-          },
-          "vision_config": {
-            "hidden_size": 1024
-          }
-        }
-        """
+            {
+              "model_type": "glm_ocr",
+              "text_config": {
+                "pad_token_id": 59246
+              },
+              "vision_config": {
+                "hidden_size": 1024
+              }
+            }
+            """
 
         let config = try JSONDecoder().decode(GLMOCRConfig.self, from: Data(json.utf8))
         let ids = GLMOCRSpecialTokenIDs(

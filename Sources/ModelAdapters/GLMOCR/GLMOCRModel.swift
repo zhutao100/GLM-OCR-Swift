@@ -37,7 +37,7 @@ public struct GLMOCRModel: CausalLM, Sendable {
         guard modelFolder.isFileURL else { throw GLMOCRModelError.invalidModelFolder(modelFolder) }
         var isDirectory: ObjCBool = false
         guard FileManager.default.fileExists(atPath: modelFolder.path, isDirectory: &isDirectory),
-              isDirectory.boolValue
+            isDirectory.boolValue
         else {
             throw GLMOCRModelError.invalidModelFolder(modelFolder)
         }
@@ -112,7 +112,8 @@ public struct GLMOCRModel: CausalLM, Sendable {
         let numImageTokens = visionEmbeddings.dim(1)
 
         let chat = GLMOCRChatTemplate(imagePlaceholder: "<image>", appendNoThink: true)
-        let promptTokenIDs = try chat.buildInputIDs(prompt: prompt, tokenizer: tokenizer, numImageTokens: numImageTokens)
+        let promptTokenIDs = try chat.buildInputIDs(
+            prompt: prompt, tokenizer: tokenizer, numImageTokens: numImageTokens)
 
         let caches = state.core.model.languageModel.layers.map { _ in KVCacheSimple() }
 
@@ -152,7 +153,7 @@ public struct GLMOCRModel: CausalLM, Sendable {
         var generated: [Int] = []
         generated.reserveCapacity(min(options.maxNewTokens, 512))
 
-        for _ in 0 ..< options.maxNewTokens {
+        for _ in 0..<options.maxNewTokens {
             try Task.checkCancellation()
 
             if stopTokenIDs.contains(nextTokenId) { break }

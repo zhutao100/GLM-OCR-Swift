@@ -1,10 +1,11 @@
 import CoreGraphics
 import CoreImage
+import Foundation
+import MLX
+
 #if canImport(PDFKit)
     import PDFKit
 #endif
-import Foundation
-import MLX
 
 public enum VisionIOError: Error, Sendable {
     case cannotDecodeImage(URL)
@@ -53,17 +54,20 @@ public enum VisionIO {
             let pixelHeight = max(Int((pageRect.height * scale).rounded(.up)), 1)
 
             let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB()
-            let bitmapInfo = CGBitmapInfo.byteOrder32Big.union(CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue))
+            let bitmapInfo = CGBitmapInfo.byteOrder32Big.union(
+                CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue))
 
-            guard let ctx = CGContext(
-                data: nil,
-                width: pixelWidth,
-                height: pixelHeight,
-                bitsPerComponent: 8,
-                bytesPerRow: 0,
-                space: colorSpace,
-                bitmapInfo: bitmapInfo.rawValue
-            ) else {
+            guard
+                let ctx = CGContext(
+                    data: nil,
+                    width: pixelWidth,
+                    height: pixelHeight,
+                    bitsPerComponent: 8,
+                    bytesPerRow: 0,
+                    space: colorSpace,
+                    bitmapInfo: bitmapInfo.rawValue
+                )
+            else {
                 throw VisionIOError.cannotRenderPDF(url)
             }
 
@@ -121,7 +125,8 @@ public enum ImageTensorConverter {
     ///
     /// - Note: This is a low-level primitive. Model adapters should own resize policy and
     ///   provide mean/std constants (or load them from the model snapshot).
-    public static func toTensor(_ image: CIImage, options: ImageTensorConversionOptions = .init()) throws -> ImageTensor {
+    public static func toTensor(_ image: CIImage, options: ImageTensorConversionOptions = .init()) throws -> ImageTensor
+    {
         let extent = image.extent.integral
         guard extent.width > 0, extent.height > 0 else { throw ImageTensorConversionError.invalidImageExtent(extent) }
 
@@ -150,7 +155,7 @@ public enum ImageTensorConverter {
 
         let uint8Array = MLXArray(data, [h, w, 4], type: UInt8.self)
         var array = uint8Array.asType(.float32) / 255.0
-        array = array[0..., 0..., ..<3] // drop alpha
+        array = array[0..., 0..., ..<3]  // drop alpha
         array = array.reshaped(1, h, w, 3)
 
         if let mean = options.mean, let std = options.std {

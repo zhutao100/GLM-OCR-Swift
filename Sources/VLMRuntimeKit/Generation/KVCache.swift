@@ -29,11 +29,12 @@ public final class KVCacheSimple: KVCache {
         let previous = offset
         let length = keys.dim(2)
 
-        let needsReset: Bool = if let currentKeys = self.keys {
-            (previous + length) > currentKeys.dim(2)
-        } else {
-            true
-        }
+        let needsReset: Bool =
+            if let currentKeys = self.keys {
+                (previous + length) > currentKeys.dim(2)
+            } else {
+                true
+            }
 
         if needsReset {
             let batch = keys.dim(0)
@@ -51,8 +52,8 @@ public final class KVCacheSimple: KVCache {
             let newValues = MLXArray.zeros([batch, kvHeads, capacity, valueHeadDim], dtype: values.dtype)
 
             if let oldKeys = self.keys, let oldValues = self.values, previous > 0 {
-                newKeys[0..., 0..., 0 ..< previous, 0...] = oldKeys[0..., 0..., 0 ..< previous, 0...]
-                newValues[0..., 0..., 0 ..< previous, 0...] = oldValues[0..., 0..., 0 ..< previous, 0...]
+                newKeys[0..., 0..., 0..<previous, 0...] = oldKeys[0..., 0..., 0..<previous, 0...]
+                newValues[0..., 0..., 0..<previous, 0...] = oldValues[0..., 0..., 0..<previous, 0...]
             }
 
             self.keys = newKeys
@@ -63,13 +64,13 @@ public final class KVCacheSimple: KVCache {
             fatalError("KVCacheSimple internal allocation failed")
         }
 
-        cachedKeys[0..., 0..., previous ..< (previous + length), 0...] = keys
-        cachedValues[0..., 0..., previous ..< (previous + length), 0...] = values
+        cachedKeys[0..., 0..., previous..<(previous + length), 0...] = keys
+        cachedValues[0..., 0..., previous..<(previous + length), 0...] = values
 
         self.keys = cachedKeys
         self.values = cachedValues
         offset = previous + length
 
-        return (cachedKeys[0..., 0..., 0 ..< offset, 0...], cachedValues[0..., 0..., 0 ..< offset, 0...])
+        return (cachedKeys[0..., 0..., 0..<offset, 0...], cachedValues[0..., 0..., 0..<offset, 0...])
     }
 }

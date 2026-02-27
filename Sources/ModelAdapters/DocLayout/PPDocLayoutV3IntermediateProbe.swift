@@ -64,18 +64,19 @@ final class PPDocLayoutV3IntermediateProbe: @unchecked Sendable {
 
         let value: MLXArray
         if index.count <= 4 {
-            value = switch index.count {
-            case 1:
-                tensor[index[0]]
-            case 2:
-                tensor[index[0], index[1]]
-            case 3:
-                tensor[index[0], index[1], index[2]]
-            case 4:
-                tensor[index[0], index[1], index[2], index[3]]
-            default:
-                fatalError("Unreachable")
-            }
+            value =
+                switch index.count {
+                case 1:
+                    tensor[index[0]]
+                case 2:
+                    tensor[index[0], index[1]]
+                case 3:
+                    tensor[index[0], index[1], index[2]]
+                case 4:
+                    tensor[index[0], index[1], index[2], index[3]]
+                default:
+                    fatalError("Unreachable")
+                }
         } else {
             var sliced = tensor
             for idx in index {

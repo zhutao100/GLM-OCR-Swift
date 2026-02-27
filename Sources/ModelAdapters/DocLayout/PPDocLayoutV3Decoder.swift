@@ -118,7 +118,7 @@ private func multiScaleDeformableAttentionCore(
         let levelLen = shape.height * shape.width
         precondition(start + levelLen <= sequenceLength, "value does not contain enough elements for spatialShapesList")
 
-        let valueLevel = value[0..., start ..< (start + levelLen), 0..., 0...]
+        let valueLevel = value[0..., start..<(start + levelLen), 0..., 0...]
             .reshaped(batch, shape.height, shape.width, numHeads, headDim)
             .transposed(0, 3, 1, 2, 4)
             .reshaped(batch * numHeads, shape.height, shape.width, headDim)
@@ -139,10 +139,11 @@ private func multiScaleDeformableAttentionCore(
         start += levelLen
     }
 
-    let sampledStack = stacked(sampledByLevel, axis: 2) // [B*H, Q, L, P, D]
+    let sampledStack = stacked(sampledByLevel, axis: 2)  // [B*H, Q, L, P, D]
     let sampledFlat = sampledStack.reshaped(batch * numHeads, numQueries, numLevels * numPoints, headDim)
 
-    let weightsFlat = attentionWeights
+    let weightsFlat =
+        attentionWeights
         .transposed(0, 2, 1, 3, 4)
         .reshaped(batch * numHeads, numQueries, numLevels * numPoints)
 
@@ -151,9 +152,10 @@ private func multiScaleDeformableAttentionCore(
     let weightsAccum = weightsFlat.asType(accumDType)
 
     let weighted = sampledAccum * weightsAccum.expandedDimensions(axis: -1)
-    let summed = weighted.sum(axis: 2) // [B*H, Q, D]
+    let summed = weighted.sum(axis: 2)  // [B*H, Q, D]
 
-    let merged = summed
+    let merged =
+        summed
         .reshaped(batch, numHeads, numQueries, headDim)
         .transposed(0, 2, 1, 3)
         .reshaped(batch, numQueries, numHeads * headDim)
@@ -232,10 +234,10 @@ final class PPDocLayoutV3MultiscaleDeformableAttentionCore: Module {
         if numCoordinates == 2 {
             let widths = spatialShapes[0..., 1].asType(hiddenStates.dtype)
             let heights = spatialShapes[0..., 0].asType(hiddenStates.dtype)
-            let offsetNormalizer = stacked([widths, heights], axis: -1) // [L, 2] (w, h)
+            let offsetNormalizer = stacked([widths, heights], axis: -1)  // [L, 2] (w, h)
             samplingLocations =
                 referencePoints[0..., 0..., .newAxis, 0..., .newAxis, 0...]
-                    + samplingOffsetsTensor / offsetNormalizer[.newAxis, .newAxis, .newAxis, 0..., .newAxis, 0...]
+                + samplingOffsetsTensor / offsetNormalizer[.newAxis, .newAxis, .newAxis, 0..., .newAxis, 0...]
         } else if numCoordinates == 4 {
             let base = referencePoints[0..., 0..., .newAxis, 0..., .newAxis, ..<2]
             let scale = referencePoints[0..., 0..., .newAxis, 0..., .newAxis, 2...] * 0.5
@@ -277,7 +279,8 @@ final class PPDocLayoutV3DecoderLayerCore: Module {
 
     init(modelConfig: PPDocLayoutV3ModelConfig) {
         let dModel = modelConfig.dModel
-        _selfAttn.wrappedValue = PPDocLayoutV3SelfAttentionCore(hiddenSize: dModel, numHeads: modelConfig.decoderAttentionHeads)
+        _selfAttn.wrappedValue = PPDocLayoutV3SelfAttentionCore(
+            hiddenSize: dModel, numHeads: modelConfig.decoderAttentionHeads)
 
         let lnEps = Float(modelConfig.layerNormEps ?? 1e-5)
         _selfAttnLayerNorm.wrappedValue = LayerNorm(dimensions: dModel, eps: lnEps)
@@ -333,7 +336,8 @@ final class PPDocLayoutV3DecoderLayerCore: Module {
             let variance = ((selfSum - meanExpanded) * (selfSum - meanExpanded)).sum(axis: 2) / denom
 
             probe?.capture("\(probePrefix).self_attn_layer_norm.input_mean", tensor: meanExpanded)
-            probe?.capture("\(probePrefix).self_attn_layer_norm.input_var", tensor: variance.expandedDimensions(axis: -1))
+            probe?.capture(
+                "\(probePrefix).self_attn_layer_norm.input_var", tensor: variance.expandedDimensions(axis: -1))
         }
 
         hiddenStates = selfAttnLayerNorm(selfSum)
@@ -388,7 +392,8 @@ final class PPDocLayoutV3DecoderLayerCore: Module {
             let variance = ((captureTensor - meanExpanded) * (captureTensor - meanExpanded)).sum(axis: 2) / denom
 
             probe?.capture("\(probePrefix).encoder_attn_layer_norm.input_mean", tensor: meanExpanded)
-            probe?.capture("\(probePrefix).encoder_attn_layer_norm.input_var", tensor: variance.expandedDimensions(axis: -1))
+            probe?.capture(
+                "\(probePrefix).encoder_attn_layer_norm.input_var", tensor: variance.expandedDimensions(axis: -1))
         }
 
         hiddenStates = encoderAttnLayerNorm(crossSum)
@@ -419,7 +424,9 @@ final class PPDocLayoutV3DecoderCore: Module {
 
     init(modelConfig: PPDocLayoutV3ModelConfig) {
         numQueries = modelConfig.numQueries
-        _layers.wrappedValue = (0 ..< max(modelConfig.decoderLayers, 1)).map { _ in PPDocLayoutV3DecoderLayerCore(modelConfig: modelConfig) }
+        _layers.wrappedValue = (0..<max(modelConfig.decoderLayers, 1)).map { _ in
+            PPDocLayoutV3DecoderLayerCore(modelConfig: modelConfig)
+        }
         _queryPosHead.wrappedValue = PPMLPPredictionHead(
             inputDim: 4,
             hiddenDim: 2 * modelConfig.dModel,
@@ -470,7 +477,8 @@ final class PPDocLayoutV3DecoderCore: Module {
                 probePrefix: layerPrefix
             )
 
-            probe?.capture("\(layerPrefix).hidden_states.out", tensor: hiddenStates + 0.0.asMLXArray(dtype: hiddenStates.dtype))
+            probe?.capture(
+                "\(layerPrefix).hidden_states.out", tensor: hiddenStates + 0.0.asMLXArray(dtype: hiddenStates.dtype))
 
             let predictedCorners = bboxHead(hiddenStates)
             let newReferencePoints = sigmoid(predictedCorners + inverseSigmoid(referencePoints))
@@ -482,7 +490,7 @@ final class PPDocLayoutV3DecoderCore: Module {
             logits = classHead(outQuery)
             probe?.capture("\(layerPrefix).logits", tensor: logits)
 
-            let validQuery = outQuery // no denoising during inference
+            let validQuery = outQuery  // no denoising during inference
             let orderHidden = decoderOrderHead[idx](validQuery)
             orderLogits = decoderGlobalPointer(orderHidden)
         }

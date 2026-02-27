@@ -84,10 +84,10 @@ public struct GLMOCRImageProcessor: Sendable {
         )
         let imageTensor = try ImageTensorConverter.toTensor(resized, options: conversionOptions)
 
-        let hwc = imageTensor.tensor.squeezed(axis: 0) // [H, W, C]
+        let hwc = imageTensor.tensor.squeezed(axis: 0)  // [H, W, C]
         let depth = temporalPatchSize
-        let stacked = MLX.stacked(Array(repeating: hwc, count: depth), axis: 0) // [D, H, W, C]
-        let pixelValues = stacked.expandedDimensions(axis: 0) // [1, D, H, W, C]
+        let stacked = MLX.stacked(Array(repeating: hwc, count: depth), axis: 0)  // [D, H, W, C]
+        let pixelValues = stacked.expandedDimensions(axis: 0)  // [1, D, H, W, C]
 
         let gridH = targetHeight / patchSize
         let gridW = targetWidth / patchSize
@@ -170,7 +170,8 @@ public struct GLMOCRImageProcessor: Sendable {
         let scaledImage = filter.outputImage ?? normalized
 
         let scaledExtent = scaledImage.extent
-        let scaledNormalized = scaledImage.transformed(by: CGAffineTransform(translationX: -scaledExtent.minX, y: -scaledExtent.minY))
+        let scaledNormalized = scaledImage.transformed(
+            by: CGAffineTransform(translationX: -scaledExtent.minX, y: -scaledExtent.minY))
         return scaledNormalized.cropped(to: CGRect(origin: .zero, size: size))
     }
 }

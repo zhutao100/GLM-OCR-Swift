@@ -105,7 +105,8 @@ public struct GLMOCRTokenizer: Sendable {
 
         let endOfTextId = try requireID("<|endoftext|>")
         if endOfTextId != ids.padId {
-            throw GLMOCRTokenizerError.mismatchedTokenID(token: "<|endoftext|>", expected: ids.padId, actual: endOfTextId)
+            throw GLMOCRTokenizerError.mismatchedTokenID(
+                token: "<|endoftext|>", expected: ids.padId, actual: endOfTextId)
         }
 
         return GLMOCRTokenizer(tokenizer: tokenizer, specialTokenIDs: ids)

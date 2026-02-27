@@ -22,25 +22,25 @@ extension PDFPagesSpecError: LocalizedError {
         switch self {
         case .emptyToken:
             "empty token"
-        case let .couldNotParseToken(token):
+        case .couldNotParseToken(let token):
             "could not parse token '\(token)'"
-        case let .invalidBrackets(token):
+        case .invalidBrackets(let token):
             "invalid brackets in token '\(token)'"
         case .mixedAllWithExplicit:
             "cannot mix 'all' with explicit page selections"
-        case let .invalidPageCount(value):
+        case .invalidPageCount(let value):
             "invalid PDF page count \(value)"
-        case let .pageMustBeAtLeast1(value):
+        case .pageMustBeAtLeast1(let value):
             "page must be >= 1 (got \(value))"
-        case let .rangeStartAfterEnd(start, end):
+        case .rangeStartAfterEnd(let start, let end):
             "range start must be <= end (got \(start)-\(end))"
-        case let .pageOutOfRange(page, pageCount):
+        case .pageOutOfRange(let page, let pageCount):
             "page \(page) is out of range (pageCount=\(pageCount))"
         }
     }
 }
 
-public extension PDFPagesSpec {
+extension PDFPagesSpec {
     /// Parse a fuzzy CLI/App pages spec.
     ///
     /// Examples:
@@ -49,7 +49,7 @@ public extension PDFPagesSpec {
     /// - "1" → `.explicit([1...1])`
     /// - "1-3" / "[1-3]" → `.explicit([1...3])`
     /// - "1, [3-5], 9" → `.explicit([1...1, 3...5, 9...9])` (normalized + merged)
-    static func parse(_ raw: String?) throws -> PDFPagesSpec {
+    public static func parse(_ raw: String?) throws -> PDFPagesSpec {
         guard let raw else { return .all }
 
         let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -93,13 +93,13 @@ public extension PDFPagesSpec {
     }
 
     /// Resolve to a deduped, ascending list of 1-based page indices.
-    func resolve(pageCount: Int) throws -> [Int] {
+    public func resolve(pageCount: Int) throws -> [Int] {
         guard pageCount >= 1 else { throw PDFPagesSpecError.invalidPageCount(pageCount) }
 
         switch self {
         case .all:
-            return Array(1 ... pageCount)
-        case let .explicit(ranges):
+            return Array(1...pageCount)
+        case .explicit(let ranges):
             var pages: [Int] = []
             pages.reserveCapacity(ranges.reduce(0) { $0 + ($1.count) })
 
@@ -143,14 +143,14 @@ private func parseRangeOrSingle(_ raw: String, originalToken: String) throws -> 
     case 1:
         let value = try parseInt(parts[0])
         guard value >= 1 else { throw PDFPagesSpecError.pageMustBeAtLeast1(value) }
-        return value ... value
+        return value...value
     case 2:
         let start = try parseInt(parts[0])
         let end = try parseInt(parts[1])
         guard start >= 1 else { throw PDFPagesSpecError.pageMustBeAtLeast1(start) }
         guard end >= 1 else { throw PDFPagesSpecError.pageMustBeAtLeast1(end) }
         guard start <= end else { throw PDFPagesSpecError.rangeStartAfterEnd(start: start, end: end) }
-        return start ... end
+        return start...end
     default:
         throw PDFPagesSpecError.couldNotParseToken(originalToken)
     }
@@ -172,7 +172,7 @@ private func normalizeAndMerge(_ ranges: [ClosedRange<Int>]) throws -> [ClosedRa
         guard range.upperBound >= 1 else { throw PDFPagesSpecError.pageMustBeAtLeast1(range.upperBound) }
 
         if let last = merged.last, range.lowerBound <= last.upperBound + 1 {
-            merged[merged.count - 1] = last.lowerBound ... max(last.upperBound, range.upperBound)
+            merged[merged.count - 1] = last.lowerBound...max(last.upperBound, range.upperBound)
         } else {
             merged.append(range)
         }

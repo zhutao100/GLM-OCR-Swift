@@ -21,12 +21,13 @@ public struct GLMOCRLayoutOptions: Sendable, Equatable {
     public func resolvedMaxConcurrentRegions(physicalMemory: UInt64 = ProcessInfo.processInfo.physicalMemory) -> Int {
         let auto: Int = physicalMemory < 24 * 1024 * 1024 * 1024 ? 1 : 2
 
-        let base: Int = switch concurrency {
-        case .auto:
-            auto
-        case let .fixed(value):
-            value
-        }
+        let base: Int =
+            switch concurrency {
+            case .auto:
+                auto
+            case .fixed(let value):
+                value
+            }
 
         let cap = max(1, maxConcurrentRegionsCap)
         return min(max(1, base), cap)
@@ -97,7 +98,9 @@ public actor GLMOCRLayoutPipeline: OCRPipeline {
         _ = try await (loadOCR, loadLayout)
     }
 
-    public func recognizePDF(url: URL, pagesSpec: PDFPagesSpec = .all, options: GenerateOptions) async throws -> OCRResult {
+    public func recognizePDF(url: URL, pagesSpec: PDFPagesSpec = .all, options: GenerateOptions) async throws
+        -> OCRResult
+    {
         guard url.pathExtension.lowercased() == "pdf" else {
             throw GLMOCRLayoutPipelineError.expectedPDF(url)
         }
@@ -141,27 +144,29 @@ public actor GLMOCRLayoutPipeline: OCRPipeline {
     }
 
     public func recognize(_ input: GLMOCRInput, task: OCRTask, options: GenerateOptions) async throws -> OCRResult {
-        _ = task // task is determined per-region in layout mode.
+        _ = task  // task is determined per-region in layout mode.
 
         let (url, page) = try validateFileInput(input)
 
         try await ensureLoaded(progress: nil)
 
-        let layoutImage: CIImage = if url.pathExtension.lowercased() == "pdf" {
-            try VisionIO.loadCIImage(fromPDF: url, page: page, dpi: CGFloat(pdfDPI))
-        } else {
-            try VisionIO.loadCIImage(from: url)
-        }
+        let layoutImage: CIImage =
+            if url.pathExtension.lowercased() == "pdf" {
+                try VisionIO.loadCIImage(fromPDF: url, page: page, dpi: CGFloat(pdfDPI))
+            } else {
+                try VisionIO.loadCIImage(from: url)
+            }
 
         try Task.checkCancellation()
         let detected = try await layoutDetector.detect(ciImage: layoutImage)
 
         try Task.checkCancellation()
-        let cropImage: CIImage = if url.pathExtension.lowercased() == "pdf" {
-            try VisionIO.loadCIImage(fromPDF: url, page: page, dpi: CGFloat(pdfDPI))
-        } else {
-            try VisionIO.loadCIImage(from: url)
-        }
+        let cropImage: CIImage =
+            if url.pathExtension.lowercased() == "pdf" {
+                try VisionIO.loadCIImage(fromPDF: url, page: page, dpi: CGFloat(pdfDPI))
+            } else {
+                try VisionIO.loadCIImage(from: url)
+            }
 
         let resolvedConcurrency = layoutOptions.resolvedMaxConcurrentRegions()
         var regions = detected
@@ -205,12 +210,13 @@ public actor GLMOCRLayoutPipeline: OCRPipeline {
                         fillColor: .white
                     )
 
-                    let mappedTask: OCRTask = switch item.taskType {
-                    case .text: .text
-                    case .table: .table
-                    case .formula: .formula
-                    case .skip, .abandon: .text
-                    }
+                    let mappedTask: OCRTask =
+                        switch item.taskType {
+                        case .text: .text
+                        case .table: .table
+                        case .formula: .formula
+                        case .skip, .abandon: .text
+                        }
 
                     let result = try await regionOCR.recognize(ciImage: cropped, task: mappedTask, options: options)
                     return (item.offset, result.text)
@@ -239,14 +245,16 @@ public actor GLMOCRLayoutPipeline: OCRPipeline {
         let pageIndex = url.pathExtension.lowercased() == "pdf" ? (page - 1) : 0
         let (document, markdown) = LayoutResultFormatter.format(pages: [OCRPage(index: pageIndex, regions: regions)])
 
-        return OCRResult(text: markdown, rawTokens: nil, document: document, diagnostics: .init(modelID: modelID, revision: revision))
+        return OCRResult(
+            text: markdown, rawTokens: nil, document: document, diagnostics: .init(modelID: modelID, revision: revision)
+        )
     }
 
     private func validateFileInput(_ input: GLMOCRInput) throws -> (url: URL, page: Int) {
         let url: URL
         let page: Int
         switch input {
-        case let .file(u, p):
+        case .file(let u, let p):
             url = u
             page = p
         case .predecodedText:

@@ -28,8 +28,8 @@ enum GLMOCRTestEnv {
     ) throws -> Data {
         guard let url = Bundle.module.url(forResource: name, withExtension: "json") else {
             throw XCTSkip(
-                "Golden fixture '\(name).json' not found in test bundle. " +
-                    "Generate it via scripts/generate_glmocr_golden.py and place it under Tests/GLMOCRAdapterTests/Fixtures/.",
+                "Golden fixture '\(name).json' not found in test bundle. "
+                    + "Generate it via scripts/generate_glmocr_golden.py and place it under Tests/GLMOCRAdapterTests/Fixtures/.",
                 file: file,
                 line: line
             )
@@ -51,10 +51,11 @@ func ensureMLXMetalLibraryColocated(for testCase: AnyClass) throws {
     //   <bin>/GLMOCRSwiftPackageTests.xctest/Contents/MacOS/GLMOCRSwiftPackageTests
     // and scripts/build_mlx_metallib.sh writes:
     //   <bin>/mlx.metallib
-    let binRoot = binaryDir
-        .deletingLastPathComponent() // Contents
-        .deletingLastPathComponent() // *.xctest
-        .deletingLastPathComponent() // <bin>
+    let binRoot =
+        binaryDir
+        .deletingLastPathComponent()  // Contents
+        .deletingLastPathComponent()  // *.xctest
+        .deletingLastPathComponent()  // <bin>
     let built = binRoot.appendingPathComponent("mlx.metallib")
     guard FileManager.default.fileExists(atPath: built.path) else {
         throw XCTSkip("mlx.metallib not found at \(built.path). Run scripts/build_mlx_metallib.sh first.")

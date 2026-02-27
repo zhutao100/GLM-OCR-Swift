@@ -33,7 +33,7 @@ public struct PromptTemplate: Sendable, Equatable {
             "Extract formulas. Prefer LaTeX for math."
         case .table:
             "Extract tables. Prefer Markdown tables."
-        case let .structuredJSON(schema):
+        case .structuredJSON(let schema):
             "Extract structured data and return JSON that matches this schema:\n\n\(schema)"
         }
     }

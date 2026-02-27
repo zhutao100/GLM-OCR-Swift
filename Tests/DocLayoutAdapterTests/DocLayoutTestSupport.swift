@@ -22,8 +22,8 @@ enum DocLayoutTestEnv {
     ) throws -> Data {
         guard let url = Bundle.module.url(forResource: name, withExtension: "json") else {
             throw XCTSkip(
-                "Golden fixture '\(name).json' not found in test bundle. " +
-                    "Generate it via scripts/generate_ppdoclayoutv3_golden.py and place it under Tests/DocLayoutAdapterTests/Fixtures/.",
+                "Golden fixture '\(name).json' not found in test bundle. "
+                    + "Generate it via scripts/generate_ppdoclayoutv3_golden.py and place it under Tests/DocLayoutAdapterTests/Fixtures/.",
                 file: file,
                 line: line
             )
@@ -41,10 +41,11 @@ func ensureMLXMetalLibraryColocated(for testCase: AnyClass) throws {
     let colocated = binaryDir.appendingPathComponent("mlx.metallib")
     if FileManager.default.fileExists(atPath: colocated.path) { return }
 
-    let binRoot = binaryDir
-        .deletingLastPathComponent() // Contents
-        .deletingLastPathComponent() // *.xctest
-        .deletingLastPathComponent() // <bin>
+    let binRoot =
+        binaryDir
+        .deletingLastPathComponent()  // Contents
+        .deletingLastPathComponent()  // *.xctest
+        .deletingLastPathComponent()  // <bin>
     let built = binRoot.appendingPathComponent("mlx.metallib")
     guard FileManager.default.fileExists(atPath: built.path) else {
         throw XCTSkip("mlx.metallib not found at \(built.path). Run scripts/build_mlx_metallib.sh first.")
@@ -66,9 +67,9 @@ func makeDeterministicCIImage(imageSize: Int) throws -> CIImage {
     let bDenom = max((width - 1) + (height - 1), 1)
 
     var pixels = [UInt8](repeating: 0, count: width * height * 4)
-    for y in 0 ..< height {
+    for y in 0..<height {
         let g = (y * 255) / hDenom
-        for x in 0 ..< width {
+        for x in 0..<width {
             let r = (x * 255) / wDenom
             let b = ((x + y) * 255) / bDenom
             let idx = (y * width + x) * 4
@@ -89,19 +90,21 @@ func makeDeterministicCIImage(imageSize: Int) throws -> CIImage {
         CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
     )
 
-    guard let cg = CGImage(
-        width: width,
-        height: height,
-        bitsPerComponent: 8,
-        bitsPerPixel: 32,
-        bytesPerRow: width * 4,
-        space: colorSpace,
-        bitmapInfo: bitmapInfo,
-        provider: provider,
-        decode: nil,
-        shouldInterpolate: false,
-        intent: .defaultIntent
-    ) else {
+    guard
+        let cg = CGImage(
+            width: width,
+            height: height,
+            bitsPerComponent: 8,
+            bitsPerPixel: 32,
+            bytesPerRow: width * 4,
+            space: colorSpace,
+            bitmapInfo: bitmapInfo,
+            provider: provider,
+            decode: nil,
+            shouldInterpolate: false,
+            intent: .defaultIntent
+        )
+    else {
         throw DeterministicImageError.cgImageCreationFailed
     }
 
