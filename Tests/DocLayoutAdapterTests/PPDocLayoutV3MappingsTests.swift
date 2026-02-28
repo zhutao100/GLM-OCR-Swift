@@ -7,6 +7,7 @@ final class PPDocLayoutV3MappingsTests: XCTestCase {
         XCTAssertEqual(PPDocLayoutV3Mappings.labelTaskMapping["doc_title"], .text)
         XCTAssertEqual(PPDocLayoutV3Mappings.labelTaskMapping["table"], .table)
         XCTAssertEqual(PPDocLayoutV3Mappings.labelTaskMapping["display_formula"], .formula)
+        XCTAssertEqual(PPDocLayoutV3Mappings.labelTaskMapping["formula"], .formula)
         XCTAssertEqual(PPDocLayoutV3Mappings.labelTaskMapping["image"], .skip)
         XCTAssertEqual(PPDocLayoutV3Mappings.labelTaskMapping["header"], .abandon)
     }
@@ -15,6 +16,7 @@ final class PPDocLayoutV3MappingsTests: XCTestCase {
         XCTAssertEqual(PPDocLayoutV3Mappings.labelToVisualizationKind["doc_title"], .text)
         XCTAssertEqual(PPDocLayoutV3Mappings.labelToVisualizationKind["table"], .table)
         XCTAssertEqual(PPDocLayoutV3Mappings.labelToVisualizationKind["display_formula"], .formula)
+        XCTAssertEqual(PPDocLayoutV3Mappings.labelToVisualizationKind["formula"], .formula)
         XCTAssertEqual(PPDocLayoutV3Mappings.labelToVisualizationKind["image"], .image)
     }
 

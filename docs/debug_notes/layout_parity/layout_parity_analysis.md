@@ -1,399 +1,346 @@
 # Layout Mode Parity Gap Technical Analysis
-**Date:** 2026-02-27
-**Scope:** `GLM-OCR-Swift` (Swift/MLX) vs reference outputs in `examples/reference_result/*` and upstream implementations in the official `GLM-OCR` Github project and the Python `transformers` library.
+**Created:** 2026-02-27
+**Last updated:** 2026-02-28
+**Scope:** `GLM-OCR-Swift` (Swift/MLX) vs parity baseline outputs in `examples/reference_result/*`, cross-checked against upstream `GLM-OCR` (Python) and HF snapshot metadata.
+
+This doc is intentionally “debug-notes style”: it records hypotheses, investigation evidence, fixes made, and what was ruled out.
+
+---
+
+## 0. Current status (as of 2026-02-28)
+
+### ✅ Fixed (verified)
+1. **Formula regions were dropped before OCR (structural failure)** due to a **label-string taxonomy mismatch**:
+   - HF snapshot `PP-DocLayoutV3_safetensors/config.json` emits `"formula"` for the formula class IDs, while
+   - Swift mappings only handled `"display_formula"` / `"inline_formula"`.
+
+   Fix: add `"formula"` as an alias in `PPDocLayoutV3Mappings` so those regions survive layout detection and are OCR’d/formatted as formulas.
+
+2. **Block-list JSON export mislabeled tables/formulas as `"text"`** (schema mismatch vs `examples/reference_result/*/*.json`).
+
+   Fix: export `"table"` / `"formula"` labels in `OCRDocument.toBlockListExport()`.
+
+### ✅ Verified impact (structural parity restored for the “missing formulas” class of diffs)
+After the fixes above, running the CLI in layout mode on key examples produces the same **block-count + label distribution** as the reference JSON:
+
+- `paper.png`: **30 blocks** → `19 text + 11 formula` (previously `19 text` only).
+- `page.png`: **28 blocks** → `22 text + 6 formula` (previously `22 text` only).
+- `table.png`: **1 block** labeled `table` (previously exported as `text`).
+- `GLM-4.5V_Pages_1_2_3.pdf`: formulas now appear on the correct page(s) (e.g. Page 3 shows `+2` formula blocks), matching the reference’s label distribution.
+
+These were the dominant layout-mode parity gaps observed in `examples/result/*` vs `examples/reference_result/*`.
+
+> Note: `examples/result/*` is generated output. The committed `examples/result/*` in git will still reflect the pre-fix state until `scripts/run_examples.sh --clean` is rerun and outputs are updated.
+
+### Still open (likely next-order causes of content-level drift)
+- **Polygon/mask-based crops** (`polygon_points` from `out_masks`): Swift currently uses bbox-only crops (polygons are `nil`).
+- **Crop rounding semantics**: Swift tends to expand bottom/right edges (floor/ceil) vs upstream truncation (`int(...)`).
+- Upstream layout heuristics not mirrored:
+  - `filter_large_image` (drops huge “image” regions),
+  - “min-size validity” pre-filter that masks logits for too-small boxes.
+- **Generation policy mismatch**: Swift is hard-greedy argmax and the CLI forces `temperature=0, topP=1`, while upstream config defaults are sampling-heavy (temperature/top_p/top_k + repetition penalty).
 
 ---
 
 ## 1. Executive summary
 
-Layout-mode parity gaps in `GLM-OCR-Swift` are dominated by **structural** failures (missing regions / wrong labels), followed by **crop fidelity** and **generation** differences.
+The biggest parity discrepancies in layout mode were not “model quality” issues—they were **structural pipeline mismatches**:
 
-### High-confidence / “definite” root causes (fix first)
-1. **All formula regions are being dropped before OCR** due to a **label-string taxonomy mismatch** between:
-   - the layout model snapshot (`PP-DocLayoutV3_safetensors` HF `config.json`) which emits label string `"formula"` for class IDs **5** and **15**, and
-   - Swift mappings which only recognize `"display_formula"` / `"inline_formula"` and therefore classify `"formula"` as `.abandon`.
+- **Formulas disappeared entirely** because the layout detector’s label strings differed from the mapping table used to decide which regions to OCR vs abandon.
+- Even when OCR was correct, the emitted **examples-style JSON schema** was wrong because labels were collapsed.
 
-   Result: formula blocks never reach OCR → no `$$ … $$` blocks → large block-count deficits (e.g. `paper`: 19 vs 30).
+Once these two were fixed, the remaining parity differences are primarily **content-level** (OCR text differences) and are more plausibly explained by:
 
-2. **Block-list JSON export collapses everything to `"text"` except images**, even when the document contains tables/formulas.
-   Result: JSON parity fails even when Markdown may look OK (e.g. `table.json` label mismatch).
-
-### High-impact secondary causes (address after the above)
-3. **PP-DocLayoutV3 post-processing is incomplete vs Transformers / upstream GLM-OCR:**
-   - no `out_masks` → **no polygon_points** → crops are rectangle-only (more contamination, worse OCR on dense math/tables),
-   - bbox normalization + crop rounding differs (Swift uses floor/ceil; upstream uses truncation),
-   - order-seq uses **1-based ranks** in Swift while Transformers uses **0-based**, and Swift discards `order == 0`.
-
-4. **GLM-OCR generation is hard-greedy argmax** and ignores `GenerateOptions.temperature/topP` (and lacks top_k / repetition penalty).
-   Result: content-level drift such as `Q→O`, `x_n→x_2`, punctuation/spacing differences.
+- crop tightness / polygon masks (more background contamination → worse OCR on math),
+- rounding differences,
+- generation/sampling differences.
 
 ---
 
-## 2. Baseline symptom profile (as observed in repo examples)
+## 2. Baseline symptom profile (pre-fix)
 
-The most diagnostic pattern is **“missing formula blocks”**:
+The most diagnostic pattern was “**missing formula blocks**”:
 
-- `examples/reference_result/paper/paper.json` contains multiple blocks with `"label": "formula"`, while
-  `examples/result/paper/paper.json` contains **only `"label": "text"`** and has fewer blocks overall.
-- Similar pattern for `page` and `GLM-4.5V_Pages_1_2_3`.
+- `examples/reference_result/paper/paper.json`: `19 text + 11 formula` (30 blocks total)
+- `examples/result/paper/paper.json`: `19 text` only (19 blocks total)
 
-A second, independent symptom is **export-label collapse**:
-- `examples/reference_result/table/table.json` uses `"label": "table"` but Swift emits `"label": "text"` even when table Markdown is close.
+Similar deficits existed for:
 
-These two symptoms have two correspondingly high-certainty causes (Sections 3.1 and 3.2).
+- `page` (`+6` formulas missing),
+- `GLM-4.5V_Pages_1_2_3` (`+2` formulas missing).
 
----
+This was corroborated by the repo’s report harness:
 
-## 3. Detailed findings and root causes
-
-### 3.1 Root cause #1 (definite): PP-DocLayout label-string mismatch drops formulas as `.abandon`
-
-#### What’s happening
-The HF `PP-DocLayoutV3_safetensors/config.json` defines:
-- id2label[5]  = `"formula"`
-- id2label[15] = `"formula"`
-(and duplicates for header/footer/text)
-
-Swift’s mapping file `Sources/ModelAdapters/DocLayout/PPDocLayoutV3Mappings.swift` does **not** contain the `"formula"` label in either:
-- `labelTaskMapping` (used to determine OCR task / drop behavior),
-- `labelToVisualizationKind` (used to format and canonicalize output kinds).
-
-Relevant code (Swift):
-- `PPDocLayoutV3Postprocess.apply()` resolves `taskType` via:
-  `PPDocLayoutV3Mappings.labelTaskMapping[label] ?? .abandon`
-- `PPDocLayoutV3Detector.detect()` drops regions where `taskType == .abandon` before returning regions to the pipeline.
-- `LayoutResultFormatter` only formats formulas if `region.kind == .formula`; missing mapping yields `.unknown`.
-
-#### Evidence (Swift code pointers)
-- Missing `"formula"` in mapping: `PPDocLayoutV3Mappings.swift` lines 33–35 and 57–60 show only `display_formula` / `inline_formula`.
-- Regions dropped: `PPDocLayoutV3Detector.detect()` filters `.abandon` before constructing `OCRRegion` output.
-
-#### Why this exactly matches the observed diffs
-If formulas are filtered during layout detection:
-- block counts drop (removing all formula regions),
-- Markdown loses all `$$ … $$` formula blocks,
-- subsequent blocks “shift upward” in index and ordering.
-
-This is exactly what `paper.json` exhibits: the reference has multiple formula blocks; Swift has none.
-
-#### Fix (minimal and correct)
-Add `"formula"` to **both** mappings in `PPDocLayoutV3Mappings`:
-
-- `labelTaskMapping["formula"] = .formula`
-- `labelToVisualizationKind["formula"] = .formula`
-
-This alone should restore formula-region survival and formula rendering.
-
-#### Fix (more robust)
-Instead of trusting `config.json` label strings, use a **canonical mapping by class ID** aligned with upstream `glmocr/config.yaml`. This avoids future drift when HF snapshots collapse/rename labels (e.g. footer/header duplicates).
+- `python3 scripts/compare_examples.py --lane both` (pre-fix) produced:
+  - `paper`: `blocks expected/actual: 30/19`, multiple `label mismatch expected='formula' actual='text'`
+  - `table`: `label mismatch expected='table' actual='text'` (content OK but schema label wrong)
 
 ---
 
-### 3.2 Root cause #2 (definite): Block-list JSON export collapses labels to text/image
+## 3. Root causes and fixes
 
-#### What’s happening
-`Sources/VLMRuntimeKit/OCRBlockListExport.swift` implements:
+### 3.1 Root cause #1 (definite): PP-DocLayout label-string mismatch dropped formulas as `.abandon` (✅ fixed)
 
-- `"image"` if `.image`
-- `"text"` for all other kinds (including `.table` and `.formula`)
+#### What happened
+The Swift layout pipeline loads `PPDocLayoutV3Config` from the HF snapshot `config.json`, then uses `config.id2label` to convert predicted class IDs into **label strings**, and finally maps those strings to:
 
-This contradicts the repository’s own reference JSON fixtures which use `text/table/formula/image`.
+- a `LayoutTaskType` (text/table/formula/skip/abandon) via `PPDocLayoutV3Mappings.labelTaskMapping`.
 
-#### Fix (minimal and correct)
-Export `OCRRegionKind` faithfully:
+Before the fix:
+- HF snapshot returned `"formula"` for the formula classes (IDs 5 and 15 in the current snapshot),
+- but Swift only recognized `"display_formula"` / `"inline_formula"`,
+- so `"formula"` fell through to the default `?? .abandon`,
+- and `PPDocLayoutV3Detector.detect()` filtered those regions out before OCR.
 
-- `.text -> "text"`
-- `.table -> "table"`
-- `.formula -> "formula"`
-- `.image -> "image"`
-- `.unknown -> "text"` (or `"unknown"` if you prefer strictness)
+#### Evidence (investigation)
+- HF snapshot label strings (local cache snapshot used during investigation):
+  - `~/.cache/huggingface/hub/models--PaddlePaddle--PP-DocLayoutV3_safetensors/snapshots/a0abee1e2bb505e5662993235af873a5d89851e3/config.json`
+  - `id2label["5"] == "formula"`, `id2label["15"] == "formula"`.
 
-If you want to mirror upstream more precisely, mimic the upstream “bucketization” logic (many native labels map into those four canonical buckets).
+- Swift code path that abandoned unknown labels:
+  - `PPDocLayoutV3Postprocess.apply()` maps `taskType` via `PPDocLayoutV3Mappings.labelTaskMapping[label] ?? .abandon`.
+  - `PPDocLayoutV3Detector.detect()` drops `.abandon` regions before returning `OCRRegion`s to the layout pipeline.
 
----
+#### Fix applied
+Add `"formula"` as an alias in BOTH mapping tables:
 
-### 3.3 PP-DocLayoutV3 post-processing mismatches (high impact after #1/#2)
-
-This is the next most important cluster for **layout-mode quality** once formula regions exist.
-
-#### 3.3.1 Missing `out_masks` → missing polygon_points → rectangle-only crops
-Transformers’ `PPDocLayoutV3ImageProcessorFast.post_process_object_detection()`:
-- gathers `outputs.out_masks` aligned to top-k selections,
-- thresholds masks, and
-- extracts `polygon_points` via contouring (`findContours`, `approxPolyDP`),
-- returns polygon_points for each selected box.
-
-Upstream GLM-OCR then uses polygon masking in `crop_image_region()` to whiten pixels outside the polygon, reducing contamination.
-
-Swift:
-- `PPDocLayoutV3Model.postProcessObjectDetection()` returns `polygons: nil`,
-- `PPDocLayoutV3Postprocess` falls back to bbox rectangle polygons,
-- `VisionIO.cropRegion` supports polygon masking, but it never gets a real polygon.
-
-**Impact:** crops include more neighboring content; math/table OCR quality degrades.
-
-**Recommended implementation approach (Swift)**
-1. Extend `PPDocLayoutV3Model.RawOutputs` to also return `outMasks` (and their spatial size).
-2. In `postProcessObjectDetection`, gather top-k masks aligned with selected indices (matching Transformers).
-3. Threshold masks and implement mask→polygon conversion:
-   - Minimal viable: compute a tight polygon via marching squares / contour tracing on a binary mask.
-   - Match Transformers: approximate the largest contour, simplify with an epsilon ratio ~0.004, then apply the “custom vertices” logic.
-4. Scale polygons to original image coordinates using the same scale ratios used by Transformers (note the `/4` scaling in their implementation).
-
-Even a simplified polygonization (largest contour, no fancy vertex customizations) is likely to noticeably improve OCR quality.
-
-#### 3.3.2 BBox normalization and crop rounding semantics differ from upstream
-Upstream GLM-OCR:
-- normalizes bbox coords with `int(...)` truncation for **all** components,
-- de-normalizes bbox to pixels again using `int(...)` truncation for **all** components.
-
-Swift:
-- `PPDocLayoutV3Model.toNormalizedBBox` uses floor for x1/y1 and **ceil** for x2/y2,
-- `VisionIO.cropRegion` uses floor for x1/y1 and **ceil** for x2/y2 again.
-
-**Impact:** systematic crop expansion on bottom-right edges → more contamination → OCR drift.
-
-**Fix**
-- Change bbox normalization to truncation for all components (match Python `int`).
-- Change crop de-normalization to truncation for all components (match Python crop).
-
-Also consider matching polygon-point rounding (Python truncates polygon points to int pixels; Swift currently uses float points into CGContext).
-
-#### 3.3.3 Order sequence indexing (0-based vs 1-based) and dropping 0
-Transformers `_get_order_seqs` returns ranks in `[0..N-1]`.
-Swift `computeOrderSeq` currently returns ranks in `[1..N]` and later code treats `order <= 0` as “missing”.
-
-This likely doesn’t change *relative* ordering, but it can affect edge cases and debug comparability.
-
-**Fix**
-- Return 0-based ranks (remove `+1`).
-- Preserve `order == 0` instead of converting it to `nil`.
-
-#### 3.3.4 Upstream “min-size validity” pre-filter exists; Swift omits it
-Upstream `glmocr/layout/layout_detector.py` applies a validity check based on mask resolution to suppress too-small boxes by setting corresponding logits to -100. This reduces noisy micro-boxes.
-
-Swift does not apply an equivalent pre-filter.
-
-**Fix**
-If you implement out_masks, port the same check:
-- compute min normalized width/height thresholds as `1/maskW`, `1/maskH`,
-- mask invalid queries in logits before top-k.
-
-#### 3.3.5 Upstream `filter_large_image` step is not mirrored
-Upstream `apply_layout_postprocess` removes “image” detections that cover too much of the page (threshold depends on orientation).
-
-Swift does not implement this step. This can change block counts/ordering on image-heavy pages.
-
----
-
-### 3.4 OCR generation mismatch (content-level drift)
-
-Swift’s GLM-OCR generation (`Sources/ModelAdapters/GLMOCR/GLMOCRModel.swift`) is:
-- greedy argmax at every step,
-- ignores `GenerateOptions.temperature` and `topP`,
-- does not implement `top_k` / repetition penalty present in upstream config defaults.
-
-Upstream GLM-OCR config defaults:
-- temperature 0.8, top_p 0.9, top_k 50, repetition_penalty 1.1.
-
-**Impact:** frequent token-level divergences, especially on ambiguous glyphs common in math.
-
-**Fix**
-1. Expand `GenerateOptions` to include:
-   - `topK: Int?`
-   - `repetitionPenalty: Float`
-   - `seed: UInt64?` (for deterministic tests)
-2. Implement sampling in `GLMOCRModel.generate`:
-   - apply temperature scaling,
-   - apply repetition penalty on logits,
-   - apply top-k and/or nucleus filtering,
-   - sample (or choose argmax if temperature==0).
-3. Make `/nothink` prompt suffix configurable (confirm it matches your reference generation prompts).
-
----
-
-## 4. Prioritized remediation plan
-
-### Phase 0 — restore structural parity (fast, high certainty)
-1. **Add `"formula"` handling** in `PPDocLayoutV3Mappings`:
-   - task mapping + visualization mapping.
-2. **Fix block-list JSON export labels** (`OCRBlockListExport`).
-3. Add a quick regression test/harness:
-   - run layout mode on `examples/input/paper.*`,
-   - assert output contains at least one `.formula` region and JSON export uses `"formula"` labels.
-
-Expected outcome: block counts and label distribution approach reference immediately.
-
-### Phase 1 — align layout crops + ordering
-1. Match bbox rounding/truncation semantics to upstream (both normalization and crop).
-2. Align order_seq to 0-based and preserve 0.
-3. Implement upstream `filter_large_image` (optional but recommended).
-
-Expected outcome: fewer spurious region differences; cleaner crops.
-
-### Phase 2 — implement mask→polygon path
-1. Output `out_masks` from PPDocLayoutV3 forward pass.
-2. Implement polygon extraction and pass polygon points through to `VisionIO.cropRegion`.
-
-Expected outcome: better OCR quality on rotated/irregular regions and dense math/table pages.
-
-### Phase 3 — align generation
-1. Implement sampling parameters and defaults matching upstream.
-2. Add deterministic mode (seed + fixed sampling) for tests.
-3. Validate on a small corpus of “math-heavy” crops.
-
-Expected outcome: reduced text-level drift (Q/O, x_n/x_2, punctuation).
-
----
-
-## 5. Validation strategy and acceptance criteria
-
-### 5.1 Structural parity metrics (should be automated)
-For each example (paper/page/table):
-- total region count per page,
-- counts by canonical label `{text, table, formula, image}`,
-- presence of formulas on known formula pages.
-
-**Acceptance:** After Phase 0, formulas are present and JSON labels match canonical buckets.
-
-### 5.2 Crop fidelity metrics
-- compare bbox_2d deltas vs reference,
-- visualize crops for a subset of regions (especially formulas) and confirm tightness.
-
-**Acceptance:** bbox deltas largely within ±1–2 normalized units and no systematic bottom-right expansion.
-
-### 5.3 OCR content parity metrics
-- token-level diff or Levenshtein distance on markdown blocks,
-- “glyph confusion” rate on a curated list (Q/O, 1/l, n/2 in subscripts).
-
-**Acceptance:** after Phase 3, drift is reduced and stable across repeated runs when seeded.
-
----
-
-## 6. Concrete “patch checklist” (file-level)
-
-### Must-do (Phase 0)
 - `Sources/ModelAdapters/DocLayout/PPDocLayoutV3Mappings.swift`
-  - add `"formula"` mappings for task + visualization.
+  - `labelTaskMapping["formula"] = .formula`
+  - `labelToVisualizationKind["formula"] = .formula`
+
+Unit-test coverage was updated accordingly:
+- `Tests/DocLayoutAdapterTests/PPDocLayoutV3MappingsTests.swift` now asserts the alias exists.
+
+#### Post-fix verification (evidence)
+Reruns via CLI now yield formula blocks structurally matching the reference:
+
+- `paper.png`: `Counter({'text': 19, 'formula': 11})` and 30 total blocks.
+- `page.png`: `Counter({'text': 22, 'formula': 6})` and 28 total blocks.
+
+This demonstrates the formula “drop before OCR” issue is resolved.
+
+#### Why this mismatch exists at all
+Upstream `GLM-OCR/glmocr/config.yaml` expects `display_formula` / `inline_formula`, but the HF snapshot’s `config.json` collapses both to `"formula"`. The Swift port originally mirrored upstream config.yaml labels, which is correct for upstream code, but not robust to HF snapshot label-string variance.
+
+This fix intentionally supports **both** taxonomies.
+
+---
+
+### 3.2 Root cause #2 (definite): Block-list JSON export collapsed labels to text/image (✅ fixed)
+
+#### What happened
+The “examples-compatible” JSON export (`OCRDocument.toBlockListExport()`) previously emitted:
+
+- `"image"` for images,
+- `"text"` for everything else (including tables and formulas),
+
+even though `examples/reference_result/*/*.json` uses `"table"` and `"formula"` labels.
+
+#### Evidence (investigation)
+- Pre-fix `scripts/compare_examples.py` showed (for `table.json`): `label mismatch expected='table' actual='text'` while content matched.
+- Code inspection confirmed `canonicalLabel(for:)` returned `"text"` for all non-image kinds.
+
+#### Fix applied
+Update `canonicalLabel(for:)` to preserve:
+
+- `OCRRegionKind.table → "table"`
+- `OCRRegionKind.formula → "formula"`
+
+File:
 - `Sources/VLMRuntimeKit/OCRBlockListExport.swift`
-  - export table/formula labels.
 
-### Recommended (Phase 1–2)
-- `Sources/ModelAdapters/DocLayout/PPDocLayoutV3Model.swift`
-  - order_seq 0-based; keep order==0
-  - bbox normalization truncation
-  - return masks + polygon extraction (Phase 2)
-- `Sources/VLMRuntimeKit/VisionIO/VisionCrop.swift`
-  - crop bbox de-normalization truncation; align polygon rounding
-- `Sources/ModelAdapters/DocLayout/PPDocLayoutV3Detector.swift`
-  - allow processor dtype = float32 for parity runs
+#### Post-fix verification (evidence)
+Running layout mode on `table.png` now yields:
 
-### Recommended (Phase 3)
-- `Sources/VLMRuntimeKit/OCRTypes.swift`
-  - extend `GenerateOptions` (topK, repetitionPenalty, seed)
-- `Sources/ModelAdapters/GLMOCR/GLMOCRModel.swift`
-  - implement sampler; honor options
-- `Sources/ModelAdapters/GLMOCR/GLMOCRChatTemplate.swift`
-  - make `appendNoThink` configurable if needed for parity.
+- `Counter({'table': 1})` in exported JSON labels (instead of `text`).
 
 ---
 
-## 7. Notes on earlier analysis efforts
+## 4. Hypotheses explored and ruled out / deprioritized (with evidence)
 
-The two prior efforts correctly identified the two “definite” causes (formula-drop + JSON export collapse) and correctly flagged polygon/mask and generation mismatches as likely next-order drivers.
+### H1: “NMS iou_diff mismatch is deleting formulas”
+**Ruled out.** Upstream `apply_layout_postprocess(...)` calls:
+- `selected_indices = nms(..., iou_same=0.6, iou_diff=0.98)`
 
-One correction:
-- Upstream layout path uses `iou_diff=0.98` in its NMS call inside `apply_layout_postprocess` (even though the helper `nms()` default is 0.95). Swift currently uses 0.98, which is consistent with the actual upstream call in layout mode.
+Swift postprocess uses:
+- `iouSameClass = 0.6`, `iouDifferentClass = 0.98`
 
----
+So NMS thresholds match the upstream call in layout mode and cannot explain “all formulas missing”.
 
-## Appendix A — quick diff targets (minimal code sketches)
+### H2: “Containment merge / ordering mismatch is the primary structural cause”
+**Deprioritized for the missing-formula symptom.** The missing formula blocks were explained by the label→task mapping fallthrough (`"formula" → .abandon`) and confirmed fixed by the alias.
 
-### A.1 Add `"formula"` mapping
-```swift
-// PPDocLayoutV3Mappings.swift
-"formula": .formula
-// ...
-"formula": .formula
-```
+Containment merge / ordering can still cause *some* bbox drift and reordering, but it is not the root cause of the large block-count deficits.
 
-### A.2 Fix JSON export
-```swift
-private func canonicalLabel(for kind: OCRRegionKind) -> String {
-  switch kind {
-  case .text: "text"
-  case .table: "table"
-  case .formula: "formula"
-  case .image: "image"
-  case .unknown: "text"
-  }
-}
-```
+### H3: “Chat template mismatch (/nothink) is causing missing formulas”
+**Ruled out for structural loss.** The missing formulas occurred *before OCR* (regions never reached OCR). Additionally:
+- HF `chat_template.jinja` appends `/nothink` to the last user message when `enable_thinking` is false and the message does not already end with `/nothink`.
+- Swift `GLMOCRChatTemplate` appends `/nothink` by default.
 
-### A.3 Align bbox truncation
-```swift
-let nx1 = Int(x1 * 1000)
-let ny1 = Int(y1 * 1000)
-let nx2 = Int(x2 * 1000)
-let ny2 = Int(y2 * 1000)
-```
+So while generation policy may differ, the `/nothink` toggle itself is unlikely to be the source of the structural gap.
 
-### A.4 Align crop rounding (VisionCrop)
-Use truncation (`rounded(.down)` everywhere, or `Int(...)`) for x1/x2/y1/y2 pixel edges.
+### H4: “Model snapshot revision drift explains the mismatch”
+**Not a sufficient explanation.** The issue was reproducible with the pinned HF snapshots present in local cache:
+- GLM-OCR: `677c6baa60442a451f8a8c7eabdfab32d9801a0b`
+- PP-DocLayout-V3: `a0abee1e2bb505e5662993235af873a5d89851e3`
+
+The failure was a deterministic label-string mismatch between snapshot `config.json` and Swift’s mapping tables.
 
 ---
 
+## 5. Remaining likely parity/quality drivers (open)
 
-## Appendix B — key evidence pointers (file + line numbers)
+These are still plausible drivers of the **remaining content-level drift** (even after structural parity is restored):
 
-### B.1 Layout model snapshot emits `"formula"` (HF config)
-File: `PP-DocLayoutV3_safetensors_huggingface/config.json`
-- id2label[5] and id2label[15] are `"formula"` (not `display_formula` / `inline_formula`):
-```text
-63: "5": "formula"
-73: "15": "formula"
+### 5.1 Polygon/mask crops (`out_masks` → `polygon_points`)
+Upstream GLM-OCR produces polygon points and uses them in `crop_image_region(...)` to mask outside the polygon (white fill). Swift currently:
+
+- does not expose `out_masks` → polygons are always `nil`,
+- crops with bbox only (`VisionIO.cropRegion` without polygon mask),
+
+which can introduce background contamination (especially in math-heavy regions).
+
+### 5.2 Crop/bbox rounding semantics
+Upstream crop path uses truncation (`int(...)`) for:
+- bbox normalization (`x_norm = int(x / W * 1000)`),
+- crop de-normalization (`x = int(x_norm * W / 1000)`).
+
+Swift often uses floor for min edges and ceil for max edges (both when normalizing and cropping), which systematically expands crops and can worsen OCR.
+
+### 5.3 Upstream layout heuristics not mirrored
+Upstream `apply_layout_postprocess` includes:
+- `filter_large_image` (drops huge image boxes),
+and upstream `layout_detector.py` includes:
+- a “min-size validity” pre-filter that masks logits for too-small boxes.
+
+These can affect region counts on certain documents (likely more for PDFs with large figures).
+
+### 5.4 Generation/sampling mismatch (content-level drift)
+Upstream config defaults (from `GLM-OCR/glmocr/config.yaml`) are:
+- `temperature: 0.8`, `top_p: 0.9`, `top_k: 50`, `repetition_penalty: 1.1`.
+
+Swift currently:
+- uses greedy argmax decoding in `GLMOCRModel.generate(...)`,
+- CLI hard-codes `temperature=0` and `topP=1`,
+- ignores sampling-related knobs (no top_k / repetition penalty).
+
+This is consistent with observed token-level drifts (e.g. `Q→O`, subscript confusions), but still requires targeted work to align.
+
+---
+
+## 6. Remediation plan (updated)
+
+### Phase 0 — structural parity (DONE)
+- [x] Add `"formula"` alias in `PPDocLayoutV3Mappings` (task + visualization).
+- [x] Export `table` / `formula` in block-list JSON export.
+
+### Phase 1 — crop + ordering alignment (recommended next)
+- Align bbox normalization and crop de-normalization rounding with upstream truncation.
+- Evaluate whether region ordering needs to be made more “upstream identical” (only after crop/label parity is stable).
+- Consider mirroring `filter_large_image` if it appears in parity diffs.
+
+### Phase 2 — polygon/mask support
+- Plumb `out_masks` through PPDocLayoutV3 inference and postprocess.
+- Implement mask→polygon extraction (or an acceptable approximation) and feed polygons into `VisionIO.cropRegion(...)`.
+
+### Phase 3 — generation alignment
+- Implement sampling knobs (temperature/top_p/top_k/repetition penalty) and honor `GenerateOptions`.
+- Expose CLI flags to match upstream config defaults when doing parity comparisons.
+
+---
+
+## 7. Quick validation commands (repeatable)
+
+### Spot-check structural parity for a single image
+```bash
+swift run -c release GLMOCRCLI --layout --input examples/source/paper.png --emit-json /tmp/paper.json > /tmp/paper.md
+python3 - <<'PY'
+import json
+from collections import Counter
+data=json.load(open("/tmp/paper.json"))
+c=Counter(b["label"] for page in data for b in page)
+print(c, "blocks", sum(len(p) for p in data))
+PY
 ```
 
-### B.2 Swift mapping lacks `"formula"` (drop-to-abandon trigger)
-File: `Sources/ModelAdapters/DocLayout/PPDocLayoutV3Mappings.swift`
-- Only `display_formula` / `inline_formula` are mapped (no `"formula"`): lines 33–35, 57–60.
+### Generate full parity/quality report (repo harness)
+```bash
+python3 scripts/compare_examples.py --lane both
+```
 
-### B.3 Swift detector drops `.abandon` regions before OCR
-File: `Sources/ModelAdapters/DocLayout/PPDocLayoutV3Detector.swift`
-- Processor uses bf16: line 86
-- Abandon filter: line 108 (`if region.taskType == .abandon { continue }`)
-- Visualization kind uses mapping (missing `"formula"` leads to `.unknown`): line 110.
+---
 
-### B.4 Reference JSON contains formulas; Swift result does not
-File: `examples/reference_result/paper/paper.json`
-- First formula block: lines 25–35 (`"label": "formula"`)
+## Appendix A — key code changes made
 
-File: `examples/result/paper/paper.json`
-- Early blocks are all `"label": "text"`; formula blocks absent (see lines 25–35).
+1. **Formula alias mapping**
+   - `Sources/ModelAdapters/DocLayout/PPDocLayoutV3Mappings.swift`
 
-### B.5 Swift JSON exporter collapses table/formula to `"text"`
-File: `Sources/VLMRuntimeKit/OCRBlockListExport.swift`
-- `canonicalLabel` returns `"text"` for all non-image kinds: lines 48–55.
+2. **Correct JSON export labels**
+   - `Sources/VLMRuntimeKit/OCRBlockListExport.swift`
 
-### B.6 Layout bbox/order/polygon mismatches are in PPDocLayoutV3Model
-File: `Sources/ModelAdapters/DocLayout/PPDocLayoutV3Model.swift`
-- polygons are always `nil` in RawDetections: line 856
-- order_seq is 1-based (`rank + 1`): line 889
-- bbox normalization uses floor for min and ceil for max: lines 909–912.
+3. **Unit test for the alias mapping**
+   - `Tests/DocLayoutAdapterTests/PPDocLayoutV3MappingsTests.swift`
 
-### B.7 Crop rounding differs from upstream
-Swift file: `Sources/VLMRuntimeKit/VisionIO/VisionCrop.swift`
-- uses ceil for max edges: lines 37–40.
+---
 
-Upstream file: `glmocr/utils/image_utils.py`
-- truncates all edges via `int(...)`: lines 198–201.
+## Appendix B — investigation log (what was tried, what it proved)
 
-### B.8 Transformers PPDocLayoutV3 postprocess uses masks → polygon_points
-File: `src/transformers/models/pp_doclayout_v3/image_processing_pp_doclayout_v3_fast.py`
-- uses `outputs.out_masks`: line 246
-- binarizes masks and extracts polygons: lines 275–292
-- polygon extraction code: lines 185–223.
+This is a concise “why we believe this” timeline that maps directly to the fixes above.
 
-### B.9 GLM-OCR generation is greedy argmax in Swift
-File: `Sources/ModelAdapters/GLMOCR/GLMOCRModel.swift`
-- ignores temperature/topP and always uses argmax: lines 152 and 177.
+1. **Diffed parity artifacts** (`examples/result/*` vs `examples/reference_result/*`):
+   - `paper.json` and `page.json` had **fewer blocks** and **no `formula` labels** in Swift outputs.
+   - `table.json` content was OK but label was `text` instead of `table`.
+
+2. **Quantified the symptom (label counts)**:
+   - Pre-fix `paper.json` (Swift): `Counter({'text': 19})`
+   - Reference `paper.json`: `Counter({'text': 19, 'formula': 11})`
+
+3. **Traced the layout pipeline stage where loss occurred**:
+   - `GLMOCRLayoutPipeline` builds work items by mapping `nativeLabel → taskType` and throws away `.skip`/`.abandon`.
+   - `PPDocLayoutV3Detector.detect()` already filters out `.abandon` regions, meaning a mapping issue upstream would prevent formula regions from ever reaching OCR.
+
+4. **Validated the label taxonomy mismatch at the source**:
+   - Opened the HF layout snapshot `config.json` and confirmed the model emits `"formula"` label strings for the formula class IDs (5 and 15 in the inspected snapshot).
+   - Confirmed Swift mappings did not include `"formula"`, only `"display_formula"` / `"inline_formula"`.
+
+5. **Applied the minimal fix + reran**:
+   - Added `"formula"` alias mapping.
+   - Rerun produced `paper.png: Counter({'text': 19, 'formula': 11})` and 30 blocks → structural parity restored.
+
+6. **Investigated independent JSON schema mismatch**:
+   - `OCRBlockListExport` exported `text` for everything except `image`.
+   - Fixed to export `table`/`formula`, and verified `table.png` exports `label=table`.
+
+7. **Hypotheses ruled out while localizing root cause**:
+   - NMS threshold mismatch was checked against upstream `apply_layout_postprocess(...)`; both use `iou_diff=0.98` in layout mode.
+   - Generation/sampling differences can explain OCR text drift, but cannot explain *missing* formula regions (which were dropped before OCR).
+
+---
+
+## Appendix C — evidence pointers (where to look in code)
+
+- **HF snapshot emits `"formula"`**
+  - `~/.cache/huggingface/hub/models--PaddlePaddle--PP-DocLayoutV3_safetensors/snapshots/a0abee1e2bb505e5662993235af873a5d89851e3/config.json`
+  - Look for `id2label` entries for class IDs `5` and `15`.
+
+- **Swift label mapping (fixed)**
+  - `Sources/ModelAdapters/DocLayout/PPDocLayoutV3Mappings.swift`
+  - `labelTaskMapping["formula"] = .formula`
+  - `labelToVisualizationKind["formula"] = .formula`
+
+- **Swift JSON export labels (fixed)**
+  - `Sources/VLMRuntimeKit/OCRBlockListExport.swift`
+  - `canonicalLabel(for:)` now preserves `table` and `formula`.
+
+- **Polygon crops not yet implemented (open)**
+  - `Sources/ModelAdapters/DocLayout/PPDocLayoutV3Model.swift` returns `RawDetections(polygons: nil)`.
+  - `Sources/ModelAdapters/DocLayout/PPDocLayoutV3Postprocess.swift` falls back to bbox polygons when raw polygons are missing.
+  - `Sources/VLMRuntimeKit/VisionIO/VisionCrop.swift` supports polygon masking, but it is currently unused by the layout detector path.
+
+- **Crop rounding semantics (open)**
+  - `Sources/ModelAdapters/DocLayout/PPDocLayoutV3Model.swift` bbox normalization uses floor/ceil.
+  - `Sources/VLMRuntimeKit/VisionIO/VisionCrop.swift` uses floor/ceil when converting normalized bbox to pixels.
+  - Upstream reference uses truncation (`int(...)`) in `../GLM-OCR/glmocr/utils/image_utils.py`.
+
+- **Greedy decoding (open)**
+  - `Sources/ModelAdapters/GLMOCR/GLMOCRModel.swift`: next token chosen via `argMax()`; `GenerateOptions.temperature/topP` are currently not used for sampling.

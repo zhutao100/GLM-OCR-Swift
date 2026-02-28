@@ -33,6 +33,10 @@ public enum PPDocLayoutV3Mappings {
         // formula
         "display_formula": .formula,
         "inline_formula": .formula,
+        // HF `PaddlePaddle/PP-DocLayoutV3_safetensors` snapshots may collapse both
+        // display+inline formula classes to the single label "formula" in `config.json`.
+        // Treat it as an alias so we don't accidentally discard formula regions.
+        "formula": .formula,
 
         // skip (keep region but don't OCR)
         "chart": .skip,
@@ -57,6 +61,7 @@ public enum PPDocLayoutV3Mappings {
         // formula
         "display_formula": .formula,
         "inline_formula": .formula,
+        "formula": .formula,
 
         // image
         "chart": .image,

@@ -49,8 +49,11 @@ private func canonicalLabel(for kind: OCRRegionKind) -> String {
     switch kind {
     case .image:
         "image"
+    case .table:
+        "table"
+    case .formula:
+        "formula"
     default:
-        // The canonical examples schema only distinguishes `text` vs `image`.
         "text"
     }
 }
