@@ -7,19 +7,19 @@
       "bbox_2d" : [
         96,
         60,
-        498,
-        135
+        497,
+        134
       ]
     },
     {
       "index" : 1,
       "label" : "text",
-      "content" : "Suppose that we have a factorization $ P=Q^{m} R $ for some $ m>0 $ , where R is homogeneous of degree d and not divisible by O; note that the homogeneity implies that",
+      "content" : "Suppose that we have a factorization $ P=Q^{m} R $ for some m>0, where R is homogeneous of degree d and not divisible by O; note that the homogeneity implies that",
       "bbox_2d" : [
         128,
         139,
-        498,
-        185
+        497,
+        184
       ]
     },
     {
@@ -29,19 +29,19 @@
       "bbox_2d" : [
         239,
         194,
-        346,
-        230
+        345,
+        229
       ]
     },
     {
       "index" : 3,
       "label" : "text",
-      "content" : "Write $ \\nabla^{2} $ as shorthand for $ \\frac{\\partial^{2}}{\\partial x_{1}^{2}}+\\cdots+\\frac{\\partial^{2}}{\\partial x_{2}^{2}} $ ; then",
+      "content" : "Write $ \\nabla^{2} $ as shorthand for $ \\frac{\\partial^{2}}{\\partial x^{2}}+\\cdots+\\frac{\\partial^{2}}{\\partial x^{2}} $ ; then",
       "bbox_2d" : [
         127,
         240,
-        444,
-        267
+        443,
+        266
       ]
     },
     {
@@ -51,30 +51,30 @@
       "bbox_2d" : [
         133,
         276,
-        450,
-        356
+        449,
+        355
       ]
     },
     {
       "index" : 5,
       "label" : "text",
-      "content" : "Since m > 0, this forces R to be divisible by Q, contradiction.",
+      "content" : "Since m > 0, this forces R to be divisible by Q, contradiction",
       "bbox_2d" : [
         128,
         365,
-        496,
-        396
+        495,
+        395
       ]
     },
     {
       "index" : 6,
       "label" : "text",
-      "content" : "Second solution: (by Noam Elkies) Retain notation as in the first solution. Let $ P_{d} $ be the set of homogeneous polynomials of degree d, and let $ H_{d} $ be the subset of $ P_{d} $ of polynomials killed by $ \\nabla^{2} $ , which has dimension $ \\geq \\dim(P_{d})-\\dim(P_{d-2}) $ ; the given problem amounts to showing that this inequality is actually an equality.",
+      "content" : "Second solution: (by Noam Elkies) Retain notation as in the first solution. Let $ P_{d} $ be the set of homogeneous polynomials of degree d, and let $ H_{d} $ be the subset of $ P_{d} $ of polynomials killed by $ \\nabla^{2} $ , which has dimension $ \\geq \\dim(P_{d})-\\dim(P_{d-2}) $ ; the given problem amounts to showing that this inequality is actually an equality",
       "bbox_2d" : [
         129,
         399,
-        498,
-        488
+        497,
+        487
       ]
     },
     {
@@ -84,41 +84,41 @@
       "bbox_2d" : [
         129,
         489,
-        498,
-        537
+        497,
+        536
       ]
     },
     {
       "index" : 8,
       "label" : "formula",
-      "content" : "$$\n\\nabla^ {2} (O R) - O \\nabla^ {2} R = (2 n + 4 d) R\n$$",
+      "content" : "$$\n\\nabla^ {2} (O R) = O \\nabla^ {2} R = (2 n + 4 d) R\n$$",
       "bbox_2d" : [
         185,
         545,
-        400,
-        563
+        399,
+        562
       ]
     },
     {
       "index" : 9,
       "label" : "text",
-      "content" : "Consequently, $ Q^{j} H_{d-2 j} $ is contained in the eigenspace of $ O \\nabla^{2} $ on $ P_{d} $ of eigenvalue",
+      "content" : "Consequently, $ Q^{j} H_{d-2 j} $ is contained in the eigenspace of $ Q \\nabla^{2} $ on $ P_{l} $ of eigenvalue",
       "bbox_2d" : [
         129,
         573,
-        496,
-        606
+        495,
+        605
       ]
     },
     {
       "index" : 10,
       "label" : "formula",
-      "content" : "$$\n(2 n + 4 (d - 2 j)) + \\dots + (2 n + 4 (d - 2)).\n$$",
+      "content" : "$$\n( 2 n + 4 ( d - 2 i ) ) + \\dots + ( 2 n + 4 ( d - 2 ) )\n$$",
       "bbox_2d" : [
         156,
         616,
-        428,
-        634
+        427,
+        633
       ]
     },
     {
@@ -128,19 +128,19 @@
       "bbox_2d" : [
         128,
         643,
-        497,
-        732
+        496,
+        731
       ]
     },
     {
       "index" : 12,
       "label" : "text",
-      "content" : "Third solution: (by Richard Stanley) Write $ x= $ $ ( x_{1}, \\dots, x_{n} ) $ and $ \\nabla=(\\frac{\\partial}{\\partial x_{1}},\\dots,\\frac{\\partial}{\\partial x_{n}}). $ Suppose that $ P(x)=O(x)(x_{1}^{2}+\\dots+x^{2}). $ Then",
+      "content" : "Third solution: (by Richard Stanley) Write $ x= $ $ ( x_{1}, \\dots, x_{n} ) $ and $ \\nabla=(\\frac{\\partial}{\\partial x_{1}},\\dots,\\frac{\\partial}{\\partial x_{n}}). $ Suppose that $ P(x)=O(x)(x^{2}+\\dots+x^{2}) $ Then",
       "bbox_2d" : [
         129,
         737,
-        497,
-        786
+        496,
+        785
       ]
     },
     {
@@ -150,19 +150,19 @@
       "bbox_2d" : [
         182,
         798,
-        403,
-        816
+        402,
+        815
       ]
     },
     {
       "index" : 14,
       "label" : "text",
-      "content" : "On the other hand, if $ P ( x )=\\sum_{\\alpha} c_{\\alpha} x^{\\alpha} $ (where $ \\alpha=\\left( \\alpha_{1},\\dots,\\alpha_{n} \\right) $ and $ x^{\\alpha}=x_{1}^{\\alpha_{1}}\\cdots x_{n}^{\\alpha_{n}} $), then the constant term of $ P (\\nabla) P ( x ) $ is seen to be $ \\sum_{\\alpha} c_{\\alpha}^{2}. $ Hence $ c_{\\alpha}=0 $ for all $ \\alpha. $",
+      "content" : "On the other hand, if $ P ( x )=\\sum_{\\alpha} c_{\\alpha} x^{\\alpha} $ (where $ \\alpha= $ $ (\\alpha_{1},\\dots,\\alpha_{n}) $ and $ x^{\\alpha}=x_{1}^{\\alpha_{1}}\\cdots x_{n}^{\\alpha_{n}} $ ), then the constant term of $ P (\\nabla) P ( x ) $ is seen to be $ \\sum_{\\alpha} c_{\\alpha}^{2}. $ Hence $ c_{\\alpha}=0 $ for all $ \\alpha. $",
       "bbox_2d" : [
         129,
         826,
-        497,
-        888
+        496,
+        887
       ]
     },
     {
@@ -172,30 +172,30 @@
       "bbox_2d" : [
         129,
         890,
-        498,
-        922
+        497,
+        921
       ]
     },
     {
       "index" : 16,
       "label" : "text",
-      "content" : "in characteristic p > 0 because we may take P = $ ( x_{1}^{2}+\\cdots+x_{n}^{2} )^{p}=x_{1}^{2 p}+\\cdots+x_{n}^{2 p} $ .) The third solution can be extended to complex coefficients by replacing $ P (\\nabla) $ by its complex conjugate, and again the result may be deduced for any field of characteristic zero. Stanley also suggests Section 5 of the arXiv e-print math.C0/0502363 for some algebraic background for this problem.",
+      "content" : "in characteristic p > 0 because we may take $ P= ( x_{1}^{2}+\\cdots+x_{n}^{2} )^{p}=x_{1}^{2 p}+ \\cdots+x_{n}^{2 p}. $ The third solution can be extended to complex coefficients by replacing $ P(\\nabla) $ by its complex conjugate, and again the result may be deduced for any field of characteristic zero. Stanley also suggests Section 5 of the arXiv e-print math.C0/0502363 for some algebraic background for this problem.",
       "bbox_2d" : [
         558,
         60,
-        927,
-        182
+        926,
+        181
       ]
     },
     {
       "index" : 17,
       "label" : "text",
-      "content" : "B-6 First solution: Let I be the identity matrix, and let $ J_{x} $ be the matrix with x's on the diagonal and 1's elsewhere. Note that $ J_{x}-(x-1)I $ , being the all 1's matrix, has rank 1 and trace n, so has n-1 eigenvalues equal to 0 and one equal to n. Hence $ J_{x} $ has n-1 eigenvalues equal to x-1 and one equal to $ x+n-1 $ , implying",
+      "content" : "B-6 First solution: Let I be the identity matrix, and let $ J_{x} $ be the matrix with x's on the diagonal and 1's elsewhere. Note that $ J_{x}-(x-1)I $ , being the all 1's matrix, has rank 1 and trace n, so has n-1 eigenvalues equal to 0 and one equal to n. Hence $ J_{x} $ has n-1 eigenvalues equal to x-1 and one equal to x+n-1, implying",
       "bbox_2d" : [
         526,
         189,
-        927,
-        280
+        926,
+        279
       ]
     },
     {
@@ -205,8 +205,8 @@
       "bbox_2d" : [
         620,
         288,
-        825,
-        306
+        824,
+        305
       ]
     },
     {
@@ -216,41 +216,41 @@
       "bbox_2d" : [
         559,
         316,
-        927,
-        347
+        926,
+        346
       ]
     },
     {
       "index" : 20,
       "label" : "formula",
-      "content" : "$$\n\\det J _ {x} = \\sum_ {\\pi \\in S _ {x}} \\operatorname {s g n} (\\pi) x ^ {\\nu (\\pi)}.\n$$",
+      "content" : "$$\n\\det J _ {x} = \\sum_ {\\pi \\in S} \\operatorname {s g n} (\\pi) x ^ {\\nu (\\pi)}.\n$$",
       "bbox_2d" : [
         635,
         355,
-        808,
-        387
+        807,
+        386
       ]
     },
     {
       "index" : 21,
       "label" : "text",
-      "content" : "Integrating both sides from 0 to 1 (and substituting $ y= $ 1-x) yields",
+      "content" : "Integrating both sides from 0 to 1 (and substituting y = 1 - x) yields.",
       "bbox_2d" : [
         560,
         397,
-        926,
-        428
+        925,
+        427
       ]
     },
     {
       "index" : 22,
       "label" : "formula",
-      "content" : "$$\n\\begin{array}{l} \\sum_ {\\pi \\in S _ {n}} \\frac {\\operatorname {s g n} (\\pi)}{v (\\pi) + 1} = \\int_ {0} ^ {1} (x + n - 1) (x - 1) ^ {n - 1} d x \\\\ = \\int_ {0} ^ {1} (- 1) ^ {n + 1} (n - y) y ^ {n - 1} d y \\\\ = (- 1) ^ {n + 1} \\frac {n}{n + 1}, \\\\ \\end{array}\n$$",
+      "content" : "$$\n\\begin{array}{l} \\sum_ {\\pi \\in S _ {n}} \\frac {\\operatorname {s g n} (\\pi)}{\\nu (\\pi) + 1} = \\int_ {0} ^ {1} (x + n - 1) (x - 1) ^ {n - 1} d x \\\\ = \\int_ {0} ^ {1} (- 1) ^ {n + 1} (n - y) y ^ {n - 1} d y \\\\ = (- 1) ^ {n + 1} \\frac {n}{n + 1}, \\\\ \\end{array}\n$$",
       "bbox_2d" : [
         575,
         437,
-        868,
-        538
+        867,
+        537
       ]
     },
     {
@@ -260,19 +260,19 @@
       "bbox_2d" : [
         560,
         547,
-        636,
-        562
+        635,
+        561
       ]
     },
     {
       "index" : 24,
       "label" : "text",
-      "content" : "Second solution: We start by recalling a form of the principle of inclusion-exclusion: if f is a function on the power set of {1,...,n}, then",
+      "content" : "Second solution: We start by recalling a form of the principle of inclusion-exclusion: if f is a function on the power set of {1, n}. then",
       "bbox_2d" : [
         559,
         566,
-        926,
-        612
+        925,
+        611
       ]
     },
     {
@@ -282,19 +282,19 @@
       "bbox_2d" : [
         611,
         620,
-        833,
-        653
+        832,
+        652
       ]
     },
     {
       "index" : 26,
       "label" : "text",
-      "content" : "In this case we take f(S) to be the sum of $ \\sigma(\\pi) $ over all permutations $ \\pi $ whose fixed points are exactly S. Then $ \\sum_{U\\supseteq T} f(U)=1 $ if $ |T| \\geq n-1 $ and 0 otherwise (since a permutation group on 2 or more symbols has as many even and odd permutations), so",
+      "content" : "In this case we take f(S) to be the sum of $ \\sigma(\\pi) $ over all permutations $ \\pi $ whose fixed points are exactly S. Then $ \\sum_{U\\supseteq T} f(U)=1 $ if $ |T| \\geq n-1 $ and 0 otherwise (since a permutation group on 2 or more symbols has as many even and odd permutations). so",
       "bbox_2d" : [
         557,
         662,
-        928,
-        738
+        927,
+        737
       ]
     },
     {
@@ -304,8 +304,8 @@
       "bbox_2d" : [
         620,
         747,
-        824,
-        767
+        823,
+        766
       ]
     },
     {
@@ -315,8 +315,8 @@
       "bbox_2d" : [
         559,
         776,
-        927,
-        808
+        926,
+        807
       ]
     },
     {
@@ -326,8 +326,8 @@
       "bbox_2d" : [
         536,
         820,
-        908,
-        964
+        907,
+        963
       ]
     }
   ]

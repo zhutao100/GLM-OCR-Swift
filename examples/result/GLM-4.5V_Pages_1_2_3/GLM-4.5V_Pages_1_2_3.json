@@ -7,8 +7,8 @@
       "bbox_2d" : [
         219,
         117,
-        789,
-        194
+        788,
+        193
       ]
     },
     {
@@ -18,8 +18,8 @@
       "bbox_2d" : [
         452,
         246,
-        558,
-        263
+        557,
+        262
       ]
     },
     {
@@ -29,8 +29,8 @@
       "bbox_2d" : [
         389,
         274,
-        619,
-        291
+        618,
+        290
       ]
     },
     {
@@ -40,8 +40,8 @@
       "bbox_2d" : [
         260,
         302,
-        744,
-        318
+        743,
+        317
       ]
     },
     {
@@ -51,19 +51,19 @@
       "bbox_2d" : [
         464,
         352,
-        545,
-        370
+        544,
+        369
       ]
     },
     {
       "index" : 5,
       "label" : "text",
-      "content" : "We present GLM-4.1V-Thinking and GLM-4.5V, a family of vision-language models (VLMs) designed to advance general-purpose multimodal understanding and reasoning. In this report, we share our key findings in the development of the reasoning-centric training framework. We first develop a capable vision foundation model with significant potential through large-scale pre-training, which arguably sets the upper bound for the final performance. We then propose Reinforcement Learning with Curriculum Sampling (RLCS) to unlock the full potential of the model, leading to comprehensive capability enhancement across a diverse range of tasks, including STEM problem solving, video understanding, content recognition, coding, grounding, GUI-based agents, and long document interpretation. In a comprehensive evaluation across 42 public benchmarks, GLM-4.5V achieves state-of-the-art performance on nearly all tasks among open-source models of similar size, and demonstrates competitive or even superior results compared to closed-source models such as Gemini-2.5-Flash on challenging tasks including Coding and GUI Agents. Meanwhile, the smaller GLM-4.1V-9B-Thinking remains highly competitive—achieving superior results to the much larger Qwen2.5-VL-72B on 29 benchmarks. We open-source both GLM-4.1V-9B-Thinking and GLM-4.5V. Code, models and more information are released at https://github.com/zai-org/ GLM-V",
+      "content" : "We present GLM-4.1V-Thinking and GLM-4.5V, a family of vision-language models (VLMs) designed to advance general-purpose multimodal understanding and reasoning. In this report, we share our key findings in the development of the reasoning-centric training framework. We first develop a capable vision foundation model with significant potential through large-scale pre-training, which arguably sets the upper bound for the final performance. We then propose Reinforcement Learning with Curriculum Sampling (RLCS) to unlock the full potential of the model, leading to comprehensive capability enhancement across a diverse range of tasks, including STEM problem solving, video understanding, content recognition, coding, grounding, GUI-based agents, and long document interpretation. In a comprehensive evaluation across 42 public benchmarks, GLM-4.5V achieves state-of-the-art performance on nearly all tasks among open-source models of similar size, and demonstrates competitive or even superior results compared to closed-source models such as Gemini-2.5-Flash on challenging tasks including Coding and GUI Agents. Meanwhile, the smaller GLM-4.1V-9B-Thinking remains highly competitive—achieving superior results to the much larger Qwen2.5-VL-72B on 29 benchmarks. We open-source both GLM-4.1V-9B-Thinking and GLM-4.5V. Code, models and more information are released at https://github.com/zai-org/ GLM-V.",
       "bbox_2d" : [
         235,
         383,
-        775,
-        647
+        774,
+        646
       ]
     },
     {
@@ -73,8 +73,8 @@
       "bbox_2d" : [
         216,
         662,
-        525,
-        823
+        524,
+        822
       ]
     },
     {
@@ -84,8 +84,8 @@
       "bbox_2d" : [
         251,
         827,
-        446,
-        841
+        445,
+        840
       ]
     },
     {
@@ -95,8 +95,8 @@
       "bbox_2d" : [
         538,
         662,
-        794,
-        822
+        793,
+        821
       ]
     },
     {
@@ -106,19 +106,19 @@
       "bbox_2d" : [
         575,
         826,
-        781,
-        841
+        780,
+        840
       ]
     },
     {
       "index" : 10,
       "label" : "text",
-      "content" : "Figure 1: (A) GLM-4.5V achieves efficient scaling based on its compact predecessor, GLM-4.1V-9B-Thinking, and compares favorably with Gemini-2.5-Flash, according to benchmark assessments. Table 2 presents full performance comparison. (B) Reinforcement learning substantially boosts the model's performance, with gains of up to $ + 10.6 \\% $ when experimented with GLM-4.5V.",
+      "content" : "Figure 1: (A) GLM-4.5V achieves efficient scaling based on its compact predecessor, GLM-4.1V-9B-Thinking, and compares favorably with Gemini-2.5-Flash, according to benchmark assessments. Table 2 presents full performance comparison. (B) Reinforcement learning substantially boosts the model's performance, with gains of up to $ + 1 0. 6 \\% $ when experimented with GLM-4.5V.",
       "bbox_2d" : [
         175,
         851,
-        835,
-        909
+        834,
+        908
       ]
     }
   ],
@@ -130,8 +130,8 @@
       "bbox_2d" : [
         178,
         86,
-        320,
-        102
+        319,
+        101
       ]
     },
     {
@@ -141,8 +141,8 @@
       "bbox_2d" : [
         176,
         124,
-        834,
-        305
+        833,
+        304
       ]
     },
     {
@@ -152,8 +152,8 @@
       "bbox_2d" : [
         176,
         310,
-        834,
-        547
+        833,
+        546
       ]
     },
     {
@@ -163,8 +163,8 @@
       "bbox_2d" : [
         176,
         551,
-        834,
-        774
+        833,
+        773
       ]
     },
     {
@@ -174,8 +174,8 @@
       "bbox_2d" : [
         176,
         778,
-        832,
-        808
+        831,
+        807
       ]
     },
     {
@@ -185,8 +185,8 @@
       "bbox_2d" : [
         178,
         823,
-        832,
-        867
+        831,
+        866
       ]
     },
     {
@@ -196,8 +196,8 @@
       "bbox_2d" : [
         177,
         879,
-        833,
-        909
+        832,
+        908
       ]
     }
   ],
@@ -205,12 +205,12 @@
     {
       "index" : 0,
       "label" : "text",
-      "content" : "Sampling (RLCS) and dynamic sampling expansion via ratio-based Exponential Moving Average (EMA). (See Section 5.3)",
+      "content" : "Sampling (RLCS) and dynamic sampling expansion via ratio-based Exponential Moving Average (EMA) (See Section 5.3)",
       "bbox_2d" : [
         184,
         87,
-        832,
-        117
+        831,
+        116
       ]
     },
     {
@@ -220,8 +220,8 @@
       "bbox_2d" : [
         177,
         120,
-        833,
-        164
+        832,
+        163
       ]
     },
     {
@@ -231,30 +231,30 @@
       "bbox_2d" : [
         177,
         187,
-        480,
-        203
+        479,
+        202
       ]
     },
     {
       "index" : 3,
       "label" : "text",
-      "content" : "We present GLM-4.1V-Thinking and GLM-4.5V, a family of VLMs developed to advance general-purpose multimodal reasoning. Notably, GLM-4.5V natively supports both \"thinking\" and \"nonthinking\" modes, enabling flexible trade-offs between performance and efficiency. We introduce the model design and the reasoning-centric training framework, along with key insights and challenges encountered during the development process.",
+      "content" : "We present GLM-4.1V-Thinking and GLM-4.5V, a family of VLMs developed to advance general-purpose multimodal reasoning. Notably, GLM-4.5V natively supports both \"thinking\" and \"nonthinking\" modes, enabling flexible trade-offs between performance and efficiency. We introduce the model design and the reasoning-centric training framework, along with key insights and challenges encountered during the development process",
       "bbox_2d" : [
         177,
         213,
-        834,
-        284
+        833,
+        283
       ]
     },
     {
       "index" : 4,
       "label" : "text",
-      "content" : "We open-source GLM-4.1V-9B-Thinking, GLM-4.1V-9B-Base, GLM-4.5V, and other useful components such as domain-specific reward systems, to facilitate further research in this area. Code, models and more information are released at https://github.com/zai-org/GLM-V.",
+      "content" : "We open-source GLM-4.1V-9B-Thinking, GLM-4.1V-9B-Base, GLM-4.5V, and other useful components such as domain-specific reward systems, to facilitate further research in this area. Code, models and more information are released at https://github.com/zai-org/GLM-V",
       "bbox_2d" : [
         177,
         287,
-        833,
-        331
+        832,
+        330
       ]
     },
     {
@@ -264,8 +264,8 @@
       "bbox_2d" : [
         177,
         333,
-        834,
-        391
+        833,
+        390
       ]
     },
     {
@@ -275,8 +275,8 @@
       "bbox_2d" : [
         177,
         409,
-        441,
-        426
+        440,
+        425
       ]
     },
     {
@@ -286,19 +286,19 @@
       "bbox_2d" : [
         175,
         439,
-        833,
-        553
+        832,
+        552
       ]
     },
     {
       "index" : 8,
       "label" : "text",
-      "content" : "To enable our underlying Vision Transformer (ViT) to support arbitrary image resolutions and aspect ratios, we introduce two adaptations. First, we integrate 2D-RoPE [44] into the ViT's self-attention layers, enabling the model to effectively process images with extreme aspect ratios (over 200:1) or high resolutions (beyond 4K). Second, to preserve the foundational capabilities of the pre-trained ViT, we retain its original learnable absolute position embeddings. During training, these embeddings are dynamically adapted to variable-resolution inputs via bicubic interpolation. Specifically, for an input image divided into a grid of $ H_{p} \\times W_{p} $ patches, the integer coordinates $ \\mathbf{g} = (w,h) $ of each patch are first normalized to a continuous grid $ \\mathbf{g}_{\\mathrm{norm}} $ spanning $ [-1,1] $:",
+      "content" : "To enable our underlying Vision Transformer (ViT) to support arbitrary image resolutions and aspect ratios, we introduce two adaptations. First, we integrate 2D-RoPE [44] into the ViT's self-attention layers, enabling the model to effectively process images with extreme aspect ratios (over 200:1) or high resolutions (beyond 4K). Second, to preserve the foundational capabilities of the pre-trained ViT, we retain its original learnable absolute position embeddings. During training, these embeddings are dynamically adapted to variable-resolution inputs via bicubic interpolation. Specifically, for an input image divided into a grid of $ H_{p} \\times W_{p} $ patches, the integer coordinates $ \\mathbf{g} = (w,h) $ of each patch are first normalized to a continuous grid $ \\mathbf{g} $ spanning $ [-1,1] $",
       "bbox_2d" : [
         175,
         557,
-        834,
-        669
+        833,
+        668
       ]
     },
     {
@@ -308,8 +308,8 @@
       "bbox_2d" : [
         320,
         675,
-        687,
-        710
+        686,
+        709
       ]
     },
     {
@@ -319,19 +319,19 @@
       "bbox_2d" : [
         177,
         716,
-        831,
-        757
+        830,
+        756
       ]
     },
     {
       "index" : 11,
       "label" : "formula",
-      "content" : "$$\nP _ {\\mathrm {a d a p t e d}} (\\mathbf {g}) = \\mathcal {I} _ {\\mathrm {b i c u b i c}} \\left(P _ {\\mathrm {o r i g}}, \\mathbf {g} _ {\\mathrm {n o r m}}\\right). \\tag{2}\n$$",
+      "content" : "$$\nP _ {\\mathrm {a d a p t e d}} (\\mathbf {g}) = \\mathcal {T} _ {\\mathrm {b i c u b i c}} \\left(P _ {\\mathrm {o r i g}} \\mathbf {g} _ {\\mathrm {n o r m}}\\right). \\tag{2}\n$$",
       "bbox_2d" : [
         392,
         757,
-        616,
-        774
+        615,
+        773
       ]
     },
     {
@@ -341,8 +341,8 @@
       "bbox_2d" : [
         176,
         776,
-        832,
-        820
+        831,
+        819
       ]
     },
     {
@@ -352,8 +352,8 @@
       "bbox_2d" : [
         176,
         824,
-        833,
-        909
+        832,
+        908
       ]
     }
   ]

@@ -1,28 +1,30 @@
-relationship between the beans. The only difference from previous exercises is the change in the JNDI name element tag for the Address home interface:
+relationship between the beans. The only difference from previous exercises is the change in the INDI name element tac for the Address home interface:
 
-<local-jndi-name>AddressHomeLocal</local-jndi-name>
+<local-indi-name>AddressHomeLocal</local-indi-name>
 
-Because the Home interface for the Address is local, the tag is <local-jndi-name> rather than <indi-name>.
+Because the Home interface for the Address is local, the tag is <local-jndi-name> rather than
 
-the technician can -robots.jarxml descriptor file contains a number of new sections and elements
+<jndi-name>
 
-that can be added to the system. The new sections will wait until the next
+the weblogic cmp-rdbms-jar.xml descriptor contains a number of new sections and elements
+
+that are not yet available, and the sections will wait until the next
 
 exercise, but there are some other changes to observe and examine.
 
-the contains the a section mapping the attributes from the ipv4-ip
+The file contains a section mapping the the `obj` for jpri and
 
-table in addition to a new section related to the
+attributes from the `obj` for jpri to the `table` in addition to a new section related to
 
-automatic key generation used for primary key values in this box:
+the automatic key generation used for primary keys in this box.
 
 ```xml
 
 <weblogic-rdbms-bean>
 
-  <ejp-name>AddressJUE</ejp-name>
+  <ejb-name>AddressJDBC</ejb-name>
 
-  <data-source-name>itan-dataSource</data-source-name>
+  <data-source-name>Titan-dataSource</data-source-name>
 
   <table-name>ADDRESS</table-name>
 
@@ -72,9 +74,9 @@ inserts using sequence table -->
 
   <automatic-key-generation>
 
-    <generator-type>NAMED_SEQUENCE_TABLE</generator-type>
+    <generator-type>NAMED SEQUENCE TABLE</generator-type>
 
-    <generator-name>ADDRESS_SEQUENCE</generator-name>
+    <generator-name>ADDRESS SEQUENCE</generator-name>
 
     <key-cache-size>10</key-cache-size>
 
