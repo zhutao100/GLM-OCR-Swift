@@ -52,7 +52,15 @@ Figure 2 shows the shared architecture of GLM-4.1V-Thinking and GLM-4.5V, compos
 
 To enable our underlying Vision Transformer (ViT) to support arbitrary image resolutions and aspect ratios, we introduce two adaptations. First, we integrate 2D-RoPE [44] into the ViT's self-attention layers, enabling the model to effectively process images with extreme aspect ratios (over 200:1) or high resolutions (beyond 4K). Second, to preserve the foundational capabilities of the pre-trained ViT, we retain its original learnable absolute position embeddings. During training, these embeddings are dynamically adapted to variable-resolution inputs via bicubic interpolation. Specifically, for an input image divided into a grid of $ H_{p} \times W_{p} $ patches, the integer coordinates $ \mathbf{g} = (w,h) $ of each patch are first normalized to a continuous grid $ \mathbf{g}_{\mathrm{norm}} $ spanning $ [-1,1] $:
 
+$$
+\mathbf {g} _ {\mathrm {n o r m}} = \left(w _ {\mathrm {n o r m}}, h _ {\mathrm {n o r m}}\right) = 2 \cdot \left(\frac {w + 0 . 5}{W _ {n}}, \frac {h + 0 . 5}{H _ {n}}\right) - 1 \tag{1}
+$$
+
 These normalized coordinates are then used to sample from the original position embedding table $ P_{\mathrm{orig}} $ using a bicubic interpolation function $ \mathcal{I}_{\mathrm{bicubic}} $ to generate the final adapted embedding $ P_{\mathrm{adapted}} $ for that patch:
+
+$$
+P _ {\mathrm {a d a p t e d}} (\mathbf {g}) = \mathcal {I} _ {\mathrm {b i c u b i c}} \left(P _ {\mathrm {o r i g}}, \mathbf {g} _ {\mathrm {n o r m}}\right). \tag{2}
+$$
 
 To further enhance spatial awareness on the language side, we extend RoPE to 3D-RoPE in the LLM. This extension provides superior spatial understanding for multimodal contexts, while preserving the original model's text-related capabilities.
 
