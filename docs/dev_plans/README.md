@@ -4,6 +4,7 @@
 
 ## Active trackers
 - Quality/parity validation: `docs/dev_plans/quality_parity/tracker.md`
+  - detailed phase docs: `docs/dev_plans/quality_parity/README.md`
 - GUI polish + distribution: `docs/dev_plans/gui_polish_distribution/tracker.md`
 
 ## Completed trackers (kept for reference)

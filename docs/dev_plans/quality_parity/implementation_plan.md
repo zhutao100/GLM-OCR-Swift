@@ -1,274 +1,173 @@
-# Implementation plan — quality + parity with `examples/golden_result`
+# Implementation plan - quality parity after structural layout recovery
 
-This doc is a self-contained engineering plan for turning the repo’s examples corpus into a **repeatable validation system** with two distinct targets:
+**Objective:** convert the findings from `docs/debug_notes/layout_parity/layout_parity_analysis.md` into a concrete execution plan that closes the remaining layout-mode parity gaps and then makes them enforceable.
 
-- **Parity target:** upstream published outputs (`examples/reference_result/*`)
-- **Quality target:** curated, human-verified outputs (`examples/golden_result/*`)
-
-The point is to make changes safer and more intentional:
-
-- parity lane answers: “did we accidentally break functional equivalence?”
-- quality lane answers: “did we make the output better or worse for real users?”
+**Status (2026-02-27):** active. Phase 00 is complete. The current repo has crossed from "unknown structural mismatch" into "known remaining sources of drift".
 
 ---
 
-## Why `golden_result` exists
+## 1. Current state
 
-Some upstream example outputs contain issues that are undesirable to preserve long-term (OCR mistakes, formatting glitches, inconsistent code fences, etc.). The curated `examples/golden_result/*` outputs are the **best-known** results after human review and light cleanup.
+### Completed
 
-Treat `golden_result` as:
+The following are now treated as fixed and verified:
 
-- a **calibration target** for formatter/postprocessing work,
-- a **regression oracle** once outputs converge,
-- and a **decision record** when we intentionally diverge from upstream examples.
+- formula label aliasing (`formula` -> `.formula`) in PP-DocLayout-V3 label mapping
+- block-list JSON export preserving `table` / `formula` labels instead of collapsing them to `text`
 
----
+These fixes restore the major missing-formula structural gap in the parity lane.
 
-## Scope and non-goals
+### Remaining likely sources of drift
 
-### In scope
+The remaining diffs are best grouped into four buckets:
 
-- A local workflow that produces `examples/result/*` deterministically from `examples/source/*`.
-- A comparison system that can evaluate **both** lanes (reference parity and golden quality).
-- Clear, per-example status reporting and “known diffs” documentation.
-- Opt-in CI-friendly checks that do not slow down default `swift test`.
+1. **Crop semantics**
+   - bbox normalization rounds differently from upstream
+   - crop de-normalization rounds differently from upstream
+   - missing layout heuristics can still perturb which regions survive
 
-### Non-goals (for now)
+2. **Polygon support**
+   - upstream produces `polygon_points` from `out_masks`
+   - Swift currently falls back to bbox polygons for every region
 
-- Full-model benchmarking (latency/throughput); keep this plan focused on correctness/quality.
-- Training-time evaluation metrics; we only validate inference outputs.
-- Perfect semantic equivalence scoring; start with pragmatic string/block diffs.
+3. **Decoder policy**
+   - Swift is greedy-only today
+   - `GenerateOptions` does not yet represent the knobs used by the upstream SDK path
+   - upstream sources themselves expose multiple potential "defaults" that need to be reconciled before parity claims are meaningful
 
----
-
-## Current state (starting point)
-
-- `scripts/run_examples.sh` regenerates `examples/result/*` from `examples/source/*` in layout mode.
-- `LayoutExamplesParityIntegrationTests.swift` runs opt-in parity tests for a small PDF set against `examples/reference_result/*`.
-- `examples/golden_result/*` mirrors the example set but currently emphasizes Markdown (and, for PDFs, cropped images).
-- `scripts/compare_examples.py` generates report-only parity/quality diffs between `examples/result/*` and the baselines.
+4. **Validation policy**
+   - the repo has a strong report-only harness
+   - the repo does not yet lock stable examples with thresholds in a way that is friendly to day-to-day development
 
 ---
 
-## Target deliverables
+## 2. Recommended strategy
 
-### A) Comparison tooling (local + CI)
+Do not attempt to solve all remaining drift with one giant pass.
 
-1) **Golden quality report**
-- Input: `examples/result/<name>` + `examples/golden_result/<name>`
-- Output: a concise summary + a readable diff (per example)
-- Supports:
-  - Markdown comparison
-  - image asset checks (for `imgs/*`)
-  - Implemented by: `scripts/compare_examples.py --lane quality`
+Use the following order:
 
-2) **Reference parity report**
-- Input: `examples/result/<name>` + `examples/reference_result/<name>`
-- Output: same style of summary + diff
-- Supports:
-  - Markdown comparison
-  - JSON comparison (schema + bbox tolerance)
-  - image asset checks
-  - Implemented by: `scripts/compare_examples.py --lane parity`
+### Step A - stabilize the crop contract
 
-3) **Per-example status table**
-- A single markdown table showing:
-  - parity status (pass / expected diffs / fail)
-  - quality status (gap size / pass / target not met yet)
-  - next action and owner (optional)
-  - Implemented by: `scripts/compare_examples.py --lane both` → `.build/quality_parity/summary.md`
+Before touching decoding policy, make sure the detector and cropper agree with the upstream coordinate contract closely enough that region content is comparable.
 
-### B) Opt-in automated checks
+This is Phase 01.
 
-- `swift test --filter …` suites for:
-  - upstream parity checks
-  - golden quality checks
+### Step B - upgrade region geometry from rectangles to polygons
 
-or a script-driven harness that exits non-zero only when thresholds are exceeded.
+Once bbox math is no longer drifting, bring `out_masks` into the Swift path and evaluate polygon crops on the formula-heavy examples.
+
+This is Phase 02.
+
+### Step C - make decoding policy explicit and reproducible
+
+Only after Steps A and B should the project decide what "generation parity" means for this repo:
+
+- parity to the Hugging Face model's direct generation config
+- parity to the official SDK pipeline defaults
+- or an explicit repo-owned parity profile used for example regeneration
+
+This is Phase 03.
+
+### Step D - lock the stable subset
+
+Use the existing report harness to convert the stable examples into thresholded checks. This protects the recovered parity work from regressions without making the default developer loop too expensive.
+
+This is Phase 04.
 
 ---
 
-## Design: what “match” means
+## 3. Swift-solution guidance for the remaining Python-side behaviors
 
-### 1) Markdown comparison
+The remaining upstream behaviors fall into three implementation categories.
 
-Use a layered approach so we can tighten over time:
+### 3.1 Crop math and postprocess heuristics
 
-**Level 0 — Normalization (always-on)**
-- normalize line endings (`\r\n` → `\n`)
-- trim trailing whitespace per line
-- normalize repeated blank lines (optional; apply only if it reduces noise)
-- normalize Markdown image paths if we intentionally relocate/rename assets (avoid this unless necessary)
+**Python-side behavior:** mostly plain arithmetic and deterministic filtering.
 
-**Level 1 — Block structure**
-- headings: count + text
-- code fences: opening/closing balance, language tag (if present), and code body
-- lists/tables: preserve rows and bullet nesting where feasible
+**Recommended Swift path:** stay within the existing adapter + `VisionIO` + postprocess code. No external dependency is justified here.
 
-**Level 2 — Text similarity (quality lane only)**
-- compute a simple distance score (e.g., normalized Levenshtein/WER) for non-code prose blocks
-- allow thresholds per example as we converge
+This includes:
 
-Pragmatic guidance:
-- For **parity lane**, prefer **exact match after normalization**. If that’s too strict, allow only narrowly-scoped fuzzing (e.g., whitespace).
-- For **quality lane**, start with **report-only**, then enforce thresholds once an example reaches a stable “good” state.
+- normalized bbox rounding policy
+- crop pixel-bound rounding policy
+- min-size validity filtering
+- `filter_large_image`
+- any remaining order-sequence tie-breaking cleanup
 
-Current implementation note:
-- `scripts/compare_examples.py` currently implements **Level 0 normalization** + exact match checks, emits unified diffs, and records a simple similarity ratio for visibility (no enforced thresholds yet).
+### 3.2 Mask to polygon extraction
 
-### 2) JSON comparison (parity lane)
+**Python-side behavior:** the Transformers implementation uses OpenCV contour extraction and polygon simplification on binary masks.
 
-Use JSON exports as the canonical structure checker:
+**Recommended Swift search order:**
 
-- schema compatibility (types/keys)
-- page count / block count per page
-- bbox tolerance (in pixels) for location drift
-- stable IDs are optional; prefer structural equivalence over byte-for-byte equality
+1. Apple-native contour extraction spike for binary masks
+2. compact local contour-tracing implementation if the Apple-native path does not preserve the needed semantics
+3. OpenCV-backed validation tooling only if needed to de-risk the local implementation
 
-If `golden_result` does not have JSON today:
-- keep JSON parity checks bound to `reference_result` initially
-- add golden JSON later as an explicit milestone (see phases)
+Rationale:
 
-### 3) Image assets (`imgs/*`)
+- The shipping OCR path should remain Apple-native and lightweight if possible.
+- However, parity work cares more about semantic equivalence than about using a fashionable API.
+- If an Apple-native contour API adds smoothing, thresholding, or contour ordering behavior that drifts too far from the OpenCV semantics used upstream, a small local implementation becomes the more faithful choice.
 
-For each example folder that contains `imgs/`:
+This decision point is made explicit in Phase 02.
 
-- minimum check: expected files exist
-- stronger check: match SHA-256 of each image file
-  - only enable if the image generation path is deterministic (same encoding/metadata)
+### 3.3 Decoding policy and sampling
 
-If SHA checks are too brittle (JPEG metadata differences):
-- fall back to size check + pixel hash (decode → hash raw pixels), but that’s heavier.
+**Python-side behavior:** the SDK request builder and the direct HF model path expose different generation defaults.
+
+**Recommended Swift path:** extend `VLMRuntimeKit/Generation` and borrow proven sampler / generation-loop structure from the MLX-Swift-style projects already surveyed in `docs/reference_projects.md`, instead of adding ad hoc logic directly into `GLMOCRModel.generate(...)`.
+
+That keeps sampling policy reusable across adapters and avoids hard-coding parity-specific behavior inside the model core.
 
 ---
 
-## Phased rollout
+## 4. Phase summary
 
-### Phase 0 — Inventory + documentation (low risk)
+| Phase | Goal | Main files expected to change |
+|---|---|---|
+| Phase 01 | Match upstream crop and filtering semantics closely enough that bbox-driven parity stops shifting for avoidable reasons | `PPDocLayoutV3Model.swift`, `VisionCrop.swift`, `PPDocLayoutV3Detector.swift`, `PPDocLayoutV3Postprocess.swift`, targeted tests |
+| Phase 02 | Produce and consume real polygon crops from `out_masks` | `PPDocLayoutV3Model.swift`, `PPDocLayoutV3Postprocess.swift`, new polygon utility, `VisionCrop.swift`, new tests |
+| Phase 03 | Support explicit decoding policies and choose the repo's parity target profile | `OCRTypes.swift`, `Generation/*`, `GLMOCRModel.swift`, CLI/app plumbing, integration tests |
+| Phase 04 | Turn stable examples into opt-in gated checks with clear thresholds | `scripts/compare_examples.py`, example notes, quality tracker, integration tests |
 
-**Goal:** make the current state explicit and remove ambiguity.
-
-- Add a per-example inventory table:
-  - examples included
-  - which have reference_result and golden_result
-  - which have JSON and/or imgs
-- Add a “known diffs” section linking `examples/reference_result_notes/*`.
-
-**Exit:** tracker clearly lists what’s covered and what’s missing.
+Detailed work breakdown lives in the per-phase docs in this folder.
 
 ---
 
-### Phase 1 — Report-only golden evaluation
+## 5. Cross-phase acceptance rules
 
-**Goal:** make golden comparisons easy without breaking anyone’s workflow.
+A phase is only complete if all three conditions hold:
 
-- Add a script (or Swift tool) that:
-  - runs the examples (or assumes `examples/result/*` already exists)
-  - compares result vs golden
-  - prints a summary report (top offenders, biggest diffs)
-- No failing thresholds yet; this is visibility-first.
+1. **Implementation landed**
+   - code paths exist and are wired into the real end-to-end layout pipeline
 
-**Exit:** developers can quickly answer: “did my change move us toward or away from golden?”
+2. **Example-level evidence recorded**
+   - at least one parity report or targeted before/after note is recorded in docs or tracker
 
----
+3. **Regression protection added**
+   - a unit test, integration test, or harness rule exists for the specific defect class that was fixed
 
-### Phase 2 — Opt-in golden checks with thresholds (incremental)
-
-**Goal:** start locking in improvements where we’re confident.
-
-- For each example that reaches a stable golden match (or tight delta):
-  - encode a threshold policy:
-    - exact match after normalization, **or**
-    - max distance score, **or**
-    - “block structure must match, prose distance <= X”
-- Add an opt-in test suite (env-gated) that fails when thresholds are exceeded.
-
-**Exit:** at least one image example and one PDF example are gated by golden thresholds.
+This prevents the project from accumulating one-off debugging wins that are not protected.
 
 ---
 
-### Phase 3 — Expand coverage + enrich golden artifacts
+## 6. Immediate next actions
 
-**Goal:** reduce reliance on noisy upstream artifacts and improve debuggability.
-
-- Expand parity tests to cover `examples/source/*.png`.
-- Consider adding:
-  - `examples/golden_result/<name>/<name>.json` for layout structure
-  - `examples/golden_result/<name>/meta.json` (snapshot hashes + notes)
-- Where golden intentionally diverges from upstream:
-  - record the rationale (small note file next to the example, or a section in the tracker).
-
-**Exit:** golden lane covers the full example set (at least Markdown; JSON optionally).
+1. Execute Phase 01 in full.
+2. Create the Phase 02 spike branch and compare at least `paper`, `page`, and `GLM-4.5V_Pages_1_2_3` before choosing the final polygon-extraction strategy.
+3. Resolve the parity decoding contract in Phase 03 before implementing sampler knobs beyond greedy.
+4. After the first stable subset emerges, start Phase 04 immediately instead of waiting for the entire corpus.
 
 ---
 
-### Phase 4 — CI integration policy
+## 7. Exit condition for this workstream
 
-**Goal:** make the checks useful in PRs without making CI fragile.
+The quality parity plan is complete when all of the following are true:
 
-Options:
-
-- CI runs **report-only** golden evaluation on every PR; failing is opt-in via label.
-- CI gates only the subset of examples that are already stable.
-- CI uses cached snapshots (or pre-bundled tiny snapshots) to keep runtime predictable.
-
-**Exit:** quality/parity regressions are visible in PRs with minimal flakiness.
-
----
-
-## Snapshot pinning (critical)
-
-Every comparison is only meaningful if the model snapshots are pinned.
-
-Record (at minimum):
-
-- GLM-OCR snapshot hash + model config summary
-- PP-DocLayout-V3 snapshot hash + model config summary
-- dtype/device assumptions for parity runs (FP16/BF16/FP32; CPU/GPU)
-
-Where to record:
-- `docs/dev_plans/quality_parity/tracker.md` (human-facing)
-- the harness scripts/tests (machine-facing)
-
----
-
-## Update policy for `golden_result`
-
-Golden outputs are curated. Updating them should be deliberate and reviewable.
-
-Rules:
-
-1) Never auto-regenerate golden in scripts.
-2) Every golden update must include:
-   - a short justification (“fixed code fence language”, “corrected OCR error due to tokenizer bug”, etc.)
-   - the snapshot hashes used
-3) Prefer small, scoped updates (one example at a time) so diffs are reviewable.
-
-Suggested workflow:
-- run `scripts/run_examples.sh --clean`
-- diff `examples/result/<name>` vs `examples/golden_result/<name>`
-- if the new output is better:
-  - copy result → golden (manual)
-  - add/update a note explaining why
-
----
-
-## Risks and mitigations
-
-- **Non-determinism across hardware/backends**
-  Mitigation: keep opt-in checks pinned to a known device/dtype regime; consider CPU-only for golden gating if needed.
-
-- **Upstream output drift**
-  Mitigation: treat upstream as the parity baseline only; golden provides stability for quality.
-
-- **Overfitting to small examples**
-  Mitigation: expand the examples set only after the harness is stable; keep a “representative” checklist (code, table, handwriting, seals, dense paper text, PDFs).
-
----
-
-## Concrete next actions (recommended)
-
-1) Update the tracker to explicitly define the dual-lane model (parity vs quality).
-2) Add a per-example status table with both lane statuses.
-3) Implement a report-only golden diff script and document it in the tracker.
-4) Promote at least 2 examples to threshold-gated golden checks once the report is stable.
+- the remaining layout-mode diffs are documented as either fixed or intentional
+- the crop and polygon paths are no longer known sources of avoidable drift
+- decoding policy is explicit and reproducible
+- representative PDF and PNG examples are protected by opt-in thresholds
+- the tracker no longer contains any "unknown likely cause" items for the active example set
