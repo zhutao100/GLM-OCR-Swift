@@ -35,9 +35,9 @@ extension VisionIO {
         let height = extent.height
 
         let x1px = (CGFloat(bbox.x1) * width / 1000.0).rounded(.down)
-        let x2px = (CGFloat(bbox.x2) * width / 1000.0).rounded(.up)
+        let x2px = (CGFloat(bbox.x2) * width / 1000.0).rounded(.down)
         let y1px = (CGFloat(bbox.y1) * height / 1000.0).rounded(.down)
-        let y2px = (CGFloat(bbox.y2) * height / 1000.0).rounded(.up)
+        let y2px = (CGFloat(bbox.y2) * height / 1000.0).rounded(.down)
 
         var cropRect = CGRect(
             x: extent.minX + x1px,

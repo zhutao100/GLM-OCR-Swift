@@ -14,6 +14,38 @@ final class VisionCropTests: XCTestCase {
         XCTAssertEqual(cropped.extent, CGRect(x: 100, y: 300, width: 300, height: 500))
     }
 
+    func testCropRegion_bboxUsesUpstreamTruncationContractForPixelBounds() throws {
+        let imageWidth: CGFloat = 2040
+        let imageHeight: CGFloat = 2640
+
+        let image = CIImage(color: CIColor(red: 0, green: 0, blue: 0, alpha: 1))
+            .cropped(to: CGRect(x: 0, y: 0, width: imageWidth, height: imageHeight))
+
+        let fixtures: [OCRNormalizedBBox] = [
+            // Near-origin tiny crop: would expand if max edges were ceil-rounded.
+            .init(x1: 0, y1: 0, x2: 1, y2: 1),
+            // Near bottom edge: validates y-flip + truncation at page edges.
+            .init(x1: 211, y1: 999, x2: 212, y2: 1000),
+        ]
+
+        for bbox in fixtures {
+            let cropped = try VisionIO.cropRegion(image: image, bbox: bbox, polygon: nil)
+
+            let x1px = (CGFloat(bbox.x1) * imageWidth / 1000.0).rounded(.down)
+            let x2px = (CGFloat(bbox.x2) * imageWidth / 1000.0).rounded(.down)
+            let y1px = (CGFloat(bbox.y1) * imageHeight / 1000.0).rounded(.down)
+            let y2px = (CGFloat(bbox.y2) * imageHeight / 1000.0).rounded(.down)
+
+            let expected = CGRect(
+                x: x1px,
+                y: imageHeight - y2px,
+                width: x2px - x1px,
+                height: y2px - y1px
+            )
+            XCTAssertEqual(cropped.extent, expected)
+        }
+    }
+
     func testCropRegion_polygonMasksOutsideToFillColor() throws {
         let image = CIImage(color: CIColor(red: 1, green: 0, blue: 0, alpha: 1))
             .cropped(to: CGRect(x: 0, y: 0, width: 1000, height: 1000))

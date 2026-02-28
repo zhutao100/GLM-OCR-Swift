@@ -32,13 +32,18 @@
 
 **Tasks**
 
-- [ ] Switch normalized bbox conversion in `PPDocLayoutV3Model.toNormalizedBBox` from floor/ceil expansion to upstream-style truncation semantics
-- [ ] Switch `VisionIO.cropRegion` pixel-bound conversion from down/up rounding to upstream-style truncation semantics
-- [ ] Add crop-specific tests that compare pixel rectangles against the upstream contract for representative bbox values near page edges
-- [ ] Mirror the upstream min-size validity pre-filter before post-process selection
-- [ ] Mirror `filter_large_image` in the Swift postprocess path, behind a clearly documented option if needed
-- [ ] Re-run parity reports for `paper`, `page`, `table`, and `GLM-4.5V_Pages_1_2_3`
-- [ ] Record whether order-sequence tie-breaking still needs adjustment once crop math is stable
+- [x] Switch normalized bbox conversion in `PPDocLayoutV3Model.toNormalizedBBox` from floor/ceil expansion to upstream-style truncation semantics
+- [x] Switch `VisionIO.cropRegion` pixel-bound conversion from down/up rounding to upstream-style truncation semantics
+- [x] Add crop-specific tests that compare pixel rectangles against the upstream contract for representative bbox values near page edges
+- [x] Mirror the upstream min-size validity pre-filter before post-process selection
+- [x] Mirror `filter_large_image` in the Swift postprocess path, behind a clearly documented option if needed
+- [x] Re-run parity reports for `paper`, `page`, `table`, and `GLM-4.5V_Pages_1_2_3`
+- [x] Record whether order-sequence tie-breaking still needs adjustment once crop math is stable
+
+**Notes (2026-02-28)**
+
+- parity report: `max_bbox_delta` tightened to <= 8 for `paper`, `table`, and `GLM-4.5V_Pages_1_2_3`
+- `page` still shows a local ordering mismatch (three adjacent `text` blocks permuted); treat this as remaining Workstream C follow-up
 
 **Exit criteria**
 

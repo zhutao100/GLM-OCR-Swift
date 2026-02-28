@@ -1,3 +1,4 @@
+import CoreGraphics
 import Foundation
 import VLMRuntimeKit
 
@@ -49,6 +50,7 @@ public enum PPDocLayoutV3Postprocess {
 
     public struct Options: Sendable, Equatable {
         public var applyNMS: Bool
+        public var filterLargeImage: Bool
         public var iouSameClass: Float
         public var iouDifferentClass: Float
         public var mergeMode: MergeMode?
@@ -58,6 +60,7 @@ public enum PPDocLayoutV3Postprocess {
 
         public init(
             applyNMS: Bool = true,
+            filterLargeImage: Bool = true,
             iouSameClass: Float = 0.6,
             iouDifferentClass: Float = 0.98,
             mergeMode: MergeMode? = nil,
@@ -66,6 +69,7 @@ public enum PPDocLayoutV3Postprocess {
             unclipRatioByClassID: [Int: UnclipRatio]? = nil
         ) {
             self.applyNMS = applyNMS
+            self.filterLargeImage = filterLargeImage
             self.iouSameClass = iouSameClass
             self.iouDifferentClass = iouDifferentClass
             self.mergeMode = mergeMode
@@ -140,6 +144,7 @@ public enum PPDocLayoutV3Postprocess {
     public static func apply(
         _ raw: RawDetections,
         config: PPDocLayoutV3Config,
+        imageSize: CGSize? = nil,
         options: Options = .init()
     ) throws -> (regions: [ProcessedRegion], diagnostics: [String]) {
         let count = raw.scores.count
@@ -188,6 +193,34 @@ public enum PPDocLayoutV3Postprocess {
         if options.applyNMS {
             detections = nms(
                 detections, iouSameClass: options.iouSameClass, iouDifferentClass: options.iouDifferentClass)
+        }
+
+        // Mirror upstream `filter_large_image` to avoid a full-page "image" box
+        // collapsing the merge stage (text gets marked as contained-by-image).
+        if
+            options.filterLargeImage,
+            let imageSize,
+            imageSize.width > 0,
+            imageSize.height > 0,
+            detections.count > 1,
+            let imageClassID = config.label2id?["image"] ?? config.id2label.first(where: { $0.value == "image" })?.key
+        {
+            let areaThreshold: Float = (imageSize.width > imageSize.height) ? 0.82 : 0.93
+            let totalArea = Float(1000 * 1000)
+            let filtered = detections.filter { det in
+                guard det.classID == imageClassID else { return true }
+                let bbox = clampNormalizedBBox(det.bbox)
+                let w = Float(bbox.x2 - bbox.x1)
+                let h = Float(bbox.y2 - bbox.y1)
+                let areaFraction = (w * h) / totalArea
+                return areaFraction <= areaThreshold
+            }
+
+            // Keep the original set if filtering would remove everything, matching upstream behavior.
+            if !filtered.isEmpty, filtered.count != detections.count {
+                diagnostics.append("filter_large_image removed \(detections.count - filtered.count) region(s)")
+                detections = filtered
+            }
         }
 
         let preserveClassIDs = preserveIndices(id2label: config.id2label)

@@ -2,7 +2,7 @@
 
 **Objective:** eliminate avoidable parity drift caused by coordinate conversion, crop pixel-bound semantics, and missing layout heuristics.
 
-**Status (2026-02-27):** planned.
+**Status (2026-02-28):** implemented rounding + pre-filters + unit tests; ordering follow-up remains for `page` (see `docs/dev_plans/quality_parity/tracker.md`).
 
 ---
 

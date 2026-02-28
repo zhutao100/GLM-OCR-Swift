@@ -1,4 +1,5 @@
 import DocLayoutAdapter
+import CoreGraphics
 import VLMRuntimeKit
 import XCTest
 
@@ -46,6 +47,52 @@ final class PPDocLayoutPostprocessTests: XCTestCase {
         )
 
         XCTAssertEqual(regions.count, 2)
+    }
+
+    func testFilterLargeImage_removesOversizedImageWhenOtherContentPresent() throws {
+        let config = makeConfig()
+        let raw = PPDocLayoutV3Postprocess.RawDetections(
+            scores: [0.9, 0.8],
+            labels: [14, 22],  // image then text
+            boxes: [
+                OCRNormalizedBBox(x1: 0, y1: 0, x2: 1000, y2: 1000),  // oversized image
+                OCRNormalizedBBox(x1: 0, y1: 0, x2: 100, y2: 100),  // content
+            ],
+            orderSeq: [1, 2]
+        )
+
+        let (regions, diagnostics) = try PPDocLayoutV3Postprocess.apply(
+            raw,
+            config: config,
+            imageSize: CGSize(width: 1000, height: 2000),
+            options: .init(applyNMS: false, mergeMode: nil, mergeModeByClassID: nil)
+        )
+
+        XCTAssertEqual(regions.map(\.classID), [22])
+        XCTAssertTrue(diagnostics.contains(where: { $0.contains("filter_large_image") }))
+    }
+
+    func testFilterLargeImage_keepsOriginalSetWhenItWouldRemoveEverything() throws {
+        let config = makeConfig()
+        let raw = PPDocLayoutV3Postprocess.RawDetections(
+            scores: [0.9, 0.8],
+            labels: [14, 14],  // images only
+            boxes: [
+                OCRNormalizedBBox(x1: 0, y1: 0, x2: 1000, y2: 1000),
+                OCRNormalizedBBox(x1: 0, y1: 0, x2: 1000, y2: 1000),
+            ],
+            orderSeq: [1, 2]
+        )
+
+        let (regions, _) = try PPDocLayoutV3Postprocess.apply(
+            raw,
+            config: config,
+            imageSize: CGSize(width: 1000, height: 2000),
+            options: .init(applyNMS: false, mergeMode: nil, mergeModeByClassID: nil)
+        )
+
+        XCTAssertEqual(regions.count, 2)
+        XCTAssertEqual(Set(regions.map(\.classID)), Set([14]))
     }
 
     func testContainmentMerge_globalLargeKeepsContainerDropsContained() throws {

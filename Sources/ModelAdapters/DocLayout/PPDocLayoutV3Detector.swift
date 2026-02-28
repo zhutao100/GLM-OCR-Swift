@@ -78,6 +78,8 @@ public actor PPDocLayoutV3Detector {
         }
         guard let config else { throw PPDocLayoutV3ModelError.invalidConfiguration("config.json is not loaded") }
 
+        let imageSize = ciImage.extent.integral.size
+
         if model == nil {
             model = try PPDocLayoutV3Model.load(from: modelFolder)
         }
@@ -90,6 +92,7 @@ public actor PPDocLayoutV3Detector {
         let (regions, diagnostics) = try PPDocLayoutV3Postprocess.apply(
             raw,
             config: config,
+            imageSize: imageSize,
             options: .init(applyNMS: true, mergeModeByClassID: PPDocLayoutV3Postprocess.defaultMergeModeByClassID)
         )
 

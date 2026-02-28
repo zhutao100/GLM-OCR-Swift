@@ -627,10 +627,25 @@ final class PPDocLayoutV3Core: Module {
             probe: probe
         )
 
-        try checkedEval(decoded.logits, decoded.boxes, decoded.orderLogits)
+        // Upstream pre-filter: suppress logits for boxes smaller than one mask cell.
+        // This avoids tiny invalid queries dominating top-k selection during post-processing.
+        let (maskH, maskW): (Int, Int) =
+            if modelConfig.maskEnhanced {
+                (encoderOutputs.maskFeat.dim(1), encoderOutputs.maskFeat.dim(2))
+            } else {
+                (200, 200)
+            }
+        let maskedLogits = PPDocLayoutV3Prefilters.maskLogitsForTinyBoxes(
+            logits: decoded.logits,
+            predBoxes: decoded.boxes,
+            maskHeight: maskH,
+            maskWidth: maskW
+        )
+
+        try checkedEval(maskedLogits, decoded.boxes, decoded.orderLogits)
 
         return PPDocLayoutV3Model.RawOutputs(
-            logits: decoded.logits,
+            logits: maskedLogits,
             predBoxes: decoded.boxes,
             orderLogits: decoded.orderLogits,
             encoderTopKIndices: topkInd,
@@ -819,7 +834,10 @@ final class PPDocLayoutV3Core: Module {
             let score = sigmoidFloat(logitsArray[flat])
             scored.append((score: score, flatIndex: flat))
         }
-        scored.sort { $0.score > $1.score }
+        scored.sort { a, b in
+            if a.score != b.score { return a.score > b.score }
+            return a.flatIndex < b.flatIndex
+        }
 
         let top = scored.prefix(numQueries)
 
@@ -836,7 +854,7 @@ final class PPDocLayoutV3Core: Module {
             let order = orderSeqFull[queryIndex]
 
             let b = boxesXYXY[queryIndex]
-            let bbox = toNormalizedBBox(x1: b.x1, y1: b.y1, x2: b.x2, y2: b.y2)
+            let bbox = PPDocLayoutV3BBoxConversion.toNormalizedBBox(x1: b.x1, y1: b.y1, x2: b.x2, y2: b.y2)
             guard bbox.x1 < bbox.x2, bbox.y1 < bbox.y2 else { continue }
 
             kept.append((score: score, label: label, bbox: bbox, order: order))
@@ -882,7 +900,10 @@ final class PPDocLayoutV3Core: Module {
         }
 
         var pointers = Array(0..<n)
-        pointers.sort { votes[$0] < votes[$1] }
+        pointers.sort { a, b in
+            if votes[a] != votes[b] { return votes[a] < votes[b] }
+            return a < b
+        }
 
         var orderSeq = Array(repeating: 0, count: n)
         for (rank, idx) in pointers.enumerated() {
@@ -896,27 +917,6 @@ final class PPDocLayoutV3Core: Module {
 
 private func sigmoidFloat(_ x: Float) -> Float {
     1 / (1 + exp(-x))
-}
-
-private func toNormalizedBBox(x1: Float, y1: Float, x2: Float, y2: Float) -> OCRNormalizedBBox {
-    func clamp01(_ v: Float) -> Float { max(0, min(1, v)) }
-
-    let x1 = clamp01(x1)
-    let y1 = clamp01(y1)
-    let x2 = clamp01(x2)
-    let y2 = clamp01(y2)
-
-    let nx1 = Int((x1 * 1000).rounded(.down))
-    let ny1 = Int((y1 * 1000).rounded(.down))
-    let nx2 = Int((x2 * 1000).rounded(.up))
-    let ny2 = Int((y2 * 1000).rounded(.up))
-
-    return OCRNormalizedBBox(
-        x1: max(0, min(1000, nx1)),
-        y1: max(0, min(1000, ny1)),
-        x2: max(0, min(1000, nx2)),
-        y2: max(0, min(1000, ny2))
-    )
 }
 
 // MARK: - Lightweight building blocks
