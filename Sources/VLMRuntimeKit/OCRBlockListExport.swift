@@ -15,7 +15,7 @@ public struct OCRBlockListItem: Sendable, Codable, Equatable {
         self.bbox2d = bbox2d
     }
 
-    private enum CodingKeys: String, CodingKey {
+    fileprivate enum CodingKeys: String, CodingKey {
         case index
         case label
         case content
@@ -43,6 +43,38 @@ extension OCRDocument {
                     }
             }
     }
+
+    /// Encode the examples-compatible block-list JSON with a deterministic key order:
+    /// `index`, `label`, `content`, `bbox_2d`.
+    public func toBlockListExportJSON(prettyPrinted: Bool = true, withoutEscapingSlashes: Bool = true) throws -> Data {
+        let export = toBlockListExport()
+
+        let orderedKeys = OCRBlockListItem.canonicalKeyOrder.map(\.stringValue)
+        let prefixPairs = orderedKeys.enumerated().map { (idx, key) in (original: key, prefixed: "\(idx)_\(key)") }
+        let prefixedByOriginal = Dictionary(uniqueKeysWithValues: prefixPairs.map { ($0.original, $0.prefixed) })
+
+        let encoder = JSONEncoder()
+        var formatting: JSONEncoder.OutputFormatting = [.sortedKeys]
+        if prettyPrinted {
+            formatting.insert(.prettyPrinted)
+        }
+        if withoutEscapingSlashes {
+            formatting.insert(.withoutEscapingSlashes)
+        }
+        encoder.outputFormatting = formatting
+
+        encoder.keyEncodingStrategy = .custom { codingPath in
+            guard let last = codingPath.last else { return _StablePrefixedCodingKey.empty }
+            guard let prefixed = prefixedByOriginal[last.stringValue] else { return last }
+            return _StablePrefixedCodingKey(stringValue: prefixed) ?? last
+        }
+
+        var json = String(decoding: try encoder.encode(export), as: UTF8.self)
+        for pair in prefixPairs {
+            json = json.replacingOccurrences(of: "\"\(pair.prefixed)\"", with: "\"\(pair.original)\"")
+        }
+        return Data(json.utf8)
+    }
 }
 
 private func canonicalLabel(for kind: OCRRegionKind) -> String {
@@ -55,5 +87,24 @@ private func canonicalLabel(for kind: OCRRegionKind) -> String {
         "formula"
     default:
         "text"
+    }
+}
+
+extension OCRBlockListItem {
+    fileprivate static let canonicalKeyOrder: [CodingKeys] = [.index, .label, .content, .bbox2d]
+}
+
+private struct _StablePrefixedCodingKey: CodingKey {
+    static let empty = _StablePrefixedCodingKey(stringValue: "")!
+
+    var stringValue: String
+    var intValue: Int? { nil }
+
+    init?(stringValue: String) {
+        self.stringValue = stringValue
+    }
+
+    init?(intValue _: Int) {
+        nil
     }
 }

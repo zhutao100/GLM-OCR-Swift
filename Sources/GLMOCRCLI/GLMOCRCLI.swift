@@ -413,9 +413,7 @@ struct GLMOCRCLI: AsyncParsableCommand {
     }
 
     private static func writeBlockListJSON(_ document: OCRDocument, to url: URL) throws {
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.prettyPrinted, .withoutEscapingSlashes]
-        let data = try encoder.encode(document.toBlockListExport())
+        let data = try document.toBlockListExportJSON()
         try data.write(to: url, options: .atomic)
     }
 
