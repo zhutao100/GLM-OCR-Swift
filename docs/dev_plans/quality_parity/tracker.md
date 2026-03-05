@@ -6,6 +6,20 @@
 
 ---
 
+## 0. Reproducibility (pinned revisions)
+
+The default CLI revisions are `main`. For parity/quality work, prefer pinning both model snapshots so reports are reproducible.
+
+Current working baselines (update here when intentionally rebasing):
+
+- GLM-OCR: `zai-org/GLM-OCR` @ `677c6baa60442a451f8a8c7eabdfab32d9801a0b`
+- PP-DocLayout-V3: `PaddlePaddle/PP-DocLayoutV3_safetensors` @ `a0abee1e2bb505e5662993235af873a5d89851e3`
+
+Where they are used:
+
+- CLI: `--revision <hash>` + `--layout-revision <hash>`
+- Examples harness: `scripts/run_examples.sh --glm-revision <hash> --layout-revision <hash>`
+
 ## 1. Status snapshot
 
 ### Completed
@@ -118,7 +132,7 @@
 - [ ] Add `examples/golden_result/GLM-4.5V_Page_1/` so the quality lane covers both PDFs
 - [ ] Promote at least one PDF and one PNG example to threshold-gated status
 - [ ] Add per-example threshold policy docs to the tracker or adjacent notes
-- [ ] Extend `scripts/compare_examples.py` so stable examples can fail on configured conditions while the rest remain report-only
+- [ ] Use `tools/example_eval/` as the primary scorer/enforcer (keep `scripts/compare_examples.py` as the diagnostic diff tool)
 - [ ] Add representative PNG parity integration tests once Phase 01 and Phase 02 settle
 - [ ] Document a CI mode that is opt-in or subset-gated rather than globally expensive
 

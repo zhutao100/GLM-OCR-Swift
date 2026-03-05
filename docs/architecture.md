@@ -80,7 +80,7 @@ PDF page -> VisionIO -> PPDocLayoutV3Detector -> [regions]
      -> LayoutResultFormatter -> OCRResult(text + document)
 ```
 
-### Current implementation note (2026-02-17)
+### Current implementation note (2026-03-04)
 
 Phase 03 MVP and Phase 04 layout mode now run end-to-end for a single image or a PDF (single/multi-page):
 

@@ -2,7 +2,7 @@
 
 **Objective:** convert the current report-only quality/parity tooling into a stable enforcement layer for the subset of examples that has become trustworthy.
 
-**Status (2026-02-27):** planned.
+**Status (2026-03-04):** planned. The scorer scaffold exists as `tools/example_eval/`; this phase is about turning it into an opt-in enforcement lane (without slowing down default `swift test`).
 
 ---
 
@@ -12,6 +12,7 @@ The repo already has strong ingredients:
 
 - reproducible example generation
 - a dual-lane diff harness (`parity` and `quality`)
+- a scored evaluator with per-example rules (`tools/example_eval/`)
 - opt-in end-to-end PDF parity tests
 
 What it lacks is a low-friction way to say:
@@ -62,9 +63,10 @@ This bucketed approach avoids penalizing ongoing parity work.
 
 ### Workstream B - threshold expression
 
-1. extend `scripts/compare_examples.py` so per-example policy can be configured cleanly
-2. keep report generation intact even when some examples are enforced
-3. record threshold rationale in docs, not only in code
+1. encode per-example checks and thresholds in `tools/example_eval/config/` (policy + rules)
+2. wire an opt-in failure mode (local and/or CI) using the evaluator’s built-in `--fail-under` / rules
+3. keep `scripts/compare_examples.py` as the low-level diff tool (report-only by default) for diagnosis
+4. record threshold rationale in docs and in the rule files (not only in code)
 
 ### Workstream C - test-suite expansion
 

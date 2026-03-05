@@ -2,7 +2,7 @@
 
 This folder is the structured reference for the repo. For the runnable quickstart, start at `README.md`.
 
-## Current status (2026-02-17)
+## Current status (2026-03-04)
 
 What exists and works today:
 
@@ -13,10 +13,14 @@ What exists and works today:
 - GLM-OCR model architecture + safetensors weight loading + tokenizer validation
 - End-to-end MVP OCR for a single image / PDF (single/multi-page) (vision preprocessing + chat template + greedy decode + KV cache)
 - Phase 04 layout mode (layout detection → region OCR → Markdown merge + structured `OCRDocument`)
+- Examples corpus + evaluation tooling:
+  - generate outputs: `scripts/run_examples.sh` → `examples/result/*`
+  - diff vs baselines: `scripts/compare_examples.py` (report-only by default)
+  - scored evaluation + rules: `tools/example_eval/` (see `tools/example_eval/README.md`)
 
 What is still stubbed / not implemented yet:
 
-- Threshold-gated quality/parity validation (a report-only examples harness exists; tracked in `docs/dev_plans/quality_parity/tracker.md`)
+- CI-gated quality/parity validation (tools exist, but enforcement is intentionally opt-in while examples/rules stabilize; tracked in `docs/dev_plans/quality_parity/tracker.md`)
 - Export/UX polish + distribution packaging (tracked in `docs/dev_plans/gui_polish_distribution/tracker.md`)
 
 ## Where things live (source of truth)
@@ -28,10 +32,12 @@ What is still stubbed / not implemented yet:
 - Decisions that affect interfaces/layout: `docs/decisions/README.md`
 - GLM-OCR model notes (special tokens, templates, pipeline behavior): `docs/GLM-OCR_model.md`
 - Reference Swift OCR ports and a borrowing map: `docs/reference_projects.md`
+- Examples scoring tool: `tools/example_eval/README.md`
 
 ## “I’m looking for…”
 
 - **How to build/run:** `README.md`
 - **Where to implement feature X:** `docs/dev_plans/README.md` + `docs/architecture.md`
 - **How to validate parity/quality:** `docs/dev_plans/quality_parity/tracker.md` + `docs/golden_checks.md`
+- **How to score example outputs:** `tools/example_eval/README.md` (scored evaluation) + `scripts/compare_examples.py` (diffs)
 - **Why we chose core+adapter:** `docs/decisions/0001-core-adapter.md`

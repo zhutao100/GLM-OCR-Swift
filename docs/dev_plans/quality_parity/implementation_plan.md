@@ -130,7 +130,7 @@ That keeps sampling policy reusable across adapters and avoids hard-coding parit
 | Phase 01 | Match upstream crop and filtering semantics closely enough that bbox-driven parity stops shifting for avoidable reasons | `PPDocLayoutV3Model.swift`, `VisionCrop.swift`, `PPDocLayoutV3Detector.swift`, `PPDocLayoutV3Postprocess.swift`, targeted tests |
 | Phase 02 | Produce and consume real polygon crops from `out_masks` | `PPDocLayoutV3Model.swift`, `PPDocLayoutV3Postprocess.swift`, new polygon utility, `VisionCrop.swift`, new tests |
 | Phase 03 | Support explicit decoding policies and choose the repo's parity target profile | `OCRTypes.swift`, `Generation/*`, `GLMOCRModel.swift`, CLI/app plumbing, integration tests |
-| Phase 04 | Turn stable examples into opt-in gated checks with clear thresholds | `scripts/compare_examples.py`, example notes, quality tracker, integration tests |
+| Phase 04 | Turn stable examples into opt-in gated checks with clear thresholds | `tools/example_eval/` (primary), `scripts/compare_examples.py` (diagnostic), example notes, quality tracker, integration tests |
 
 Detailed work breakdown lives in the per-phase docs in this folder.
 

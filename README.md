@@ -12,7 +12,7 @@ This repo is intentionally structured as **core + adapters**:
 
 See `docs/architecture.md` for module boundaries and dataflow.
 
-## Current status (2026-02-17)
+## Current status (2026-03-04)
 
 - `swift build` / `swift test` pass.
 - CLI + App run for images and PDFs (single/multi-page).
@@ -26,6 +26,10 @@ See `docs/architecture.md` for module boundaries and dataflow.
   - PP-DocLayout-V3 layout detection → region crop → per-region GLM-OCR → merged Markdown
   - Optional examples-compatible block-list JSON export from the CLI (`--emit-json`)
   - Optional structured `OCRDocument` JSON export from the CLI (`--emit-ocrdocument-json`)
+- Examples corpus exists under `examples/` with:
+  - `scripts/run_examples.sh` to generate `examples/result/*`
+  - `scripts/compare_examples.py` for report-only diffs vs `examples/reference_result/*` and `examples/golden_result/*`
+  - `tools/example_eval/` (sub-project) for scored evaluation and rule-based checks
 
 ## Requirements
 
@@ -65,6 +69,18 @@ Optional: batch-run all inputs in `examples/source/` (always runs in layout mode
 scripts/run_examples.sh
 ```
 
+## Examples evaluation (parity + quality)
+
+Two complementary tools exist:
+
+- **Low-level diffs (report-only by default):**
+
+  ```bash
+  PYENV_VERSION=venv313 pyenv exec python3 scripts/compare_examples.py --lane both
+  ```
+
+- **Scored evaluation + rules:** see `tools/example_eval/README.md` (writes reports under `.build/example_eval/`).
+
 Developer (Phase 02): single forward pass (logits only):
 
 ```bash
@@ -97,9 +113,9 @@ Cache directory precedence in `VLMRuntimeKit`:
 Run `swift run GLMOCRCLI --help` for the full list. Key flags:
 
 - `--model` (default: `zai-org/GLM-OCR`)
-- `--revision` (default: pinned commit for deterministic comparisons; see `docs/dev_plans/quality_parity/tracker.md`; pass `main` for latest)
+- `--revision` (default: `main`; for deterministic comparisons, pass a pinned commit from `docs/dev_plans/quality_parity/tracker.md`)
 - `--layout-model` (default: `PaddlePaddle/PP-DocLayoutV3_safetensors`) (layout mode only)
-- `--layout-revision` (default: pinned commit for deterministic comparisons; see `docs/dev_plans/quality_parity/tracker.md`; pass `main` for latest) (layout mode only)
+- `--layout-revision` (default: `main`; for deterministic comparisons, pass a pinned commit from `docs/dev_plans/quality_parity/tracker.md`) (layout mode only)
 - `--download-base <path>` (optional)
 - `--download-only` (download without inference)
 - `--input <path>`, `--pages <spec>` (PDF only; omit for all pages), `--task <preset>`, `--max-new-tokens <n>`
@@ -129,14 +145,15 @@ Keep the detailed plan in `docs/dev_plans/README.md`. Near-term work:
 - `docs/golden_checks.md` — opt-in numerical parity & golden fixtures
 - `docs/GLM-OCR_model.md` — GLM-OCR model notes (tokens, templates, pipeline behavior)
 - `docs/reference_projects.md` — reference Swift OCR ports + borrowing map
+- `tools/example_eval/README.md` — scored evaluation of `examples/result/*` vs baselines
 - `AGENTS.md` — agent operating guide for working in this repo
 
 ## Documentation Changelog
 
-- Added: a quality/parity tracker (`docs/dev_plans/quality_parity/tracker.md`) and linked it from the main docs/roadmap.
-- Added: a minimal image quickstart command + a layout-export example (`--emit-json`) that also materializes cropped images.
-- Removed: stale roadmap item suggesting multi-page workflows are still pending (multi-page PDFs are implemented).
-- Clarified/restructured: requirements call out the `xcrun metal` prerequisite; layout mode semantics (`--task` is ignored) are explicit; dev plans distinguish active vs completed trackers.
+- Added: an “Examples evaluation” section and pointers to both `scripts/compare_examples.py` (diffs) and `tools/example_eval/` (scoring).
+- Clarified: `examples/result/*` is generated output and should be regenerated with `scripts/run_examples.sh` when validating changes.
+- Clarified: CLI defaults use `--revision main` / `--layout-revision main`; parity work should pin revisions (see `docs/dev_plans/quality_parity/tracker.md`).
+- Updated: status date and doc pointers so `README.md`, `AGENTS.md`, and `docs/` agree on “what exists today”.
 
 ## License
 

@@ -10,7 +10,7 @@ Build a **fully native macOS (Apple Silicon) GLM-OCR app** in Swift using:
 - **Hugging Face `swift-transformers`** (`HubApi.snapshot` + `AutoTokenizer`) for model download + tokenizer loading
 - A maintainable architecture that supports future consolidation into a multi-model OCR workbench.
 
-## Current reality (2026-02-17)
+## Current reality (2026-03-04)
 
 - The repo builds and tests cleanly (`swift test`).
 - `ModelStore` snapshot download + HF cache resolution is implemented.
@@ -18,6 +18,10 @@ Build a **fully native macOS (Apple Silicon) GLM-OCR app** in Swift using:
   - a single image or a PDF (single/multi-page) (CLI + App),
   - optional layout mode (PP-DocLayout-V3 → region OCR → merged Markdown + structured `OCRDocument`).
 - Integration tests for downloaded models are **opt-in** via env vars; see `docs/golden_checks.md`.
+- The repo includes an examples corpus (`examples/*`) and evaluation tooling:
+  - `scripts/run_examples.sh` generates `examples/result/*`
+  - `scripts/compare_examples.py` produces report-only diffs vs `reference_result` / `golden_result`
+  - `tools/example_eval/` provides scored evaluation + rule-based checks
 
 ## Non-negotiables
 
@@ -86,6 +90,7 @@ Build a **fully native macOS (Apple Silicon) GLM-OCR app** in Swift using:
   - `docs/dev_plans/quality_parity/tracker.md` (roadmap + workflows)
   - `docs/golden_checks.md` (workflow + env vars)
   - `docs/debug_notes/ppdoclayoutv3_golden/debugging_ppdoclayoutv3_golden.md` (layout golden drift playbook)
+  - `tools/example_eval/README.md` (scored evaluation for `examples/result/*`)
 - **Release / distribution**
   - `docs/dev_plans/gui_polish_distribution/tracker.md` (source of truth; packaging is still planned)
 - **Docs-only changes**
@@ -99,6 +104,8 @@ swift test
 scripts/build_mlx_metallib.sh -c debug
 swift run GLMOCRCLI --help
 swift run GLMOCRApp
+scripts/run_examples.sh
+PYENV_VERSION=venv313 pyenv exec python3 scripts/compare_examples.py --lane both
 ```
 
 ## Formatting / linting (optional but preferred)

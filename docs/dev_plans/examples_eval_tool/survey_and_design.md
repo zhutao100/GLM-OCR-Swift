@@ -1,4 +1,14 @@
-I’d build this as a **stand-alone Python scoring harness** that borrows the *evaluation shape* of modern document-parsing benchmarks rather than trying to adopt one wholesale.
+# Examples evaluation tool (survey + current state)
+
+**Objective:** provide a scored evaluation loop for `examples/result/*` vs `examples/reference_result/*` (parity) and `examples/golden_result/*` (quality), without relying solely on raw diffs.
+
+**Status (2026-03-04):** implemented as the `tools/example_eval/` sub-project. `scripts/compare_examples.py` remains the low-level diff tool.
+
+For usage/configuration, start at `tools/example_eval/README.md`. The remainder of this document captures the original survey/design rationale and may include ideas not implemented verbatim.
+
+---
+
+The design direction was to build a **stand-alone Python scoring harness** that borrows the *evaluation shape* of modern document-parsing benchmarks rather than trying to adopt one wholesale.
 
 The web survey points to a few strong ideas:
 
@@ -6,7 +16,7 @@ The web survey points to a few strong ideas:
 * **OmniDocBench** and **docling-eval** confirm that serious document-eval stacks are multi-metric and multi-task, covering text OCR, layout, reading order, and table structure rather than just edit distance. ([GitHub][2])
 * **KITAB-Bench**’s **MARS** metric is a useful simplification: it combines **chrF3** for text fidelity with **TEDS** for table structure, which is very close to your “text first, critical table formatting first-class, decorative markdown second-class” requirement. ([arXiv][3])
 * **olmOCR-Bench** adds another useful idea: keep some **deterministic rule checks** as unit-test-like verifiers for critical facts or structure, instead of relying only on one continuous score. ([GitHub][4])
-* For implementation, the most maintainable building blocks are already out there: **markdown-it-py** for a pluggable CommonMark/GFM parser, **sacreBLEU** for reproducible chrF scoring, and **APTED** for tree-edit distance. ([GitHub][5])
+* For implementation, keep the dependency set small: **markdown-it-py** (parser), **beautifulsoup4** (HTML table parsing), and **PyYAML** (policy/rules). Richer text/table metrics (e.g. chrF/TEDS-style) can be added later if needed. ([GitHub][5])
 
 So the recommendation is:
 
@@ -27,7 +37,7 @@ That fits the repo much better than dropping in a full external benchmark framew
 
 ## What the current repo setup implies
 
-From the uploaded repo:
+From this repo:
 
 * `examples/README.md` defines the intended contract clearly:
 
@@ -49,7 +59,7 @@ That means the right design is **not** “replace everything.” It is:
 
 ### Phase 1: Normalize into a canonical intermediate representation
 
-Create a stand-alone package, e.g. `tools/example_score/`, in Python 3.12+.
+The scorer lives at `tools/example_eval/` (Python 3.12+).
 
 Each document becomes a `DocIR`:
 
@@ -91,7 +101,7 @@ This is the single biggest improvement over the current script.
 
 ## Scoring model
 
-I’d expose **three scores** per example:
+Expose **three scores** per example:
 
 1. **Parity score**
    `result` vs `reference_result`
@@ -257,46 +267,28 @@ and feed into CI gating.
 ## Recommended package layout
 
 ```text
-tools/example_score/
+tools/example_eval/
   pyproject.toml
-  src/example_score/
+  config/
+    policy.yaml
+    rules/
+      handwritten.yaml
+      GLM-4.5V_Pages_1_2_3.yaml
+  src/example_eval/
     cli.py
-    loader.py
-    canonicalize.py
-    markdown_ir.py
-    table_ir.py
-    align.py
-    metrics/
-      text.py
-      tables.py
-      structure.py
-      style.py
     rules.py
     report.py
   tests/
-    test_canonicalize_tables.py
-    test_canonicalize_markdown.py
-    test_metrics_text.py
-    test_metrics_tables.py
-    test_rules_pdf_boundaries.py
-    test_examples_regression.py
-examples/scoring/
-  policy.yaml
-  rules/
-    handwritten.yaml
-    GLM-4.5V_Pages_1_2_3.yaml
 ```
 
 Use:
 
 * `markdown-it-py`
-* `beautifulsoup4` or `lxml`
-* `sacrebleu`
-* `apted`
+* `beautifulsoup4`
 * `pyyaml`
 * `pytest`
 
-That stack is concise, maintainable, and all-purpose. ([GitHub][5])
+This is intentionally a small dependency set; add heavier metrics (e.g. chrF/TEDS-style) only if they pay for themselves in signal. ([GitHub][5])
 
 ---
 
@@ -305,10 +297,7 @@ That stack is concise, maintainable, and all-purpose. ([GitHub][5])
 Suggested CLI:
 
 ```bash
-uv run example-score evaluate \
-  --examples-root examples \
-  --policy examples/scoring/policy.yaml \
-  --out .build/example_score
+uv run --project tools/example_eval example-eval evaluate --repo-root .
 ```
 
 Outputs:
@@ -317,8 +306,7 @@ Outputs:
 * `summary.md`
 * `junit.xml`
 * `examples/<name>/report.md`
-* `examples/<name>/diffs/`
-* `examples/<name>/metrics.json`
+* `examples/<name>/report.json`
 
 Public summary table should show:
 
@@ -374,7 +362,7 @@ Use three buckets, matching the repo’s existing parity-plan thinking:
 
   * score only for manual review
 
-Initially I’d enforce only a small canary set:
+Initially, enforce only a small canary set:
 
 * `table`
 * `seal`
