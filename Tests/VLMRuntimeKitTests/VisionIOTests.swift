@@ -54,6 +54,70 @@ final class VisionIOTests: XCTestCase {
         XCTAssertEqual(values[2], -1.0, accuracy: 0.1)
     }
 
+    func testVisionRaster_renderRGBA8_producesExpectedByteCount() throws {
+        let ci = CIImage(color: CIColor(red: 0.1, green: 0.2, blue: 0.3, alpha: 1))
+            .cropped(to: CGRect(x: 2000, y: 3000, width: 3, height: 2))
+
+        let rgba = try VisionRaster.renderRGBA8(ci)
+        XCTAssertEqual(rgba.width, 3)
+        XCTAssertEqual(rgba.height, 2)
+        XCTAssertEqual(rgba.data.count, 3 * 2 * 4)
+    }
+
+    func testVisionResize_bicubicRGB_producesExpectedOutputSize() throws {
+        let rgbaBytes: [UInt8] = [
+            255, 0, 0, 255, 0, 255, 0, 255,
+            0, 0, 255, 255, 255, 255, 255, 255,
+        ]
+        let rgba = RGBA8Image(data: Data(rgbaBytes), width: 2, height: 2)
+        let resized = try VisionResize.bicubicRGB(from: rgba, toWidth: 3, toHeight: 4)
+
+        XCTAssertEqual(resized.width, 3)
+        XCTAssertEqual(resized.height, 4)
+        XCTAssertEqual(resized.data.count, 3 * 4 * 3)
+    }
+
+    func testVisionJPEG_roundTrip_preservesDimensions() throws {
+        let rgbBytes: [UInt8] = [
+            255, 0, 0, 0, 255, 0,
+            0, 0, 255, 255, 255, 255,
+        ]
+        let rgb = RGB8Image(data: Data(rgbBytes), width: 2, height: 2)
+        let roundTripped = try VisionJPEG.roundTrip(rgb, quality: 0.95)
+
+        XCTAssertEqual(roundTripped.width, 2)
+        XCTAssertEqual(roundTripped.height, 2)
+        XCTAssertEqual(roundTripped.data.count, 2 * 2 * 3)
+    }
+
+    func testImageTensorConverter_convertsFromRGB8Image() throws {
+        try ensureMLXMetalLibraryColocated()
+
+        var data = Data(capacity: 2 * 2 * 3)
+        for _ in 0..<4 {
+            data.append(255)  // r
+            data.append(0)  // g
+            data.append(0)  // b
+        }
+
+        let rgb = RGB8Image(data: data, width: 2, height: 2)
+        let options = ImageTensorConversionOptions(
+            dtype: .float32,
+            mean: (0.5, 0.5, 0.5),
+            std: (0.5, 0.5, 0.5)
+        )
+        let tensor = try ImageTensorConverter.toTensor(rgb, options: options)
+
+        XCTAssertEqual(tensor.tensor.shape, [1, 2, 2, 3])
+        let values = tensor.tensor.asType(.float32).asArray(Float.self)
+        XCTAssertEqual(values.count, 12)
+
+        // First pixel (red) after (x - 0.5) / 0.5 normalization.
+        XCTAssertEqual(values[0], 1.0, accuracy: 0.1)
+        XCTAssertEqual(values[1], -1.0, accuracy: 0.1)
+        XCTAssertEqual(values[2], -1.0, accuracy: 0.1)
+    }
+
     private func makeOnePagePDF() throws -> Data {
         let data = NSMutableData()
         guard let consumer = CGDataConsumer(data: data as CFMutableData) else {

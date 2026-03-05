@@ -118,6 +118,8 @@ public struct ImageTensorConversionOptions: Sendable {
 
 public enum ImageTensorConversionError: Error, Sendable, Equatable {
     case invalidImageExtent(CGRect)
+    case invalidRGBDimensions(width: Int, height: Int)
+    case invalidRGBBufferSize(expected: Int, actual: Int)
 }
 
 public enum ImageTensorConverter {
@@ -156,6 +158,32 @@ public enum ImageTensorConverter {
         let uint8Array = MLXArray(data, [h, w, 4], type: UInt8.self)
         var array = uint8Array.asType(.float32) / 255.0
         array = array[0..., 0..., ..<3]  // drop alpha
+        array = array.reshaped(1, h, w, 3)
+
+        if let mean = options.mean, let std = options.std {
+            let meanArray = MLXArray([mean.0, mean.1, mean.2])
+            let stdArray = MLXArray([std.0, std.1, std.2])
+            array = (array - meanArray) / stdArray
+        }
+
+        return ImageTensor(tensor: array.asType(options.dtype), width: w, height: h)
+    }
+
+    /// Convert an RGB byte buffer into a normalized `[1, H, W, C]` float tensor (channels last).
+    ///
+    /// - Note: The input must be tightly packed as RGBRGB… with `data.count == width * height * 3`.
+    public static func toTensor(_ rgb: RGB8Image, options: ImageTensorConversionOptions = .init()) throws -> ImageTensor {
+        let w = rgb.width
+        let h = rgb.height
+        guard w > 0, h > 0 else { throw ImageTensorConversionError.invalidRGBDimensions(width: w, height: h) }
+
+        let expectedBytes = w * h * 3
+        guard rgb.data.count == expectedBytes else {
+            throw ImageTensorConversionError.invalidRGBBufferSize(expected: expectedBytes, actual: rgb.data.count)
+        }
+
+        let uint8Array = MLXArray(rgb.data, [h, w, 3], type: UInt8.self)
+        var array = uint8Array.asType(.float32) / 255.0
         array = array.reshaped(1, h, w, 3)
 
         if let mean = options.mean, let std = options.std {
