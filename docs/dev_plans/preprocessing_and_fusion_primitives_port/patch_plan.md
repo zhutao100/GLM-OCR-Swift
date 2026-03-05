@@ -1,4 +1,13 @@
-Below is a **surgical, file-by-file patch plan** for `GLM-OCR-Swift` that:
+Below is a **surgical, file-by-file patch plan** for `GLM-OCR-Swift`.
+
+Tracking / phase status: `docs/dev_plans/preprocessing_and_fusion_primitives_port/tracker.md`.
+
+Conventions used here:
+
+- Each “Commit N” is treated as a phase (verify with `swift test`, then commit).
+- New “parity knobs” are **opt-in** (via options/env vars) so default behavior stays unchanged unless explicitly enabled.
+
+This plan:
 
 1. ports `glm-ocr.swift`’s **deterministic preprocessing modes** into `VLMRuntimeKit/VisionIO` + `GLMOCRImageProcessor` (behind toggles),
 2. replaces fusion with a **vectorized** implementation, and
@@ -124,7 +133,7 @@ public struct GLMOCRImageProcessingOptions: Sendable {
     ...
     public var resizeBackend: GLMOCRResizeBackend
     public var postResizeJPEGRoundTripQuality: Double?   // nil = disabled
-    public var alignDTypeToVisionWeights: Bool           // default true (or behind env)
+    public var alignDTypeToVisionWeights: Bool           // default false; enable for parity/golden runs
 }
 ```
 
@@ -132,7 +141,7 @@ Default:
 
 * `resizeBackend = .coreImageBicubic`
 * `postResizeJPEGRoundTripQuality = nil`
-* `alignDTypeToVisionWeights = true` (recommended)
+* `alignDTypeToVisionWeights = false` (recommended to enable for parity/golden runs)
 
 ### Update `process(_:config:)` to branch
 
@@ -156,7 +165,7 @@ Then proceed with the existing stacking to `[1,D,H,W,C]`.
 
 ### Ensure dtype alignment is actually wired
 
-Right now the pipeline never sets `imageOptions.dtype`, so it defaults to `.bfloat16`.
+Right now the pipeline never sets `imageOptions.dtype`, so it defaults to `.bfloat16`. For parity runs, you typically want `pixelValues.dtype == visionWeight.dtype`.
 
 To align dtype, you need one tiny “query hook”:
 
@@ -183,6 +192,7 @@ To align dtype, you need one tiny “query hook”:
 
   * `GLMOCR_PREPROCESS_BACKEND=deterministic` → sets `resizeBackend = .deterministicBicubicCPU`
   * `GLMOCR_POST_RESIZE_JPEG_QUALITY=0.95` → sets `postResizeJPEGRoundTripQuality`
+  * `GLMOCR_ALIGN_VISION_DTYPE=1` → sets `alignDTypeToVisionWeights = true` (and thus sets `imageOptions.dtype = model.visionInputDType`)
   * Keep parsing conservative (invalid values: ignore or throw in CLI only).
 
 ### Acceptance criteria

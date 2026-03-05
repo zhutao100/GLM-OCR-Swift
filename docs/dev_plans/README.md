@@ -6,6 +6,7 @@
 - Quality/parity validation: `docs/dev_plans/quality_parity/tracker.md`
   - detailed phase docs: `docs/dev_plans/quality_parity/README.md`
 - GUI polish + distribution: `docs/dev_plans/gui_polish_distribution/tracker.md`
+- Preprocessing + fusion primitives port: `docs/dev_plans/preprocessing_and_fusion_primitives_port/tracker.md`
 
 ## Completed trackers (kept for reference)
 - Multi-page PDFs: `docs/dev_plans/multi_page_pdf/tracker.md`

@@ -1,0 +1,18 @@
+# Preprocessing + fusion primitives port (glm-ocr.swift → GLM-OCR-Swift)
+
+**Objective:** Port the highest-leverage “fidelity primitives” from `glm-ocr.swift` into `GLM-OCR-Swift` (deterministic preprocessing modes + vectorized fusion), and add tests that prevent regressions (fusion correctness + chat-template drift).
+
+**Status (2026-03-05):** in progress — executing `patch_plan.md` phase-by-phase; each phase is verified with `swift test` and committed separately.
+
+## Phases (source of truth)
+
+- [x] Phase 0 — Harden plan docs (`context.md`, `patch_plan.md`) and add this tracker.
+- [ ] Phase 1 — `VLMRuntimeKit/VisionIO`: deterministic raster → bicubic resize (CPU) → optional JPEG round-trip; add RGB→tensor conversion + unit tests.
+- [ ] Phase 2 — `GLMOCRAdapter`: add preprocessing backends + parity toggles; wire dtype alignment to match the model’s vision weights (recommended for parity runs).
+- [ ] Phase 3 — `GLMOCRFusion`: replace per-token mutation loop with vectorized fuse; add multi-batch regression tests.
+- [ ] Phase 4 — Chat-template conformance harness: verify `GLMOCRChatTemplate.buildInputIDs(...)` matches tokenizer encoding for a canonical single-turn prompt (opt-in, requires `GLMOCR_SNAPSHOT_PATH`).
+
+## Verification checklist (per phase)
+
+- `swift test`
+- If Phase 4: `GLMOCR_SNAPSHOT_PATH=<snapshot> swift test --filter GLMOCRChatTemplateConformanceTests`
