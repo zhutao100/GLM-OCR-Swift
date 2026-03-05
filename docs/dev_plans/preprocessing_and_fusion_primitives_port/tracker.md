@@ -10,7 +10,7 @@
 - [x] Phase 1 — `VLMRuntimeKit/VisionIO`: deterministic raster → bicubic resize (CPU) → optional JPEG round-trip; add RGB→tensor conversion + unit tests.
 - [x] Phase 2 — `GLMOCRAdapter`: add preprocessing backends + parity toggles; wire dtype alignment to match the model’s vision weights (recommended for parity runs).
 - [x] Phase 3 — `GLMOCRFusion`: replace per-token mutation loop with vectorized fuse; add multi-batch regression tests.
-- [ ] Phase 4 — Chat-template conformance harness: verify `GLMOCRChatTemplate.buildInputIDs(...)` matches tokenizer encoding for a canonical single-turn prompt (opt-in, requires `GLMOCR_SNAPSHOT_PATH`).
+- [x] Phase 4 — Chat-template conformance harness: verify `GLMOCRChatTemplate.buildInputIDs(...)` matches tokenizer encoding for a canonical single-turn prompt (opt-in, requires `GLMOCR_SNAPSHOT_PATH`).
 
 ## Verification checklist (per phase)
 
