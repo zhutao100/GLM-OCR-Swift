@@ -4,6 +4,11 @@ import Foundation
 import MLX
 import VLMRuntimeKit
 
+public enum GLMOCRResizeBackend: Sendable {
+    case coreImageBicubic
+    case deterministicBicubicCPU
+}
+
 public struct GLMOCRImageProcessingOptions: Sendable {
     public var minPixels: Int
     public var maxPixels: Int
@@ -13,13 +18,20 @@ public struct GLMOCRImageProcessingOptions: Sendable {
     public var mean: (Float, Float, Float)
     public var std: (Float, Float, Float)
 
+    public var resizeBackend: GLMOCRResizeBackend
+    public var postResizeJPEGRoundTripQuality: Double?  // nil = disabled
+    public var alignDTypeToVisionWeights: Bool
+
     public init(
         minPixels: Int = 12544,
         maxPixels: Int = 71_372_800,
         patchExpandFactor: Int = 1,
         dtype: DType = .bfloat16,
         mean: (Float, Float, Float) = (0.5, 0.5, 0.5),
-        std: (Float, Float, Float) = (0.5, 0.5, 0.5)
+        std: (Float, Float, Float) = (0.5, 0.5, 0.5),
+        resizeBackend: GLMOCRResizeBackend = .coreImageBicubic,
+        postResizeJPEGRoundTripQuality: Double? = nil,
+        alignDTypeToVisionWeights: Bool = false
     ) {
         self.minPixels = minPixels
         self.maxPixels = maxPixels
@@ -27,6 +39,9 @@ public struct GLMOCRImageProcessingOptions: Sendable {
         self.dtype = dtype
         self.mean = mean
         self.std = std
+        self.resizeBackend = resizeBackend
+        self.postResizeJPEGRoundTripQuality = postResizeJPEGRoundTripQuality
+        self.alignDTypeToVisionWeights = alignDTypeToVisionWeights
     }
 }
 
@@ -75,14 +90,33 @@ public struct GLMOCRImageProcessor: Sendable {
             maxPixels: options.maxPixels
         )
 
-        let resized = resizeDirectly(image, width: targetWidth, height: targetHeight)
-
         let conversionOptions = ImageTensorConversionOptions(
             dtype: options.dtype,
             mean: options.mean,
             std: options.std
         )
-        let imageTensor = try ImageTensorConverter.toTensor(resized, options: conversionOptions)
+
+        let imageTensor: ImageTensor
+        switch options.resizeBackend {
+        case .coreImageBicubic:
+            let resized = resizeDirectly(image, width: targetWidth, height: targetHeight)
+
+            if let quality = options.postResizeJPEGRoundTripQuality {
+                let rgba = try VisionRaster.renderRGBA8(resized)
+                var rgb = try VisionResize.bicubicRGB(from: rgba, toWidth: targetWidth, toHeight: targetHeight)
+                rgb = try VisionJPEG.roundTrip(rgb, quality: quality)
+                imageTensor = try ImageTensorConverter.toTensor(rgb, options: conversionOptions)
+            } else {
+                imageTensor = try ImageTensorConverter.toTensor(resized, options: conversionOptions)
+            }
+        case .deterministicBicubicCPU:
+            let rgba = try VisionRaster.renderRGBA8(image)
+            var resizedRGB = try VisionResize.bicubicRGB(from: rgba, toWidth: targetWidth, toHeight: targetHeight)
+            if let quality = options.postResizeJPEGRoundTripQuality {
+                resizedRGB = try VisionJPEG.roundTrip(resizedRGB, quality: quality)
+            }
+            imageTensor = try ImageTensorConverter.toTensor(resizedRGB, options: conversionOptions)
+        }
 
         let hwc = imageTensor.tensor.squeezed(axis: 0)  // [H, W, C]
         let depth = temporalPatchSize

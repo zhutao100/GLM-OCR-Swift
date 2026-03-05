@@ -193,6 +193,7 @@ To align dtype, you need one tiny “query hook”:
   * `GLMOCR_PREPROCESS_BACKEND=deterministic` → sets `resizeBackend = .deterministicBicubicCPU`
   * `GLMOCR_POST_RESIZE_JPEG_QUALITY=0.95` → sets `postResizeJPEGRoundTripQuality`
   * `GLMOCR_ALIGN_VISION_DTYPE=1` → sets `alignDTypeToVisionWeights = true` (and thus sets `imageOptions.dtype = model.visionInputDType`)
+  * `GLMOCR_RUN_GOLDEN=1` → also enables dtype alignment in the pipeline (parity default)
   * Keep parsing conservative (invalid values: ignore or throw in CLI only).
 
 ### Acceptance criteria

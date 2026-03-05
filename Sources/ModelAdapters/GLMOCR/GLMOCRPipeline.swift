@@ -177,9 +177,34 @@ public actor GLMOCRPipeline: OCRPipeline {
             try Task.checkCancellation()
 
             var imageOptions = GLMOCRImageProcessingOptions()
+            let env = ProcessInfo.processInfo.environment
+
+            if let backend = env["GLMOCR_PREPROCESS_BACKEND"]?.lowercased() {
+                switch backend {
+                case "coreimage", "core_image", "coreimagebicubic":
+                    imageOptions.resizeBackend = .coreImageBicubic
+                case "deterministic", "deterministic_bicubic_cpu", "deterministicbicubiccpu":
+                    imageOptions.resizeBackend = .deterministicBicubicCPU
+                default:
+                    break
+                }
+            }
+
+            if let value = env["GLMOCR_POST_RESIZE_JPEG_QUALITY"], let quality = Double(value) {
+                imageOptions.postResizeJPEGRoundTripQuality = quality
+            }
+
+            if env["GLMOCR_ALIGN_VISION_DTYPE"] == "1" || env["GLMOCR_RUN_GOLDEN"] == "1" {
+                imageOptions.alignDTypeToVisionWeights = true
+            }
+
             if let meanStd {
                 imageOptions.mean = meanStd.mean
                 imageOptions.std = meanStd.std
+            }
+
+            if imageOptions.alignDTypeToVisionWeights {
+                imageOptions.dtype = model.visionInputDType
             }
 
             let imageProcessor = GLMOCRImageProcessor(options: imageOptions)
