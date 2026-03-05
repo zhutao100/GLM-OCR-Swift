@@ -159,9 +159,8 @@ pre-commit run -a
   - `zai-org--GLM-OCR`: `~/.cache/huggingface/hub/models--zai-org--GLM-OCR/snapshots`
   - `PaddlePaddle/PP-DocLayoutV3_safetensors`: `~/.cache/huggingface/hub/models--PaddlePaddle--PP-DocLayoutV3_safetensors`
   - Use shell command `hf cache ls` to list model caches, `hf cache download [model-org]/[model-id]` to download models as needed.
-- Reference Swift OCR Model projects
-  - [deepseek-ocr2.swift](https://github.com/mzbac/deepseek-ocr2.swift) for model `DeepSeek-OCR2`: accessible at `../deepseek-ocr2.swift`
-  - [deepseek-ocr.swift](https://github.com/mzbac/deepseek-ocr.swift) for model `DeepSeek-OCR`: accessible at `../deepseek-ocr.swift`
-  - [paddleocr-vl.swift](https://github.com/mlx-community/paddleocr-vl.swift) for model `PaddleOCR-VL`: accessible at `../paddleocr-vl.swift`
+- Similar GLM-OCR Swift port projects
+  - [glm-ocr.swift](https://github.com/zhutao100/glm-ocr.swift): accessible at `../glm-ocr.swift`
+  - [glm-ocr-swift-2](https://github.com/zhutao100/glm-ocr-swift-2): accessible at `../glm-ocr-swift-2`
 - The official github repo [GLM-OCR](https://github.com/zai-org/GLM-OCR/): accessible at `../GLM-OCR`
 - when inspecting the reference implementation in Python, use the virtual env `venv313` by pretending `PYENV_VERSION=venv313 pyenv exec ` to the command.
