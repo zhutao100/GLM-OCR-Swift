@@ -76,10 +76,19 @@ Two complementary tools exist:
 - **Low-level diffs (report-only by default):**
 
   ```bash
-  PYENV_VERSION=venv313 pyenv exec python3 scripts/compare_examples.py --lane both
+  python3 scripts/compare_examples.py --lane both
   ```
 
 - **Scored evaluation + rules:** see `tools/example_eval/README.md` (writes reports under `.build/example_eval/`).
+
+- **Agentic verification loop (recommended):**
+
+  ```bash
+  scripts/verify_example_eval.sh
+  ```
+
+  This ensures `examples/result/` is up-to-date, runs the scorer, and records a persistent snapshot under
+  `examples/eval_records/latest/` (including a delta vs the baseline in git).
 
 Developer (Phase 02): single forward pass (logits only):
 

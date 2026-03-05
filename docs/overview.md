@@ -17,6 +17,7 @@ What exists and works today:
   - generate outputs: `scripts/run_examples.sh` → `examples/result/*`
   - diff vs baselines: `scripts/compare_examples.py` (report-only by default)
   - scored evaluation + rules: `tools/example_eval/` (see `tools/example_eval/README.md`)
+  - agentic verification loop: `scripts/verify_example_eval.sh` (records under `examples/eval_records/latest/`)
 
 What is still stubbed / not implemented yet:
 
@@ -40,4 +41,5 @@ What is still stubbed / not implemented yet:
 - **Where to implement feature X:** `docs/dev_plans/README.md` + `docs/architecture.md`
 - **How to validate parity/quality:** `docs/dev_plans/quality_parity/tracker.md` + `docs/golden_checks.md`
 - **How to score example outputs:** `tools/example_eval/README.md` (scored evaluation) + `scripts/compare_examples.py` (diffs)
+- **How to run the full agentic check loop:** `scripts/verify_example_eval.sh` + `examples/eval_records/README.md`
 - **Why we chose core+adapter:** `docs/decisions/0001-core-adapter.md`

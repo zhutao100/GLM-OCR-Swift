@@ -22,6 +22,7 @@ Build a **fully native macOS (Apple Silicon) GLM-OCR app** in Swift using:
   - `scripts/run_examples.sh` generates `examples/result/*`
   - `scripts/compare_examples.py` produces report-only diffs vs `reference_result` / `golden_result`
   - `tools/example_eval/` provides scored evaluation + rule-based checks
+  - `scripts/verify_example_eval.sh` runs the agentic loop and records under `examples/eval_records/latest/`
 
 ## Non-negotiables
 
@@ -105,7 +106,8 @@ scripts/build_mlx_metallib.sh -c debug
 swift run GLMOCRCLI --help
 swift run GLMOCRApp
 scripts/run_examples.sh
-PYENV_VERSION=venv313 pyenv exec python3 scripts/compare_examples.py --lane both
+scripts/verify_example_eval.sh
+python3 scripts/compare_examples.py --lane both
 ```
 
 ## Formatting / linting (optional but preferred)

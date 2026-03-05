@@ -67,8 +67,11 @@ fi
 root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$root_dir"
 
+. "$root_dir/scripts/_examples_fingerprint.sh"
+
 src_dir="$root_dir/examples/source"
 out_root="$root_dir/examples/result"
+meta_path="$out_root/.run_examples_meta.json"
 
 if [[ ! -d "$src_dir" ]]; then
   echo "Missing examples/source at: $src_dir" >&2
@@ -128,6 +131,56 @@ is_supported_input() {
 skipped=()
 failed=()
 succeeded=()
+started_at_utc="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+
+git_head_sha="$(git rev-parse HEAD 2>/dev/null || true)"
+git_describe="$(git describe --always --dirty --broken 2>/dev/null || true)"
+git_dirty=""
+if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  if [[ -n "$(git status --porcelain 2>/dev/null || true)" ]]; then
+    git_dirty="true"
+  else
+    git_dirty="false"
+  fi
+fi
+
+write_run_meta() {
+  local status ended_at_utc fingerprint
+  status="$1"
+  ended_at_utc="$2"
+  fingerprint="$(examples_compute_fingerprint)"
+
+  local -a meta_args
+  meta_args=(
+    --meta-path "$meta_path"
+    --status "$status"
+    --configuration "$config"
+    --fingerprint-sha256 "$fingerprint"
+    --git-head-sha "$git_head_sha"
+    --git-describe "$git_describe"
+    --git-dirty "$git_dirty"
+    --glm-model "$glm_model"
+    --glm-revision "$glm_revision"
+    --layout-model "$layout_model"
+    --layout-revision "$layout_revision"
+    --download-base "$download_base"
+    --started-at-utc "$started_at_utc"
+    --ended-at-utc "$ended_at_utc"
+  )
+
+  local f
+  for f in "${succeeded[@]}"; do
+    meta_args+=(--succeeded "$f")
+  done
+  for f in "${failed[@]}"; do
+    meta_args+=(--failed "$f")
+  done
+  for f in "${skipped[@]}"; do
+    meta_args+=(--skipped "$f")
+  done
+
+  python3 "$root_dir/scripts/write_run_examples_meta.py" "${meta_args[@]}"
+}
 
 echo "==> Running examples from: $src_dir"
 # shellcheck disable=SC2016
@@ -198,7 +251,10 @@ if [[ ${#failed[@]} -gt 0 ]]; then
   for f in "${failed[@]}"; do
     printf '  - %s\n' "$f" >&2
   done
+  write_run_meta failed "$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
   exit 1
 fi
+
+write_run_meta ok "$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 
 echo "OK."
