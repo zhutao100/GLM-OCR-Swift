@@ -1,0 +1,1087 @@
+{
+  "name": "GLM-4.5V_Pages_1_2_3",
+  "parity": {
+    "available": true,
+    "overall": 0.8763,
+    "dimensions": {
+      "text_fidelity": 0.9434,
+      "critical_structure": 0.7793,
+      "decorative_style": 0.75
+    },
+    "details": {
+      "text": {
+        "blocks": [
+          {
+            "index": 0,
+            "status": "paired",
+            "actual_kind": "heading",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 1,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "heading",
+            "score": 0.0265
+          },
+          {
+            "index": 2,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 3,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 4,
+            "status": "paired",
+            "actual_kind": "heading",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 5,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0528
+          },
+          {
+            "index": 6,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "heading",
+            "score": 0.0
+          },
+          {
+            "index": 7,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0182
+          },
+          {
+            "index": 8,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.8462
+          },
+          {
+            "index": 9,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 10,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0907
+          },
+          {
+            "index": 11,
+            "status": "paired",
+            "actual_kind": "heading",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 12,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0066
+          },
+          {
+            "index": 13,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 14,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0174
+          },
+          {
+            "index": 15,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 16,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 17,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "paragraph",
+            "score": 0.2197
+          },
+          {
+            "index": 18,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 19,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "heading",
+            "score": 0.0186
+          },
+          {
+            "index": 20,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.028
+          },
+          {
+            "index": 21,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.2893
+          },
+          {
+            "index": 22,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.1837
+          },
+          {
+            "index": 23,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "paragraph",
+            "score": 0.1071
+          },
+          {
+            "index": 24,
+            "status": "paired",
+            "actual_kind": "heading",
+            "expected_kind": "list_item",
+            "score": 0.0216
+          },
+          {
+            "index": 25,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "list_item",
+            "score": 0.1162
+          },
+          {
+            "index": 26,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.098
+          },
+          {
+            "index": 27,
+            "status": "paired",
+            "actual_kind": "formula",
+            "expected_kind": "list_item",
+            "score": 0.0108
+          },
+          {
+            "index": 28,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "list_item",
+            "score": 0.0404
+          },
+          {
+            "index": 29,
+            "status": "paired",
+            "actual_kind": "formula",
+            "expected_kind": "list_item",
+            "score": 0.0129
+          },
+          {
+            "index": 30,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "list_item",
+            "score": 0.1416
+          },
+          {
+            "index": 31,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "list_item",
+            "score": 0.1419
+          },
+          {
+            "index": 32,
+            "status": "missing",
+            "kind": "heading",
+            "score": 0.0
+          },
+          {
+            "index": 33,
+            "status": "missing",
+            "kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 34,
+            "status": "missing",
+            "kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 35,
+            "status": "missing",
+            "kind": "formula",
+            "score": 0.0
+          },
+          {
+            "index": 36,
+            "status": "missing",
+            "kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 37,
+            "status": "missing",
+            "kind": "formula",
+            "score": 0.0
+          },
+          {
+            "index": 38,
+            "status": "missing",
+            "kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 39,
+            "status": "missing",
+            "kind": "paragraph",
+            "score": 0.0
+          }
+        ],
+        "aligned_score": 0.06115573585364397,
+        "global_score": 0.9898134673898664
+      },
+      "tables": {
+        "tables": []
+      },
+      "json": {
+        "available": true,
+        "components": {
+          "page_count": 1.0,
+          "block_count": 1.0,
+          "labels": 1.0,
+          "bbox": 0.6660533910533911,
+          "content": 0.9896065998446262
+        },
+        "pages": [
+          {
+            "page": 1,
+            "block_count": 1.0,
+            "labels": 1.0,
+            "bbox": 0.6636,
+            "content": 0.9942
+          },
+          {
+            "page": 2,
+            "block_count": 1.0,
+            "labels": 1.0,
+            "bbox": 0.6643,
+            "content": 0.9965
+          },
+          {
+            "page": 3,
+            "block_count": 1.0,
+            "labels": 1.0,
+            "bbox": 0.6702,
+            "content": 0.9782
+          }
+        ]
+      },
+      "style": {
+        "actual": {
+          "heading_levels": [
+            1,
+            2,
+            2,
+            2
+          ],
+          "bold_markers": 0,
+          "center_wrappers": 0,
+          "code_languages": []
+        },
+        "expected": {
+          "heading_levels": [
+            1,
+            2,
+            2,
+            2
+          ],
+          "bold_markers": 0,
+          "center_wrappers": 4,
+          "code_languages": []
+        }
+      },
+      "block_shape": 0.425
+    },
+    "missing_reason": null
+  },
+  "result_to_golden": {
+    "available": true,
+    "overall": 0.8886,
+    "dimensions": {
+      "text_fidelity": 0.9227,
+      "critical_structure": null,
+      "decorative_style": 0.4792
+    },
+    "details": {
+      "text": {
+        "blocks": [
+          {
+            "index": 0,
+            "status": "paired",
+            "actual_kind": "heading",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 1,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "heading",
+            "score": 0.0265
+          },
+          {
+            "index": 2,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 3,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 4,
+            "status": "paired",
+            "actual_kind": "heading",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 5,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 6,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "heading",
+            "score": 0.0
+          },
+          {
+            "index": 7,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0182
+          },
+          {
+            "index": 8,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.8462
+          },
+          {
+            "index": 9,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 10,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0907
+          },
+          {
+            "index": 11,
+            "status": "paired",
+            "actual_kind": "heading",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 12,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0066
+          },
+          {
+            "index": 13,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 14,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0174
+          },
+          {
+            "index": 15,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 16,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 17,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "paragraph",
+            "score": 0.2197
+          },
+          {
+            "index": 18,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 19,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 20,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 21,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "heading",
+            "score": 0.0175
+          },
+          {
+            "index": 22,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.1642
+          },
+          {
+            "index": 23,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "paragraph",
+            "score": 0.1395
+          },
+          {
+            "index": 24,
+            "status": "paired",
+            "actual_kind": "heading",
+            "expected_kind": "paragraph",
+            "score": 0.005
+          },
+          {
+            "index": 25,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.1084
+          },
+          {
+            "index": 26,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "list_item",
+            "score": 0.1289
+          },
+          {
+            "index": 27,
+            "status": "paired",
+            "actual_kind": "formula",
+            "expected_kind": "list_item",
+            "score": 0.004
+          },
+          {
+            "index": 28,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "list_item",
+            "score": 0.0984
+          },
+          {
+            "index": 29,
+            "status": "paired",
+            "actual_kind": "formula",
+            "expected_kind": "list_item",
+            "score": 0.0228
+          },
+          {
+            "index": 30,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0496
+          },
+          {
+            "index": 31,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "list_item",
+            "score": 0.2088
+          },
+          {
+            "index": 32,
+            "status": "missing",
+            "kind": "list_item",
+            "score": 0.0
+          },
+          {
+            "index": 33,
+            "status": "missing",
+            "kind": "list_item",
+            "score": 0.0
+          },
+          {
+            "index": 34,
+            "status": "missing",
+            "kind": "heading",
+            "score": 0.0
+          },
+          {
+            "index": 35,
+            "status": "missing",
+            "kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 36,
+            "status": "missing",
+            "kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 37,
+            "status": "missing",
+            "kind": "formula",
+            "score": 0.0
+          },
+          {
+            "index": 38,
+            "status": "missing",
+            "kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 39,
+            "status": "missing",
+            "kind": "formula",
+            "score": 0.0
+          },
+          {
+            "index": 40,
+            "status": "missing",
+            "kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 41,
+            "status": "missing",
+            "kind": "paragraph",
+            "score": 0.0
+          }
+        ],
+        "aligned_score": 0.05091378340830419,
+        "global_score": 0.9685995671951596
+      },
+      "tables": {
+        "tables": []
+      },
+      "json": {
+        "available": false,
+        "reason": "missing json baseline or result: /Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/golden_result/GLM-4.5V_Pages_1_2_3/GLM-4.5V_Pages_1_2_3.json"
+      },
+      "style": {
+        "actual": {
+          "heading_levels": [
+            1,
+            2,
+            2,
+            2
+          ],
+          "bold_markers": 0,
+          "center_wrappers": 0,
+          "code_languages": []
+        },
+        "expected": {
+          "heading_levels": [
+            1,
+            3,
+            2,
+            2
+          ],
+          "bold_markers": 32,
+          "center_wrappers": 4,
+          "code_languages": []
+        }
+      },
+      "block_shape": 0.42857142857142855
+    },
+    "missing_reason": null
+  },
+  "reference_to_golden": {
+    "available": true,
+    "overall": 0.923,
+    "dimensions": {
+      "text_fidelity": 0.9391,
+      "critical_structure": null,
+      "decorative_style": 0.7292
+    },
+    "details": {
+      "text": {
+        "blocks": [
+          {
+            "index": 0,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 1.0
+          },
+          {
+            "index": 1,
+            "status": "paired",
+            "actual_kind": "heading",
+            "expected_kind": "heading",
+            "score": 1.0
+          },
+          {
+            "index": 2,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 3,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 4,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 5,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 6,
+            "status": "paired",
+            "actual_kind": "heading",
+            "expected_kind": "heading",
+            "score": 1.0
+          },
+          {
+            "index": 7,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.9964
+          },
+          {
+            "index": 8,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 1.0
+          },
+          {
+            "index": 9,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 1.0
+          },
+          {
+            "index": 10,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 1.0
+          },
+          {
+            "index": 11,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 1.0
+          },
+          {
+            "index": 12,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 1.0
+          },
+          {
+            "index": 13,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 1.0
+          },
+          {
+            "index": 14,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 1.0
+          },
+          {
+            "index": 15,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 1.0
+          },
+          {
+            "index": 16,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 1.0
+          },
+          {
+            "index": 17,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.9835
+          },
+          {
+            "index": 18,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 1.0
+          },
+          {
+            "index": 19,
+            "status": "paired",
+            "actual_kind": "heading",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 20,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 21,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "heading",
+            "score": 0.0091
+          },
+          {
+            "index": 22,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.3491
+          },
+          {
+            "index": 23,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0944
+          },
+          {
+            "index": 24,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "paragraph",
+            "score": 0.1031
+          },
+          {
+            "index": 25,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "paragraph",
+            "score": 0.1562
+          },
+          {
+            "index": 26,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "list_item",
+            "score": 0.1315
+          },
+          {
+            "index": 27,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "list_item",
+            "score": 0.1957
+          },
+          {
+            "index": 28,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "list_item",
+            "score": 0.0258
+          },
+          {
+            "index": 29,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "list_item",
+            "score": 0.1796
+          },
+          {
+            "index": 30,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "paragraph",
+            "score": 0.0546
+          },
+          {
+            "index": 31,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "list_item",
+            "score": 0.3159
+          },
+          {
+            "index": 32,
+            "status": "paired",
+            "actual_kind": "heading",
+            "expected_kind": "list_item",
+            "score": 0.0211
+          },
+          {
+            "index": 33,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "list_item",
+            "score": 0.2014
+          },
+          {
+            "index": 34,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "heading",
+            "score": 0.0107
+          },
+          {
+            "index": 35,
+            "status": "paired",
+            "actual_kind": "formula",
+            "expected_kind": "paragraph",
+            "score": 0.0068
+          },
+          {
+            "index": 36,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.2794
+          },
+          {
+            "index": 37,
+            "status": "paired",
+            "actual_kind": "formula",
+            "expected_kind": "formula",
+            "score": 0.1661
+          },
+          {
+            "index": 38,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.2213
+          },
+          {
+            "index": 39,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "formula",
+            "score": 0.0124
+          },
+          {
+            "index": 40,
+            "status": "missing",
+            "kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 41,
+            "status": "missing",
+            "kind": "paragraph",
+            "score": 0.0
+          }
+        ],
+        "aligned_score": 0.4167074345174426,
+        "global_score": 0.9666136724960254
+      },
+      "tables": {
+        "tables": []
+      },
+      "json": {
+        "available": false,
+        "reason": "missing json baseline or result: /Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/golden_result/GLM-4.5V_Pages_1_2_3/GLM-4.5V_Pages_1_2_3.json"
+      },
+      "style": {
+        "actual": {
+          "heading_levels": [
+            1,
+            2,
+            2,
+            2
+          ],
+          "bold_markers": 0,
+          "center_wrappers": 4,
+          "code_languages": []
+        },
+        "expected": {
+          "heading_levels": [
+            1,
+            3,
+            2,
+            2
+          ],
+          "bold_markers": 32,
+          "center_wrappers": 4,
+          "code_languages": []
+        }
+      },
+      "block_shape": 0.6904761904761905
+    },
+    "missing_reason": null
+  },
+  "final_dimensions": {
+    "text_fidelity": 0.9434,
+    "critical_structure": 0.7793,
+    "decorative_style": 0.6875
+  },
+  "final_overall": 0.8732,
+  "rules": [
+    {
+      "check_id": "page1_start",
+      "check_type": "page_start",
+      "status": "pass",
+      "severity": "warn",
+      "message": "Page 1 start matched expected content."
+    },
+    {
+      "check_id": "page1_end",
+      "check_type": "page_end",
+      "status": "pass",
+      "severity": "warn",
+      "message": "Page 1 end matched expected content."
+    },
+    {
+      "check_id": "page2_start",
+      "check_type": "page_start",
+      "status": "pass",
+      "severity": "warn",
+      "message": "Page 2 start matched expected content."
+    },
+    {
+      "check_id": "page2_end",
+      "check_type": "page_end",
+      "status": "pass",
+      "severity": "warn",
+      "message": "Page 2 end matched expected content."
+    },
+    {
+      "check_id": "page3_start",
+      "check_type": "page_start",
+      "status": "pass",
+      "severity": "warn",
+      "message": "Page 3 start matched expected content."
+    },
+    {
+      "check_id": "page3_end",
+      "check_type": "page_end",
+      "status": "pass",
+      "severity": "warn",
+      "message": "Page 3 end matched expected content."
+    },
+    {
+      "check_id": "page2_page3_continuation",
+      "check_type": "continuation",
+      "status": "pass",
+      "severity": "warn",
+      "message": "Continuation across pages 2 -> 3 matched."
+    }
+  ]
+}

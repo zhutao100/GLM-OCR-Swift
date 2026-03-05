@@ -1,0 +1,3889 @@
+{
+  "fail_under": null,
+  "examples": [
+    {
+      "name": "GLM-4.5V_Page_1",
+      "parity": {
+        "available": true,
+        "overall": 0.873,
+        "dimensions": {
+          "text_fidelity": 0.944,
+          "critical_structure": 0.7688,
+          "decorative_style": 0.75
+        },
+        "details": {
+          "text": {
+            "blocks": [
+              {
+                "index": 0,
+                "status": "paired",
+                "actual_kind": "heading",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 1,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "heading",
+                "score": 0.0265
+              },
+              {
+                "index": 2,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 3,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 4,
+                "status": "paired",
+                "actual_kind": "heading",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 5,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0528
+              },
+              {
+                "index": 6,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "heading",
+                "score": 0.0
+              },
+              {
+                "index": 7,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0182
+              },
+              {
+                "index": 8,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.8462
+              },
+              {
+                "index": 9,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 10,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0907
+              },
+              {
+                "index": 11,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 12,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 13,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 14,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 15,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 16,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 17,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
+              }
+            ],
+            "aligned_score": 0.056743442101291494,
+            "global_score": 0.9907063197026023
+          },
+          "tables": {
+            "tables": []
+          },
+          "json": {
+            "available": true,
+            "components": {
+              "page_count": 1.0,
+              "block_count": 1.0,
+              "labels": 1.0,
+              "bbox": 0.6636363636363637,
+              "content": 0.9941761392965671
+            },
+            "pages": [
+              {
+                "page": 1,
+                "block_count": 1.0,
+                "labels": 1.0,
+                "bbox": 0.6636,
+                "content": 0.9942
+              }
+            ]
+          },
+          "style": {
+            "actual": {
+              "heading_levels": [
+                1,
+                2
+              ],
+              "bold_markers": 0,
+              "center_wrappers": 0,
+              "code_languages": []
+            },
+            "expected": {
+              "heading_levels": [
+                1,
+                2
+              ],
+              "bold_markers": 0,
+              "center_wrappers": 4,
+              "code_languages": []
+            }
+          },
+          "block_shape": 0.3888888888888889
+        },
+        "missing_reason": null
+      },
+      "result_to_golden": {
+        "available": false,
+        "overall": null,
+        "dimensions": {
+          "text_fidelity": null,
+          "critical_structure": null,
+          "decorative_style": null
+        },
+        "details": {},
+        "missing_reason": "missing markdown: /Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/golden_result/GLM-4.5V_Page_1/GLM-4.5V_Page_1.md (missing)"
+      },
+      "reference_to_golden": {
+        "available": false,
+        "overall": null,
+        "dimensions": {
+          "text_fidelity": null,
+          "critical_structure": null,
+          "decorative_style": null
+        },
+        "details": {},
+        "missing_reason": "missing markdown: /Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/golden_result/GLM-4.5V_Page_1/GLM-4.5V_Page_1.md (missing)"
+      },
+      "final_dimensions": {
+        "text_fidelity": 0.944,
+        "critical_structure": 0.7688,
+        "decorative_style": 0.75
+      },
+      "final_overall": 0.873,
+      "rules": []
+    },
+    {
+      "name": "GLM-4.5V_Pages_1_2_3",
+      "parity": {
+        "available": true,
+        "overall": 0.8763,
+        "dimensions": {
+          "text_fidelity": 0.9434,
+          "critical_structure": 0.7793,
+          "decorative_style": 0.75
+        },
+        "details": {
+          "text": {
+            "blocks": [
+              {
+                "index": 0,
+                "status": "paired",
+                "actual_kind": "heading",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 1,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "heading",
+                "score": 0.0265
+              },
+              {
+                "index": 2,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 3,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 4,
+                "status": "paired",
+                "actual_kind": "heading",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 5,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0528
+              },
+              {
+                "index": 6,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "heading",
+                "score": 0.0
+              },
+              {
+                "index": 7,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0182
+              },
+              {
+                "index": 8,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.8462
+              },
+              {
+                "index": 9,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 10,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0907
+              },
+              {
+                "index": 11,
+                "status": "paired",
+                "actual_kind": "heading",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 12,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0066
+              },
+              {
+                "index": 13,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 14,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0174
+              },
+              {
+                "index": 15,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 16,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 17,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "paragraph",
+                "score": 0.2197
+              },
+              {
+                "index": 18,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 19,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "heading",
+                "score": 0.0186
+              },
+              {
+                "index": 20,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.028
+              },
+              {
+                "index": 21,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.2893
+              },
+              {
+                "index": 22,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.1837
+              },
+              {
+                "index": 23,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "paragraph",
+                "score": 0.1071
+              },
+              {
+                "index": 24,
+                "status": "paired",
+                "actual_kind": "heading",
+                "expected_kind": "list_item",
+                "score": 0.0216
+              },
+              {
+                "index": 25,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "list_item",
+                "score": 0.1162
+              },
+              {
+                "index": 26,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.098
+              },
+              {
+                "index": 27,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "list_item",
+                "score": 0.0108
+              },
+              {
+                "index": 28,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "list_item",
+                "score": 0.0404
+              },
+              {
+                "index": 29,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "list_item",
+                "score": 0.0129
+              },
+              {
+                "index": 30,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "list_item",
+                "score": 0.1416
+              },
+              {
+                "index": 31,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "list_item",
+                "score": 0.1419
+              },
+              {
+                "index": 32,
+                "status": "missing",
+                "kind": "heading",
+                "score": 0.0
+              },
+              {
+                "index": 33,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 34,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 35,
+                "status": "missing",
+                "kind": "formula",
+                "score": 0.0
+              },
+              {
+                "index": 36,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 37,
+                "status": "missing",
+                "kind": "formula",
+                "score": 0.0
+              },
+              {
+                "index": 38,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 39,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
+              }
+            ],
+            "aligned_score": 0.06115573585364397,
+            "global_score": 0.9898134673898664
+          },
+          "tables": {
+            "tables": []
+          },
+          "json": {
+            "available": true,
+            "components": {
+              "page_count": 1.0,
+              "block_count": 1.0,
+              "labels": 1.0,
+              "bbox": 0.6660533910533911,
+              "content": 0.9896065998446262
+            },
+            "pages": [
+              {
+                "page": 1,
+                "block_count": 1.0,
+                "labels": 1.0,
+                "bbox": 0.6636,
+                "content": 0.9942
+              },
+              {
+                "page": 2,
+                "block_count": 1.0,
+                "labels": 1.0,
+                "bbox": 0.6643,
+                "content": 0.9965
+              },
+              {
+                "page": 3,
+                "block_count": 1.0,
+                "labels": 1.0,
+                "bbox": 0.6702,
+                "content": 0.9782
+              }
+            ]
+          },
+          "style": {
+            "actual": {
+              "heading_levels": [
+                1,
+                2,
+                2,
+                2
+              ],
+              "bold_markers": 0,
+              "center_wrappers": 0,
+              "code_languages": []
+            },
+            "expected": {
+              "heading_levels": [
+                1,
+                2,
+                2,
+                2
+              ],
+              "bold_markers": 0,
+              "center_wrappers": 4,
+              "code_languages": []
+            }
+          },
+          "block_shape": 0.425
+        },
+        "missing_reason": null
+      },
+      "result_to_golden": {
+        "available": true,
+        "overall": 0.8886,
+        "dimensions": {
+          "text_fidelity": 0.9227,
+          "critical_structure": null,
+          "decorative_style": 0.4792
+        },
+        "details": {
+          "text": {
+            "blocks": [
+              {
+                "index": 0,
+                "status": "paired",
+                "actual_kind": "heading",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 1,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "heading",
+                "score": 0.0265
+              },
+              {
+                "index": 2,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 3,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 4,
+                "status": "paired",
+                "actual_kind": "heading",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 5,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 6,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "heading",
+                "score": 0.0
+              },
+              {
+                "index": 7,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0182
+              },
+              {
+                "index": 8,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.8462
+              },
+              {
+                "index": 9,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 10,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0907
+              },
+              {
+                "index": 11,
+                "status": "paired",
+                "actual_kind": "heading",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 12,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0066
+              },
+              {
+                "index": 13,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 14,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0174
+              },
+              {
+                "index": 15,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 16,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 17,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "paragraph",
+                "score": 0.2197
+              },
+              {
+                "index": 18,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 19,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 20,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 21,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "heading",
+                "score": 0.0175
+              },
+              {
+                "index": 22,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.1642
+              },
+              {
+                "index": 23,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "paragraph",
+                "score": 0.1395
+              },
+              {
+                "index": 24,
+                "status": "paired",
+                "actual_kind": "heading",
+                "expected_kind": "paragraph",
+                "score": 0.005
+              },
+              {
+                "index": 25,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.1084
+              },
+              {
+                "index": 26,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "list_item",
+                "score": 0.1289
+              },
+              {
+                "index": 27,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "list_item",
+                "score": 0.004
+              },
+              {
+                "index": 28,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "list_item",
+                "score": 0.0984
+              },
+              {
+                "index": 29,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "list_item",
+                "score": 0.0228
+              },
+              {
+                "index": 30,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0496
+              },
+              {
+                "index": 31,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "list_item",
+                "score": 0.2088
+              },
+              {
+                "index": 32,
+                "status": "missing",
+                "kind": "list_item",
+                "score": 0.0
+              },
+              {
+                "index": 33,
+                "status": "missing",
+                "kind": "list_item",
+                "score": 0.0
+              },
+              {
+                "index": 34,
+                "status": "missing",
+                "kind": "heading",
+                "score": 0.0
+              },
+              {
+                "index": 35,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 36,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 37,
+                "status": "missing",
+                "kind": "formula",
+                "score": 0.0
+              },
+              {
+                "index": 38,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 39,
+                "status": "missing",
+                "kind": "formula",
+                "score": 0.0
+              },
+              {
+                "index": 40,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 41,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
+              }
+            ],
+            "aligned_score": 0.05091378340830419,
+            "global_score": 0.9685995671951596
+          },
+          "tables": {
+            "tables": []
+          },
+          "json": {
+            "available": false,
+            "reason": "missing json baseline or result: /Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/golden_result/GLM-4.5V_Pages_1_2_3/GLM-4.5V_Pages_1_2_3.json"
+          },
+          "style": {
+            "actual": {
+              "heading_levels": [
+                1,
+                2,
+                2,
+                2
+              ],
+              "bold_markers": 0,
+              "center_wrappers": 0,
+              "code_languages": []
+            },
+            "expected": {
+              "heading_levels": [
+                1,
+                3,
+                2,
+                2
+              ],
+              "bold_markers": 32,
+              "center_wrappers": 4,
+              "code_languages": []
+            }
+          },
+          "block_shape": 0.42857142857142855
+        },
+        "missing_reason": null
+      },
+      "reference_to_golden": {
+        "available": true,
+        "overall": 0.923,
+        "dimensions": {
+          "text_fidelity": 0.9391,
+          "critical_structure": null,
+          "decorative_style": 0.7292
+        },
+        "details": {
+          "text": {
+            "blocks": [
+              {
+                "index": 0,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              },
+              {
+                "index": 1,
+                "status": "paired",
+                "actual_kind": "heading",
+                "expected_kind": "heading",
+                "score": 1.0
+              },
+              {
+                "index": 2,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 3,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 4,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 5,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 6,
+                "status": "paired",
+                "actual_kind": "heading",
+                "expected_kind": "heading",
+                "score": 1.0
+              },
+              {
+                "index": 7,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.9964
+              },
+              {
+                "index": 8,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              },
+              {
+                "index": 9,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              },
+              {
+                "index": 10,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              },
+              {
+                "index": 11,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              },
+              {
+                "index": 12,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              },
+              {
+                "index": 13,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              },
+              {
+                "index": 14,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              },
+              {
+                "index": 15,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              },
+              {
+                "index": 16,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              },
+              {
+                "index": 17,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.9835
+              },
+              {
+                "index": 18,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              },
+              {
+                "index": 19,
+                "status": "paired",
+                "actual_kind": "heading",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 20,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 21,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "heading",
+                "score": 0.0091
+              },
+              {
+                "index": 22,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.3491
+              },
+              {
+                "index": 23,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0944
+              },
+              {
+                "index": 24,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "paragraph",
+                "score": 0.1031
+              },
+              {
+                "index": 25,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "paragraph",
+                "score": 0.1562
+              },
+              {
+                "index": 26,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "list_item",
+                "score": 0.1315
+              },
+              {
+                "index": 27,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "list_item",
+                "score": 0.1957
+              },
+              {
+                "index": 28,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "list_item",
+                "score": 0.0258
+              },
+              {
+                "index": 29,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "list_item",
+                "score": 0.1796
+              },
+              {
+                "index": 30,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "paragraph",
+                "score": 0.0546
+              },
+              {
+                "index": 31,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "list_item",
+                "score": 0.3159
+              },
+              {
+                "index": 32,
+                "status": "paired",
+                "actual_kind": "heading",
+                "expected_kind": "list_item",
+                "score": 0.0211
+              },
+              {
+                "index": 33,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "list_item",
+                "score": 0.2014
+              },
+              {
+                "index": 34,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "heading",
+                "score": 0.0107
+              },
+              {
+                "index": 35,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "paragraph",
+                "score": 0.0068
+              },
+              {
+                "index": 36,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.2794
+              },
+              {
+                "index": 37,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "formula",
+                "score": 0.1661
+              },
+              {
+                "index": 38,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.2213
+              },
+              {
+                "index": 39,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "formula",
+                "score": 0.0124
+              },
+              {
+                "index": 40,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 41,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
+              }
+            ],
+            "aligned_score": 0.4167074345174426,
+            "global_score": 0.9666136724960254
+          },
+          "tables": {
+            "tables": []
+          },
+          "json": {
+            "available": false,
+            "reason": "missing json baseline or result: /Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/golden_result/GLM-4.5V_Pages_1_2_3/GLM-4.5V_Pages_1_2_3.json"
+          },
+          "style": {
+            "actual": {
+              "heading_levels": [
+                1,
+                2,
+                2,
+                2
+              ],
+              "bold_markers": 0,
+              "center_wrappers": 4,
+              "code_languages": []
+            },
+            "expected": {
+              "heading_levels": [
+                1,
+                3,
+                2,
+                2
+              ],
+              "bold_markers": 32,
+              "center_wrappers": 4,
+              "code_languages": []
+            }
+          },
+          "block_shape": 0.6904761904761905
+        },
+        "missing_reason": null
+      },
+      "final_dimensions": {
+        "text_fidelity": 0.9434,
+        "critical_structure": 0.7793,
+        "decorative_style": 0.6875
+      },
+      "final_overall": 0.8732,
+      "rules": [
+        {
+          "check_id": "page1_start",
+          "check_type": "page_start",
+          "status": "pass",
+          "severity": "warn",
+          "message": "Page 1 start matched expected content."
+        },
+        {
+          "check_id": "page1_end",
+          "check_type": "page_end",
+          "status": "pass",
+          "severity": "warn",
+          "message": "Page 1 end matched expected content."
+        },
+        {
+          "check_id": "page2_start",
+          "check_type": "page_start",
+          "status": "pass",
+          "severity": "warn",
+          "message": "Page 2 start matched expected content."
+        },
+        {
+          "check_id": "page2_end",
+          "check_type": "page_end",
+          "status": "pass",
+          "severity": "warn",
+          "message": "Page 2 end matched expected content."
+        },
+        {
+          "check_id": "page3_start",
+          "check_type": "page_start",
+          "status": "pass",
+          "severity": "warn",
+          "message": "Page 3 start matched expected content."
+        },
+        {
+          "check_id": "page3_end",
+          "check_type": "page_end",
+          "status": "pass",
+          "severity": "warn",
+          "message": "Page 3 end matched expected content."
+        },
+        {
+          "check_id": "page2_page3_continuation",
+          "check_type": "continuation",
+          "status": "pass",
+          "severity": "warn",
+          "message": "Continuation across pages 2 -> 3 matched."
+        }
+      ]
+    },
+    {
+      "name": "code",
+      "parity": {
+        "available": true,
+        "overall": 0.7675,
+        "dimensions": {
+          "text_fidelity": 0.7681,
+          "critical_structure": 0.7502,
+          "decorative_style": 0.8804
+        },
+        "details": {
+          "text": {
+            "blocks": [
+              {
+                "index": 0,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.9595
+              },
+              {
+                "index": 1,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "code",
+                "score": 0.1974
+              },
+              {
+                "index": 2,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.9709
+              },
+              {
+                "index": 3,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.5836
+              },
+              {
+                "index": 4,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.2279
+              },
+              {
+                "index": 5,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "code",
+                "score": 0.0025
+              },
+              {
+                "index": 6,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 7,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 8,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 9,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 10,
+                "status": "missing",
+                "kind": "code",
+                "score": 0.0
+              }
+            ],
+            "aligned_score": 0.2546229655065367,
+            "global_score": 0.896485623003195
+          },
+          "tables": {
+            "tables": []
+          },
+          "json": {
+            "available": true,
+            "components": {
+              "page_count": 1.0,
+              "block_count": 1.0,
+              "labels": 1.0,
+              "bbox": 0.7527777777777778,
+              "content": 0.8267674283532003
+            },
+            "pages": [
+              {
+                "page": 1,
+                "block_count": 1.0,
+                "labels": 1.0,
+                "bbox": 0.7528,
+                "content": 0.8268
+              }
+            ]
+          },
+          "style": {
+            "actual": {
+              "heading_levels": [],
+              "bold_markers": 0,
+              "center_wrappers": 0,
+              "code_languages": [
+                "xml"
+              ]
+            },
+            "expected": {
+              "heading_levels": [],
+              "bold_markers": 0,
+              "center_wrappers": 0,
+              "code_languages": [
+                "html",
+                "html"
+              ]
+            }
+          },
+          "block_shape": 0.36363636363636365
+        },
+        "missing_reason": null
+      },
+      "result_to_golden": {
+        "available": true,
+        "overall": 0.7185,
+        "dimensions": {
+          "text_fidelity": 0.7228,
+          "critical_structure": null,
+          "decorative_style": 0.6667
+        },
+        "details": {
+          "text": {
+            "blocks": [
+              {
+                "index": 0,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0985
+              },
+              {
+                "index": 1,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 2,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.36
+              },
+              {
+                "index": 3,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "code",
+                "score": 0.0
+              },
+              {
+                "index": 4,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.1117
+              },
+              {
+                "index": 5,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.3758
+              },
+              {
+                "index": 6,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.2941
+              },
+              {
+                "index": 7,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "code",
+                "score": 0.0015
+              },
+              {
+                "index": 8,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0714
+              },
+              {
+                "index": 9,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 10,
+                "status": "missing",
+                "kind": "code",
+                "score": 0.0
+              }
+            ],
+            "aligned_score": 0.11178917257510308,
+            "global_score": 0.8755924170616114
+          },
+          "tables": {
+            "tables": []
+          },
+          "json": {
+            "available": false,
+            "reason": "missing json baseline or result: /Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/golden_result/code/code.json"
+          },
+          "style": {
+            "actual": {
+              "heading_levels": [],
+              "bold_markers": 0,
+              "center_wrappers": 0,
+              "code_languages": [
+                "xml"
+              ]
+            },
+            "expected": {
+              "heading_levels": [],
+              "bold_markers": 1,
+              "center_wrappers": 0,
+              "code_languages": [
+                "xml",
+                "xml"
+              ]
+            }
+          },
+          "block_shape": 0.6363636363636364
+        },
+        "missing_reason": null
+      },
+      "reference_to_golden": {
+        "available": true,
+        "overall": 0.727,
+        "dimensions": {
+          "text_fidelity": 0.7292,
+          "critical_structure": null,
+          "decorative_style": 0.7
+        },
+        "details": {
+          "text": {
+            "blocks": [
+              {
+                "index": 0,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.1084
+              },
+              {
+                "index": 1,
+                "status": "paired",
+                "actual_kind": "code",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 2,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.3571
+              },
+              {
+                "index": 3,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "code",
+                "score": 0.0
+              },
+              {
+                "index": 4,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.1661
+              },
+              {
+                "index": 5,
+                "status": "paired",
+                "actual_kind": "code",
+                "expected_kind": "paragraph",
+                "score": 0.0159
+              },
+              {
+                "index": 6,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 7,
+                "status": "missing",
+                "kind": "code",
+                "score": 0.0
+              },
+              {
+                "index": 8,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
+              }
+            ],
+            "aligned_score": 0.06816376716069497,
+            "global_score": 0.8944543828264758
+          },
+          "tables": {
+            "tables": []
+          },
+          "json": {
+            "available": false,
+            "reason": "missing json baseline or result: /Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/golden_result/code/code.json"
+          },
+          "style": {
+            "actual": {
+              "heading_levels": [],
+              "bold_markers": 0,
+              "center_wrappers": 0,
+              "code_languages": [
+                "html",
+                "html"
+              ]
+            },
+            "expected": {
+              "heading_levels": [],
+              "bold_markers": 1,
+              "center_wrappers": 0,
+              "code_languages": [
+                "xml",
+                "xml"
+              ]
+            }
+          },
+          "block_shape": 0.3333333333333333
+        },
+        "missing_reason": null
+      },
+      "final_dimensions": {
+        "text_fidelity": 0.7681,
+        "critical_structure": 0.7502,
+        "decorative_style": 0.8721
+      },
+      "final_overall": 0.7671,
+      "rules": []
+    },
+    {
+      "name": "handwritten",
+      "parity": {
+        "available": true,
+        "overall": 0.9277,
+        "dimensions": {
+          "text_fidelity": 0.9403,
+          "critical_structure": 0.8959,
+          "decorative_style": 1.0
+        },
+        "details": {
+          "text": {
+            "blocks": [
+              {
+                "index": 0,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.6667
+              },
+              {
+                "index": 1,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 2,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.018
+              },
+              {
+                "index": 3,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0086
+              },
+              {
+                "index": 4,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
+              }
+            ],
+            "aligned_score": 0.1386610748679714,
+            "global_score": 0.9824561403508771
+          },
+          "tables": {
+            "tables": []
+          },
+          "json": {
+            "available": true,
+            "components": {
+              "page_count": 1.0,
+              "block_count": 1.0,
+              "labels": 1.0,
+              "bbox": 0.7000000000000001,
+              "content": 0.9851120283018868
+            },
+            "pages": [
+              {
+                "page": 1,
+                "block_count": 1.0,
+                "labels": 1.0,
+                "bbox": 0.7,
+                "content": 0.9851
+              }
+            ]
+          },
+          "style": {
+            "actual": {
+              "heading_levels": [],
+              "bold_markers": 0,
+              "center_wrappers": 0,
+              "code_languages": []
+            },
+            "expected": {
+              "heading_levels": [],
+              "bold_markers": 0,
+              "center_wrappers": 0,
+              "code_languages": []
+            }
+          },
+          "block_shape": 0.8
+        },
+        "missing_reason": null
+      },
+      "result_to_golden": {
+        "available": true,
+        "overall": 0.96,
+        "dimensions": {
+          "text_fidelity": 0.9567,
+          "critical_structure": null,
+          "decorative_style": 1.0
+        },
+        "details": {
+          "text": {
+            "blocks": [
+              {
+                "index": 0,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.6667
+              },
+              {
+                "index": 1,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 2,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 3,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 4,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
+              }
+            ],
+            "aligned_score": 0.13333333333333333,
+            "global_score": 1.0
+          },
+          "tables": {
+            "tables": []
+          },
+          "json": {
+            "available": false,
+            "reason": "missing json baseline or result: /Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/golden_result/handwritten/handwritten.json"
+          },
+          "style": {
+            "actual": {
+              "heading_levels": [],
+              "bold_markers": 0,
+              "center_wrappers": 0,
+              "code_languages": []
+            },
+            "expected": {
+              "heading_levels": [],
+              "bold_markers": 0,
+              "center_wrappers": 0,
+              "code_languages": []
+            }
+          },
+          "block_shape": 0.4
+        },
+        "missing_reason": null
+      },
+      "reference_to_golden": {
+        "available": true,
+        "overall": 0.955,
+        "dimensions": {
+          "text_fidelity": 0.9513,
+          "critical_structure": null,
+          "decorative_style": 1.0
+        },
+        "details": {
+          "text": {
+            "blocks": [
+              {
+                "index": 0,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              },
+              {
+                "index": 1,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.4346
+              },
+              {
+                "index": 2,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 3,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
+              }
+            ],
+            "aligned_score": 0.35864485981308414,
+            "global_score": 0.9824561403508771
+          },
+          "tables": {
+            "tables": []
+          },
+          "json": {
+            "available": false,
+            "reason": "missing json baseline or result: /Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/golden_result/handwritten/handwritten.json"
+          },
+          "style": {
+            "actual": {
+              "heading_levels": [],
+              "bold_markers": 0,
+              "center_wrappers": 0,
+              "code_languages": []
+            },
+            "expected": {
+              "heading_levels": [],
+              "bold_markers": 0,
+              "center_wrappers": 0,
+              "code_languages": []
+            }
+          },
+          "block_shape": 0.5
+        },
+        "missing_reason": null
+      },
+      "final_dimensions": {
+        "text_fidelity": 0.9403,
+        "critical_structure": 0.8959,
+        "decorative_style": 1.0
+      },
+      "final_overall": 0.9777,
+      "rules": [
+        {
+          "check_id": "corrected_phrase",
+          "check_type": "contains",
+          "status": "pass",
+          "severity": "warn",
+          "message": "Found required phrase for corrected_phrase."
+        }
+      ]
+    },
+    {
+      "name": "page",
+      "parity": {
+        "available": true,
+        "overall": 0.728,
+        "dimensions": {
+          "text_fidelity": 0.705,
+          "critical_structure": 0.7285,
+          "decorative_style": 1.0
+        },
+        "details": {
+          "text": {
+            "blocks": [
+              {
+                "index": 0,
+                "status": "paired",
+                "actual_kind": "heading",
+                "expected_kind": "heading",
+                "score": 0.6667
+              },
+              {
+                "index": 1,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "list_item",
+                "score": 0.8421
+              },
+              {
+                "index": 2,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "list_item",
+                "score": 1.0
+              },
+              {
+                "index": 3,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "paragraph",
+                "score": 0.6429
+              },
+              {
+                "index": 4,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "formula",
+                "score": 0.8261
+              },
+              {
+                "index": 5,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "paragraph",
+                "score": 0.5833
+              },
+              {
+                "index": 6,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "formula",
+                "score": 1.0
+              },
+              {
+                "index": 7,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.5203
+              },
+              {
+                "index": 8,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 9,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.2791
+              },
+              {
+                "index": 10,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.383
+              },
+              {
+                "index": 11,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 12,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 13,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "list_item",
+                "score": 0.0
+              },
+              {
+                "index": 14,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "heading",
+                "score": 0.0
+              },
+              {
+                "index": 15,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "heading",
+                "score": 0.0
+              },
+              {
+                "index": 16,
+                "status": "paired",
+                "actual_kind": "heading",
+                "expected_kind": "list_item",
+                "score": 0.0165
+              },
+              {
+                "index": 17,
+                "status": "paired",
+                "actual_kind": "heading",
+                "expected_kind": "list_item",
+                "score": 0.0
+              },
+              {
+                "index": 18,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 19,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "list_item",
+                "score": 0.1143
+              },
+              {
+                "index": 20,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "list_item",
+                "score": 0.0
+              },
+              {
+                "index": 21,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "list_item",
+                "score": 0.0211
+              },
+              {
+                "index": 22,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 23,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "formula",
+                "score": 0.0
+              },
+              {
+                "index": 24,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "formula",
+                "score": 0.0
+              },
+              {
+                "index": 25,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "formula",
+                "score": 0.0
+              },
+              {
+                "index": 26,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "formula",
+                "score": 0.3054
+              },
+              {
+                "index": 27,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "paragraph",
+                "score": 0.0517
+              },
+              {
+                "index": 28,
+                "status": "missing",
+                "kind": "formula",
+                "score": 0.0
+              },
+              {
+                "index": 29,
+                "status": "missing",
+                "kind": "formula",
+                "score": 0.0
+              },
+              {
+                "index": 30,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
+              }
+            ],
+            "aligned_score": 0.2345926348118991,
+            "global_score": 0.7297520661157025
+          },
+          "tables": {
+            "tables": []
+          },
+          "json": {
+            "available": true,
+            "components": {
+              "page_count": 1.0,
+              "block_count": 1.0,
+              "labels": 1.0,
+              "bbox": 0.6488095238095238,
+              "content": 0.6563478011775548
+            },
+            "pages": [
+              {
+                "page": 1,
+                "block_count": 1.0,
+                "labels": 1.0,
+                "bbox": 0.6488,
+                "content": 0.6563
+              }
+            ]
+          },
+          "style": {
+            "actual": {
+              "heading_levels": [
+                2,
+                2,
+                2
+              ],
+              "bold_markers": 0,
+              "center_wrappers": 0,
+              "code_languages": []
+            },
+            "expected": {
+              "heading_levels": [
+                2,
+                2,
+                2
+              ],
+              "bold_markers": 0,
+              "center_wrappers": 0,
+              "code_languages": []
+            }
+          },
+          "block_shape": 0.41935483870967744
+        },
+        "missing_reason": null
+      },
+      "result_to_golden": {
+        "available": true,
+        "overall": 0.5223,
+        "dimensions": {
+          "text_fidelity": 0.5166,
+          "critical_structure": null,
+          "decorative_style": 0.5909
+        },
+        "details": {
+          "text": {
+            "blocks": [
+              {
+                "index": 0,
+                "status": "paired",
+                "actual_kind": "heading",
+                "expected_kind": "paragraph",
+                "score": 0.75
+              },
+              {
+                "index": 1,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "paragraph",
+                "score": 0.6102
+              },
+              {
+                "index": 2,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "paragraph",
+                "score": 0.7125
+              },
+              {
+                "index": 3,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "paragraph",
+                "score": 0.6429
+              },
+              {
+                "index": 4,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "paragraph",
+                "score": 0.3861
+              },
+              {
+                "index": 5,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "paragraph",
+                "score": 0.5833
+              },
+              {
+                "index": 6,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "paragraph",
+                "score": 0.2927
+              },
+              {
+                "index": 7,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.3393
+              },
+              {
+                "index": 8,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 9,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0741
+              },
+              {
+                "index": 10,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.1429
+              },
+              {
+                "index": 11,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 12,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 13,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 14,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 15,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 16,
+                "status": "paired",
+                "actual_kind": "heading",
+                "expected_kind": "paragraph",
+                "score": 0.75
+              },
+              {
+                "index": 17,
+                "status": "paired",
+                "actual_kind": "heading",
+                "expected_kind": "paragraph",
+                "score": 0.75
+              },
+              {
+                "index": 18,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "paragraph",
+                "score": 0.5839
+              },
+              {
+                "index": 19,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "paragraph",
+                "score": 0.2714
+              },
+              {
+                "index": 20,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.1538
+              },
+              {
+                "index": 21,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.05
+              },
+              {
+                "index": 22,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 23,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.6842
+              },
+              {
+                "index": 24,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 25,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "paragraph",
+                "score": 0.0152
+              },
+              {
+                "index": 26,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "paragraph",
+                "score": 0.1071
+              },
+              {
+                "index": 27,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "paragraph",
+                "score": 0.1483
+              },
+              {
+                "index": 28,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "paragraph",
+                "score": 0.0197
+              },
+              {
+                "index": 29,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "paragraph",
+                "score": 0.0104
+              },
+              {
+                "index": 30,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
+              }
+            ],
+            "aligned_score": 0.26058000011882115,
+            "global_score": 0.5300799326882625
+          },
+          "tables": {
+            "tables": []
+          },
+          "json": {
+            "available": false,
+            "reason": "missing json baseline or result: /Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/golden_result/page/page.json"
+          },
+          "style": {
+            "actual": {
+              "heading_levels": [
+                2,
+                2,
+                2
+              ],
+              "bold_markers": 0,
+              "center_wrappers": 0,
+              "code_languages": []
+            },
+            "expected": {
+              "heading_levels": [],
+              "bold_markers": 34,
+              "center_wrappers": 0,
+              "code_languages": []
+            }
+          },
+          "block_shape": 0.3225806451612903
+        },
+        "missing_reason": null
+      },
+      "reference_to_golden": {
+        "available": true,
+        "overall": 0.6078,
+        "dimensions": {
+          "text_fidelity": 0.6092,
+          "critical_structure": null,
+          "decorative_style": 0.5909
+        },
+        "details": {
+          "text": {
+            "blocks": [
+              {
+                "index": 0,
+                "status": "paired",
+                "actual_kind": "heading",
+                "expected_kind": "paragraph",
+                "score": 0.5
+              },
+              {
+                "index": 1,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "paragraph",
+                "score": 0.725
+              },
+              {
+                "index": 2,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "paragraph",
+                "score": 0.7125
+              },
+              {
+                "index": 3,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              },
+              {
+                "index": 4,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "paragraph",
+                "score": 0.2824
+              },
+              {
+                "index": 5,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              },
+              {
+                "index": 6,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "paragraph",
+                "score": 0.2927
+              },
+              {
+                "index": 7,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.6759
+              },
+              {
+                "index": 8,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.36
+              },
+              {
+                "index": 9,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.3077
+              },
+              {
+                "index": 10,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.3385
+              },
+              {
+                "index": 11,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.6496
+              },
+              {
+                "index": 12,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.8438
+              },
+              {
+                "index": 13,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "paragraph",
+                "score": 0.6078
+              },
+              {
+                "index": 14,
+                "status": "paired",
+                "actual_kind": "heading",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 15,
+                "status": "paired",
+                "actual_kind": "heading",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 16,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "paragraph",
+                "score": 0.0165
+              },
+              {
+                "index": 17,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 18,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 19,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "paragraph",
+                "score": 0.0465
+              },
+              {
+                "index": 20,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 21,
+                "status": "paired",
+                "actual_kind": "list_item",
+                "expected_kind": "paragraph",
+                "score": 0.0474
+              },
+              {
+                "index": 22,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 23,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 24,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "paragraph",
+                "score": 0.1679
+              },
+              {
+                "index": 25,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "paragraph",
+                "score": 0.122
+              },
+              {
+                "index": 26,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "paragraph",
+                "score": 0.0771
+              },
+              {
+                "index": 27,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.1197
+              },
+              {
+                "index": 28,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 29,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
+              }
+            ],
+            "aligned_score": 0.2964219754301632,
+            "global_score": 0.6256662566625666
+          },
+          "tables": {
+            "tables": []
+          },
+          "json": {
+            "available": false,
+            "reason": "missing json baseline or result: /Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/golden_result/page/page.json"
+          },
+          "style": {
+            "actual": {
+              "heading_levels": [
+                2,
+                2,
+                2
+              ],
+              "bold_markers": 0,
+              "center_wrappers": 0,
+              "code_languages": []
+            },
+            "expected": {
+              "heading_levels": [],
+              "bold_markers": 34,
+              "center_wrappers": 0,
+              "code_languages": []
+            }
+          },
+          "block_shape": 0.36666666666666664
+        },
+        "missing_reason": null
+      },
+      "final_dimensions": {
+        "text_fidelity": 0.6818,
+        "critical_structure": 0.7285,
+        "decorative_style": 1.0
+      },
+      "final_overall": 0.7141,
+      "rules": []
+    },
+    {
+      "name": "paper",
+      "parity": {
+        "available": true,
+        "overall": 0.965,
+        "dimensions": {
+          "text_fidelity": 0.9733,
+          "critical_structure": 0.9457,
+          "decorative_style": 1.0
+        },
+        "details": {
+          "text": {
+            "blocks": [
+              {
+                "index": 0,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.9888
+              },
+              {
+                "index": 1,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.9477
+              },
+              {
+                "index": 2,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "formula",
+                "score": 1.0
+              },
+              {
+                "index": 3,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.938
+              },
+              {
+                "index": 4,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "formula",
+                "score": 1.0
+              },
+              {
+                "index": 5,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.9244
+              },
+              {
+                "index": 6,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.9837
+              },
+              {
+                "index": 7,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              },
+              {
+                "index": 8,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "formula",
+                "score": 0.8283
+              },
+              {
+                "index": 9,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.9725
+              },
+              {
+                "index": 10,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "formula",
+                "score": 0.6465
+              },
+              {
+                "index": 11,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.9923
+              },
+              {
+                "index": 12,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.8852
+              },
+              {
+                "index": 13,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "formula",
+                "score": 0.9524
+              },
+              {
+                "index": 14,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.9922
+              },
+              {
+                "index": 15,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              },
+              {
+                "index": 16,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              },
+              {
+                "index": 17,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.9838
+              },
+              {
+                "index": 18,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "formula",
+                "score": 1.0
+              },
+              {
+                "index": 19,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              },
+              {
+                "index": 20,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "formula",
+                "score": 0.9359
+              },
+              {
+                "index": 21,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              },
+              {
+                "index": 22,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "formula",
+                "score": 0.9843
+              },
+              {
+                "index": 23,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.9412
+              },
+              {
+                "index": 24,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.9455
+              },
+              {
+                "index": 25,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "formula",
+                "score": 0.9231
+              },
+              {
+                "index": 26,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.958
+              },
+              {
+                "index": 27,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "formula",
+                "score": 1.0
+              },
+              {
+                "index": 28,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              },
+              {
+                "index": 29,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "formula",
+                "score": 1.0
+              }
+            ],
+            "aligned_score": 0.9566135821658106,
+            "global_score": 0.9741682974559688
+          },
+          "tables": {
+            "tables": []
+          },
+          "json": {
+            "available": true,
+            "components": {
+              "page_count": 1.0,
+              "block_count": 1.0,
+              "labels": 1.0,
+              "bbox": 0.6561111111111111,
+              "content": 0.9557838846640612
+            },
+            "pages": [
+              {
+                "page": 1,
+                "block_count": 1.0,
+                "labels": 1.0,
+                "bbox": 0.6561,
+                "content": 0.9558
+              }
+            ]
+          },
+          "style": {
+            "actual": {
+              "heading_levels": [],
+              "bold_markers": 0,
+              "center_wrappers": 0,
+              "code_languages": []
+            },
+            "expected": {
+              "heading_levels": [],
+              "bold_markers": 0,
+              "center_wrappers": 0,
+              "code_languages": []
+            }
+          },
+          "block_shape": 1.0
+        },
+        "missing_reason": null
+      },
+      "result_to_golden": {
+        "available": true,
+        "overall": 0.706,
+        "dimensions": {
+          "text_fidelity": 0.7024,
+          "critical_structure": null,
+          "decorative_style": 0.75
+        },
+        "details": {
+          "text": {
+            "blocks": [
+              {
+                "index": 0,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 1,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.2818
+              },
+              {
+                "index": 2,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "paragraph",
+                "score": 0.0063
+              },
+              {
+                "index": 3,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.2732
+              },
+              {
+                "index": 4,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "paragraph",
+                "score": 0.1257
+              },
+              {
+                "index": 5,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "formula",
+                "score": 0.0061
+              },
+              {
+                "index": 6,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0835
+              },
+              {
+                "index": 7,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.1964
+              },
+              {
+                "index": 8,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "paragraph",
+                "score": 0.0622
+              },
+              {
+                "index": 9,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0784
+              },
+              {
+                "index": 10,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 11,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0163
+              },
+              {
+                "index": 12,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0781
+              },
+              {
+                "index": 13,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "paragraph",
+                "score": 0.0669
+              },
+              {
+                "index": 14,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0434
+              },
+              {
+                "index": 15,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0524
+              },
+              {
+                "index": 16,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.7296
+              },
+              {
+                "index": 17,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.7746
+              },
+              {
+                "index": 18,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "paragraph",
+                "score": 0.1558
+              },
+              {
+                "index": 19,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              },
+              {
+                "index": 20,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "paragraph",
+                "score": 0.3478
+              },
+              {
+                "index": 21,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.9254
+              },
+              {
+                "index": 22,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "formula",
+                "score": 0.3348
+              },
+              {
+                "index": 23,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.9412
+              },
+              {
+                "index": 24,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.8912
+              },
+              {
+                "index": 25,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "paragraph",
+                "score": 0.4027
+              },
+              {
+                "index": 26,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.8481
+              },
+              {
+                "index": 27,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "paragraph",
+                "score": 0.3375
+              },
+              {
+                "index": 28,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              },
+              {
+                "index": 29,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "formula",
+                "score": 0.384
+              }
+            ],
+            "aligned_score": 0.34706158510898083,
+            "global_score": 0.721074590414165
+          },
+          "tables": {
+            "tables": []
+          },
+          "json": {
+            "available": false,
+            "reason": "missing json baseline or result: /Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/golden_result/paper/paper.json"
+          },
+          "style": {
+            "actual": {
+              "heading_levels": [],
+              "bold_markers": 0,
+              "center_wrappers": 0,
+              "code_languages": []
+            },
+            "expected": {
+              "heading_levels": [],
+              "bold_markers": 16,
+              "center_wrappers": 0,
+              "code_languages": []
+            }
+          },
+          "block_shape": 0.6666666666666666
+        },
+        "missing_reason": null
+      },
+      "reference_to_golden": {
+        "available": true,
+        "overall": 0.709,
+        "dimensions": {
+          "text_fidelity": 0.7055,
+          "critical_structure": null,
+          "decorative_style": 0.75
+        },
+        "details": {
+          "text": {
+            "blocks": [
+              {
+                "index": 0,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 1,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.2805
+              },
+              {
+                "index": 2,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "paragraph",
+                "score": 0.0063
+              },
+              {
+                "index": 3,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.2932
+              },
+              {
+                "index": 4,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "paragraph",
+                "score": 0.1257
+              },
+              {
+                "index": 5,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "formula",
+                "score": 0.0061
+              },
+              {
+                "index": 6,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0824
+              },
+              {
+                "index": 7,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.1964
+              },
+              {
+                "index": 8,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "paragraph",
+                "score": 0.062
+              },
+              {
+                "index": 9,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0784
+              },
+              {
+                "index": 10,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "paragraph",
+                "score": 0.0
+              },
+              {
+                "index": 11,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0163
+              },
+              {
+                "index": 12,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0688
+              },
+              {
+                "index": 13,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "paragraph",
+                "score": 0.0725
+              },
+              {
+                "index": 14,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0435
+              },
+              {
+                "index": 15,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.0524
+              },
+              {
+                "index": 16,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.7296
+              },
+              {
+                "index": 17,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.7773
+              },
+              {
+                "index": 18,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "paragraph",
+                "score": 0.1558
+              },
+              {
+                "index": 19,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              },
+              {
+                "index": 20,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "paragraph",
+                "score": 0.3333
+              },
+              {
+                "index": 21,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.9254
+              },
+              {
+                "index": 22,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "formula",
+                "score": 0.3229
+              },
+              {
+                "index": 23,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              },
+              {
+                "index": 24,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.875
+              },
+              {
+                "index": 25,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "paragraph",
+                "score": 0.4706
+              },
+              {
+                "index": 26,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 0.8462
+              },
+              {
+                "index": 27,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "paragraph",
+                "score": 0.3375
+              },
+              {
+                "index": 28,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              },
+              {
+                "index": 29,
+                "status": "paired",
+                "actual_kind": "formula",
+                "expected_kind": "formula",
+                "score": 0.384
+              }
+            ],
+            "aligned_score": 0.35027493313798214,
+            "global_score": 0.7242464224094184
+          },
+          "tables": {
+            "tables": []
+          },
+          "json": {
+            "available": false,
+            "reason": "missing json baseline or result: /Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/golden_result/paper/paper.json"
+          },
+          "style": {
+            "actual": {
+              "heading_levels": [],
+              "bold_markers": 0,
+              "center_wrappers": 0,
+              "code_languages": []
+            },
+            "expected": {
+              "heading_levels": [],
+              "bold_markers": 16,
+              "center_wrappers": 0,
+              "code_languages": []
+            }
+          },
+          "block_shape": 0.6666666666666666
+        },
+        "missing_reason": null
+      },
+      "final_dimensions": {
+        "text_fidelity": 0.9733,
+        "critical_structure": 0.9457,
+        "decorative_style": 1.0
+      },
+      "final_overall": 0.965,
+      "rules": []
+    },
+    {
+      "name": "seal",
+      "parity": {
+        "available": true,
+        "overall": 0.9804,
+        "dimensions": {
+          "text_fidelity": 1.0,
+          "critical_structure": 0.944,
+          "decorative_style": 1.0
+        },
+        "details": {
+          "text": {
+            "blocks": [
+              {
+                "index": 0,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              },
+              {
+                "index": 1,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              },
+              {
+                "index": 2,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              },
+              {
+                "index": 3,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              }
+            ],
+            "aligned_score": 1.0,
+            "global_score": 1.0
+          },
+          "tables": {
+            "tables": []
+          },
+          "json": {
+            "available": true,
+            "components": {
+              "page_count": 1.0,
+              "block_count": 1.0,
+              "labels": 1.0,
+              "bbox": 0.6,
+              "content": 1.0
+            },
+            "pages": [
+              {
+                "page": 1,
+                "block_count": 1.0,
+                "labels": 1.0,
+                "bbox": 0.6,
+                "content": 1.0
+              }
+            ]
+          },
+          "style": {
+            "actual": {
+              "heading_levels": [],
+              "bold_markers": 0,
+              "center_wrappers": 0,
+              "code_languages": []
+            },
+            "expected": {
+              "heading_levels": [],
+              "bold_markers": 0,
+              "center_wrappers": 0,
+              "code_languages": []
+            }
+          },
+          "block_shape": 1.0
+        },
+        "missing_reason": null
+      },
+      "result_to_golden": {
+        "available": true,
+        "overall": 0.9808,
+        "dimensions": {
+          "text_fidelity": 1.0,
+          "critical_structure": null,
+          "decorative_style": 0.75
+        },
+        "details": {
+          "text": {
+            "blocks": [
+              {
+                "index": 0,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              },
+              {
+                "index": 1,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              },
+              {
+                "index": 2,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              },
+              {
+                "index": 3,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              }
+            ],
+            "aligned_score": 1.0,
+            "global_score": 1.0
+          },
+          "tables": {
+            "tables": []
+          },
+          "json": {
+            "available": false,
+            "reason": "missing json baseline or result: /Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/golden_result/seal/seal.json"
+          },
+          "style": {
+            "actual": {
+              "heading_levels": [],
+              "bold_markers": 0,
+              "center_wrappers": 0,
+              "code_languages": []
+            },
+            "expected": {
+              "heading_levels": [],
+              "bold_markers": 8,
+              "center_wrappers": 0,
+              "code_languages": []
+            }
+          },
+          "block_shape": 1.0
+        },
+        "missing_reason": null
+      },
+      "reference_to_golden": {
+        "available": true,
+        "overall": 0.9808,
+        "dimensions": {
+          "text_fidelity": 1.0,
+          "critical_structure": null,
+          "decorative_style": 0.75
+        },
+        "details": {
+          "text": {
+            "blocks": [
+              {
+                "index": 0,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              },
+              {
+                "index": 1,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              },
+              {
+                "index": 2,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              },
+              {
+                "index": 3,
+                "status": "paired",
+                "actual_kind": "paragraph",
+                "expected_kind": "paragraph",
+                "score": 1.0
+              }
+            ],
+            "aligned_score": 1.0,
+            "global_score": 1.0
+          },
+          "tables": {
+            "tables": []
+          },
+          "json": {
+            "available": false,
+            "reason": "missing json baseline or result: /Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/golden_result/seal/seal.json"
+          },
+          "style": {
+            "actual": {
+              "heading_levels": [],
+              "bold_markers": 0,
+              "center_wrappers": 0,
+              "code_languages": []
+            },
+            "expected": {
+              "heading_levels": [],
+              "bold_markers": 8,
+              "center_wrappers": 0,
+              "code_languages": []
+            }
+          },
+          "block_shape": 1.0
+        },
+        "missing_reason": null
+      },
+      "final_dimensions": {
+        "text_fidelity": 1.0,
+        "critical_structure": 0.944,
+        "decorative_style": 1.0
+      },
+      "final_overall": 0.9804,
+      "rules": []
+    },
+    {
+      "name": "table",
+      "parity": {
+        "available": true,
+        "overall": 0.9944,
+        "dimensions": {
+          "text_fidelity": 1.0,
+          "critical_structure": 0.9841,
+          "decorative_style": 1.0
+        },
+        "details": {
+          "text": {
+            "blocks": [],
+            "aligned_score": null,
+            "global_score": 1.0
+          },
+          "tables": {
+            "tables": [
+              {
+                "index": 0,
+                "score": 1.0,
+                "subscores": {
+                  "shape": 1.0,
+                  "content": 1.0
+                }
+              }
+            ]
+          },
+          "json": {
+            "available": true,
+            "components": {
+              "page_count": 1.0,
+              "block_count": 1.0,
+              "labels": 1.0,
+              "bbox": 0.8333333333333334,
+              "content": 0.9399092970521542
+            },
+            "pages": [
+              {
+                "page": 1,
+                "block_count": 1.0,
+                "labels": 1.0,
+                "bbox": 0.8333,
+                "content": 0.9399
+              }
+            ]
+          },
+          "style": {
+            "actual": {
+              "heading_levels": [],
+              "bold_markers": 0,
+              "center_wrappers": 0,
+              "code_languages": []
+            },
+            "expected": {
+              "heading_levels": [],
+              "bold_markers": 0,
+              "center_wrappers": 0,
+              "code_languages": []
+            }
+          },
+          "block_shape": 1.0
+        },
+        "missing_reason": null
+      },
+      "result_to_golden": {
+        "available": true,
+        "overall": 1.0,
+        "dimensions": {
+          "text_fidelity": 1.0,
+          "critical_structure": 1.0,
+          "decorative_style": 1.0
+        },
+        "details": {
+          "text": {
+            "blocks": [],
+            "aligned_score": null,
+            "global_score": 1.0
+          },
+          "tables": {
+            "tables": [
+              {
+                "index": 0,
+                "score": 1.0,
+                "subscores": {
+                  "shape": 1.0,
+                  "content": 1.0
+                }
+              }
+            ]
+          },
+          "json": {
+            "available": false,
+            "reason": "missing json baseline or result: /Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/golden_result/table/table.json"
+          },
+          "style": {
+            "actual": {
+              "heading_levels": [],
+              "bold_markers": 0,
+              "center_wrappers": 0,
+              "code_languages": []
+            },
+            "expected": {
+              "heading_levels": [],
+              "bold_markers": 0,
+              "center_wrappers": 0,
+              "code_languages": []
+            }
+          },
+          "block_shape": 1.0
+        },
+        "missing_reason": null
+      },
+      "reference_to_golden": {
+        "available": true,
+        "overall": 1.0,
+        "dimensions": {
+          "text_fidelity": 1.0,
+          "critical_structure": 1.0,
+          "decorative_style": 1.0
+        },
+        "details": {
+          "text": {
+            "blocks": [],
+            "aligned_score": null,
+            "global_score": 1.0
+          },
+          "tables": {
+            "tables": [
+              {
+                "index": 0,
+                "score": 1.0,
+                "subscores": {
+                  "shape": 1.0,
+                  "content": 1.0
+                }
+              }
+            ]
+          },
+          "json": {
+            "available": false,
+            "reason": "missing json baseline or result: /Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/golden_result/table/table.json"
+          },
+          "style": {
+            "actual": {
+              "heading_levels": [],
+              "bold_markers": 0,
+              "center_wrappers": 0,
+              "code_languages": []
+            },
+            "expected": {
+              "heading_levels": [],
+              "bold_markers": 0,
+              "center_wrappers": 0,
+              "code_languages": []
+            }
+          },
+          "block_shape": 1.0
+        },
+        "missing_reason": null
+      },
+      "final_dimensions": {
+        "text_fidelity": 1.0,
+        "critical_structure": 0.9841,
+        "decorative_style": 1.0
+      },
+      "final_overall": 0.9944,
+      "rules": []
+    }
+  ]
+}

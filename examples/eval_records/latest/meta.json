@@ -1,0 +1,49 @@
+{
+  "examples_result": {
+    "configuration": "release",
+    "fingerprint_sha256": "9feded8394dca9e85effd4ec9dc9e8bddcf04dc6582a8f5a172ea59fbbc32d3c",
+    "generated_at": "2026-03-06T03:55:32+00:00",
+    "git": {
+      "describe": "be76454",
+      "dirty": false,
+      "head_sha": "be76454c8510adc54a20895e7eccd609cfa71948"
+    },
+    "models": {
+      "download_base": "",
+      "glm_model": "",
+      "glm_revision": "",
+      "layout_model": "",
+      "layout_revision": ""
+    },
+    "run": {
+      "ended_at_utc": "2026-03-06T03:55:32Z",
+      "failed": [],
+      "skipped": [],
+      "started_at_utc": "2026-03-06T03:54:26Z",
+      "succeeded": [
+        "paper.png",
+        "code.png",
+        "GLM-4.5V_Pages_1_2_3.pdf",
+        "GLM-4.5V_Page_1.pdf",
+        "seal.png",
+        "page.png",
+        "table.png",
+        "handwritten.png"
+      ]
+    },
+    "schema_version": 1,
+    "status": "ok"
+  },
+  "generated_at": "2026-03-06T03:56:02+00:00",
+  "git": {
+    "describe": "f7e59e6",
+    "dirty": false,
+    "head_sha": "f7e59e6b56b8c685e23513ea237bdfd0b05ac05c"
+  },
+  "schema_version": 1,
+  "tools": {
+    "example_eval_submodule_head_sha": "e363c3a49b3c322cda942641c0733c2b9d0b12d8",
+    "python": "3.14.2",
+    "uv": "uv 0.9.14 (Homebrew 2025-12-01)"
+  }
+}

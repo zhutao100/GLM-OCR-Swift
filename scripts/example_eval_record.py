@@ -21,7 +21,7 @@ class GitInfo:
 
 _DIRTY_STATUS_IGNORED_PREFIXES = (
     "examples/result/",
-    "examples/eval_records/latest/",
+    "examples/eval_records/",
 )
 
 

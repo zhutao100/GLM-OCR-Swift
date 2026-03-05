@@ -2,21 +2,21 @@ relationship between the beans. The only difference from previous exercises is t
 
 <local-indi-name>AddressHomeLocal</local-indi-name>
 
-Because the Home interface for the Address is local, the tag is <local-jndi-name> rather than
-
-<jndi-name>
+Because the Home interface for the Address is local, the tag is <local-jndi-name> rather than <ndi-name>
 
 the weblogic cmp-rdbms-jar.xml descriptor contains a number of new sections and elements
 
-that are not yet available, and the sections will wait until the next
+that will be added to the database, and the sections will wait until the next
 
-exercise, but there are some other changes to observe and examine.
+exercise, but there are other changes to observe and examine.
 
-The file contains a section mapping the the `obj` for jpri and
+the file contains a section mapping the the job for run
 
-attributes from the `obj` for jpri to the `table` in addition to a new section related to
+attributes from the job for run
 
-the automatic key generation used for primary keys in this box.
+table in addition to a new section related to
+
+the automatic key generation for primary keys in this box
 
 ```xml
 

@@ -25,7 +25,7 @@
     {
       "index" : 2,
       "label" : "text",
-      "content" : "Because the Home interface for the Address is local, the tag is <local-jndi-name> rather than\n\n<jndi-name>",
+      "content" : "Because the Home interface for the Address is local, the tag is <local-jndi-name> rather than <ndi-name>",
       "bbox_2d" : [
         99,
         174,
@@ -36,7 +36,7 @@
     {
       "index" : 3,
       "label" : "text",
-      "content" : "the weblogic cmp-rdbms-jar.xml descriptor contains a number of new sections and elements\n\nthat are not yet available, and the sections will wait until the next\n\nexercise, but there are some other changes to observe and examine.",
+      "content" : "the weblogic cmp-rdbms-jar.xml descriptor contains a number of new sections and elements\n\nthat will be added to the database, and the sections will wait until the next\n\nexercise, but there are other changes to observe and examine.",
       "bbox_2d" : [
         97,
         218,
@@ -47,7 +47,7 @@
     {
       "index" : 4,
       "label" : "text",
-      "content" : "The file contains a section mapping the the `obj` for jpri and\n\nattributes from the `obj` for jpri to the `table` in addition to a new section related to\n\nthe automatic key generation used for primary keys in this box.",
+      "content" : "the file contains a section mapping the the job for run\n\nattributes from the job for run\n\ntable in addition to a new section related to\n\nthe automatic key generation for primary keys in this box",
       "bbox_2d" : [
         98,
         281,

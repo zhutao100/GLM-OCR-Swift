@@ -1,0 +1,212 @@
+{
+  "name": "GLM-4.5V_Page_1",
+  "parity": {
+    "available": true,
+    "overall": 0.873,
+    "dimensions": {
+      "text_fidelity": 0.944,
+      "critical_structure": 0.7688,
+      "decorative_style": 0.75
+    },
+    "details": {
+      "text": {
+        "blocks": [
+          {
+            "index": 0,
+            "status": "paired",
+            "actual_kind": "heading",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 1,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "heading",
+            "score": 0.0265
+          },
+          {
+            "index": 2,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 3,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 4,
+            "status": "paired",
+            "actual_kind": "heading",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 5,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0528
+          },
+          {
+            "index": 6,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "heading",
+            "score": 0.0
+          },
+          {
+            "index": 7,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0182
+          },
+          {
+            "index": 8,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.8462
+          },
+          {
+            "index": 9,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 10,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0907
+          },
+          {
+            "index": 11,
+            "status": "missing",
+            "kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 12,
+            "status": "missing",
+            "kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 13,
+            "status": "missing",
+            "kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 14,
+            "status": "missing",
+            "kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 15,
+            "status": "missing",
+            "kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 16,
+            "status": "missing",
+            "kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 17,
+            "status": "missing",
+            "kind": "paragraph",
+            "score": 0.0
+          }
+        ],
+        "aligned_score": 0.056743442101291494,
+        "global_score": 0.9907063197026023
+      },
+      "tables": {
+        "tables": []
+      },
+      "json": {
+        "available": true,
+        "components": {
+          "page_count": 1.0,
+          "block_count": 1.0,
+          "labels": 1.0,
+          "bbox": 0.6636363636363637,
+          "content": 0.9941761392965671
+        },
+        "pages": [
+          {
+            "page": 1,
+            "block_count": 1.0,
+            "labels": 1.0,
+            "bbox": 0.6636,
+            "content": 0.9942
+          }
+        ]
+      },
+      "style": {
+        "actual": {
+          "heading_levels": [
+            1,
+            2
+          ],
+          "bold_markers": 0,
+          "center_wrappers": 0,
+          "code_languages": []
+        },
+        "expected": {
+          "heading_levels": [
+            1,
+            2
+          ],
+          "bold_markers": 0,
+          "center_wrappers": 4,
+          "code_languages": []
+        }
+      },
+      "block_shape": 0.3888888888888889
+    },
+    "missing_reason": null
+  },
+  "result_to_golden": {
+    "available": false,
+    "overall": null,
+    "dimensions": {
+      "text_fidelity": null,
+      "critical_structure": null,
+      "decorative_style": null
+    },
+    "details": {},
+    "missing_reason": "missing markdown: /Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/golden_result/GLM-4.5V_Page_1/GLM-4.5V_Page_1.md (missing)"
+  },
+  "reference_to_golden": {
+    "available": false,
+    "overall": null,
+    "dimensions": {
+      "text_fidelity": null,
+      "critical_structure": null,
+      "decorative_style": null
+    },
+    "details": {},
+    "missing_reason": "missing markdown: /Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/golden_result/GLM-4.5V_Page_1/GLM-4.5V_Page_1.md (missing)"
+  },
+  "final_dimensions": {
+    "text_fidelity": 0.944,
+    "critical_structure": 0.7688,
+    "decorative_style": 0.75
+  },
+  "final_overall": 0.873,
+  "rules": []
+}

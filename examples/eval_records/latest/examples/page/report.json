@@ -1,0 +1,799 @@
+{
+  "name": "page",
+  "parity": {
+    "available": true,
+    "overall": 0.728,
+    "dimensions": {
+      "text_fidelity": 0.705,
+      "critical_structure": 0.7285,
+      "decorative_style": 1.0
+    },
+    "details": {
+      "text": {
+        "blocks": [
+          {
+            "index": 0,
+            "status": "paired",
+            "actual_kind": "heading",
+            "expected_kind": "heading",
+            "score": 0.6667
+          },
+          {
+            "index": 1,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "list_item",
+            "score": 0.8421
+          },
+          {
+            "index": 2,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "list_item",
+            "score": 1.0
+          },
+          {
+            "index": 3,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "paragraph",
+            "score": 0.6429
+          },
+          {
+            "index": 4,
+            "status": "paired",
+            "actual_kind": "formula",
+            "expected_kind": "formula",
+            "score": 0.8261
+          },
+          {
+            "index": 5,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "paragraph",
+            "score": 0.5833
+          },
+          {
+            "index": 6,
+            "status": "paired",
+            "actual_kind": "formula",
+            "expected_kind": "formula",
+            "score": 1.0
+          },
+          {
+            "index": 7,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.5203
+          },
+          {
+            "index": 8,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 9,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.2791
+          },
+          {
+            "index": 10,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.383
+          },
+          {
+            "index": 11,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 12,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 13,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "list_item",
+            "score": 0.0
+          },
+          {
+            "index": 14,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "heading",
+            "score": 0.0
+          },
+          {
+            "index": 15,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "heading",
+            "score": 0.0
+          },
+          {
+            "index": 16,
+            "status": "paired",
+            "actual_kind": "heading",
+            "expected_kind": "list_item",
+            "score": 0.0165
+          },
+          {
+            "index": 17,
+            "status": "paired",
+            "actual_kind": "heading",
+            "expected_kind": "list_item",
+            "score": 0.0
+          },
+          {
+            "index": 18,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 19,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "list_item",
+            "score": 0.1143
+          },
+          {
+            "index": 20,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "list_item",
+            "score": 0.0
+          },
+          {
+            "index": 21,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "list_item",
+            "score": 0.0211
+          },
+          {
+            "index": 22,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 23,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "formula",
+            "score": 0.0
+          },
+          {
+            "index": 24,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "formula",
+            "score": 0.0
+          },
+          {
+            "index": 25,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "formula",
+            "score": 0.0
+          },
+          {
+            "index": 26,
+            "status": "paired",
+            "actual_kind": "formula",
+            "expected_kind": "formula",
+            "score": 0.3054
+          },
+          {
+            "index": 27,
+            "status": "paired",
+            "actual_kind": "formula",
+            "expected_kind": "paragraph",
+            "score": 0.0517
+          },
+          {
+            "index": 28,
+            "status": "missing",
+            "kind": "formula",
+            "score": 0.0
+          },
+          {
+            "index": 29,
+            "status": "missing",
+            "kind": "formula",
+            "score": 0.0
+          },
+          {
+            "index": 30,
+            "status": "missing",
+            "kind": "paragraph",
+            "score": 0.0
+          }
+        ],
+        "aligned_score": 0.2345926348118991,
+        "global_score": 0.7297520661157025
+      },
+      "tables": {
+        "tables": []
+      },
+      "json": {
+        "available": true,
+        "components": {
+          "page_count": 1.0,
+          "block_count": 1.0,
+          "labels": 1.0,
+          "bbox": 0.6488095238095238,
+          "content": 0.6563478011775548
+        },
+        "pages": [
+          {
+            "page": 1,
+            "block_count": 1.0,
+            "labels": 1.0,
+            "bbox": 0.6488,
+            "content": 0.6563
+          }
+        ]
+      },
+      "style": {
+        "actual": {
+          "heading_levels": [
+            2,
+            2,
+            2
+          ],
+          "bold_markers": 0,
+          "center_wrappers": 0,
+          "code_languages": []
+        },
+        "expected": {
+          "heading_levels": [
+            2,
+            2,
+            2
+          ],
+          "bold_markers": 0,
+          "center_wrappers": 0,
+          "code_languages": []
+        }
+      },
+      "block_shape": 0.41935483870967744
+    },
+    "missing_reason": null
+  },
+  "result_to_golden": {
+    "available": true,
+    "overall": 0.5223,
+    "dimensions": {
+      "text_fidelity": 0.5166,
+      "critical_structure": null,
+      "decorative_style": 0.5909
+    },
+    "details": {
+      "text": {
+        "blocks": [
+          {
+            "index": 0,
+            "status": "paired",
+            "actual_kind": "heading",
+            "expected_kind": "paragraph",
+            "score": 0.75
+          },
+          {
+            "index": 1,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "paragraph",
+            "score": 0.6102
+          },
+          {
+            "index": 2,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "paragraph",
+            "score": 0.7125
+          },
+          {
+            "index": 3,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "paragraph",
+            "score": 0.6429
+          },
+          {
+            "index": 4,
+            "status": "paired",
+            "actual_kind": "formula",
+            "expected_kind": "paragraph",
+            "score": 0.3861
+          },
+          {
+            "index": 5,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "paragraph",
+            "score": 0.5833
+          },
+          {
+            "index": 6,
+            "status": "paired",
+            "actual_kind": "formula",
+            "expected_kind": "paragraph",
+            "score": 0.2927
+          },
+          {
+            "index": 7,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.3393
+          },
+          {
+            "index": 8,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 9,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0741
+          },
+          {
+            "index": 10,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.1429
+          },
+          {
+            "index": 11,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 12,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 13,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 14,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 15,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 16,
+            "status": "paired",
+            "actual_kind": "heading",
+            "expected_kind": "paragraph",
+            "score": 0.75
+          },
+          {
+            "index": 17,
+            "status": "paired",
+            "actual_kind": "heading",
+            "expected_kind": "paragraph",
+            "score": 0.75
+          },
+          {
+            "index": 18,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "paragraph",
+            "score": 0.5839
+          },
+          {
+            "index": 19,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "paragraph",
+            "score": 0.2714
+          },
+          {
+            "index": 20,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.1538
+          },
+          {
+            "index": 21,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.05
+          },
+          {
+            "index": 22,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 23,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.6842
+          },
+          {
+            "index": 24,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 25,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "paragraph",
+            "score": 0.0152
+          },
+          {
+            "index": 26,
+            "status": "paired",
+            "actual_kind": "formula",
+            "expected_kind": "paragraph",
+            "score": 0.1071
+          },
+          {
+            "index": 27,
+            "status": "paired",
+            "actual_kind": "formula",
+            "expected_kind": "paragraph",
+            "score": 0.1483
+          },
+          {
+            "index": 28,
+            "status": "paired",
+            "actual_kind": "formula",
+            "expected_kind": "paragraph",
+            "score": 0.0197
+          },
+          {
+            "index": 29,
+            "status": "paired",
+            "actual_kind": "formula",
+            "expected_kind": "paragraph",
+            "score": 0.0104
+          },
+          {
+            "index": 30,
+            "status": "missing",
+            "kind": "paragraph",
+            "score": 0.0
+          }
+        ],
+        "aligned_score": 0.26058000011882115,
+        "global_score": 0.5300799326882625
+      },
+      "tables": {
+        "tables": []
+      },
+      "json": {
+        "available": false,
+        "reason": "missing json baseline or result: /Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/golden_result/page/page.json"
+      },
+      "style": {
+        "actual": {
+          "heading_levels": [
+            2,
+            2,
+            2
+          ],
+          "bold_markers": 0,
+          "center_wrappers": 0,
+          "code_languages": []
+        },
+        "expected": {
+          "heading_levels": [],
+          "bold_markers": 34,
+          "center_wrappers": 0,
+          "code_languages": []
+        }
+      },
+      "block_shape": 0.3225806451612903
+    },
+    "missing_reason": null
+  },
+  "reference_to_golden": {
+    "available": true,
+    "overall": 0.6078,
+    "dimensions": {
+      "text_fidelity": 0.6092,
+      "critical_structure": null,
+      "decorative_style": 0.5909
+    },
+    "details": {
+      "text": {
+        "blocks": [
+          {
+            "index": 0,
+            "status": "paired",
+            "actual_kind": "heading",
+            "expected_kind": "paragraph",
+            "score": 0.5
+          },
+          {
+            "index": 1,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "paragraph",
+            "score": 0.725
+          },
+          {
+            "index": 2,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "paragraph",
+            "score": 0.7125
+          },
+          {
+            "index": 3,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 1.0
+          },
+          {
+            "index": 4,
+            "status": "paired",
+            "actual_kind": "formula",
+            "expected_kind": "paragraph",
+            "score": 0.2824
+          },
+          {
+            "index": 5,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 1.0
+          },
+          {
+            "index": 6,
+            "status": "paired",
+            "actual_kind": "formula",
+            "expected_kind": "paragraph",
+            "score": 0.2927
+          },
+          {
+            "index": 7,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.6759
+          },
+          {
+            "index": 8,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.36
+          },
+          {
+            "index": 9,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.3077
+          },
+          {
+            "index": 10,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.3385
+          },
+          {
+            "index": 11,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.6496
+          },
+          {
+            "index": 12,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.8438
+          },
+          {
+            "index": 13,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "paragraph",
+            "score": 0.6078
+          },
+          {
+            "index": 14,
+            "status": "paired",
+            "actual_kind": "heading",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 15,
+            "status": "paired",
+            "actual_kind": "heading",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 16,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "paragraph",
+            "score": 0.0165
+          },
+          {
+            "index": 17,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 18,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 19,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "paragraph",
+            "score": 0.0465
+          },
+          {
+            "index": 20,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 21,
+            "status": "paired",
+            "actual_kind": "list_item",
+            "expected_kind": "paragraph",
+            "score": 0.0474
+          },
+          {
+            "index": 22,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 23,
+            "status": "paired",
+            "actual_kind": "formula",
+            "expected_kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 24,
+            "status": "paired",
+            "actual_kind": "formula",
+            "expected_kind": "paragraph",
+            "score": 0.1679
+          },
+          {
+            "index": 25,
+            "status": "paired",
+            "actual_kind": "formula",
+            "expected_kind": "paragraph",
+            "score": 0.122
+          },
+          {
+            "index": 26,
+            "status": "paired",
+            "actual_kind": "formula",
+            "expected_kind": "paragraph",
+            "score": 0.0771
+          },
+          {
+            "index": 27,
+            "status": "paired",
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.1197
+          },
+          {
+            "index": 28,
+            "status": "missing",
+            "kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "index": 29,
+            "status": "missing",
+            "kind": "paragraph",
+            "score": 0.0
+          }
+        ],
+        "aligned_score": 0.2964219754301632,
+        "global_score": 0.6256662566625666
+      },
+      "tables": {
+        "tables": []
+      },
+      "json": {
+        "available": false,
+        "reason": "missing json baseline or result: /Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/golden_result/page/page.json"
+      },
+      "style": {
+        "actual": {
+          "heading_levels": [
+            2,
+            2,
+            2
+          ],
+          "bold_markers": 0,
+          "center_wrappers": 0,
+          "code_languages": []
+        },
+        "expected": {
+          "heading_levels": [],
+          "bold_markers": 34,
+          "center_wrappers": 0,
+          "code_languages": []
+        }
+      },
+      "block_shape": 0.36666666666666664
+    },
+    "missing_reason": null
+  },
+  "final_dimensions": {
+    "text_fidelity": 0.6818,
+    "critical_structure": 0.7285,
+    "decorative_style": 1.0
+  },
+  "final_overall": 0.7141,
+  "rules": []
+}

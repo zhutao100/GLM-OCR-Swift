@@ -14,7 +14,7 @@
     {
       "index" : 1,
       "label" : "text",
-      "content" : "Suppose that we have a factorization $ P=Q^{m} R $ for some m>0, where R is homogeneous of degree d and not divisible by O; note that the homogeneity implies that",
+      "content" : "Suppose that we have a factorization $ P=Q^{m} R $ for some $ m>0 $ , where R is homogeneous of degree d and not divisible by O; note that the homogeneity implies that",
       "bbox_2d" : [
         128,
         139,
@@ -135,7 +135,7 @@
     {
       "index" : 12,
       "label" : "text",
-      "content" : "Third solution: (by Richard Stanley) Write $ x= $ $ ( x_{1}, \\dots, x_{n} ) $ and $ \\nabla=(\\frac{\\partial}{\\partial x_{1}},\\dots,\\frac{\\partial}{\\partial x_{n}}). $ Suppose that $ P(x)=O(x)(x^{2}+\\dots+x^{2}) $ Then",
+      "content" : "Third solution: (by Richard Stanley) Write $ x=( x_{1}, \\dots, x_{n}) $ and $ \\nabla=(\\frac{\\partial}{\\partial x_{1}},\\dots,\\frac{\\partial}{\\partial x_{n}}). $ Suppose that $ P(x)=O(x)(x^{2}+\\dots+x^{2}) $ Then",
       "bbox_2d" : [
         129,
         737,
@@ -157,7 +157,7 @@
     {
       "index" : 14,
       "label" : "text",
-      "content" : "On the other hand, if $ P ( x )=\\sum_{\\alpha} c_{\\alpha} x^{\\alpha} $ (where $ \\alpha= $ $ (\\alpha_{1},\\dots,\\alpha_{n}) $ and $ x^{\\alpha}=x_{1}^{\\alpha_{1}}\\cdots x_{n}^{\\alpha_{n}} $ ), then the constant term of $ P (\\nabla) P ( x ) $ is seen to be $ \\sum_{\\alpha} c_{\\alpha}^{2}. $ Hence $ c_{\\alpha}=0 $ for all $ \\alpha. $",
+      "content" : "On the other hand, if $ P ( x )=\\sum_{\\alpha} c_{\\alpha} x^{\\alpha} $ (where $ \\alpha=(\\alpha_{1},\\dots,\\alpha_{n}) $ and $ x^{\\alpha}=x_{1}^{\\alpha_{1}}\\cdots x_{n}^{\\alpha_{n}} $ ), then the constant term of $ P (\\nabla) P ( x ) $ is seen to be $ \\sum_{\\alpha} c_{\\alpha}^{2}. $ Hence $ c_{\\alpha}=0 $ for all $ \\alpha. $",
       "bbox_2d" : [
         129,
         826,
@@ -179,7 +179,7 @@
     {
       "index" : 16,
       "label" : "text",
-      "content" : "in characteristic p > 0 because we may take $ P= ( x_{1}^{2}+\\cdots+x_{n}^{2} )^{p}=x_{1}^{2 p}+ \\cdots+x_{n}^{2 p}. $ The third solution can be extended to complex coefficients by replacing $ P(\\nabla) $ by its complex conjugate, and again the result may be deduced for any field of characteristic zero. Stanley also suggests Section 5 of the arXiv e-print math.C0/0502363 for some algebraic background for this problem.",
+      "content" : "in characteristic $ p > 0 $ because we may take $ P=(x_{1}^{2}+\\cdots+x_{n}^{2})^{p}=x_{1}^{2 p}+\\cdots+x_{n}^{2 p}. $ The third solution can be extended to complex coefficients by replacing $ P(\\nabla) $ by its complex conjugate, and again the result may be deduced for any field of characteristic zero. Stanley also suggests Section 5 of the arXiv e-print math.C0/0502363 for some algebraic background for this problem.",
       "bbox_2d" : [
         558,
         60,
@@ -190,7 +190,7 @@
     {
       "index" : 17,
       "label" : "text",
-      "content" : "B-6 First solution: Let I be the identity matrix, and let $ J_{x} $ be the matrix with x's on the diagonal and 1's elsewhere. Note that $ J_{x}-(x-1)I $ , being the all 1's matrix, has rank 1 and trace n, so has n-1 eigenvalues equal to 0 and one equal to n. Hence $ J_{x} $ has n-1 eigenvalues equal to x-1 and one equal to x+n-1, implying",
+      "content" : "B-6 First solution: Let I be the identity matrix, and let $ J_{x} $ be the matrix with x's on the diagonal and 1's elsewhere. Note that $ J_{x}-(x-1)I $ , being the all 1's matrix, has rank 1 and trace n, so has n-1 eigenvalues equal to 0 and one equal to n. Hence $ J_{x} $ has n-1 eigenvalues equal to x-1 and one equal to $ x+n-1 $ , implying",
       "bbox_2d" : [
         526,
         189,
@@ -234,7 +234,7 @@
     {
       "index" : 21,
       "label" : "text",
-      "content" : "Integrating both sides from 0 to 1 (and substituting y = 1 - x) yields.",
+      "content" : "Integrating both sides from 0 to 1 (and substituting y = 1-x) yields",
       "bbox_2d" : [
         560,
         397,
