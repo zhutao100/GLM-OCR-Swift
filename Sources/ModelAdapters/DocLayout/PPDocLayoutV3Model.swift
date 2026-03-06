@@ -27,6 +27,8 @@ public struct PPDocLayoutV3Model: Sendable {
         var predBoxes: MLXArray
         var orderLogits: MLXArray
         var encoderTopKIndices: MLXArray
+        var tinyBoxMaskHeight: Int
+        var tinyBoxMaskWidth: Int
         var didFallbackToAllQueries: Bool
     }
 
@@ -438,9 +440,15 @@ final class PPDocLayoutV3Core: Module {
         -> PPDocLayoutV3Postprocess.RawDetections
     {
         let raw = try forwardRawOutputs(pixelValues: pixelValues, options: options)
+        let maskedLogits = PPDocLayoutV3Prefilters.maskLogitsForTinyBoxes(
+            logits: raw.logits,
+            predBoxes: raw.predBoxes,
+            maskHeight: raw.tinyBoxMaskHeight,
+            maskWidth: raw.tinyBoxMaskWidth
+        )
 
         var detections = postProcessObjectDetection(
-            logits: raw.logits,
+            logits: maskedLogits,
             boxes: raw.predBoxes,
             orderLogits: raw.orderLogits,
             scoreThreshold: options.scoreThreshold
@@ -448,7 +456,7 @@ final class PPDocLayoutV3Core: Module {
 
         if detections.scores.isEmpty {
             detections = postProcessObjectDetection(
-                logits: raw.logits,
+                logits: maskedLogits,
                 boxes: raw.predBoxes,
                 orderLogits: raw.orderLogits,
                 scoreThreshold: -Float.infinity
@@ -635,20 +643,15 @@ final class PPDocLayoutV3Core: Module {
             } else {
                 (200, 200)
             }
-        let maskedLogits = PPDocLayoutV3Prefilters.maskLogitsForTinyBoxes(
-            logits: decoded.logits,
-            predBoxes: decoded.boxes,
-            maskHeight: maskH,
-            maskWidth: maskW
-        )
-
-        try checkedEval(maskedLogits, decoded.boxes, decoded.orderLogits)
+        try checkedEval(decoded.logits, decoded.boxes, decoded.orderLogits)
 
         return PPDocLayoutV3Model.RawOutputs(
-            logits: maskedLogits,
+            logits: decoded.logits,
             predBoxes: decoded.boxes,
             orderLogits: decoded.orderLogits,
             encoderTopKIndices: topkInd,
+            tinyBoxMaskHeight: maskH,
+            tinyBoxMaskWidth: maskW,
             didFallbackToAllQueries: false
         )
     }
