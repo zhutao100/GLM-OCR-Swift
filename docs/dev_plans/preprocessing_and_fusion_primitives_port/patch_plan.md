@@ -329,7 +329,7 @@ This doesn’t prove full conformance, but it detects “wrong snapshot / wrong 
 
 ### Acceptance criteria
 
-* The new test passes when `GLMOCR_SNAPSHOT_PATH` is set correctly.
+* The new test passes when a GLM-OCR snapshot is available locally (auto-resolved from HF cache; override via `GLMOCR_SNAPSHOT_PATH`).
 * If chat-template logic changes, this test fails with a crisp diff in token IDs.
 
 ---

@@ -11,14 +11,17 @@ python3 scripts/generate_glmocr_golden.py --model-folder "$GLMOCR_SNAPSHOT_PATH"
 Then run the golden check:
 
 ```bash
-GLMOCR_SNAPSHOT_PATH=<path-to-snapshot> GLMOCR_RUN_GOLDEN=1 swift test
+GLMOCR_RUN_GOLDEN=1 swift test
 ```
 
 To run the **examples parity** end-to-end layout test:
 
 ```bash
-GLMOCR_SNAPSHOT_PATH=<path-to-glm-ocr-snapshot> \
-LAYOUT_SNAPSHOT_PATH=<path-to-ppdoclayoutv3-snapshot> \
 GLMOCR_RUN_EXAMPLES=1 \
 swift test --filter LayoutExamplesParityIntegrationTests
 ```
+
+Snapshot path overrides (optional):
+
+- `GLMOCR_SNAPSHOT_PATH=<path-to-snapshot>`
+- `LAYOUT_SNAPSHOT_PATH=<path-to-snapshot>`

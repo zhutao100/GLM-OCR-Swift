@@ -17,11 +17,7 @@ final class PPDocLayoutV3DetectorInferenceIntegrationTests: XCTestCase {
     }
 
     func testDetect_emitsValidRegionsWhenSnapshotPathProvided() async throws {
-        guard let raw = ProcessInfo.processInfo.environment["LAYOUT_SNAPSHOT_PATH"], !raw.isEmpty else {
-            throw XCTSkip("Set LAYOUT_SNAPSHOT_PATH to a local PP-DocLayout-V3 HF snapshot folder to enable this test.")
-        }
-
-        let folder = URL(fileURLWithPath: (raw as NSString).expandingTildeInPath).standardizedFileURL
+        let folder = try DocLayoutTestEnv.requireSnapshotFolderURL()
         let detector = PPDocLayoutV3Detector(store: StaticModelStore(snapshotFolder: folder))
 
         let image = CIImage(color: CIColor(red: 1, green: 1, blue: 1)).cropped(

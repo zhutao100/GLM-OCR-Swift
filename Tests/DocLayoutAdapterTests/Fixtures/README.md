@@ -42,17 +42,21 @@ PYENV_VERSION=venv313 pyenv exec python3 scripts/generate_ppdoclayoutv3_golden.p
 Then run the golden check:
 
 ```bash
-LAYOUT_SNAPSHOT_PATH=<path-to-snapshot> LAYOUT_RUN_GOLDEN=1 swift test
+LAYOUT_RUN_GOLDEN=1 swift test
 ```
 
 To run just the CPU/float32 golden test:
 
 ```bash
-LAYOUT_SNAPSHOT_PATH=<path-to-snapshot> LAYOUT_RUN_GOLDEN=1 swift test --filter PPDocLayoutV3GoldenFloat32IntegrationTests
+LAYOUT_RUN_GOLDEN=1 swift test --filter PPDocLayoutV3GoldenFloat32IntegrationTests
 ```
 
 To run just the intermediate parity tests (v3 + v4):
 
 ```bash
-LAYOUT_SNAPSHOT_PATH=<path-to-snapshot> LAYOUT_RUN_GOLDEN=1 swift test --filter PPDocLayoutV3IntermediateParityIntegrationTests
+LAYOUT_RUN_GOLDEN=1 swift test --filter PPDocLayoutV3IntermediateParityIntegrationTests
 ```
+
+Snapshot path override (optional):
+
+- `LAYOUT_SNAPSHOT_PATH=<path-to-snapshot>`

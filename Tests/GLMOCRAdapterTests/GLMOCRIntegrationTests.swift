@@ -8,9 +8,7 @@ import XCTest
 
 final class GLMOCRTokenizerIntegrationTests: XCTestCase {
     func testSpecialTokenIDs_matchSnapshot() async throws {
-        guard let modelFolder = GLMOCRTestEnv.modelFolderURL else {
-            throw XCTSkip("Set GLMOCR_SNAPSHOT_PATH to a local HF snapshot folder to enable this test.")
-        }
+        let modelFolder = try GLMOCRTestEnv.requireModelFolderURL()
 
         let config = try GLMOCRConfig.load(from: modelFolder)
         let tokenizer = try await GLMOCRTokenizer.load(from: modelFolder, config: config)
@@ -43,9 +41,7 @@ final class GLMOCRForwardPassIntegrationTests: XCTestCase {
         guard GLMOCRTestEnv.runForwardPass else {
             throw XCTSkip("Set GLMOCR_TEST_RUN_FORWARD_PASS=1 to enable this integration test.")
         }
-        guard let modelFolder = GLMOCRTestEnv.modelFolderURL else {
-            throw XCTSkip("Set GLMOCR_SNAPSHOT_PATH to a local HF snapshot folder to enable this test.")
-        }
+        let modelFolder = try GLMOCRTestEnv.requireModelFolderURL()
 
         try ensureMLXMetalLibraryColocated(for: Self.self)
 
@@ -74,9 +70,7 @@ final class GLMOCRForwardPassIntegrationTests: XCTestCase {
         guard GLMOCRTestEnv.runGolden else {
             throw XCTSkip("Set GLMOCR_RUN_GOLDEN=1 to enable this integration test.")
         }
-        guard let modelFolder = GLMOCRTestEnv.modelFolderURL else {
-            throw XCTSkip("Set GLMOCR_SNAPSHOT_PATH to a local HF snapshot folder to enable this test.")
-        }
+        let modelFolder = try GLMOCRTestEnv.requireModelFolderURL()
 
         let fixtureData = try GLMOCRTestEnv.goldenFixtureData()
         let fixture = try JSONDecoder().decode(GLMOCRForwardGoldenFixture.self, from: fixtureData)

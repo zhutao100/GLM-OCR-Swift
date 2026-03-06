@@ -21,20 +21,34 @@ final class LayoutExamplesParityIntegrationTests: XCTestCase {
         }
     }
 
+    private static func requireLayoutFolderURL(
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) throws -> URL {
+        if let raw = ProcessInfo.processInfo.environment["LAYOUT_SNAPSHOT_PATH"], !raw.isEmpty {
+            return URL(fileURLWithPath: (raw as NSString).expandingTildeInPath).standardizedFileURL
+        }
+        if let cached = try? HuggingFaceHubModelStore.resolveCachedSnapshot(
+            modelID: PPDocLayoutV3Defaults.modelID,
+            revision: PPDocLayoutV3Defaults.revision,
+            downloadBase: nil
+        ) {
+            return cached
+        }
+        throw XCTSkip(
+            "No cached HF snapshot found for \(PPDocLayoutV3Defaults.modelID) (\(PPDocLayoutV3Defaults.revision)). "
+                + "Either download it to your HF cache or set LAYOUT_SNAPSHOT_PATH to a local snapshot folder.",
+            file: file,
+            line: line
+        )
+    }
+
     func testGLM45V_Page1_layoutOutput_matchesExamples() async throws {
         guard ProcessInfo.processInfo.environment["GLMOCR_RUN_EXAMPLES"] == "1" else {
             throw XCTSkip("Set GLMOCR_RUN_EXAMPLES=1 to enable this end-to-end examples parity test.")
         }
-        guard let glmModelFolder = GLMOCRTestEnv.modelFolderURL else {
-            throw XCTSkip("Set GLMOCR_SNAPSHOT_PATH to a local GLM-OCR HF snapshot folder to enable this test.")
-        }
-        guard let rawLayoutFolder = ProcessInfo.processInfo.environment["LAYOUT_SNAPSHOT_PATH"],
-            !rawLayoutFolder.isEmpty
-        else {
-            throw XCTSkip("Set LAYOUT_SNAPSHOT_PATH to a local PP-DocLayout-V3 HF snapshot folder to enable this test.")
-        }
-
-        let layoutFolder = URL(fileURLWithPath: (rawLayoutFolder as NSString).expandingTildeInPath).standardizedFileURL
+        let glmModelFolder = try GLMOCRTestEnv.requireModelFolderURL()
+        let layoutFolder = try Self.requireLayoutFolderURL()
 
         try ensureMLXMetalLibraryColocated(for: Self.self)
 
@@ -102,16 +116,8 @@ final class LayoutExamplesParityIntegrationTests: XCTestCase {
         guard ProcessInfo.processInfo.environment["GLMOCR_RUN_EXAMPLES"] == "1" else {
             throw XCTSkip("Set GLMOCR_RUN_EXAMPLES=1 to enable this end-to-end examples parity test.")
         }
-        guard let glmModelFolder = GLMOCRTestEnv.modelFolderURL else {
-            throw XCTSkip("Set GLMOCR_SNAPSHOT_PATH to a local GLM-OCR HF snapshot folder to enable this test.")
-        }
-        guard let rawLayoutFolder = ProcessInfo.processInfo.environment["LAYOUT_SNAPSHOT_PATH"],
-            !rawLayoutFolder.isEmpty
-        else {
-            throw XCTSkip("Set LAYOUT_SNAPSHOT_PATH to a local PP-DocLayout-V3 HF snapshot folder to enable this test.")
-        }
-
-        let layoutFolder = URL(fileURLWithPath: (rawLayoutFolder as NSString).expandingTildeInPath).standardizedFileURL
+        let glmModelFolder = try GLMOCRTestEnv.requireModelFolderURL()
+        let layoutFolder = try Self.requireLayoutFolderURL()
 
         try ensureMLXMetalLibraryColocated(for: Self.self)
 

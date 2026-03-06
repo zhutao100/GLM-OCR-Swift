@@ -101,3 +101,88 @@ public struct HuggingFaceHubModelStore: ModelStore {
         return homeDirectory.appendingPathComponent(".cache/huggingface/hub").standardizedFileURL
     }
 }
+
+extension HuggingFaceHubModelStore {
+    /// Resolves a local Hugging Face Hub snapshot folder without downloading.
+    ///
+    /// This is intended for opt-in integration tests and parity checks that should be able to
+    /// auto-discover an existing cached snapshot on the current machine.
+    ///
+    /// - Parameters:
+    ///   - modelID: The HF model ID (e.g. `org/name`).
+    ///   - revision: The revision to resolve (typically `main`).
+    ///   - downloadBase: Optional explicit hub cache directory (the `.../huggingface/hub` folder).
+    /// - Returns: The resolved local snapshot folder, or `nil` if no cached snapshot is present.
+    public static func resolveCachedSnapshot(
+        modelID: String,
+        revision: String = "main",
+        downloadBase: URL? = nil
+    ) throws -> URL? {
+        let hubCache = try resolveHuggingFaceHubCacheDirectory(explicitBase: downloadBase)
+        return resolveCachedSnapshot(modelID: modelID, revision: revision, hubCache: hubCache)
+    }
+
+    static func resolveCachedSnapshot(
+        modelID: String,
+        revision: String,
+        hubCache: URL
+    ) -> URL? {
+        let normalizedModelID = modelID.trimmingCharacters(in: .whitespacesAndNewlines)
+        let normalizedRevision = revision.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        let modelDirName = "models--" + normalizedModelID.replacingOccurrences(of: "/", with: "--")
+        let modelDir = hubCache.appendingPathComponent(modelDirName, isDirectory: true)
+
+        func appendingComponents(_ base: URL, _ path: String) -> URL {
+            let parts = path.split(separator: "/").map(String.init)
+            return parts.reduce(base) { $0.appendingPathComponent($1, isDirectory: false) }
+        }
+
+        func isDirectory(_ url: URL) -> Bool {
+            var isDir: ObjCBool = false
+            return FileManager.default.fileExists(atPath: url.path, isDirectory: &isDir) && isDir.boolValue
+        }
+
+        func readRefSnapshotID() -> String? {
+            let refsDir = modelDir.appendingPathComponent("refs", isDirectory: true)
+            let refFile = appendingComponents(refsDir, normalizedRevision)
+            guard let data = FileManager.default.contents(atPath: refFile.path),
+                let text = String(data: data, encoding: .utf8)
+            else { return nil }
+            let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            return trimmed.isEmpty ? nil : trimmed
+        }
+
+        let snapshotsDir = modelDir.appendingPathComponent("snapshots", isDirectory: true)
+
+        if let snapshotID = readRefSnapshotID() {
+            let candidate = snapshotsDir.appendingPathComponent(snapshotID, isDirectory: true)
+            if isDirectory(candidate) { return candidate.standardizedFileURL }
+        }
+
+        guard isDirectory(snapshotsDir) else { return nil }
+
+        guard
+            let entries = try? FileManager.default.contentsOfDirectory(
+                at: snapshotsDir,
+                includingPropertiesForKeys: [.isDirectoryKey, .contentModificationDateKey],
+                options: [.skipsHiddenFiles]
+            )
+        else { return nil }
+
+        var bestURL: URL?
+        var bestDate = Date.distantPast
+
+        for entry in entries {
+            guard (try? entry.resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory == true else { continue }
+            let date = (try? entry.resourceValues(forKeys: [.contentModificationDateKey]))?.contentModificationDate
+                ?? Date.distantPast
+            if date > bestDate {
+                bestDate = date
+                bestURL = entry.standardizedFileURL
+            }
+        }
+
+        return bestURL
+    }
+}

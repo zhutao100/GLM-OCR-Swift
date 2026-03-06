@@ -7,9 +7,7 @@ import VLMRuntimeKit
 
 final class GLMOCRChatTemplateConformanceTests: XCTestCase {
     func testBuildInputIDs_matchesTokenizerEncoding_singleTurn() async throws {
-        guard let modelFolder = GLMOCRTestEnv.modelFolderURL else {
-            throw XCTSkip("Set GLMOCR_SNAPSHOT_PATH to a local HF snapshot folder to enable this test.")
-        }
+        let modelFolder = try GLMOCRTestEnv.requireModelFolderURL()
 
         let config = try GLMOCRConfig.load(from: modelFolder)
         let tokenizer = try await GLMOCRTokenizer.load(from: modelFolder, config: config)
@@ -45,9 +43,7 @@ final class GLMOCRChatTemplateConformanceTests: XCTestCase {
     }
 
     func testChatTemplateSnapshot_containsExpectedMarkers_whenPresent() throws {
-        guard let modelFolder = GLMOCRTestEnv.modelFolderURL else {
-            throw XCTSkip("Set GLMOCR_SNAPSHOT_PATH to a local HF snapshot folder to enable this test.")
-        }
+        let modelFolder = try GLMOCRTestEnv.requireModelFolderURL()
 
         let url = modelFolder.appendingPathComponent("chat_template.jinja")
         guard FileManager.default.fileExists(atPath: url.path) else {

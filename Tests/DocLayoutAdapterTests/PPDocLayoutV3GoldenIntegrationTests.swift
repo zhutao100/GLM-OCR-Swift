@@ -10,9 +10,7 @@ final class PPDocLayoutV3GoldenIntegrationTests: XCTestCase {
         guard DocLayoutTestEnv.runGolden else {
             throw XCTSkip("Set LAYOUT_RUN_GOLDEN=1 to enable this integration test.")
         }
-        guard let modelFolder = DocLayoutTestEnv.snapshotFolderURL else {
-            throw XCTSkip("Set LAYOUT_SNAPSHOT_PATH to a local PP-DocLayout-V3 HF snapshot folder to enable this test.")
-        }
+        let modelFolder = try DocLayoutTestEnv.requireSnapshotFolderURL()
 
         let fixtureData = try DocLayoutTestEnv.goldenFixtureData()
         let fixture = try JSONDecoder().decode(PPDocLayoutV3ForwardGoldenFixture.self, from: fixtureData)

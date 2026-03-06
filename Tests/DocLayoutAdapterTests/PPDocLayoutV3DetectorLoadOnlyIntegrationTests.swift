@@ -16,11 +16,7 @@ final class PPDocLayoutV3DetectorLoadOnlyIntegrationTests: XCTestCase {
     }
 
     func testEnsureLoaded_validatesRequiredKeysWhenSnapshotPathProvided() async throws {
-        guard let raw = ProcessInfo.processInfo.environment["LAYOUT_SNAPSHOT_PATH"], !raw.isEmpty else {
-            throw XCTSkip("Set LAYOUT_SNAPSHOT_PATH to a local PP-DocLayout-V3 HF snapshot folder to enable this test.")
-        }
-
-        let folder = URL(fileURLWithPath: (raw as NSString).expandingTildeInPath).standardizedFileURL
+        let folder = try DocLayoutTestEnv.requireSnapshotFolderURL()
         let detector = PPDocLayoutV3Detector(store: StaticModelStore(snapshotFolder: folder))
 
         try await detector.ensureLoaded()

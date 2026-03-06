@@ -5,9 +5,7 @@ import XCTest
 
 final class GLMOCRChatTemplateIntegrationTests: XCTestCase {
     func testBuildInputIDs_insertsExpectedImageTokenCount() async throws {
-        guard let modelFolder = GLMOCRTestEnv.modelFolderURL else {
-            throw XCTSkip("Set GLMOCR_SNAPSHOT_PATH to a local HF snapshot folder to enable this test.")
-        }
+        let modelFolder = try GLMOCRTestEnv.requireModelFolderURL()
 
         let config = try GLMOCRConfig.load(from: modelFolder)
         let tokenizer = try await GLMOCRTokenizer.load(from: modelFolder, config: config)

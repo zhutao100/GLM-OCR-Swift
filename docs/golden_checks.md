@@ -114,14 +114,16 @@ Guideline:
 
 ## Repo-specific switches (parity workflow)
 
-- `GLMOCR_SNAPSHOT_PATH=<snapshot_path>` points tests at a local HF snapshot.
+- `GLMOCR_SNAPSHOT_PATH=<snapshot_path>` (optional) overrides the auto-resolved cached snapshot for `zai-org/GLM-OCR` (`main`).
 - `GLMOCR_RUN_GOLDEN=1` enables opt-in golden checks (and may enable “parity mode” numeric settings).
 - `GLMOCR_DEBUG_VISION=1` prints vision embedding stats in the forward-pass golden test to help localize drift.
-- `LAYOUT_SNAPSHOT_PATH=<snapshot_path>` points `DocLayoutAdapterTests` at a local PP-DocLayoutV3 HF snapshot.
+- `LAYOUT_SNAPSHOT_PATH=<snapshot_path>` (optional) overrides the auto-resolved cached snapshot for `PaddlePaddle/PP-DocLayoutV3_safetensors` (`main`).
 - `LAYOUT_RUN_GOLDEN=1` enables opt-in PP-DocLayoutV3 golden checks.
 - `LAYOUT_DEBUG_DTYPE=1` prints dtype summaries during PP-DocLayoutV3 golden tests.
 - `LAYOUT_FORCE_PIXEL_FLOAT32=1` forces PP-DocLayoutV3 `pixel_values` to `.float32` (diagnostic toggle).
 - `LAYOUT_WEIGHTS_DTYPE=float16|float32|bfloat16` overrides the PP-DocLayoutV3 weights dtype at load time (diagnostic toggle).
+
+Snapshot-path env vars are **optional**: when unset, integration/parity tests try to resolve the current cached snapshot from your local HF hub cache (via `refs/main`). If no cached snapshot exists, those tests are skipped.
 
 ### PP-DocLayout-V3 intermediate parity (fixture v3)
 
@@ -138,8 +140,7 @@ PYENV_VERSION=venv313 pyenv exec python3 scripts/generate_ppdoclayoutv3_golden.p
 Then run the opt-in intermediate parity test:
 
 ```bash
-LAYOUT_RUN_GOLDEN=1 LAYOUT_SNAPSHOT_PATH=<snapshot> \
-  swift test --filter PPDocLayoutV3IntermediateParityIntegrationTests
+LAYOUT_RUN_GOLDEN=1 swift test --filter PPDocLayoutV3IntermediateParityIntegrationTests
 ```
 
 ## Practical checklist (when adding or updating a golden fixture)
@@ -151,8 +152,8 @@ LAYOUT_RUN_GOLDEN=1 LAYOUT_SNAPSHOT_PATH=<snapshot> \
    - snapshot hash, prompt, preprocessing config summary
    - device + dtype (and any forced-float32 blocks); if not embedded in JSON, ensure it is printed/logged by the generator script output.
 3. Run the opt-in test:
-   - `GLMOCR_SNAPSHOT_PATH=<snapshot> GLMOCR_RUN_GOLDEN=1 swift test`
-   - `LAYOUT_SNAPSHOT_PATH=<snapshot> LAYOUT_RUN_GOLDEN=1 swift test`
+   - `GLMOCR_RUN_GOLDEN=1 swift test`
+   - `LAYOUT_RUN_GOLDEN=1 swift test`
 4. If it fails:
    - turn on `GLMOCR_DEBUG_VISION=1`
    - validate dtype/device alignment first

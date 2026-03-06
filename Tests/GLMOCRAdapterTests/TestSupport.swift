@@ -1,12 +1,35 @@
 import Foundation
+import VLMRuntimeKit
 import XCTest
+
+import GLMOCRAdapter
 
 enum GLMOCRTestEnv {
     static var modelFolderURL: URL? {
-        guard let value = ProcessInfo.processInfo.environment["GLMOCR_SNAPSHOT_PATH"], !value.isEmpty else {
-            return nil
+        if let value = ProcessInfo.processInfo.environment["GLMOCR_SNAPSHOT_PATH"], !value.isEmpty {
+            return URL(fileURLWithPath: (value as NSString).expandingTildeInPath).standardizedFileURL
         }
-        return URL(fileURLWithPath: (value as NSString).expandingTildeInPath).standardizedFileURL
+
+        return try? HuggingFaceHubModelStore.resolveCachedSnapshot(
+            modelID: GLMOCRDefaults.modelID,
+            revision: GLMOCRDefaults.revision,
+            downloadBase: nil
+        )
+    }
+
+    static func requireModelFolderURL(
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) throws -> URL {
+        guard let url = modelFolderURL else {
+            throw XCTSkip(
+                "No cached HF snapshot found for \(GLMOCRDefaults.modelID) (\(GLMOCRDefaults.revision)). "
+                    + "Either download it to your HF cache or set GLMOCR_SNAPSHOT_PATH to a local snapshot folder.",
+                file: file,
+                line: line
+            )
+        }
+        return url
     }
 
     static var runGolden: Bool {
