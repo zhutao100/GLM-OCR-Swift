@@ -141,19 +141,21 @@ Phase 01 is complete. The maintained Swift path now uses one page-image load per
 
 **Tasks**
 
-- [ ] expose final masks from the DocLayout path
-- [ ] preserve mask-to-region alignment through selection and export
-- [ ] implement contour extraction and simplification with explicit fallback rules
-- [ ] support polygon-aware cropping in `VisionIO`
-- [ ] preserve polygons through OCR result models and JSON export
-- [ ] add unit tests for contour/polygon normalization
-- [ ] add end-to-end checks on formula/table-heavy examples
+- [x] expose final masks from the DocLayout path
+- [x] preserve mask-to-region alignment through selection and export
+- [x] implement contour extraction and simplification with explicit fallback rules
+- [x] support polygon-aware cropping in `VisionIO`
+- [x] preserve polygons through OCR result models and JSON export
+- [x] add unit tests for contour/polygon normalization
+- [x] add end-to-end checks on formula/table-heavy examples
 
 **Exit criteria**
 
-- valid masks produce usable polygons by default
+- valid masks produce usable polygons by default, with OCR crop usage gated by parity-validated class policy
 - fallback behavior is documented and tested
 - target examples show reduced contamination-driven errors
+
+Phase 02 is complete. Mask-derived polygons now flow through layout postprocess with explicit bbox fallback when the mask geometry is missing or invalid. `OCRDocument` preserves the derived polygons, and the OCR path applies polygon crops for table regions while keeping formula OCR on bbox crops after broader polygon-crop trials regressed `page`, `paper`, and `GLM-4.5V_Pages_1_2_3`. The accepted Phase 02 run finishes with 0 regressions and improvements on `page`, `code`, and `GLM-4.5V_Pages_1_2_3`.
 
 ---
 

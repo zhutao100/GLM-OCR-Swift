@@ -192,7 +192,7 @@
     {
       "index" : 6,
       "label" : "text",
-      "content" : "- Dynamically selecting the most informative rollout problems is essential for both efficiency and performance. Therefore, we propose strategies including Reinforcement Learning with Curriculum",
+      "content" : "Dynamically selecting the most informative rollout problems is essential for both efficiency and performance. Therefore, we propose strategies including Reinforcement Learning with Curriculum",
       "bbox_2d" : [
         177,
         879,

@@ -135,7 +135,7 @@
     {
       "index" : 12,
       "label" : "text",
-      "content" : "Third solution: (by Richard Stanley) Write $ x=( x_{1}, \\dots, x_{n}) $ and $ \\nabla=(\\frac{\\partial}{\\partial x_{1}},\\dots,\\frac{\\partial}{\\partial x_{n}}). $ Suppose that $ P(x)=O(x)(x^{2}+\\dots+x^{2}) $ Then",
+      "content" : "Third solution: (by Richard Stanley) Write $ x= $ $ ( x_{1}, \\dots, x_{n} ) $ and $ \\nabla=(\\frac{\\partial}{\\partial x_{1}},\\dots,\\frac{\\partial}{\\partial x_{n}}). $ Suppose that $ P(x)=O(x)(x^{2}+\\dots+x^{2}) $ Then",
       "bbox_2d" : [
         129,
         737,

@@ -26,6 +26,7 @@ public struct PPDocLayoutV3Model: Sendable {
         var logits: MLXArray
         var predBoxes: MLXArray
         var orderLogits: MLXArray
+        var outMasks: MLXArray?
         var encoderTopKIndices: MLXArray
         var tinyBoxMaskHeight: Int
         var tinyBoxMaskWidth: Int
@@ -451,6 +452,7 @@ final class PPDocLayoutV3Core: Module {
             logits: maskedLogits,
             boxes: raw.predBoxes,
             orderLogits: raw.orderLogits,
+            outMasks: raw.outMasks,
             scoreThreshold: options.scoreThreshold
         )
 
@@ -459,6 +461,7 @@ final class PPDocLayoutV3Core: Module {
                 logits: maskedLogits,
                 boxes: raw.predBoxes,
                 orderLogits: raw.orderLogits,
+                outMasks: raw.outMasks,
                 scoreThreshold: -Float.infinity
             )
         }
@@ -601,6 +604,7 @@ final class PPDocLayoutV3Core: Module {
 
         var referencePointsUnact = takeAlong(encOutputsCoordLogits, idxBoxes, axis: 1)
 
+        var encOutMasks: MLXArray?
         if modelConfig.maskEnhanced {
             let outQuery = decoderNorm(target)
             let maskQueryEmbed = maskQueryHead(outQuery)
@@ -613,9 +617,10 @@ final class PPDocLayoutV3Core: Module {
                 .reshaped(batch, maskH * maskW, modelConfig.numPrototypes)
                 .transposed(0, 2, 1)
 
-            let encOutMasks = matmul(maskQueryEmbed, maskFlat).reshaped(batch, k, maskH, maskW)
-            let zero = 0.0.asMLXArray(dtype: encOutMasks.dtype)
-            let boxes = maskToBoxCoordinate(encOutMasks .> zero, dtype: referencePointsUnact.dtype)
+            let computedMasks = matmul(maskQueryEmbed, maskFlat).reshaped(batch, k, maskH, maskW)
+            encOutMasks = computedMasks
+            let zero = 0.0.asMLXArray(dtype: computedMasks.dtype)
+            let boxes = maskToBoxCoordinate(computedMasks .> zero, dtype: referencePointsUnact.dtype)
             referencePointsUnact = inverseSigmoid(boxes)
         }
         probe?.capture("reference_points_unact", tensor: referencePointsUnact)
@@ -649,6 +654,7 @@ final class PPDocLayoutV3Core: Module {
             logits: decoded.logits,
             predBoxes: decoded.boxes,
             orderLogits: decoded.orderLogits,
+            outMasks: encOutMasks,
             encoderTopKIndices: topkInd,
             tinyBoxMaskHeight: maskH,
             tinyBoxMaskWidth: maskW,
@@ -802,6 +808,7 @@ final class PPDocLayoutV3Core: Module {
         logits: MLXArray,
         boxes: MLXArray,
         orderLogits: MLXArray,
+        outMasks: MLXArray? = nil,
         scoreThreshold: Float
     ) -> PPDocLayoutV3Postprocess.RawDetections {
         let numQueries = boxes.dim(1)
@@ -810,6 +817,10 @@ final class PPDocLayoutV3Core: Module {
         let logitsArray = logits.asArray(Float.self)
         let boxesArray = boxes.asArray(Float.self)
         let orderLogitsArray = orderLogits.asArray(Float.self)
+        let masksArray = outMasks?.asArray(Float.self)
+        let maskHeight = outMasks?.dim(2) ?? 0
+        let maskWidth = outMasks?.dim(3) ?? 0
+        let maskPlaneSize = maskHeight * maskWidth
 
         let orderSeqFull = computeOrderSeq(orderLogitsArray, numQueries: numQueries)
 
@@ -845,7 +856,7 @@ final class PPDocLayoutV3Core: Module {
         let top = scored.prefix(numQueries)
 
         // swiftlint:disable:next large_tuple
-        var kept: [(score: Float, label: Int, bbox: OCRNormalizedBBox, order: Int)] = []
+        var kept: [(score: Float, label: Int, bbox: OCRNormalizedBBox, order: Int, mask: PPDocLayoutV3Mask?)] = []
         kept.reserveCapacity(numQueries)
 
         for item in top {
@@ -860,7 +871,17 @@ final class PPDocLayoutV3Core: Module {
             let bbox = PPDocLayoutV3BBoxConversion.toNormalizedBBox(x1: b.x1, y1: b.y1, x2: b.x2, y2: b.y2)
             guard bbox.x1 < bbox.x2, bbox.y1 < bbox.y2 else { continue }
 
-            kept.append((score: score, label: label, bbox: bbox, order: order))
+            let mask: PPDocLayoutV3Mask?
+            if let masksArray, maskPlaneSize > 0 {
+                let start = queryIndex * maskPlaneSize
+                let end = start + maskPlaneSize
+                let data = masksArray[start..<end].map { $0 > 0 ? UInt8(1) : UInt8(0) }
+                mask = PPDocLayoutV3Mask(width: maskWidth, height: maskHeight, data: Array(data))
+            } else {
+                mask = nil
+            }
+
+            kept.append((score: score, label: label, bbox: bbox, order: order, mask: mask))
         }
 
         kept.sort { a, b in
@@ -874,7 +895,8 @@ final class PPDocLayoutV3Core: Module {
             labels: kept.map(\.label),
             boxes: kept.map(\.bbox),
             orderSeq: kept.map(\.order),
-            polygons: nil
+            polygons: nil,
+            masks: kept.allSatisfy({ $0.mask != nil }) ? kept.compactMap(\.mask) : nil
         )
     }
 

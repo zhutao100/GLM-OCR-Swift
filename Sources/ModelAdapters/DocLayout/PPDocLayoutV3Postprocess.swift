@@ -32,19 +32,22 @@ public enum PPDocLayoutV3Postprocess {
         public var boxes: [OCRNormalizedBBox]
         public var orderSeq: [Int]?
         public var polygons: [[OCRNormalizedPoint]]?
+        public var masks: [PPDocLayoutV3Mask]?
 
         public init(
             scores: [Float],
             labels: [Int],
             boxes: [OCRNormalizedBBox],
             orderSeq: [Int]? = nil,
-            polygons: [[OCRNormalizedPoint]]? = nil
+            polygons: [[OCRNormalizedPoint]]? = nil,
+            masks: [PPDocLayoutV3Mask]? = nil
         ) {
             self.scores = scores
             self.labels = labels
             self.boxes = boxes
             self.orderSeq = orderSeq
             self.polygons = polygons
+            self.masks = masks
         }
     }
 
@@ -175,16 +178,39 @@ public enum PPDocLayoutV3Postprocess {
             }
         }
 
+        var masks: [PPDocLayoutV3Mask]?
+        if let rawMasks = raw.masks {
+            if rawMasks.count == count {
+                masks = rawMasks
+            } else {
+                diagnostics.append("mask count mismatch; falling back to bbox polygons")
+            }
+        }
+
         var detections: [Detection] = []
         detections.reserveCapacity(count)
         for i in 0..<count {
+            let label = config.id2label[raw.labels[i]] ?? "class_\(raw.labels[i])"
+            let polygon: [OCRNormalizedPoint]? =
+                if let polygons {
+                    polygons[i]
+                } else if let masks, let imageSize, shouldDeriveMaskPolygon(for: label) {
+                    PPDocLayoutV3MaskPolygonExtractor.extractPolygon(
+                        bbox: raw.boxes[i],
+                        mask: masks[i],
+                        imageSize: imageSize
+                    )
+                } else {
+                    nil
+                }
+
             detections.append(
                 Detection(
                     classID: raw.labels[i],
                     score: raw.scores[i],
                     bbox: raw.boxes[i],
                     order: orderSeq?[i],
-                    polygon: polygons?[i]
+                    polygon: polygon
                 )
             )
         }
@@ -554,4 +580,15 @@ private func bboxPolygon(_ bbox: OCRNormalizedBBox) -> [OCRNormalizedPoint] {
         OCRNormalizedPoint(x: bbox.x2, y: bbox.y2),
         OCRNormalizedPoint(x: bbox.x1, y: bbox.y2),
     ]
+}
+
+private func shouldDeriveMaskPolygon(for label: String) -> Bool {
+    switch PPDocLayoutV3Mappings.labelTaskMapping[label] {
+    case .table, .formula:
+        true
+    case .skip:
+        label == "image" || label == "chart"
+    default:
+        false
+    }
 }

@@ -30,7 +30,7 @@ $$
 
 In particular, the $ Q^{j} H^{d-2 j} $ lie in distinct eigenspaces, so are linearly independent within $ P_{d} $ . But by dimension counting, their total dimension is at least that of $ P_{d} $ . Hence they exhaust $ P_{d} $ , and the zero eigenspace cannot have dimension greater than $ \dim(P_{d})-\dim(P_{d-2}) $ , as desired
 
-Third solution: (by Richard Stanley) Write $ x=( x_{1}, \dots, x_{n}) $ and $ \nabla=(\frac{\partial}{\partial x_{1}},\dots,\frac{\partial}{\partial x_{n}}). $ Suppose that $ P(x)=O(x)(x^{2}+\dots+x^{2}) $ Then
+Third solution: (by Richard Stanley) Write $ x= $ $ ( x_{1}, \dots, x_{n} ) $ and $ \nabla=(\frac{\partial}{\partial x_{1}},\dots,\frac{\partial}{\partial x_{n}}). $ Suppose that $ P(x)=O(x)(x^{2}+\dots+x^{2}) $ Then
 
 $$
 P (\nabla) P (x) = O (\nabla) \left(\nabla^ {2}\right) P (x) = 0.

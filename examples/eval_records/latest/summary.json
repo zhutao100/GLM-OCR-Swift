@@ -217,10 +217,10 @@
       "name": "GLM-4.5V_Pages_1_2_3",
       "parity": {
         "available": true,
-        "overall": 0.8763,
+        "overall": 0.8789,
         "dimensions": {
-          "text_fidelity": 0.9434,
-          "critical_structure": 0.7793,
+          "text_fidelity": 0.9435,
+          "critical_structure": 0.7868,
           "decorative_style": 0.75
         },
         "details": {
@@ -348,9 +348,9 @@
               {
                 "index": 17,
                 "status": "paired",
-                "actual_kind": "list_item",
+                "actual_kind": "paragraph",
                 "expected_kind": "paragraph",
-                "score": 0.2197
+                "score": 0.2929
               },
               {
                 "index": 18,
@@ -499,7 +499,7 @@
                 "score": 0.0
               }
             ],
-            "aligned_score": 0.06115573585364397,
+            "aligned_score": 0.06295075765983481,
             "global_score": 0.9898134673898664
           },
           "tables": {
@@ -512,7 +512,7 @@
               "block_count": 1.0,
               "labels": 1.0,
               "bbox": 0.6660533910533911,
-              "content": 0.9896065998446262
+              "content": 0.9893559732782101
             },
             "pages": [
               {
@@ -527,7 +527,7 @@
                 "block_count": 1.0,
                 "labels": 1.0,
                 "bbox": 0.6643,
-                "content": 0.9965
+                "content": 0.9957
               },
               {
                 "page": 3,
@@ -562,15 +562,15 @@
               "code_languages": []
             }
           },
-          "block_shape": 0.425
+          "block_shape": 0.45
         },
         "missing_reason": null
       },
       "result_to_golden": {
         "available": true,
-        "overall": 0.8886,
+        "overall": 0.8887,
         "dimensions": {
-          "text_fidelity": 0.9227,
+          "text_fidelity": 0.9228,
           "critical_structure": null,
           "decorative_style": 0.4792
         },
@@ -699,9 +699,9 @@
               {
                 "index": 17,
                 "status": "paired",
-                "actual_kind": "list_item",
+                "actual_kind": "paragraph",
                 "expected_kind": "paragraph",
-                "score": 0.2197
+                "score": 0.2929
               },
               {
                 "index": 18,
@@ -862,7 +862,7 @@
                 "score": 0.0
               }
             ],
-            "aligned_score": 0.05091378340830419,
+            "aligned_score": 0.05262492569084125,
             "global_score": 0.9685995671951596
           },
           "tables": {
@@ -896,7 +896,7 @@
               "code_languages": []
             }
           },
-          "block_shape": 0.42857142857142855
+          "block_shape": 0.4523809523809524
         },
         "missing_reason": null
       },
@@ -1243,11 +1243,11 @@
         "missing_reason": null
       },
       "final_dimensions": {
-        "text_fidelity": 0.9434,
-        "critical_structure": 0.7793,
+        "text_fidelity": 0.9435,
+        "critical_structure": 0.7868,
         "decorative_style": 0.6875
       },
-      "final_overall": 0.8732,
+      "final_overall": 0.8758,
       "rules": [
         {
           "check_id": "page1_start",
@@ -1304,10 +1304,10 @@
       "name": "code",
       "parity": {
         "available": true,
-        "overall": 0.7675,
+        "overall": 0.7748,
         "dimensions": {
-          "text_fidelity": 0.7681,
-          "critical_structure": 0.7502,
+          "text_fidelity": 0.7734,
+          "critical_structure": 0.7621,
           "decorative_style": 0.8804
         },
         "details": {
@@ -1376,18 +1376,12 @@
               {
                 "index": 9,
                 "status": "missing",
-                "kind": "paragraph",
-                "score": 0.0
-              },
-              {
-                "index": 10,
-                "status": "missing",
                 "kind": "code",
                 "score": 0.0
               }
             ],
-            "aligned_score": 0.2546229655065367,
-            "global_score": 0.896485623003195
+            "aligned_score": 0.2783072378424085,
+            "global_score": 0.8972081218274112
           },
           "tables": {
             "tables": []
@@ -1399,7 +1393,7 @@
               "block_count": 1.0,
               "labels": 1.0,
               "bbox": 0.7527777777777778,
-              "content": 0.8267674283532003
+              "content": 0.8337319239705919
             },
             "pages": [
               {
@@ -1407,7 +1401,7 @@
                 "block_count": 1.0,
                 "labels": 1.0,
                 "bbox": 0.7528,
-                "content": 0.8268
+                "content": 0.8337
               }
             ]
           },
@@ -1430,15 +1424,15 @@
               ]
             }
           },
-          "block_shape": 0.36363636363636365
+          "block_shape": 0.4
         },
         "missing_reason": null
       },
       "result_to_golden": {
         "available": true,
-        "overall": 0.7185,
+        "overall": 0.7282,
         "dimensions": {
-          "text_fidelity": 0.7228,
+          "text_fidelity": 0.7333,
           "critical_structure": null,
           "decorative_style": 0.6667
         },
@@ -1485,44 +1479,38 @@
                 "status": "paired",
                 "actual_kind": "paragraph",
                 "expected_kind": "paragraph",
-                "score": 0.3758
+                "score": 0.4013
               },
               {
                 "index": 6,
                 "status": "paired",
                 "actual_kind": "paragraph",
                 "expected_kind": "paragraph",
-                "score": 0.2941
+                "score": 0.4366
               },
               {
                 "index": 7,
                 "status": "paired",
                 "actual_kind": "paragraph",
                 "expected_kind": "code",
-                "score": 0.0015
+                "score": 0.009
               },
               {
                 "index": 8,
                 "status": "paired",
                 "actual_kind": "paragraph",
                 "expected_kind": "paragraph",
-                "score": 0.0714
+                "score": 0.1353
               },
               {
                 "index": 9,
-                "status": "missing",
-                "kind": "paragraph",
-                "score": 0.0
-              },
-              {
-                "index": 10,
                 "status": "missing",
                 "kind": "code",
                 "score": 0.0
               }
             ],
-            "aligned_score": 0.11178917257510308,
-            "global_score": 0.8755924170616114
+            "aligned_score": 0.1446232095063996,
+            "global_score": 0.8805179517363154
           },
           "tables": {
             "tables": []
@@ -1550,7 +1538,7 @@
               ]
             }
           },
-          "block_shape": 0.6363636363636364
+          "block_shape": 0.7
         },
         "missing_reason": null
       },
@@ -1661,11 +1649,11 @@
         "missing_reason": null
       },
       "final_dimensions": {
-        "text_fidelity": 0.7681,
-        "critical_structure": 0.7502,
+        "text_fidelity": 0.7734,
+        "critical_structure": 0.7621,
         "decorative_style": 0.8721
       },
-      "final_overall": 0.7671,
+      "final_overall": 0.7744,
       "rules": []
     },
     {
@@ -1917,10 +1905,10 @@
       "name": "page",
       "parity": {
         "available": true,
-        "overall": 0.728,
+        "overall": 0.7567,
         "dimensions": {
-          "text_fidelity": 0.705,
-          "critical_structure": 0.7285,
+          "text_fidelity": 0.7207,
+          "critical_structure": 0.7837,
           "decorative_style": 1.0
         },
         "details": {
@@ -1959,7 +1947,7 @@
                 "status": "paired",
                 "actual_kind": "formula",
                 "expected_kind": "formula",
-                "score": 0.8261
+                "score": 0.8444
               },
               {
                 "index": 5,
@@ -2001,7 +1989,7 @@
                 "status": "paired",
                 "actual_kind": "paragraph",
                 "expected_kind": "paragraph",
-                "score": 0.383
+                "score": 0.3478
               },
               {
                 "index": 11,
@@ -2020,9 +2008,9 @@
               {
                 "index": 13,
                 "status": "paired",
-                "actual_kind": "paragraph",
+                "actual_kind": "list_item",
                 "expected_kind": "list_item",
-                "score": 0.0
+                "score": 0.0741
               },
               {
                 "index": 14,
@@ -2034,7 +2022,7 @@
               {
                 "index": 15,
                 "status": "paired",
-                "actual_kind": "list_item",
+                "actual_kind": "heading",
                 "expected_kind": "heading",
                 "score": 0.0
               },
@@ -2043,54 +2031,54 @@
                 "status": "paired",
                 "actual_kind": "heading",
                 "expected_kind": "list_item",
-                "score": 0.0165
+                "score": 0.0523
               },
               {
                 "index": 17,
                 "status": "paired",
-                "actual_kind": "heading",
+                "actual_kind": "list_item",
                 "expected_kind": "list_item",
-                "score": 0.0
+                "score": 0.1579
               },
               {
                 "index": 18,
                 "status": "paired",
                 "actual_kind": "list_item",
                 "expected_kind": "paragraph",
-                "score": 0.0
+                "score": 0.0588
               },
               {
                 "index": 19,
                 "status": "paired",
-                "actual_kind": "list_item",
+                "actual_kind": "paragraph",
                 "expected_kind": "list_item",
-                "score": 0.1143
+                "score": 0.0968
               },
               {
                 "index": 20,
                 "status": "paired",
                 "actual_kind": "paragraph",
                 "expected_kind": "list_item",
-                "score": 0.0
+                "score": 0.0385
               },
               {
                 "index": 21,
                 "status": "paired",
-                "actual_kind": "paragraph",
+                "actual_kind": "list_item",
                 "expected_kind": "list_item",
-                "score": 0.0211
+                "score": 0.0
               },
               {
                 "index": 22,
                 "status": "paired",
-                "actual_kind": "list_item",
+                "actual_kind": "paragraph",
                 "expected_kind": "paragraph",
-                "score": 0.0
+                "score": 0.6842
               },
               {
                 "index": 23,
                 "status": "paired",
-                "actual_kind": "paragraph",
+                "actual_kind": "list_item",
                 "expected_kind": "formula",
                 "score": 0.0
               },
@@ -2104,23 +2092,23 @@
               {
                 "index": 25,
                 "status": "paired",
-                "actual_kind": "list_item",
+                "actual_kind": "formula",
                 "expected_kind": "formula",
-                "score": 0.0
+                "score": 0.6143
               },
               {
                 "index": 26,
                 "status": "paired",
                 "actual_kind": "formula",
                 "expected_kind": "formula",
-                "score": 0.3054
+                "score": 0.3385
               },
               {
                 "index": 27,
                 "status": "paired",
                 "actual_kind": "formula",
                 "expected_kind": "paragraph",
-                "score": 0.0517
+                "score": 0.0616
               },
               {
                 "index": 28,
@@ -2131,18 +2119,12 @@
               {
                 "index": 29,
                 "status": "missing",
-                "kind": "formula",
-                "score": 0.0
-              },
-              {
-                "index": 30,
-                "status": "missing",
                 "kind": "paragraph",
                 "score": 0.0
               }
             ],
-            "aligned_score": 0.2345926348118991,
-            "global_score": 0.7297520661157025
+            "aligned_score": 0.29801933695800203,
+            "global_score": 0.7429533024821203
           },
           "tables": {
             "tables": []
@@ -2154,7 +2136,7 @@
               "block_count": 1.0,
               "labels": 1.0,
               "bbox": 0.6488095238095238,
-              "content": 0.6563478011775548
+              "content": 0.6636757005319198
             },
             "pages": [
               {
@@ -2162,7 +2144,7 @@
                 "block_count": 1.0,
                 "labels": 1.0,
                 "bbox": 0.6488,
-                "content": 0.6563
+                "content": 0.6637
               }
             ]
           },
@@ -2188,15 +2170,15 @@
               "code_languages": []
             }
           },
-          "block_shape": 0.41935483870967744
+          "block_shape": 0.6
         },
         "missing_reason": null
       },
       "result_to_golden": {
         "available": true,
-        "overall": 0.5223,
+        "overall": 0.5281,
         "dimensions": {
-          "text_fidelity": 0.5166,
+          "text_fidelity": 0.5229,
           "critical_structure": null,
           "decorative_style": 0.5909
         },
@@ -2236,7 +2218,7 @@
                 "status": "paired",
                 "actual_kind": "formula",
                 "expected_kind": "paragraph",
-                "score": 0.3861
+                "score": 0.3636
               },
               {
                 "index": 5,
@@ -2278,7 +2260,7 @@
                 "status": "paired",
                 "actual_kind": "paragraph",
                 "expected_kind": "paragraph",
-                "score": 0.1429
+                "score": 0.1455
               },
               {
                 "index": 11,
@@ -2297,21 +2279,21 @@
               {
                 "index": 13,
                 "status": "paired",
-                "actual_kind": "paragraph",
+                "actual_kind": "list_item",
                 "expected_kind": "paragraph",
-                "score": 0.0
+                "score": 0.069
               },
               {
                 "index": 14,
                 "status": "paired",
                 "actual_kind": "list_item",
                 "expected_kind": "paragraph",
-                "score": 0.0
+                "score": 0.0536
               },
               {
                 "index": 15,
                 "status": "paired",
-                "actual_kind": "list_item",
+                "actual_kind": "heading",
                 "expected_kind": "paragraph",
                 "score": 0.0
               },
@@ -2320,108 +2302,102 @@
                 "status": "paired",
                 "actual_kind": "heading",
                 "expected_kind": "paragraph",
-                "score": 0.75
+                "score": 0.0
               },
               {
                 "index": 17,
                 "status": "paired",
-                "actual_kind": "heading",
+                "actual_kind": "list_item",
                 "expected_kind": "paragraph",
-                "score": 0.75
+                "score": 0.0536
               },
               {
                 "index": 18,
                 "status": "paired",
                 "actual_kind": "list_item",
                 "expected_kind": "paragraph",
-                "score": 0.5839
+                "score": 0.016
               },
               {
                 "index": 19,
                 "status": "paired",
-                "actual_kind": "list_item",
+                "actual_kind": "paragraph",
                 "expected_kind": "paragraph",
-                "score": 0.2714
+                "score": 0.268
               },
               {
                 "index": 20,
                 "status": "paired",
                 "actual_kind": "paragraph",
                 "expected_kind": "paragraph",
-                "score": 0.1538
+                "score": 0.0
               },
               {
                 "index": 21,
                 "status": "paired",
-                "actual_kind": "paragraph",
+                "actual_kind": "list_item",
                 "expected_kind": "paragraph",
-                "score": 0.05
+                "score": 0.0
               },
               {
                 "index": 22,
                 "status": "paired",
-                "actual_kind": "list_item",
+                "actual_kind": "paragraph",
                 "expected_kind": "paragraph",
                 "score": 0.0
               },
               {
                 "index": 23,
                 "status": "paired",
-                "actual_kind": "paragraph",
+                "actual_kind": "list_item",
                 "expected_kind": "paragraph",
-                "score": 0.6842
+                "score": 0.0
               },
               {
                 "index": 24,
                 "status": "paired",
                 "actual_kind": "list_item",
                 "expected_kind": "paragraph",
-                "score": 0.0
+                "score": 0.0156
               },
               {
                 "index": 25,
                 "status": "paired",
-                "actual_kind": "list_item",
+                "actual_kind": "formula",
                 "expected_kind": "paragraph",
-                "score": 0.0152
+                "score": 0.1752
               },
               {
                 "index": 26,
                 "status": "paired",
                 "actual_kind": "formula",
                 "expected_kind": "paragraph",
-                "score": 0.1071
+                "score": 0.1907
               },
               {
                 "index": 27,
                 "status": "paired",
                 "actual_kind": "formula",
                 "expected_kind": "paragraph",
-                "score": 0.1483
+                "score": 0.1329
               },
               {
                 "index": 28,
                 "status": "paired",
                 "actual_kind": "formula",
                 "expected_kind": "paragraph",
-                "score": 0.0197
+                "score": 0.039
               },
               {
                 "index": 29,
                 "status": "paired",
-                "actual_kind": "formula",
+                "actual_kind": "paragraph",
                 "expected_kind": "paragraph",
-                "score": 0.0104
-              },
-              {
-                "index": 30,
-                "status": "missing",
-                "kind": "paragraph",
                 "score": 0.0
               }
             ],
-            "aligned_score": 0.26058000011882115,
-            "global_score": 0.5300799326882625
+            "aligned_score": 0.18424861765072126,
+            "global_score": 0.5407026563838903
           },
           "tables": {
             "tables": []
@@ -2448,7 +2424,7 @@
               "code_languages": []
             }
           },
-          "block_shape": 0.3225806451612903
+          "block_shape": 0.3333333333333333
         },
         "missing_reason": null
       },
@@ -2705,20 +2681,20 @@
         "missing_reason": null
       },
       "final_dimensions": {
-        "text_fidelity": 0.6818,
-        "critical_structure": 0.7285,
+        "text_fidelity": 0.6991,
+        "critical_structure": 0.7837,
         "decorative_style": 1.0
       },
-      "final_overall": 0.7141,
+      "final_overall": 0.7438,
       "rules": []
     },
     {
       "name": "paper",
       "parity": {
         "available": true,
-        "overall": 0.965,
+        "overall": 0.9651,
         "dimensions": {
-          "text_fidelity": 0.9733,
+          "text_fidelity": 0.9735,
           "critical_structure": 0.9457,
           "decorative_style": 1.0
         },
@@ -2814,7 +2790,7 @@
                 "status": "paired",
                 "actual_kind": "paragraph",
                 "expected_kind": "paragraph",
-                "score": 0.8852
+                "score": 0.8961
               },
               {
                 "index": 13,
@@ -2936,8 +2912,8 @@
                 "score": 1.0
               }
             ],
-            "aligned_score": 0.9566135821658106,
-            "global_score": 0.9741682974559688
+            "aligned_score": 0.9569617494122082,
+            "global_score": 0.9743790338353218
           },
           "tables": {
             "tables": []
@@ -2949,7 +2925,7 @@
               "block_count": 1.0,
               "labels": 1.0,
               "bbox": 0.6561111111111111,
-              "content": 0.9557838846640612
+              "content": 0.9561448180428266
             },
             "pages": [
               {
@@ -2957,7 +2933,7 @@
                 "block_count": 1.0,
                 "labels": 1.0,
                 "bbox": 0.6561,
-                "content": 0.9558
+                "content": 0.9561
               }
             ]
           },
@@ -2981,9 +2957,9 @@
       },
       "result_to_golden": {
         "available": true,
-        "overall": 0.706,
+        "overall": 0.7058,
         "dimensions": {
-          "text_fidelity": 0.7024,
+          "text_fidelity": 0.7021,
           "critical_structure": null,
           "decorative_style": 0.75
         },
@@ -3079,7 +3055,7 @@
                 "status": "paired",
                 "actual_kind": "paragraph",
                 "expected_kind": "paragraph",
-                "score": 0.0781
+                "score": 0.0772
               },
               {
                 "index": 13,
@@ -3201,8 +3177,8 @@
                 "score": 0.384
               }
             ],
-            "aligned_score": 0.34706158510898083,
-            "global_score": 0.721074590414165
+            "aligned_score": 0.3470317196706995,
+            "global_score": 0.7208379945082884
           },
           "tables": {
             "tables": []
@@ -3480,11 +3456,11 @@
         "missing_reason": null
       },
       "final_dimensions": {
-        "text_fidelity": 0.9733,
+        "text_fidelity": 0.9735,
         "critical_structure": 0.9457,
         "decorative_style": 1.0
       },
-      "final_overall": 0.965,
+      "final_overall": 0.9651,
       "rules": []
     },
     {

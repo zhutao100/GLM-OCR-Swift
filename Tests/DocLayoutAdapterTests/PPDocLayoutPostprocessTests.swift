@@ -273,6 +273,88 @@ final class PPDocLayoutPostprocessTests: XCTestCase {
         XCTAssertEqual(regions.map(\.classID), [14, 21, 22])
     }
 
+    func testMasksProducePolygonWhenPolygonIsNotProvided() throws {
+        let config = makeConfig()
+        let raw = PPDocLayoutV3Postprocess.RawDetections(
+            scores: [0.9],
+            labels: [21],
+            boxes: [OCRNormalizedBBox(x1: 0, y1: 0, x2: 1000, y2: 1000)],
+            orderSeq: [1],
+            polygons: nil,
+            masks: [makeLShapedMask()]
+        )
+
+        let (regions, diagnostics) = try PPDocLayoutV3Postprocess.apply(
+            raw,
+            config: config,
+            imageSize: CGSize(width: 80, height: 80),
+            options: .init(applyNMS: false, mergeMode: nil, mergeModeByClassID: nil)
+        )
+
+        XCTAssertTrue(diagnostics.isEmpty)
+        XCTAssertEqual(regions.count, 1)
+        XCTAssertGreaterThan(regions[0].polygon.count, 4)
+        XCTAssertNotEqual(
+            regions[0].polygon,
+            [
+                OCRNormalizedPoint(x: 0, y: 0),
+                OCRNormalizedPoint(x: 1000, y: 0),
+                OCRNormalizedPoint(x: 1000, y: 1000),
+                OCRNormalizedPoint(x: 0, y: 1000),
+            ]
+        )
+    }
+
+    func testMaskCountMismatchFallsBackToBBoxPolygon() throws {
+        let config = makeConfig()
+        let raw = PPDocLayoutV3Postprocess.RawDetections(
+            scores: [0.9, 0.8],
+            labels: [22, 21],
+            boxes: [
+                OCRNormalizedBBox(x1: 0, y1: 0, x2: 500, y2: 500),
+                OCRNormalizedBBox(x1: 500, y1: 500, x2: 1000, y2: 1000),
+            ],
+            orderSeq: [1, 2],
+            polygons: nil,
+            masks: [makeLShapedMask()]
+        )
+
+        let (regions, diagnostics) = try PPDocLayoutV3Postprocess.apply(
+            raw,
+            config: config,
+            imageSize: CGSize(width: 80, height: 80),
+            options: .init(applyNMS: false, mergeMode: nil, mergeModeByClassID: nil)
+        )
+
+        XCTAssertTrue(diagnostics.contains(where: { $0.contains("mask count mismatch") }))
+        XCTAssertEqual(
+            regions[0].polygon,
+            [
+                OCRNormalizedPoint(x: 0, y: 0),
+                OCRNormalizedPoint(x: 500, y: 0),
+                OCRNormalizedPoint(x: 500, y: 500),
+                OCRNormalizedPoint(x: 0, y: 500),
+            ]
+        )
+    }
+
+    private func makeLShapedMask() -> PPDocLayoutV3Mask {
+        PPDocLayoutV3Mask(
+            width: 8,
+            height: 8,
+            data: [
+                1, 1, 1, 1, 0, 0, 0, 0,
+                1, 1, 1, 1, 0, 0, 0, 0,
+                1, 1, 1, 1, 0, 0, 0, 0,
+                1, 1, 1, 1, 0, 0, 0, 0,
+                1, 1, 0, 0, 0, 0, 0, 0,
+                1, 1, 0, 0, 0, 0, 0, 0,
+                1, 1, 0, 0, 0, 0, 0, 0,
+                1, 1, 0, 0, 0, 0, 0, 0,
+            ]
+        )
+    }
+
     private func makeConfig() -> PPDocLayoutV3Config {
         PPDocLayoutV3Config(
             modelType: "ppdoclayoutv3",

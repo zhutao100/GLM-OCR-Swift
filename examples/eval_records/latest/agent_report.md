@@ -1,24 +1,24 @@
 # Example evaluation (agent report)
 
-- generated_at: `2026-03-06T18:32:38+00:00`
-- git: `d00861e-dirty`
-- git_head_sha: `d00861ecb2ec07cdbc6067d93dcea278113d4479`
+- generated_at: `2026-03-06T18:54:23+00:00`
+- git: `3fb4760-dirty`
+- git_head_sha: `3fb4760bac5fa578f82a02d961a2463279557d16`
 - git_dirty: `True`
 - glm_snapshot: `zai-org/GLM-OCR@677c6baa60442a451f8a8c7eabdfab32d9801a0b`
 - layout_snapshot: `PaddlePaddle/PP-DocLayoutV3_safetensors@a0abee1e2bb505e5662993235af873a5d89851e3`
 - generation_preset: `parity-greedy-v1`
-- mean_final_overall: `0.8931`
+- mean_final_overall: `0.8981`
 
 ## Scores
 
 | Example | Final | Δ vs baseline | Parity | Result→Golden | Ref→Golden | Rules |
 |---|---:|---:|---:|---:|---:|---:|
 | `GLM-4.5V_Page_1` | 0.8730 | +0.0000 | 0.8730 | None | None | 0/0 |
-| `GLM-4.5V_Pages_1_2_3` | 0.8732 | +0.0000 | 0.8763 | 0.8886 | 0.9230 | 0/7 |
-| `code` | 0.7671 | +0.0000 | 0.7675 | 0.7185 | 0.7270 | 0/0 |
+| `GLM-4.5V_Pages_1_2_3` | 0.8758 | +0.0026 | 0.8789 | 0.8887 | 0.9230 | 0/7 |
+| `code` | 0.7744 | +0.0073 | 0.7748 | 0.7282 | 0.7270 | 0/0 |
 | `handwritten` | 0.9777 | +0.0000 | 0.9277 | 0.9600 | 0.9550 | 0/1 |
-| `page` | 0.7141 | +0.0000 | 0.7280 | 0.5223 | 0.6078 | 0/0 |
-| `paper` | 0.9650 | +0.0000 | 0.9650 | 0.7060 | 0.7090 | 0/0 |
+| `page` | 0.7438 | +0.0297 | 0.7567 | 0.5281 | 0.6078 | 0/0 |
+| `paper` | 0.9651 | +0.0001 | 0.9651 | 0.7058 | 0.7090 | 0/0 |
 | `seal` | 0.9804 | +0.0000 | 0.9804 | 0.9808 | 0.9808 | 0/0 |
 | `table` | 0.9944 | +0.0000 | 0.9944 | 1.0000 | 1.0000 | 0/0 |
 
@@ -26,8 +26,8 @@
 
 ### `page`
 
-- final_overall: `0.7141`
-- delta_vs_baseline: `+0.0000`
+- final_overall: `0.7438`
+- delta_vs_baseline: `+0.0297`
 - result_md: `examples/result/page/page.md`
 - result_json: `examples/result/page/page.json`
 - reference_md: `examples/reference_result/page/page.md`
@@ -38,17 +38,17 @@
 - golden_json: `examples/golden_result/page/page.json`
 
 **Signals**
-- lowest dimension: `text_fidelity` = 0.6818
-- json components < 0.98: bbox=0.6488, content=0.6563
-- block_shape: 0.4194
-- text blocks: missing=3, paired=28
-- lowest text pairs: (idx=8, status=paired, actual=paragraph, expected=paragraph, score=0.0000), (idx=11, status=paired, actual=paragraph, expected=paragraph, score=0.0000), (idx=12, status=paired, actual=paragraph, expected=paragraph, score=0.0000), (idx=13, status=paired, actual=paragraph, expected=list_item, score=0.0000), (idx=14, status=paired, actual=list_item, expected=heading, score=0.0000)
+- lowest dimension: `text_fidelity` = 0.6991
+- json components < 0.98: bbox=0.6488, content=0.6637
+- block_shape: 0.6000
+- text blocks: missing=2, paired=28
+- lowest text pairs: (idx=8, status=paired, actual=paragraph, expected=paragraph, score=0.0000), (idx=11, status=paired, actual=paragraph, expected=paragraph, score=0.0000), (idx=12, status=paired, actual=paragraph, expected=paragraph, score=0.0000), (idx=14, status=paired, actual=list_item, expected=heading, score=0.0000), (idx=15, status=paired, actual=heading, expected=heading, score=0.0000)
 - fix_hints: OCR JSON (block ordering, bbox rounding, content normalization), Markdown block segmentation (heading/list/paragraph splits)
 
 ### `code`
 
-- final_overall: `0.7671`
-- delta_vs_baseline: `+0.0000`
+- final_overall: `0.7744`
+- delta_vs_baseline: `+0.0073`
 - result_md: `examples/result/code/code.md`
 - result_json: `examples/result/code/code.json`
 - reference_md: `examples/reference_result/code/code.md`
@@ -59,12 +59,12 @@
 - golden_json: `examples/golden_result/code/code.json`
 
 **Signals**
-- lowest dimension: `critical_structure` = 0.7502
+- lowest dimension: `critical_structure` = 0.7621
 - style.code_languages: actual=['xml'], expected=['html', 'html']
-- json components < 0.98: bbox=0.7528, content=0.8268
-- block_shape: 0.3636
-- text blocks: missing=5, paired=6
-- lowest text pairs: (idx=6, status=missing, actual=None, expected=None, score=0.0000), (idx=7, status=missing, actual=None, expected=None, score=0.0000), (idx=8, status=missing, actual=None, expected=None, score=0.0000), (idx=9, status=missing, actual=None, expected=None, score=0.0000), (idx=10, status=missing, actual=None, expected=None, score=0.0000)
+- json components < 0.98: bbox=0.7528, content=0.8337
+- block_shape: 0.4000
+- text blocks: missing=4, paired=6
+- lowest text pairs: (idx=6, status=missing, actual=None, expected=None, score=0.0000), (idx=7, status=missing, actual=None, expected=None, score=0.0000), (idx=8, status=missing, actual=None, expected=None, score=0.0000), (idx=9, status=missing, actual=None, expected=None, score=0.0000), (idx=5, status=paired, actual=paragraph, expected=code, score=0.0025)
 - fix_hints: Markdown style wrappers (centering/bold/fences), OCR JSON (block ordering, bbox rounding, content normalization), Markdown block segmentation (heading/list/paragraph splits)
 
 ### `GLM-4.5V_Page_1`
@@ -90,8 +90,8 @@
 
 ### `GLM-4.5V_Pages_1_2_3`
 
-- final_overall: `0.8732`
-- delta_vs_baseline: `+0.0000`
+- final_overall: `0.8758`
+- delta_vs_baseline: `+0.0026`
 - result_md: `examples/result/GLM-4.5V_Pages_1_2_3/GLM-4.5V_Pages_1_2_3.md`
 - result_json: `examples/result/GLM-4.5V_Pages_1_2_3/GLM-4.5V_Pages_1_2_3.json`
 - reference_md: `examples/reference_result/GLM-4.5V_Pages_1_2_3/GLM-4.5V_Pages_1_2_3.md`
@@ -105,7 +105,7 @@
 - lowest dimension: `decorative_style` = 0.6875
 - style.center_wrappers: actual=0, expected=4
 - json components < 0.98: bbox=0.6661
-- block_shape: 0.4250
+- block_shape: 0.4500
 - text blocks: missing=8, paired=32
 - lowest text pairs: (idx=0, status=paired, actual=heading, expected=paragraph, score=0.0000), (idx=2, status=paired, actual=paragraph, expected=paragraph, score=0.0000), (idx=3, status=paired, actual=paragraph, expected=paragraph, score=0.0000), (idx=4, status=paired, actual=heading, expected=paragraph, score=0.0000), (idx=6, status=paired, actual=paragraph, expected=heading, score=0.0000)
 - fix_hints: Markdown style wrappers (centering/bold/fences), OCR JSON (block ordering, bbox rounding, content normalization), Markdown block segmentation (heading/list/paragraph splits)

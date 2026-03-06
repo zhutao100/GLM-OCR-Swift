@@ -2,9 +2,9 @@
   "name": "paper",
   "parity": {
     "available": true,
-    "overall": 0.965,
+    "overall": 0.9651,
     "dimensions": {
-      "text_fidelity": 0.9733,
+      "text_fidelity": 0.9735,
       "critical_structure": 0.9457,
       "decorative_style": 1.0
     },
@@ -100,7 +100,7 @@
             "status": "paired",
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
-            "score": 0.8852
+            "score": 0.8961
           },
           {
             "index": 13,
@@ -222,8 +222,8 @@
             "score": 1.0
           }
         ],
-        "aligned_score": 0.9566135821658106,
-        "global_score": 0.9741682974559688
+        "aligned_score": 0.9569617494122082,
+        "global_score": 0.9743790338353218
       },
       "tables": {
         "tables": []
@@ -235,7 +235,7 @@
           "block_count": 1.0,
           "labels": 1.0,
           "bbox": 0.6561111111111111,
-          "content": 0.9557838846640612
+          "content": 0.9561448180428266
         },
         "pages": [
           {
@@ -243,7 +243,7 @@
             "block_count": 1.0,
             "labels": 1.0,
             "bbox": 0.6561,
-            "content": 0.9558
+            "content": 0.9561
           }
         ]
       },
@@ -267,9 +267,9 @@
   },
   "result_to_golden": {
     "available": true,
-    "overall": 0.706,
+    "overall": 0.7058,
     "dimensions": {
-      "text_fidelity": 0.7024,
+      "text_fidelity": 0.7021,
       "critical_structure": null,
       "decorative_style": 0.75
     },
@@ -365,7 +365,7 @@
             "status": "paired",
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
-            "score": 0.0781
+            "score": 0.0772
           },
           {
             "index": 13,
@@ -487,8 +487,8 @@
             "score": 0.384
           }
         ],
-        "aligned_score": 0.34706158510898083,
-        "global_score": 0.721074590414165
+        "aligned_score": 0.3470317196706995,
+        "global_score": 0.7208379945082884
       },
       "tables": {
         "tables": []
@@ -766,10 +766,10 @@
     "missing_reason": null
   },
   "final_dimensions": {
-    "text_fidelity": 0.9733,
+    "text_fidelity": 0.9735,
     "critical_structure": 0.9457,
     "decorative_style": 1.0
   },
-  "final_overall": 0.965,
+  "final_overall": 0.9651,
   "rules": []
 }

@@ -193,7 +193,7 @@ public actor GLMOCRLayoutPipeline: OCRPipeline {
                     let cropped = try VisionIO.cropRegion(
                         image: sendablePageImage.value,
                         bbox: item.region.bbox,
-                        polygon: item.region.polygon,
+                        polygon: shouldUsePolygonCropForOCR(taskType: item.taskType) ? item.region.polygon : nil,
                         fillColor: .white
                     )
 
@@ -268,6 +268,15 @@ public actor GLMOCRLayoutPipeline: OCRPipeline {
             return try VisionIO.loadCIImage(fromPDF: url, page: page, dpi: CGFloat(pdfDPI))
         }
         return try VisionIO.loadCIImage(from: url)
+    }
+}
+
+func shouldUsePolygonCropForOCR(taskType: LayoutTaskType) -> Bool {
+    switch taskType {
+    case .table:
+        true
+    default:
+        false
     }
 }
 

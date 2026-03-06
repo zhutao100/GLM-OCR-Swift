@@ -36,7 +36,7 @@
     {
       "index" : 3,
       "label" : "text",
-      "content" : "the weblogic cmp-rdbms-jar.xml descriptor contains a number of new sections and elements\n\nthat will be added to the database, and the sections will wait until the next\n\nexercise, but there are other changes to observe and examine.",
+      "content" : "the weblogic cmp-rdbms-jar.xml descriptor contains a number of new sections and elements\n\nthat will be added to the database, and the sections will wait until the next\n\nexercise, but there are some other changes to observe and examine.",
       "bbox_2d" : [
         97,
         218,
@@ -47,7 +47,7 @@
     {
       "index" : 4,
       "label" : "text",
-      "content" : "the file contains a section mapping the the job for run\n\nattributes from the job for run\n\ntable in addition to a new section related to\n\nthe automatic key generation for primary keys in this box",
+      "content" : "The file contains a section mapping the key table attributes from the job pjr.xml to the\n\nkey table in addition to a new section related to the\n\nautomatic key generation used for primary key values in this file.",
       "bbox_2d" : [
         98,
         281,
@@ -58,7 +58,7 @@
     {
       "index" : 5,
       "label" : "text",
-      "content" : "```xml\n\n<weblogic-rdbms-bean>\n\n  <ejb-name>AddressJDBC</ejb-name>\n\n  <data-source-name>Titan-dataSource</data-source-name>\n\n  <table-name>ADDRESS</table-name>\n\n  <field-map>\n\n    <cmp-field>id</cmp-field>\n\n    <dbms-column>ID</dbms-column>\n\n  </field-map>\n\n  <field-map>\n\n    <cmp-field>street</cmp-field>\n\n    <dbms-column>STREET</dbms-column>\n\n  </field-map>\n\n  <field-map>\n\n    <cmp-field>city</cmp-field>\n\n    <dbms-column>CITY</dbms-column>\n\n  </field-map>\n\n  <field-map>\n\n    <cmp-field>state</cmp-field>\n\n    <dbms-column>STATE</dbms-column>\n\n  </field-map>\n\n  <field-map>\n\n    <cmp-field>zip</cmp-field>\n\n    <dbms-column>ZIP</dbms-column>\n\n  </field-map>\n\n  <!-- Automatically generate the value of ID in the database on\n\ninserts using sequence table -->\n\n  <automatic-key-generation>\n\n    <generator-type>NAMED SEQUENCE TABLE</generator-type>\n\n    <generator-name>ADDRESS SEQUENCE</generator-name>\n\n    <key-cache-size>10</key-cache-size>\n\n  </automatic-key-generation>\n\n</weblogic-rdbms-bean>\n\n```",
+      "content" : "```xml\n\n<weblogic-rdbms-bean>\n\n  <ejb-name>AddressJDBC</ejb-name>\n\n  <data-source>name>Titan-dataSource</data-source-name>\n\n  <table-name>ADDRESS</table-name>\n\n  <field-map>\n\n    <cmp-field>id</cmp-field>\n\n    <dbms-column>ID</dbms-column>\n\n  </field-map>\n\n  <field-map>\n\n    <cmp-field>street</cmp-field>\n\n    <dbms-column>STREET</dbms-column>\n\n  </field-map>\n\n  <field-map>\n\n    <cmp-field>city</cmp-field>\n\n    <dbms-column>CITY</dbms-column>\n\n  </field-map>\n\n  <field-map>\n\n    <cmp-field>state</cmp-field>\n\n    <dbms-column>STATE</dbms-column>\n\n  </field-map>\n\n  <field-map>\n\n    <cmp-field>zip</cmp-field>\n\n    <dbms-column>ZIP</dbms-column>\n\n  </field-map>\n\n  <!-- Automatically generate the value of ID in the database on\n\ninserts using sequence table -->\n\n  <automatic-key-generation>\n\n    <generator-type>NAMED SEQUENCE TABLE</generator-type>\n\n    <generator-name>ADDRESS SEQUENCE</generator-name>\n\n    <key-cache-size>10</key-cache-size>\n\n  </automatic-key-generation>\n\n</weblogic-rdbms-bean>\n\n```",
       "bbox_2d" : [
         109,
         341,

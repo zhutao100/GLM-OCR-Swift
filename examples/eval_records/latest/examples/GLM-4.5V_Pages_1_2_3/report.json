@@ -2,10 +2,10 @@
   "name": "GLM-4.5V_Pages_1_2_3",
   "parity": {
     "available": true,
-    "overall": 0.8763,
+    "overall": 0.8789,
     "dimensions": {
-      "text_fidelity": 0.9434,
-      "critical_structure": 0.7793,
+      "text_fidelity": 0.9435,
+      "critical_structure": 0.7868,
       "decorative_style": 0.75
     },
     "details": {
@@ -133,9 +133,9 @@
           {
             "index": 17,
             "status": "paired",
-            "actual_kind": "list_item",
+            "actual_kind": "paragraph",
             "expected_kind": "paragraph",
-            "score": 0.2197
+            "score": 0.2929
           },
           {
             "index": 18,
@@ -284,7 +284,7 @@
             "score": 0.0
           }
         ],
-        "aligned_score": 0.06115573585364397,
+        "aligned_score": 0.06295075765983481,
         "global_score": 0.9898134673898664
       },
       "tables": {
@@ -297,7 +297,7 @@
           "block_count": 1.0,
           "labels": 1.0,
           "bbox": 0.6660533910533911,
-          "content": 0.9896065998446262
+          "content": 0.9893559732782101
         },
         "pages": [
           {
@@ -312,7 +312,7 @@
             "block_count": 1.0,
             "labels": 1.0,
             "bbox": 0.6643,
-            "content": 0.9965
+            "content": 0.9957
           },
           {
             "page": 3,
@@ -347,15 +347,15 @@
           "code_languages": []
         }
       },
-      "block_shape": 0.425
+      "block_shape": 0.45
     },
     "missing_reason": null
   },
   "result_to_golden": {
     "available": true,
-    "overall": 0.8886,
+    "overall": 0.8887,
     "dimensions": {
-      "text_fidelity": 0.9227,
+      "text_fidelity": 0.9228,
       "critical_structure": null,
       "decorative_style": 0.4792
     },
@@ -484,9 +484,9 @@
           {
             "index": 17,
             "status": "paired",
-            "actual_kind": "list_item",
+            "actual_kind": "paragraph",
             "expected_kind": "paragraph",
-            "score": 0.2197
+            "score": 0.2929
           },
           {
             "index": 18,
@@ -647,7 +647,7 @@
             "score": 0.0
           }
         ],
-        "aligned_score": 0.05091378340830419,
+        "aligned_score": 0.05262492569084125,
         "global_score": 0.9685995671951596
       },
       "tables": {
@@ -681,7 +681,7 @@
           "code_languages": []
         }
       },
-      "block_shape": 0.42857142857142855
+      "block_shape": 0.4523809523809524
     },
     "missing_reason": null
   },
@@ -1028,11 +1028,11 @@
     "missing_reason": null
   },
   "final_dimensions": {
-    "text_fidelity": 0.9434,
-    "critical_structure": 0.7793,
+    "text_fidelity": 0.9435,
+    "critical_structure": 0.7868,
     "decorative_style": 0.6875
   },
-  "final_overall": 0.8732,
+  "final_overall": 0.8758,
   "rules": [
     {
       "check_id": "page1_start",

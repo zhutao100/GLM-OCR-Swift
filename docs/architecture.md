@@ -149,7 +149,8 @@ Current implementation details:
 
 - Layout-mode exports
   - `--emit-json` writes examples-style block-list JSON
-  - `--emit-ocrdocument-json` writes structured `OCRDocument` JSON
+  - `--emit-ocrdocument-json` writes structured `OCRDocument` JSON, including region polygons when layout masks provide them
+- layout OCR currently applies polygon crops only for table regions; formula polygons are preserved in `OCRDocument` while OCR uses bbox crops
 
 - Generated validation artifacts
   - `examples/result/*` from `scripts/run_examples.sh`

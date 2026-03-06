@@ -32,7 +32,7 @@ We summarize our key findings from the development process below and provide mor
 
 Multi-domain reinforcement learning demonstrates robust cross-domain generalization and mutual facilitation. Training on one domain boosts performance in others, and joint training across domains yields even greater improvements in each. (See Section 6.3)
 
-- Dynamically selecting the most informative rollout problems is essential for both efficiency and performance. Therefore, we propose strategies including Reinforcement Learning with Curriculum
+Dynamically selecting the most informative rollout problems is essential for both efficiency and performance. Therefore, we propose strategies including Reinforcement Learning with Curriculum
 
 Sampling (RLCS) and dynamic sampling expansion via ratio-based Exponential Moving Average (EMA) (See Section 5.3)
 

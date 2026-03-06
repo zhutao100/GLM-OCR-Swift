@@ -8,15 +8,13 @@ the weblogic cmp-rdbms-jar.xml descriptor contains a number of new sections and 
 
 that will be added to the database, and the sections will wait until the next
 
-exercise, but there are other changes to observe and examine.
+exercise, but there are some other changes to observe and examine.
 
-the file contains a section mapping the the job for run
+The file contains a section mapping the key table attributes from the job pjr.xml to the
 
-attributes from the job for run
+key table in addition to a new section related to the
 
-table in addition to a new section related to
-
-the automatic key generation for primary keys in this box
+automatic key generation used for primary key values in this file.
 
 ```xml
 
@@ -24,7 +22,7 @@ the automatic key generation for primary keys in this box
 
   <ejb-name>AddressJDBC</ejb-name>
 
-  <data-source-name>Titan-dataSource</data-source-name>
+  <data-source>name>Titan-dataSource</data-source-name>
 
   <table-name>ADDRESS</table-name>
 

@@ -1,8 +1,8 @@
 # Phase 02 - polygon and mask geometry parity
 
-**Goal:** move from bbox-only crops to upstream-faithful mask-derived polygon handling when PP-DocLayout-V3 provides the necessary mask outputs.
+**Goal:** move from bbox-only geometry to upstream-faithful mask-derived polygon handling when PP-DocLayout-V3 provides the necessary mask outputs, while only enabling polygon OCR crops where parity evidence is positive.
 
-**Status (2026-03-05):** planned. The comparative analysis indicates this is likely the next highest-value parity investment after layout/crop/order alignment.
+**Status (2026-03-06):** completed. The DocLayout adapter now keeps mask-aligned detections through postprocess, derives polygons from masks when available, and falls back to bbox polygons explicitly when mask geometry is missing or invalid. Structured `OCRDocument` output preserves those polygons, and the runtime uses polygon crops for table OCR while formula OCR intentionally stays on bbox crops after broader polygon-crop trials regressed checked-in examples.
 
 ---
 
@@ -37,7 +37,7 @@ Mask-derived polygons reduce that contamination and align better with the upstre
 The Swift path should preserve the following behavior classes:
 
 1. **happy path**
-   - valid mask -> contour -> simplified polygon -> normalized polygon points -> polygon-aware crop
+   - valid mask -> contour -> simplified polygon -> normalized polygon points -> polygon-aware crop or polygon-preserving export according to the validated class policy
 
 2. **fallback path**
    - invalid box -> rectangle polygon
@@ -103,6 +103,8 @@ This phase is complete when:
 
 - masks flow through the selected-layout path reliably
 - valid masks produce non-rectangular polygons where appropriate
-- polygon-aware crops are used by default when masks are present and valid
+- polygon-aware crops are used by default only for classes that pass parity validation (currently tables)
 - fallback behavior is documented and regression-tested
 - formula/table-heavy examples show a measurable reduction in contamination-driven errors
+
+The maintained export contract stays intentionally split: examples-style block-list JSON remains bbox-based for compatibility, while `OCRDocument` JSON carries polygon geometry for downstream consumers. The runtime currently uses polygon-aware crops only for table OCR; formula polygons are still exported but OCR keeps bbox crops until a future phase proves a broader policy is safe.
