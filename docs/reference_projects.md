@@ -322,7 +322,7 @@ The roadmap lives in `docs/dev_plans/README.md`. Current trackers:
 
 Completed work is kept either as:
 
-* completed trackers (e.g. `docs/dev_plans/multi_page_pdf/tracker.md`), or
+* completed trackers (e.g. `docs/dev_plans/archive/multi_page_pdf/tracker.md`), or
 * archived phase docs under `docs/dev_plans/archive/`.
 
 [4]: https://github.com/mzbac/deepseek-ocr.swift "GitHub - mzbac/deepseek-ocr.swift"

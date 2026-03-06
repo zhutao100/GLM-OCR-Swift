@@ -1,6 +1,6 @@
 Below is a **surgical, file-by-file patch plan** for `GLM-OCR-Swift`.
 
-Tracking / phase status: `docs/dev_plans/preprocessing_and_fusion_primitives_port/tracker.md`.
+Tracking / phase status: `docs/dev_plans/archive/preprocessing_and_fusion_primitives_port/tracker.md`.
 
 Conventions used here:
 

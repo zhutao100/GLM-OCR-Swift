@@ -1,45 +1,92 @@
-# Docs overview
+# Docs Overview
 
-This folder is the structured reference for the repo. For the runnable quickstart, start at `README.md`.
+This folder is the maintained reference set for the repo. For the runnable quickstart, start with `README.md`.
 
-## Current status (2026-03-04)
+## Current State (verified 2026-03-06)
 
-What exists and works today:
+- The SwiftPM workspace builds and tests cleanly.
+- Local OCR works through both the CLI and the app for images and PDFs.
+- Layout mode is implemented and can emit Markdown, examples-style block-list JSON, and structured `OCRDocument` JSON.
+- Hugging Face snapshot download and cache resolution are implemented in `VLMRuntimeKit`.
+- Example generation, diffing, scored evaluation, and persistent eval records are all wired up.
+- The main remaining work is quality/parity tightening and app/distribution polish.
 
-- SwiftPM package with `VLMRuntimeKit`, `DocLayoutAdapter`, `GLMOCRAdapter`, `GLMOCRCLI`, `GLMOCRApp`
-- `swift test` passes (focused unit tests for deterministic helpers)
-- Hugging Face snapshot download + cache resolution is implemented (`VLMRuntimeKit/ModelStore`)
-- CLI/App scaffolding is wired to the pipeline (download → load → recognize)
-- GLM-OCR model architecture + safetensors weight loading + tokenizer validation
-- End-to-end MVP OCR for a single image / PDF (single/multi-page) (vision preprocessing + chat template + greedy decode + KV cache)
-- Phase 04 layout mode (layout detection → region OCR → Markdown merge + structured `OCRDocument`)
-- Examples corpus + evaluation tooling:
-  - generate outputs: `scripts/run_examples.sh` → `examples/result/*`
-  - diff vs baselines: `scripts/compare_examples.py` (report-only by default)
-  - scored evaluation + rules: `tools/example_eval/` (see `tools/example_eval/README.md`)
-  - agentic verification loop: `scripts/verify_example_eval.sh` (records under `examples/eval_records/latest/`)
+## Start Here
 
-What is still stubbed / not implemented yet:
+- Build and run the project
+  - `README.md`
 
-- CI-gated quality/parity validation (tools exist, but enforcement is intentionally opt-in while examples/rules stabilize; tracked in `docs/dev_plans/quality_parity/tracker.md`)
-- Export/UX polish + distribution packaging (tracked in `docs/dev_plans/gui_polish_distribution/tracker.md`)
+- Understand the current runtime structure
+  - `docs/architecture.md`
 
-## Where things live (source of truth)
+- Find the active roadmap
+  - `docs/dev_plans/README.md`
 
-- Architecture and module boundaries: `docs/architecture.md`
-- Numerical parity & golden fixtures (developer workflow): `docs/golden_checks.md`
-- Golden drift debugging notes (PP-DocLayout-V3): `docs/debug_notes/ppdoclayoutv3_golden/`
-- Roadmap and prioritized TODOs: `docs/dev_plans/README.md`
-- Decisions that affect interfaces/layout: `docs/decisions/README.md`
-- GLM-OCR model notes (special tokens, templates, pipeline behavior): `docs/GLM-OCR_model.md`
-- Reference Swift OCR ports and a borrowing map: `docs/reference_projects.md`
-- Examples scoring tool: `tools/example_eval/README.md`
+- Work on parity, golden fixtures, or model-backed integration checks
+  - `docs/golden_checks.md`
+  - `docs/dev_plans/quality_parity/tracker.md`
 
-## “I’m looking for…”
+- Understand why the repo uses core plus adapters
+  - `docs/decisions/README.md`
+  - `docs/decisions/0001-core-adapter.md`
 
-- **How to build/run:** `README.md`
-- **Where to implement feature X:** `docs/dev_plans/README.md` + `docs/architecture.md`
-- **How to validate parity/quality:** `docs/dev_plans/quality_parity/tracker.md` + `docs/golden_checks.md`
-- **How to score example outputs:** `tools/example_eval/README.md` (scored evaluation) + `scripts/compare_examples.py` (diffs)
-- **How to run the full agentic check loop:** `scripts/verify_example_eval.sh` + `examples/eval_records/README.md`
-- **Why we chose core+adapter:** `docs/decisions/0001-core-adapter.md`
+- Evaluate or compare example outputs
+  - `tools/example_eval/README.md`
+  - `examples/eval_records/README.md`
+  - `scripts/compare_examples.py`
+
+## Source Of Truth Map
+
+- Current user-facing behavior
+  - `README.md`
+  - `swift run GLMOCRCLI --help`
+
+- Architecture, module boundaries, and dataflow
+  - `docs/architecture.md`
+
+- Durable design decisions
+  - `docs/decisions/README.md`
+
+- Active roadmap and prioritized gaps
+  - `docs/dev_plans/README.md`
+  - tracker files under `docs/dev_plans/`
+
+- Parity and integration workflow
+  - `docs/golden_checks.md`
+
+- Generated example artifacts and evaluation records
+  - `examples/README.md`
+  - `examples/eval_records/README.md`
+
+## Generated Versus Maintained Content
+
+- Maintained docs
+  - `README.md`
+  - `AGENTS.md`
+  - `docs/*.md`
+
+- Generated validation artifacts
+  - `examples/result/*` from `scripts/run_examples.sh`
+  - `examples/eval_records/latest/*` from `scripts/verify_example_eval.sh`
+  - `.build/example_eval/*` from `tools/example_eval/`
+
+## Active Work
+
+- Quality/parity backlog
+  - `docs/dev_plans/quality_parity/tracker.md`
+
+- GUI polish and distribution
+  - `docs/dev_plans/gui_polish_distribution/tracker.md`
+
+## Historical Material
+
+- `docs/dev_plans/archive/`
+  - completed implementation plans and archived trackers
+
+- `docs/debug_notes/`
+  - investigation logs and postmortems
+
+- `docs/context/`
+  - supporting background material
+
+Treat these folders as reference context. They can describe older states of the project and should not be used as the source of current behavior.

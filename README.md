@@ -1,169 +1,171 @@
 # GLM-OCR Swift
 
-A native macOS (Apple Silicon) SwiftPM workspace for running **GLM-OCR** locally in Swift (images/PDFs → Markdown), with an optional layout stage for structured output.
+Native macOS GLM-OCR in Swift with local MLX inference. The project turns images and PDFs into Markdown, and can optionally run a layout stage first so the output also includes structured region data.
 
-This repo is intentionally structured as **core + adapters**:
+The repo is intentionally split into a model-agnostic runtime plus adapters:
 
-- `Sources/VLMRuntimeKit/` — model-agnostic runtime utilities (model download/cache, prompt helpers, shared types)
-- `Sources/ModelAdapters/DocLayout/` — PP-DocLayout-V3 layout detector (layout mode support)
-- `Sources/ModelAdapters/GLMOCR/` — GLM-OCR-specific glue (defaults/config/prompt policy/pipeline)
-- `Sources/GLMOCRCLI/` — CLI harness (model download + pipeline wiring)
-- `Sources/GLMOCRApp/` — SwiftUI UI scaffold (single-file drop + run)
+- `Sources/VLMRuntimeKit/` - shared runtime primitives
+- `Sources/ModelAdapters/DocLayout/` - PP-DocLayout-V3 layout detection
+- `Sources/ModelAdapters/GLMOCR/` - GLM-OCR model glue and orchestration
+- `Sources/GLMOCRCLI/` - CLI entrypoint
+- `Sources/GLMOCRApp/` - SwiftUI app scaffold
 
-See `docs/architecture.md` for module boundaries and dataflow.
+See `docs/architecture.md` for the current module boundaries and dataflow.
 
-## Current status (2026-03-04)
+## Current State (verified 2026-03-06)
 
-- `swift build` / `swift test` pass.
-- CLI + App run for images and PDFs (single/multi-page).
-- Hugging Face Hub snapshot download + cache resolution is implemented (`VLMRuntimeKit/ModelStore`).
-- End-to-end OCR works for a single image or a PDF (single/multi-page):
-  - Vision decode + PDF page rendering
-  - CIImage → MLX tensor conversion + normalization
-  - GLM chat-template tokenization (`[gMASK]<sop>` + image placeholders)
-  - Greedy token-by-token decode (with KV cache)
-- Phase 04 layout mode is implemented (PDF/images):
-  - PP-DocLayout-V3 layout detection → region crop → per-region GLM-OCR → merged Markdown
-  - Optional examples-compatible block-list JSON export from the CLI (`--emit-json`)
-  - Optional structured `OCRDocument` JSON export from the CLI (`--emit-ocrdocument-json`)
-- Examples corpus exists under `examples/` with:
-  - `scripts/run_examples.sh` to generate `examples/result/*`
-  - `scripts/compare_examples.py` for report-only diffs vs `examples/reference_result/*` and `examples/golden_result/*`
-  - `tools/example_eval/` (sub-project) for scored evaluation and rule-based checks
+- `swift test` passes.
+- `swift run GLMOCRCLI --help` works.
+- `scripts/build_mlx_metallib.sh -c debug` builds the runtime Metal library.
+- End-to-end OCR works locally for images and PDFs through the CLI.
+- Layout mode works for images and PDFs:
+  - PP-DocLayout-V3 detection
+  - per-region GLM-OCR
+  - merged Markdown
+  - optional block-list JSON and `OCRDocument` JSON exports
+- The SwiftUI app can load one image or PDF, run OCR, and show Markdown output.
+- The repo includes an examples corpus plus diff/evaluation tooling under `examples/`, `scripts/`, and `tools/example_eval/`.
 
-## Requirements
+## Supported Workflows
 
-- macOS 14+
-- Xcode 16+ (Swift 6 toolchain) or a standalone Swift 6 toolchain
-- Xcode Command Line Tools (for `xcrun metal` used by `scripts/build_mlx_metallib.sh`)
-- Apple Silicon recommended (MLX)
+- Single image OCR to Markdown
+- Single-page or multi-page PDF OCR to Markdown
+- Layout-aware OCR with JSON export
+- Batch example generation with `scripts/run_examples.sh`
+- Example diffing with `scripts/compare_examples.py`
+- Scored evaluation and persistent run records with `tools/example_eval/` and `scripts/verify_example_eval.sh`
 
 ## Quickstart
 
+### Prerequisites
+
+- macOS 14+
+- Xcode 16+ or another Swift 6 toolchain
+- Xcode Command Line Tools
+- Apple Silicon is strongly recommended
+
+### Build and Smoke Test
+
 ```bash
-# Build + test
 swift build
 swift test
-
-# CLI usage (no model download)
 swift run GLMOCRCLI --help
-
-# One-time (per build config): build MLX's metal shader library next to SwiftPM-built executables
 scripts/build_mlx_metallib.sh -c debug
+```
 
-# OCR an image (prints Markdown to stdout; first run downloads models)
+If you remove `.build` or switch between `debug` and `release`, rebuild `mlx.metallib` for that configuration.
+
+### Run OCR
+
+```bash
+# Image -> Markdown
 swift run GLMOCRCLI --input examples/source/page.png > out.md
 
-# OCR a PDF with layout exports (writes JSON + crops images into ./imgs/)
-swift run GLMOCRCLI --input examples/source/GLM-4.5V_Page_1.pdf --pages 1 --emit-json out.json > out.md
+# PDF -> Markdown (all pages by default)
+swift run GLMOCRCLI --input examples/source/GLM-4.5V_Page_1.pdf --pages 1 > out.md
 
-# Launch the SwiftUI app scaffold (drag/drop one image or PDF)
+# Layout mode with both JSON export formats
+swift run GLMOCRCLI --layout --input examples/source/page.png \
+  --emit-json out.json \
+  --emit-ocrdocument-json out.ocrdocument.json > out.md
+```
+
+The first run may download missing Hugging Face snapshot files into the local cache.
+
+### Launch the App
+
+```bash
 swift run GLMOCRApp
 ```
 
-Note: if you `rm -rf .build` or switch build configs, re-run `scripts/build_mlx_metallib.sh` so the current build products have a colocated `mlx.metallib`.
+The app is a single-file scaffold: drag in one image or PDF, choose task/layout settings, then run OCR.
 
-Optional: batch-run all inputs in `examples/source/` (always runs in layout mode so it can emit JSON):
+### Examples and Evaluation
 
 ```bash
+# Regenerate examples/result/*
 scripts/run_examples.sh
+
+# Report-only diffs vs checked-in baselines
+python3 scripts/compare_examples.py --lane both
 ```
 
-## Examples evaluation (parity + quality)
-
-Two complementary tools exist:
-
-- **Low-level diffs (report-only by default):**
-
-  ```bash
-  python3 scripts/compare_examples.py --lane both
-  ```
-
-- **Scored evaluation + rules:** see `tools/example_eval/README.md` (writes reports under `.build/example_eval/`).
-
-- **Agentic verification loop (recommended):**
-
-  ```bash
-  scripts/verify_example_eval.sh
-  ```
-
-  This ensures `examples/result/` is up-to-date, runs the scorer, and records a persistent snapshot under
-  `examples/eval_records/latest/` (including a delta vs the baseline in git).
-
-Developer (Phase 02): single forward pass (logits only):
+For scored evaluation, initialize the submodule first if needed:
 
 ```bash
-swift run GLMOCRCLI --dev-forward-pass
+git submodule update --init --recursive
+scripts/verify_example_eval.sh
 ```
 
-Optional (large download):
-
-```bash
-# Download the model snapshot to the default HF cache
-swift run GLMOCRCLI --download-only
-
-# Or download into a custom directory
-swift run GLMOCRCLI --download-base ~/hf-cache --download-only
-```
+`scripts/verify_example_eval.sh` refreshes `examples/result/` when needed, runs `tools/example_eval/`, and records the latest evaluation snapshot under `examples/eval_records/latest/`.
 
 ## Configuration
 
-### Model download cache (Hugging Face)
+### CLI defaults
 
-Cache directory precedence in `VLMRuntimeKit`:
+- `--model`: `zai-org/GLM-OCR`
+- `--revision`: `main`
+- `--layout-model`: `PaddlePaddle/PP-DocLayoutV3_safetensors`
+- `--layout-revision`: `main`
+- `--max-new-tokens`: `2048`
+- Generation policy: greedy (`temperature = 0`, `topP = 1`)
+- Layout mode default: on for PDFs, off for non-PDF inputs
 
-1. CLI `--download-base` (or a future App setting)
+Run `swift run GLMOCRCLI --help` for the full flag list.
+
+### Hugging Face cache resolution
+
+`VLMRuntimeKit` resolves the snapshot cache in this order:
+
+1. `--download-base`
 2. `HF_HUB_CACHE`
-3. `HF_HOME` (uses `$HF_HOME/hub`)
-4. default: `~/.cache/huggingface/hub`
+3. `HF_HOME` + `/hub`
+4. `~/.cache/huggingface/hub`
 
-### CLI flags
+### Key environment variables
 
-Run `swift run GLMOCRCLI --help` for the full list. Key flags:
+- `GLMOCR_SNAPSHOT_PATH` and `LAYOUT_SNAPSHOT_PATH`
+  - override auto-discovered cached snapshots for model-backed tests
+- `GLMOCR_RUN_GOLDEN=1` and `LAYOUT_RUN_GOLDEN=1`
+  - enable opt-in golden/parity integration tests
+- `GLMOCR_RUN_EXAMPLES=1`
+  - enables the checked-in end-to-end examples parity tests
+- `GLMOCR_PREPROCESS_BACKEND`, `GLMOCR_POST_RESIZE_JPEG_QUALITY`, `GLMOCR_ALIGN_VISION_DTYPE`
+  - developer-only preprocessing and parity knobs
 
-- `--model` (default: `zai-org/GLM-OCR`)
-- `--revision` (default: `main`; for deterministic comparisons, pass a pinned commit from `docs/dev_plans/quality_parity/tracker.md`)
-- `--layout-model` (default: `PaddlePaddle/PP-DocLayoutV3_safetensors`) (layout mode only)
-- `--layout-revision` (default: `main`; for deterministic comparisons, pass a pinned commit from `docs/dev_plans/quality_parity/tracker.md`) (layout mode only)
-- `--download-base <path>` (optional)
-- `--download-only` (download without inference)
-- `--input <path>`, `--pages <spec>` (PDF only; omit for all pages), `--task <preset>`, `--max-new-tokens <n>`
-- Layout mode (default: on for PDFs): `--layout/--no-layout`, `--layout-parallelism auto|1|2`, `--emit-json <path>`, `--emit-ocrdocument-json <path>`
+The full test and parity matrix lives in `docs/golden_checks.md`.
 
-## Limitations / known gaps
+## Known Limits
 
-- Quality/parity is only partially validated (opt-in examples parity + golden checks exist); see `docs/dev_plans/quality_parity/tracker.md`.
-- `--task` presets apply to non-layout mode; layout mode determines tasks per region (so `--task` is ignored).
-- Layout Markdown image placeholders are only replaced with saved crops when an output directory is available (e.g. via `--emit-json` / `--emit-ocrdocument-json`).
-- Large PDFs may be slower (PDF pages are rendered one-by-one; no shared render session yet).
-- App has no queue/settings/export UI yet; it’s a single-file scaffold used to iterate on pipeline wiring.
+- Quality/parity work is still active. The current tracker is `docs/dev_plans/quality_parity/tracker.md`.
+- In layout mode, region labels determine the OCR task, so CLI `--task` is ignored.
+- Markdown image placeholders are only replaced with cropped image files when an export directory exists through `--emit-json` or `--emit-ocrdocument-json`.
+- The current layout pipeline renders each PDF page twice in the common path: once for layout detection and once for region cropping.
+- The app does not yet provide queueing, export UI, model management, or packaging/distribution features.
 
-## Next steps (roadmap)
+## Next Steps
 
-Keep the detailed plan in `docs/dev_plans/README.md`. Near-term work:
-
-1. Quality/parity validation (tracked in `docs/dev_plans/quality_parity/tracker.md`).
-2. Export/UX polish + distribution packaging (tracked in `docs/dev_plans/gui_polish_distribution/tracker.md`).
+- Finish the quality/parity backlog in `docs/dev_plans/quality_parity/tracker.md`.
+- Return to app polish and packaging in `docs/dev_plans/gui_polish_distribution/tracker.md`.
 
 ## Docs
 
-- `docs/overview.md` — docs index + “what exists today”
-- `docs/architecture.md` — module boundaries + current vs planned dataflow
-- `docs/dev_plans/README.md` — phased plan (source of truth for roadmap)
-- `docs/dev_plans/quality_parity/tracker.md` — quality/parity validation tracker
-- `docs/golden_checks.md` — opt-in numerical parity & golden fixtures
-- `docs/GLM-OCR_model.md` — GLM-OCR model notes (tokens, templates, pipeline behavior)
-- `docs/reference_projects.md` — reference Swift OCR ports + borrowing map
-- `tools/example_eval/README.md` — scored evaluation of `examples/result/*` vs baselines
-- `AGENTS.md` — agent operating guide for working in this repo
+- `docs/overview.md` - docs index and source-of-truth map
+- `docs/architecture.md` - current runtime architecture and dataflow
+- `docs/dev_plans/README.md` - active roadmap and archived plan pointers
+- `docs/golden_checks.md` - opt-in parity, integration, and fixture workflow
+- `docs/GLM-OCR_model.md` - model notes and reference behavior background
+- `docs/reference_projects.md` - external reference survey and borrowing map
+- `tools/example_eval/README.md` - scored evaluation workflow
+- `AGENTS.md` - operating guide for coding agents
 
 ## Documentation Changelog
 
-- Added: an “Examples evaluation” section and pointers to both `scripts/compare_examples.py` (diffs) and `tools/example_eval/` (scoring).
-- Clarified: `examples/result/*` is generated output and should be regenerated with `scripts/run_examples.sh` when validating changes.
-- Clarified: CLI defaults use `--revision main` / `--layout-revision main`; parity work should pin revisions (see `docs/dev_plans/quality_parity/tracker.md`).
-- Updated: status date and doc pointers so `README.md`, `AGENTS.md`, and `docs/` agree on “what exists today”.
+- Added: a verified quickstart that now matches the current CLI, app, and evaluation workflows.
+- Added: the current configuration surface, including cache precedence and the key opt-in test env vars.
+- Removed: stale roadmap references to non-active trackers and outdated formatting/linting assumptions.
+- Clarified: which outputs are user-facing (`out.md`, JSON exports) versus generated validation artifacts (`examples/result/*`, `examples/eval_records/latest/*`).
 
 ## License
 
-MIT.
+MIT

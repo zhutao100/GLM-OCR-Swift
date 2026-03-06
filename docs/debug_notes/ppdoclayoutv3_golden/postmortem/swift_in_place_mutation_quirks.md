@@ -53,7 +53,7 @@ Net result: CPU/float32 golden + MPS/float16 golden + v3/v4 parity all pass agai
 
 Follow-ups (landed):
 
-- Disabled SwiftLint’s `shorthand_operator` rule in `.swiftlint.yml` so the linter no longer pushes `x = x + y` into `x += y` in MLX code paths.
+- Captured the repo rule in maintained docs: avoid compound assignment on `MLXArray` in MLX-heavy code paths.
 - Removed remaining compound assignments on `MLXArray` across the repo as a defensive rule-of-thumb.
 
 
@@ -116,7 +116,7 @@ You already did the safest short-term thing (`// swiftlint:disable:next shorthan
   - Prefer `per_file_ignores` for just the affected files (or a glob for `Sources/ModelAdapters/**` if you want it broader).
   - Or disable the rule globally if this repo regularly manipulates reference-semantic tensor handles.
 
-This repo now uses the “disable via config” option to avoid accidental reintroduction during lint-only refactors.
+This repo currently relies on documentation, review, and regression tests rather than an active SwiftLint config.
 
 2) **Keep the rule, but avoid the trigger pattern**
 - Rewrite to a functional form SwiftLint won’t rewrite:

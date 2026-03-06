@@ -112,18 +112,98 @@ Guideline:
 - When diagnosing parity, always include at least one probe that is fully in-bounds to separate “core math mismatch” from “OOB/border effects”.
 - Prefer probe indices that are stable across backends; if an index is consistently border-sensitive, replace it with a nearby index that exercises the same codepaths.
 
-## Repo-specific switches (parity workflow)
+## Repo-specific switches
 
-- `GLMOCR_SNAPSHOT_PATH=<snapshot_path>` (optional) overrides the auto-resolved cached snapshot for `zai-org/GLM-OCR` (`main`).
-- `GLMOCR_RUN_GOLDEN=1` enables opt-in golden checks (and may enable “parity mode” numeric settings).
-- `GLMOCR_DEBUG_VISION=1` prints vision embedding stats in the forward-pass golden test to help localize drift.
-- `LAYOUT_SNAPSHOT_PATH=<snapshot_path>` (optional) overrides the auto-resolved cached snapshot for `PaddlePaddle/PP-DocLayoutV3_safetensors` (`main`).
-- `LAYOUT_RUN_GOLDEN=1` enables opt-in PP-DocLayoutV3 golden checks.
-- `LAYOUT_DEBUG_DTYPE=1` prints dtype summaries during PP-DocLayoutV3 golden tests.
-- `LAYOUT_FORCE_PIXEL_FLOAT32=1` forces PP-DocLayoutV3 `pixel_values` to `.float32` (diagnostic toggle).
-- `LAYOUT_WEIGHTS_DTYPE=float16|float32|bfloat16` overrides the PP-DocLayoutV3 weights dtype at load time (diagnostic toggle).
+### Snapshot selection
 
-Snapshot-path env vars are **optional**: when unset, integration/parity tests try to resolve the current cached snapshot from your local HF hub cache (via `refs/main`). If no cached snapshot exists, those tests are skipped.
+- `GLMOCR_SNAPSHOT_PATH=<snapshot_path>`
+  - optional override for the auto-resolved cached snapshot of `zai-org/GLM-OCR`
+- `LAYOUT_SNAPSHOT_PATH=<snapshot_path>`
+  - optional override for the auto-resolved cached snapshot of `PaddlePaddle/PP-DocLayoutV3_safetensors`
+
+When these env vars are unset, model-backed tests try to resolve the current cached snapshot from the local HF hub cache via `refs/main`. If no cached snapshot exists, those tests are skipped.
+
+### Opt-in test lanes
+
+- `GLMOCR_RUN_GOLDEN=1`
+  - enables GLM-OCR golden checks and also turns on parity-oriented dtype alignment in the runtime
+- `LAYOUT_RUN_GOLDEN=1`
+  - enables PP-DocLayoutV3 golden and intermediate parity checks
+- `GLMOCR_RUN_EXAMPLES=1`
+  - enables the end-to-end checked-in examples parity integration tests
+- `GLMOCR_TEST_RUN_FORWARD_PASS=1`
+  - enables the GLM-OCR smoke forward-pass integration test
+- `GLMOCR_TEST_RUN_GENERATE=1`
+  - enables the GLM-OCR one-token generate integration test
+
+### Diagnostic and preprocessing toggles
+
+- `GLMOCR_DEBUG_VISION=1`
+  - prints vision embedding stats in the GLM-OCR golden test
+- `GLMOCR_PREPROCESS_BACKEND=coreimage|deterministic`
+  - selects the GLM image resize backend for runtime/parity debugging
+- `GLMOCR_POST_RESIZE_JPEG_QUALITY=<float>`
+  - applies an optional JPEG round-trip after resize in the GLM image processor
+- `GLMOCR_ALIGN_VISION_DTYPE=1`
+  - aligns image tensor dtype to the model vision weights dtype without enabling the full golden lane
+- `LAYOUT_DEBUG_DTYPE=1`
+  - prints dtype summaries during PP-DocLayoutV3 golden runs
+- `LAYOUT_FORCE_PIXEL_FLOAT32=1`
+  - forces PP-DocLayoutV3 `pixel_values` to `.float32`
+- `LAYOUT_WEIGHTS_DTYPE=float16|float32|bfloat16`
+  - overrides the PP-DocLayoutV3 weights dtype at load time
+
+## Practical test matrix
+
+Before running model-backed tests, make sure the current build products have a colocated Metal library:
+
+```bash
+scripts/build_mlx_metallib.sh -c debug
+```
+
+Useful lanes:
+
+- Default deterministic/unit coverage
+
+  ```bash
+  swift test
+  ```
+
+- GLM-OCR golden slice
+
+  ```bash
+  GLMOCR_RUN_GOLDEN=1 swift test --filter GLMOCRForwardPassIntegrationTests
+  ```
+
+- GLM-OCR smoke forward pass
+
+  ```bash
+  GLMOCR_TEST_RUN_FORWARD_PASS=1 swift test --filter GLMOCRForwardPassIntegrationTests
+  ```
+
+- GLM-OCR single-token generate smoke
+
+  ```bash
+  GLMOCR_TEST_RUN_GENERATE=1 swift test --filter GLMOCRGenerateIntegrationTests
+  ```
+
+- End-to-end examples parity tests
+
+  ```bash
+  GLMOCR_RUN_EXAMPLES=1 swift test --filter LayoutExamplesParityIntegrationTests
+  ```
+
+- PP-DocLayout-V3 MPS/FP16 golden
+
+  ```bash
+  LAYOUT_RUN_GOLDEN=1 swift test --filter PPDocLayoutV3GoldenIntegrationTests
+  ```
+
+- PP-DocLayout-V3 CPU/FP32 golden
+
+  ```bash
+  LAYOUT_RUN_GOLDEN=1 swift test --filter PPDocLayoutV3GoldenFloat32IntegrationTests
+  ```
 
 ### PP-DocLayout-V3 intermediate parity (fixture v3)
 

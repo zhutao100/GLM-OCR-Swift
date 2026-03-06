@@ -5,7 +5,7 @@
 **Status (2026-02-17):** implemented (Option B) — multi-page PDF support shipped in CLI + App; `--page` removed.
 
 ## Plan options (design)
-- `docs/dev_plans/multi_page_pdf/plan_options.md` (Option B recommended)
+- `docs/dev_plans/archive/multi_page_pdf/plan_options.md` (Option B recommended)
 
 ## Key decisions (lock before coding)
 - **Indexing:** user `--pages` and `VisionIO.loadCIImage(fromPDF:page:)` are **1-based**; `OCRPage.index` and Markdown `![](page=<n>,bbox=...)` are **0-based** (`pageIndex = page - 1`).

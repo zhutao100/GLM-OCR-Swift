@@ -1,111 +1,172 @@
 # Architecture
 
-## Module boundaries
+## Design goals
 
-### `VLMRuntimeKit` (model-agnostic)
+- Keep the runtime native to Swift and local MLX inference.
+- Separate model-agnostic primitives from model-specific policy.
+- Keep the CLI and app thin: they should orchestrate, not own model logic.
+- Preserve deterministic seams for testing and parity work.
 
-Responsibilities:
+## Module Boundaries
 
-- `ModelStore`: Hugging Face Hub snapshot download + local cache conventions (**implemented**)
-- `TokenizerKit`: prompt/template helpers (placeholder splitting + task→instruction mapping; **implemented**)
-- `OCRTypes`: shared pipeline protocol + result types (including optional structured document output; **implemented**)
-- `OCRBlockListExport`: canonical `[[{index,label,content,bbox_2d}, ...], ...]` JSON export (examples-compatible; **implemented**)
-- `PDFPagesSpec`: fuzzy `--pages` parsing + resolution (CLI/App shared semantics; **implemented**)
-- `VisionIO`: vision IO helpers
-  - image file → `CIImage` (**implemented**)
-  - PDF page rendering (**implemented**)
-  - PDF page count helper (**implemented**)
-  - normalized bbox/polygon region crop (**implemented**)
-  - CIImage → JPEG writer (**implemented**)
-  - deterministic CIImage → RGBA8 raster, CPU bicubic resize, optional JPEG round-trip (**implemented**)
-  - CIImage/RGB8 → MLX tensor conversion (**implemented**)
-- `MarkdownImageCropper`: extract `![](page=…,bbox=[…])` refs and crop+replace to `![Image p-i](imgs/…)` (**implemented**)
-- `Generation`: model-agnostic generation façade (`CausalLM` + wrapper; **implemented**)
-  - KV cache primitives (**implemented**); streaming output (**planned**)
-- `Weights`: safetensors loading helpers (**implemented**; model-specific transforms live in adapters)
+### `VLMRuntimeKit`
 
-### `GLMOCRAdapter` (model-specific)
+Model-agnostic runtime primitives live here.
 
-Responsibilities:
+- `ModelStore`
+  - Hugging Face snapshot download and cache resolution
+- `TokenizerKit`
+  - shared prompt/template helpers such as image-placeholder splitting
+- `OCRTypes` and `OCRDocumentTypes`
+  - public OCR protocols, result types, structured document types
+- `OCRBlockListExport`
+  - canonical examples-style block-list JSON export
+- `PDFPagesSpec`
+  - shared CLI/app page-selection parsing and resolution
+- `VisionIO`
+  - image/PDF decode, page count, raster conversion, resize helpers, tensor conversion, region cropping
+- `MarkdownImageCropper`
+  - converts Markdown image placeholders into cropped image files when an export directory exists
+- `Generation`
+  - model-agnostic generation facade and KV cache primitives
+- `Weights`
+  - safetensors helpers that adapters build on
 
-- `GLMOCRDefaults`: default model id/revision + snapshot download globs (**implemented**)
-- `GLMOCRConfig`: parse model config metadata (**implemented**)
-- `GLMOCRTokenizer`: load tokenizer + validate special token IDs (**implemented**)
-- `GLMOCRProcessor`: model-specific prompt policy (**implemented**)
-- `GLMOCRChatTemplate`: GLM-OCR chat-template tokenization (**implemented**)
-- `GLMOCRImageProcessor`: GLM-OCR resize/normalize policy (fast CoreImage path + opt-in deterministic CPU path; **implemented**)
-- `GLMOCRModel`: model definition + weight-loading + forward pass + greedy decode (**implemented**)
-- `GLMOCRPipeline`: orchestration actor; conforms to `OCRPipeline` (**implemented**)
-- `GLMOCRLayoutOptions`: layout-mode concurrency policy (**implemented**)
-- `GLMOCRLayoutPipeline`: layout detection → region OCR → merge; conforms to `OCRPipeline` (**implemented**)
+`VLMRuntimeKit` must not learn GLM-OCR- or PP-DocLayout-V3-specific token, config, or label policy.
 
-### `DocLayoutAdapter` (layout-specific)
+### `GLMOCRAdapter`
 
-Responsibilities:
+GLM-OCR-specific inference and orchestration live here.
 
-- `PPDocLayoutV3Defaults`: model id/revision + snapshot download globs (**implemented**)
-- `PPDocLayoutV3Config`: minimal `config.json` decoding (e.g. `id2label`) (**implemented**)
-- `PPDocLayoutV3Processor`: resize/normalize policy (**implemented**)
-- `PPDocLayoutV3Mappings`: layout label → task/kind policy (**implemented**)
-- `PPDocLayoutV3Model`: MLX inference + weight-loading (hybrid encoder + deformable decoder; opt-in golden baselines pass for a pinned snapshot)
-- `PPDocLayoutV3Postprocess`: NMS + containment merge + ordering (**implemented**)
-- `PPDocLayoutV3Detector`: snapshot load + inference + postprocess wiring (**implemented**)
-- `LayoutResultFormatter`: regions → merged Markdown (**implemented**)
+- `GLMOCRDefaults`
+  - default model ID, revision, and snapshot globs
+- `GLMOCRConfig`, `GLMOCRTokenizer`
+  - config decoding and tokenizer validation
+- `GLMOCRProcessor`, `GLMOCRChatTemplate`
+  - task prompt policy and GLM-specific token layout
+- `GLMOCRImageProcessor`
+  - resize, normalization, and parity-related preprocessing knobs
+- `GLMOCRModel`
+  - weights, forward pass, and greedy decode
+- `GLMOCRPipeline`
+  - direct OCR for one image or one PDF page, plus multi-page non-layout PDF orchestration
+- `GLMOCRLayoutPipeline`
+  - composition layer that runs layout detection, crops regions, dispatches per-region OCR, and merges the result
 
-### `GLMOCRApp` (SwiftUI)
+### `DocLayoutAdapter`
 
-Responsibilities:
+PP-DocLayout-V3-specific layout detection lives here.
 
-- Minimal UI scaffold:
-  - drag/drop a single file (image/PDF)
-  - show download status (via `Progress` callback)
-  - run a single recognition attempt and display output/error
-  - optional “Layout mode” toggle (default on for PDFs); keeps structured JSON in memory for later export
+- `PPDocLayoutV3Defaults`
+  - default model ID, revision, and download globs
+- `PPDocLayoutV3Config`, `PPDocLayoutV3PreprocessorConfig`
+  - minimal snapshot config decoding
+- `PPDocLayoutV3Processor`
+  - layout preprocessing
+- `PPDocLayoutV3Mappings`
+  - native label to OCR-task and visualization policy
+- `PPDocLayoutV3Model`
+  - MLX model and weight-loading logic
+- `PPDocLayoutV3Postprocess`
+  - NMS, containment merge, and reading-order logic
+- `PPDocLayoutV3Detector`
+  - snapshot loading plus inference and postprocess wiring
+- `LayoutResultFormatter`
+  - ordered regions to merged Markdown and `OCRDocument`
 
-Planned (Phase 05):
+### `GLMOCRCLI`
 
-- job queue, cancellation, progress per job, export
-- model manager screen for download status + storage location
+The CLI is responsible for:
 
-## Dataflow (MVP)
+- argument parsing
+- snapshot resolution/download
+- choosing layout vs non-layout execution
+- PDF page selection through `PDFPagesSpec`
+- writing optional JSON exports
+- printing Markdown to stdout
 
+Current behavior:
+
+- layout mode defaults on for PDFs and off for non-PDF inputs
+- `--task` affects only non-layout mode
+- `--emit-json` and `--emit-ocrdocument-json` require layout mode
+
+### `GLMOCRApp`
+
+The app is intentionally small.
+
+- drag and drop one image or PDF
+- choose task, layout mode, page spec, and max tokens
+- download/load models
+- run one OCR request
+- display Markdown output
+- keep structured JSON in memory for future export UI
+
+The app is not yet a full document workbench. Queueing, export UI, model management, and packaging remain future work.
+
+## Runtime Flows
+
+### Non-layout OCR
+
+```text
+CLI/App input
+  -> VisionIO (image load or PDF render)
+  -> GLMOCRImageProcessor
+  -> GLMOCRProcessor prompt
+  -> GLMOCRChatTemplate input IDs
+  -> GLMOCRModel + GreedyGenerator
+  -> OCRResult(text, diagnostics)
 ```
-Image/PDF -> VisionIO -> GLMOCRImageProcessor -> GLMOCRProcessor(prompt)
-     -> GLMOCRChatTemplate + GLMOCRModel.generate -> OCRResult(text + document? + diagnostics)
+
+Notes:
+
+- `GLMOCRPipeline.recognizePDF` loops selected pages and joins Markdown with blank lines.
+- Non-layout PDF OCR uses `PDFPagesSpec` so CLI and app page semantics stay aligned.
+
+### Layout OCR
+
+```text
+CLI/App input
+  -> VisionIO (page image)
+  -> PPDocLayoutV3Detector
+  -> ordered OCR regions
+  -> VisionIO.cropRegion for each region
+  -> GLMOCRPipeline per region
+  -> LayoutResultFormatter
+  -> OCRResult(text, document, diagnostics)
 ```
 
-## Dataflow (layout mode)
+Current implementation details:
 
-```
-PDF page -> VisionIO -> PPDocLayoutV3Detector -> [regions]
-     -> VisionIO.cropRegion -> GLMOCRPipeline(recognize CIImage per region)
-     -> LayoutResultFormatter -> OCRResult(text + document)
-```
+- region task type is chosen from `PPDocLayoutV3Mappings`
+- `GLMOCRLayoutPipeline` can run region OCR with `auto`, `1`, or `2` workers, capped at `2`
+- for PDFs, the common layout path currently renders each selected page twice: once for layout detection and once for cropping
 
-### Current implementation note (2026-03-04)
+## Outputs And Artifacts
 
-Phase 03 MVP and Phase 04 layout mode now run end-to-end for a single image or a PDF (single/multi-page):
+- Default CLI output
+  - Markdown to stdout
 
-- decode (image / PDF page render),
-- resize/normalize → `pixelValues`,
-- build GLM-OCR chat-template `input_ids` with aligned image placeholders,
-- greedy token-by-token decode (with KV cache).
+- Layout-mode exports
+  - `--emit-json` writes examples-style block-list JSON
+  - `--emit-ocrdocument-json` writes structured `OCRDocument` JSON
 
-Layout mode additionally performs:
+- Generated validation artifacts
+  - `examples/result/*` from `scripts/run_examples.sh`
+  - `examples/eval_records/latest/*` from `scripts/verify_example_eval.sh`
 
-- PP-DocLayout-V3 detection → ordered regions,
-- region crop → per-region GLM-OCR (text/table/formula),
-- `LayoutResultFormatter` merge into Markdown + `OCRDocument`.
+If an export directory exists, `MarkdownImageCropper` can materialize region-image placeholders into `imgs/` files next to the JSON output.
 
-Remaining work is largely “quality + UX”: parity validation vs the official MLX Python example, large-PDF performance improvements, and app export/UX polish.
+## Current Gaps
 
-## Numerical parity & golden checks
+- Quality/parity validation is still being tightened; see `docs/dev_plans/quality_parity/tracker.md`.
+- The current generation surface is intentionally narrow: greedy decode is the maintained default, while richer parity presets are still planned work.
+- Large-PDF performance is still pragmatic rather than optimized.
+- The app remains a scaffold rather than a packaged end-user product.
 
-When porting models (or changing preprocessing/generation), use the opt-in golden workflow described in `docs/golden_checks.md` to keep `swift test` fast by default while still enabling deterministic parity checks when needed.
+## Change Rules
 
-For PP-DocLayout-V3 golden drift debugging, start at `docs/debug_notes/ppdoclayoutv3_golden/debugging_ppdoclayoutv3_golden.md`.
-
-## Extension points
-
-- Add new model adapters under `Sources/ModelAdapters/*`
-- Consolidation to a multi-model app is a mechanical refactor once adapters exist.
+- Keep `VLMRuntimeKit` model-agnostic.
+- Add new model families as new adapters under `Sources/ModelAdapters/`.
+- When the public runtime shape or cross-module contracts change, update this doc and add an ADR if the decision is meant to endure.
+- For parity-sensitive changes, follow `docs/golden_checks.md` and the quality tracker rather than ad hoc one-off workflows.
