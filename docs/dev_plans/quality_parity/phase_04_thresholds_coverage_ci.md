@@ -2,122 +2,70 @@
 
 **Goal:** turn improved runtime parity into stable, user-visible checked-in artifacts and protect the stable subset with low-flake automation.
 
-**Status (2026-03-05):** planned. This phase now explicitly includes formatting/export parity and golden-result policy, not only threshold enforcement.
+**Status (2026-03-06):** completed. The repo now documents the maintained output contract, artifact ownership, and rebaseline rules explicitly. The protected subset is intentionally narrow: `GLM-4.5V_Page_1` (PDF) and `table` (PNG) are covered by opt-in parity integration tests, while the rest of the corpus stays on the broader report-only `scripts/verify_example_eval.sh` lane.
 
 ---
 
 ## 1. Why this phase is broader than CI
 
-The comparison work showed that parity is not only about OCR content. It is also about the exported structure the user sees:
+Parity is not only about OCR text. It is also about the exported structure the user sees and the rules the repo follows when checked-in artifacts change.
 
-- markdown block ordering
-- image placeholder replacement
-- fenced code language tags
-- block-list JSON labels and shape
-- example result directory semantics and regeneration rules
+The maintained contract now covers:
 
-A repo can have good OCR content and still fail practical parity if its final artifacts drift.
-
----
-
-## 2. Scope
-
-### In scope
-
-- markdown/export semantics
-- block-list JSON stability
-- example regeneration policy
-- golden/reference/result artifact ownership
-- thresholded example coverage
-- low-flake CI posture
-
-### Out of scope
-
-- new model/runtime behavior that belongs to Phases 01-03
+- markdown ordering and image placeholder semantics
+- block-list JSON stability and label preservation
+- ownership of `reference_result`, `golden_result`, `result`, and `eval_records`
+- when a change is a bug fix versus a rebaseline
+- which examples are protected directly versus left in exploratory report-only coverage
 
 ---
 
-## 3. Workstreams
+## 2. Delivered outputs
 
-## Workstream A - output-format parity audit
+### Output-format parity audit
 
-Audit and document the output-sensitive behaviors that affect checked-in examples:
+The short output contract matrix now lives in `examples/README.md`. It distinguishes:
 
-1. region ordering in markdown
-2. image placeholder replacement and crop filename policy
-3. fenced-code formatting and language labeling
-4. JSON export ordering and stable serialization
-5. preservation of table/formula/image-specific semantics
+- guaranteed behaviors (`result` JSON key order, semantic labels, markdown ordering)
+- repo-owned behaviors (image placeholder replacement and crop filenames)
+- best-effort behaviors (`OCRDocument` polygon recording)
 
-The first deliverable is a short matrix naming which behaviors are guaranteed, best-effort, or intentionally repo-owned.
+### Artifact ownership and rebaseline policy
 
-## Workstream B - golden/reference/result policy
+Artifact-family purpose and update policy are now documented in:
 
-Write down the purpose of each artifact family:
+- `examples/README.md`
+- `examples/eval_records/README.md`
 
-- `reference_result/*`
-- `golden_result/*`
-- `result/*`
-- `eval_records/*`
+These docs define when each artifact family may change and require `examples/result/*` updates to travel with matching `examples/eval_records/latest/*` evidence.
 
-Then define:
+### Protected subset
 
-- who may update them
-- when an update is a bug fix vs a rebaseline
-- which metadata must accompany an update
+The protected subset is intentionally small:
 
-## Workstream C - threshold policy
+- PDF: `GLM-4.5V_Page_1`
+- PNG: `table`
 
-Start small and explicit.
+Both are covered by `GLMOCR_RUN_EXAMPLES=1 swift test --filter LayoutExamplesParityIntegrationTests`. The three-page PDF remains available in the same opt-in lane, but it is treated as broader exploratory coverage rather than the minimum enforced subset.
 
-1. choose one PDF and one PNG example for early enforcement
-2. document the threshold rationale per example
-3. keep report-only coverage for the rest of the corpus
-4. expand only when the examples are demonstrably stable
+### Low-flake enforcement posture
 
-## Workstream D - CI posture
+The maintained parity posture is now:
 
-Recommended posture:
+1. `swift test` for cheap deterministic coverage
+2. `GLMOCR_RUN_EXAMPLES=1 swift test --filter LayoutExamplesParityIntegrationTests` for the protected subset
+3. `scripts/verify_example_eval.sh` for broad report-only evaluation and score deltas
 
-1. cheap local diagnostics by default
-2. opt-in or subset-gated parity enforcement in CI
-3. broader report generation available but not required for every change
-
-This phase should protect parity work without making normal development hostile.
+There is still no checked-in repo-local CI workflow; the documented command discipline is the enforcement contract.
 
 ---
 
-## 4. Suggested first protected examples
-
-### PDF
-
-- `GLM-4.5V_Page_1`
-
-Reasoning:
-
-- already exercised by parity integration tests
-- narrower scope than the 3-page PDF
-- good signal for image placeholder and markdown/export behavior
-
-### PNG
-
-- `table` or `seal`
-
-Reasoning:
-
-- relatively stable structure
-- lower ambiguity than `page` while the geometry work is still settling
-
-Only promote `code` and `page` after Phases 01-03 are stable enough that failures are actionable rather than noisy.
-
----
-
-## 5. Acceptance criteria
+## 3. Acceptance criteria
 
 This phase is complete when:
 
 - output-format semantics that affect checked-in examples are documented
 - example artifact ownership and rebaseline rules are written down
-- at least one PDF and one PNG example are protected by thresholds and/or parity integration checks
+- at least one PDF and one PNG example are protected by parity integration checks
 - report-only exploratory coverage still exists for the rest of the corpus
-- CI posture is documented and low-flake
+- the low-flake enforcement posture is documented

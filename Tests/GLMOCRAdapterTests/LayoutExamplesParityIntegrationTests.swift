@@ -80,7 +80,7 @@ final class LayoutExamplesParityIntegrationTests: XCTestCase {
         let result = try await pipeline.recognize(
             .file(sourcePDF, page: 1),
             task: .text,
-            options: .init(maxNewTokens: 2048, temperature: 0, topP: 1)
+            options: .preset(.parityGreedyV1, maxNewTokens: 2048)
         )
         guard let document = result.document else {
             XCTFail("Layout pipeline did not produce OCRResult.document")
@@ -88,6 +88,73 @@ final class LayoutExamplesParityIntegrationTests: XCTestCase {
         }
 
         let pageImage = try VisionIO.loadCIImage(fromPDF: sourcePDF, page: 1, dpi: 200)
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(
+            "glmocr_examples_\(UUID().uuidString)")
+        let imgsDir = tempDir.appendingPathComponent("imgs")
+
+        let (actualMarkdown, saved) = try MarkdownImageCropper.cropAndReplaceImages(
+            markdown: result.text,
+            pageImages: [pageImage],
+            outputDir: imgsDir,
+            imagePrefix: "cropped"
+        )
+
+        let expectedImageCount = expectedJSON.flatMap(\.self).count(where: { $0.label == "image" })
+        XCTAssertEqual(saved.count, expectedImageCount, "Expected to crop \(expectedImageCount) images.")
+
+        let expectedImagePaths = Self.extractMarkdownImagePaths(expectedMarkdown)
+        let actualImagePaths = Self.extractMarkdownImagePaths(actualMarkdown)
+        XCTAssertEqual(
+            actualImagePaths, expectedImagePaths, "Markdown image refs mismatch vs examples/reference_result/…")
+        XCTAssertFalse(actualMarkdown.contains("![](page="), "Expected placeholder image refs to be replaced.")
+
+        let actualJSON = document.toBlockListExport()
+        try Self.assertJSONParity(actual: actualJSON, expected: expectedJSON, bboxTolerance: 15)
+    }
+
+    func testTable_layoutOutput_matchesExamples() async throws {
+        guard ProcessInfo.processInfo.environment["GLMOCR_RUN_EXAMPLES"] == "1" else {
+            throw XCTSkip("Set GLMOCR_RUN_EXAMPLES=1 to enable this end-to-end examples parity test.")
+        }
+        let glmModelFolder = try GLMOCRTestEnv.requireModelFolderURL()
+        let layoutFolder = try Self.requireLayoutFolderURL()
+
+        try ensureMLXMetalLibraryColocated(for: Self.self)
+
+        let repoRoot = Self.repoRootURL()
+        let sourceImage = repoRoot.appendingPathComponent("examples/source/table.png")
+        let expectedMDURL = repoRoot.appendingPathComponent("examples/reference_result/table/table.md")
+        let expectedJSONURL = repoRoot.appendingPathComponent("examples/reference_result/table/table.json")
+
+        let expectedMarkdown = try String(contentsOf: expectedMDURL, encoding: .utf8)
+        let expectedJSON = try JSONDecoder().decode(OCRBlockListExport.self, from: Data(contentsOf: expectedJSONURL))
+
+        let store = StaticModelStore(
+            foldersByModelID: [
+                GLMOCRDefaults.modelID: glmModelFolder,
+                PPDocLayoutV3Defaults.modelID: layoutFolder,
+            ]
+        )
+
+        let pipeline = GLMOCRLayoutPipeline(
+            modelID: GLMOCRDefaults.modelID,
+            revision: GLMOCRDefaults.revision,
+            downloadBase: nil,
+            store: store
+        )
+        try await pipeline.ensureLoaded(progress: nil)
+
+        let result = try await pipeline.recognize(
+            .file(sourceImage, page: 1),
+            task: .text,
+            options: .preset(.parityGreedyV1, maxNewTokens: 2048)
+        )
+        guard let document = result.document else {
+            XCTFail("Layout pipeline did not produce OCRResult.document")
+            return
+        }
+
+        let pageImage = try VisionIO.loadCIImage(from: sourceImage)
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(
             "glmocr_examples_\(UUID().uuidString)")
         let imgsDir = tempDir.appendingPathComponent("imgs")
@@ -149,7 +216,7 @@ final class LayoutExamplesParityIntegrationTests: XCTestCase {
         let result = try await pipeline.recognizePDF(
             url: sourcePDF,
             pagesSpec: PDFPagesSpec.parse("1-3"),
-            options: .init(maxNewTokens: 2048, temperature: 0, topP: 1)
+            options: .preset(.parityGreedyV1, maxNewTokens: 2048)
         )
         guard let document = result.document else {
             XCTFail("Layout pipeline did not produce OCRResult.document")

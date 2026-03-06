@@ -193,6 +193,8 @@ Useful lanes:
   GLMOCR_RUN_EXAMPLES=1 swift test --filter LayoutExamplesParityIntegrationTests
   ```
 
+  The current protected subset is intentionally small and low-flake: `GLM-4.5V_Page_1` (PDF) and `table` (PNG). The broader examples corpus remains report-only through `scripts/verify_example_eval.sh`.
+
 - PP-DocLayout-V3 MPS/FP16 golden
 
   ```bash

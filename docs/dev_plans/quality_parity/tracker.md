@@ -2,7 +2,7 @@
 
 **Objective:** track the live status of the refreshed faithful-parity plan after the major structural blockers were removed.
 
-**Status (2026-03-06):** active. Phases 00 through 03 are complete; the remaining work is Phase 04 formatting/export parity and low-flake protection.
+**Status (2026-03-06):** maintenance mode. All five phases are complete; follow-up work should be incremental parity improvements within the documented contract, not a new roadmap reset.
 
 ---
 
@@ -188,18 +188,20 @@ Phase 03 is complete. Generation presets are now first-class runtime input inste
 
 **Tasks**
 
-- [ ] audit markdown and JSON output semantics that affect checked-in examples
-- [ ] document `reference_result`, `golden_result`, `result`, and `eval_records` ownership
-- [ ] define the rebaseline policy for example artifacts
-- [ ] protect at least one PDF and one PNG example with thresholds and/or parity integration tests
-- [ ] keep broad report-only coverage available for exploratory work
-- [ ] document a low-flake CI posture for parity/quality checks
+- [x] audit markdown and JSON output semantics that affect checked-in examples
+- [x] document `reference_result`, `golden_result`, `result`, and `eval_records` ownership
+- [x] define the rebaseline policy for example artifacts
+- [x] protect at least one PDF and one PNG example with parity integration tests
+- [x] keep broad report-only coverage available for exploratory work
+- [x] document a low-flake CI posture for parity/quality checks
 
 **Exit criteria**
 
 - output-format semantics are documented
 - example rebaselines follow an explicit policy
 - the stable subset is protected without slowing normal development excessively
+
+Phase 04 is complete. The maintained output contract now lives in `examples/README.md`, artifact ownership and refresh rules are documented across `examples/README.md` and `examples/eval_records/README.md`, and the low-flake protected subset is enforced through `LayoutExamplesParityIntegrationTests` for `GLM-4.5V_Page_1` and `table`. The broader corpus remains available through `scripts/verify_example_eval.sh` without turning every change into a high-latency parity gate.
 
 ---
 

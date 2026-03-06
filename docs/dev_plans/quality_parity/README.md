@@ -2,7 +2,7 @@
 
 **Objective:** refresh the `GLM-OCR-Swift` parity work into a phased, faithful improvement plan that names the reference contract explicitly, closes the highest-value remaining gaps in the right order, and then locks the stable subset into the validation workflow.
 
-**Status (2026-03-06):** active. The project has completed the reference-contract, crop/geometry, and generation-policy phases. The remaining active work is **formatting/export parity** plus the low-flake protection that keeps the stable subset locked in.
+**Status (2026-03-06):** maintenance mode. All five phases of the current parity plan are complete. Ongoing work should tighten scores or broaden coverage incrementally inside the documented contract rather than reopening the plan structure.
 
 ---
 

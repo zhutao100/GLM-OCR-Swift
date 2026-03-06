@@ -52,3 +52,10 @@ To keep deltas meaningful over time:
 
 - commit `examples/eval_records/latest/` when you accept a new baseline
 - run `scripts/verify_example_eval.sh` after code changes to see improvements/regressions vs that baseline
+
+## Ownership and refresh policy
+
+- `examples/eval_records/latest/` is the checked-in record for the currently accepted `examples/result/` baseline.
+- Refresh it in the same commit as accepted `examples/result/` changes so the score evidence stays coupled to the artifact change.
+- It is also acceptable to refresh `latest/` in a docs/policy/parity-maintenance commit when the run intentionally proves a zero-delta baseline against the current `HEAD`.
+- Do not overwrite `latest/` to hide regressions; if the delta report shows a meaningful unexplained drop, fix the code or document the intentional tradeoff first.
