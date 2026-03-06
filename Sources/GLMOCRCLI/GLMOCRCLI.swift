@@ -69,6 +69,8 @@ enum LayoutParallelismArg: String, ExpressibleByArgument {
     case two = "2"
 }
 
+extension GenerationPreset: ExpressibleByArgument {}
+
 @main
 struct GLMOCRCLI: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
@@ -121,6 +123,9 @@ struct GLMOCRCLI: AsyncParsableCommand {
 
     @Option(help: "Max new tokens.")
     var maxNewTokens: Int = 2048
+
+    @Option(name: .customLong("generation-preset"), help: "Generation preset: default-greedy-v1 | parity-greedy-v1")
+    var generationPreset: GenerationPreset = .defaultGreedyV1
 
     @Flag(help: "Do not run inference; just resolve/download the model snapshot.")
     var downloadOnly: Bool = false
@@ -209,6 +214,7 @@ struct GLMOCRCLI: AsyncParsableCommand {
         let layoutModelID = layoutModel
         let layoutModelRevision = layoutRevision
         let maxNewTokens = maxNewTokens
+        let generationPreset = generationPreset
         let pagesSpec = try PDFPagesSpec.parse(Self.normalizedNonEmpty(pages))
         let downloadOnly = downloadOnly
         let devForwardPass = devForwardPass
@@ -228,7 +234,7 @@ struct GLMOCRCLI: AsyncParsableCommand {
             case .json: .structuredJSON(schema: "{\n  \"type\": \"object\"\n}")
             }
 
-        let generateOptions = GenerateOptions(maxNewTokens: maxNewTokens, temperature: 0, topP: 1)
+        let generateOptions = GenerateOptions.preset(generationPreset, maxNewTokens: maxNewTokens)
 
         let concurrencyPolicy: LayoutConcurrencyPolicy =
             switch layoutParallelism {

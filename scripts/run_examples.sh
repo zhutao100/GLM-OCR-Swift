@@ -13,7 +13,7 @@ Options:
   -c, --configuration  SwiftPM build configuration (default: release)
   --clean              Remove examples/result before running
   --generation-preset <name>
-                      Recorded parity generation preset (default: parity-greedy-v1)
+                      Applied and recorded parity generation preset (default: parity-greedy-v1)
   --glm-model <id>     GLM-OCR HF model id (default: pinned parity contract)
   --glm-revision <rev> GLM-OCR HF revision (branch/tag/commit) (default: pinned parity contract)
   --layout-model <id>  Layout HF model id (default: pinned parity contract)
@@ -246,6 +246,9 @@ while IFS= read -r -d '' input_path; do
   fi
   if [[ -n "$download_base" ]]; then
     cli_args+=(--download-base "$download_base")
+  fi
+  if [[ -n "$generation_preset" ]]; then
+    cli_args+=(--generation-preset "$generation_preset")
   fi
 
   if "$cli_path" "${cli_args[@]}" > "$md_out"; then

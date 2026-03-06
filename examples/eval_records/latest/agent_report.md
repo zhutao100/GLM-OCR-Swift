@@ -1,8 +1,8 @@
 # Example evaluation (agent report)
 
-- generated_at: `2026-03-06T18:54:23+00:00`
-- git: `3fb4760-dirty`
-- git_head_sha: `3fb4760bac5fa578f82a02d961a2463279557d16`
+- generated_at: `2026-03-06T19:04:54+00:00`
+- git: `06dc208-dirty`
+- git_head_sha: `06dc208bd2cd0a39aa381ef28395a121566af4d7`
 - git_dirty: `True`
 - glm_snapshot: `zai-org/GLM-OCR@677c6baa60442a451f8a8c7eabdfab32d9801a0b`
 - layout_snapshot: `PaddlePaddle/PP-DocLayoutV3_safetensors@a0abee1e2bb505e5662993235af873a5d89851e3`
@@ -14,11 +14,11 @@
 | Example | Final | Δ vs baseline | Parity | Result→Golden | Ref→Golden | Rules |
 |---|---:|---:|---:|---:|---:|---:|
 | `GLM-4.5V_Page_1` | 0.8730 | +0.0000 | 0.8730 | None | None | 0/0 |
-| `GLM-4.5V_Pages_1_2_3` | 0.8758 | +0.0026 | 0.8789 | 0.8887 | 0.9230 | 0/7 |
-| `code` | 0.7744 | +0.0073 | 0.7748 | 0.7282 | 0.7270 | 0/0 |
+| `GLM-4.5V_Pages_1_2_3` | 0.8758 | +0.0000 | 0.8789 | 0.8887 | 0.9230 | 0/7 |
+| `code` | 0.7744 | +0.0000 | 0.7748 | 0.7282 | 0.7270 | 0/0 |
 | `handwritten` | 0.9777 | +0.0000 | 0.9277 | 0.9600 | 0.9550 | 0/1 |
-| `page` | 0.7438 | +0.0297 | 0.7567 | 0.5281 | 0.6078 | 0/0 |
-| `paper` | 0.9651 | +0.0001 | 0.9651 | 0.7058 | 0.7090 | 0/0 |
+| `page` | 0.7438 | +0.0000 | 0.7567 | 0.5281 | 0.6078 | 0/0 |
+| `paper` | 0.9651 | +0.0000 | 0.9651 | 0.7058 | 0.7090 | 0/0 |
 | `seal` | 0.9804 | +0.0000 | 0.9804 | 0.9808 | 0.9808 | 0/0 |
 | `table` | 0.9944 | +0.0000 | 0.9944 | 1.0000 | 1.0000 | 0/0 |
 
@@ -27,7 +27,7 @@
 ### `page`
 
 - final_overall: `0.7438`
-- delta_vs_baseline: `+0.0297`
+- delta_vs_baseline: `+0.0000`
 - result_md: `examples/result/page/page.md`
 - result_json: `examples/result/page/page.json`
 - reference_md: `examples/reference_result/page/page.md`
@@ -48,7 +48,7 @@
 ### `code`
 
 - final_overall: `0.7744`
-- delta_vs_baseline: `+0.0073`
+- delta_vs_baseline: `+0.0000`
 - result_md: `examples/result/code/code.md`
 - result_json: `examples/result/code/code.json`
 - reference_md: `examples/reference_result/code/code.md`
@@ -91,7 +91,7 @@
 ### `GLM-4.5V_Pages_1_2_3`
 
 - final_overall: `0.8758`
-- delta_vs_baseline: `+0.0026`
+- delta_vs_baseline: `+0.0000`
 - result_md: `examples/result/GLM-4.5V_Pages_1_2_3/GLM-4.5V_Pages_1_2_3.md`
 - result_json: `examples/result/GLM-4.5V_Pages_1_2_3/GLM-4.5V_Pages_1_2_3.json`
 - reference_md: `examples/reference_result/GLM-4.5V_Pages_1_2_3/GLM-4.5V_Pages_1_2_3.md`

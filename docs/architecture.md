@@ -89,6 +89,7 @@ Current behavior:
 
 - layout mode defaults on for PDFs and off for non-PDF inputs
 - `--task` affects only non-layout mode
+- `--generation-preset` selects a repo-owned decode preset; the default CLI/app preset is `default-greedy-v1`
 - `--emit-json` and `--emit-ocrdocument-json` require layout mode
 
 ### `GLMOCRApp`

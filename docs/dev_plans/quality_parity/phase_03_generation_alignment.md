@@ -2,7 +2,7 @@
 
 **Goal:** make the OCR generation path explicit, reproducible, and aligned with the repo's chosen parity contract.
 
-**Status (2026-03-05):** planned. Current evidence suggests generation policy still matters, but it should be treated only after geometry-sensitive drift is under control.
+**Status (2026-03-06):** completed. The repo now treats generation presets as a named contract: the default user-facing preset is `default-greedy-v1`, checked-in parity runs use `parity-greedy-v1`, and both flow through the runtime and CLI explicitly instead of being implied by hardcoded greedy values.
 
 ---
 
@@ -13,9 +13,8 @@ The current repo already supports OCR generation, but parity work needs a narrow
 The project needs to answer:
 
 - which preset generated `examples/result/*`?
-- was the run greedy or sampled?
-- if sampled, what seed and penalties were used?
-- how should parity runs differ from day-to-day ad hoc CLI usage?
+- how do parity runs differ from day-to-day ad hoc CLI usage?
+- which knobs are part of the maintained contract versus merely hypothetical future work?
 
 Without that, example rebaselines remain difficult to explain.
 
@@ -28,7 +27,7 @@ Without that, example rebaselines remain difficult to explain.
 - repo-owned parity presets
 - reusable runtime/sampler plumbing
 - support for the minimum knobs actually needed by the chosen parity contract
-- reproducible seeded sampling when sampled parity is required
+- reproducible seeded sampling only if a future checked-in parity preset actually requires it
 - CLI and script support for explicit parity runs
 - integration tests covering the supported parity modes
 
@@ -43,26 +42,23 @@ Without that, example rebaselines remain difficult to explain.
 
 ### Decision A - choose the parity-run preset family
 
-The repo should define a small, named preset family, for example:
+The repo should define a small, named preset family:
 
+- `default-greedy-v1`
 - `parity-greedy-v1`
-- `parity-sampled-sdk-v1`
-- `exploratory-local`
 
-Only the first two should be allowed to generate checked-in parity artifacts.
+Sampled presets stay out of scope until a checked-in parity contract needs them.
 
 ### Decision B - minimum parameter surface
 
-Expand the generation/runtime surface only as needed for the chosen presets. Likely candidates include:
+Expand the generation/runtime surface only as needed for the chosen presets. The landed preset family is greedy-only, so the maintained surface stays intentionally small:
 
+- `preset`
 - `temperature`
 - `topP`
-- `topK`
-- `repetitionPenalty`
-- deterministic `seed`
 - `maxNewTokens`
 
-If a parameter is not part of a checked-in preset or a known debugging workflow, it should not be promoted casually.
+If a future checked-in preset needs sampling, that phase should add the exact extra knobs with tests at that time.
 
 ---
 
@@ -96,8 +92,8 @@ Tasks:
 
 Add tests that distinguish:
 
-- greedy parity preset behavior
-- sampled preset reproducibility with fixed seed
+- default greedy preset resolution
+- parity greedy preset resolution
 - serialization/recording of preset metadata in score artifacts
 
 ---
@@ -121,5 +117,5 @@ This phase is complete when:
 
 - every checked-in parity artifact can name the preset that produced it
 - the repo supports the minimum generation knobs needed by that preset family
-- parity runs are reproducible
+- current parity runs are reproducible because the checked-in preset family is greedy-only
 - generation-policy differences are no longer implicit or guessed from code history

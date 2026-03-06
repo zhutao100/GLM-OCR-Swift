@@ -97,7 +97,7 @@ git submodule update --init --recursive
 scripts/verify_example_eval.sh
 ```
 
-`scripts/run_examples.sh` uses the checked-in parity contract by default: pinned HF revisions plus the recorded `parity-greedy-v1` preset from `scripts/_parity_defaults.sh`.
+`scripts/run_examples.sh` uses the checked-in parity contract by default: pinned HF revisions plus the applied-and-recorded `parity-greedy-v1` preset from `scripts/_parity_defaults.sh`.
 
 `scripts/verify_example_eval.sh` refreshes `examples/result/` when needed, runs `tools/example_eval/`, and records the latest evaluation snapshot under `examples/eval_records/latest/`, including the model revisions and generation preset used for the example run.
 
@@ -110,7 +110,9 @@ scripts/verify_example_eval.sh
 - `--layout-model`: `PaddlePaddle/PP-DocLayoutV3_safetensors`
 - `--layout-revision`: `main`
 - `--max-new-tokens`: `2048`
-- Generation policy: greedy (`temperature = 0`, `topP = 1`)
+- `--generation-preset`: `default-greedy-v1`
+- Checked-in parity generation preset: `parity-greedy-v1`
+- Current generation policy for both shipped presets: greedy (`temperature = 0`, `topP = 1`)
 - Layout mode default: on for PDFs, off for non-PDF inputs
 
 Run `swift run GLMOCRCLI --help` for the full flag list.
@@ -142,7 +144,7 @@ The full test and parity matrix lives in `docs/golden_checks.md`.
 - Quality/parity work is still active. The current tracker is `docs/dev_plans/quality_parity/tracker.md`.
 - In layout mode, region labels determine the OCR task, so CLI `--task` is ignored.
 - Markdown image placeholders are only replaced with cropped image files when an export directory exists through `--emit-json` or `--emit-ocrdocument-json`.
-- The current layout pipeline renders each PDF page twice in the common path: once for layout detection and once for region cropping.
+- Formula OCR currently keeps bbox crops even when `OCRDocument` preserves derived layout polygons; table OCR uses polygon crops.
 - The app does not yet provide queueing, export UI, model management, or packaging/distribution features.
 
 ## Next Steps

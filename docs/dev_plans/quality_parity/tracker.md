@@ -2,7 +2,7 @@
 
 **Objective:** track the live status of the refreshed faithful-parity plan after the major structural blockers were removed.
 
-**Status (2026-03-06):** active. Phase 00 is complete; the next work should focus on execution-path parity, not on inventing new architecture.
+**Status (2026-03-06):** active. Phases 00 through 03 are complete; the remaining work is Phase 04 formatting/export parity and low-flake protection.
 
 ---
 
@@ -15,14 +15,14 @@ Use the current checked-in reports as the baseline until intentionally rebaselin
 | Example | Current final overall |
 |---|---:|
 | `GLM-4.5V_Page_1` | 0.8730 |
-| `GLM-4.5V_Pages_1_2_3` | 0.8732 |
-| `code` | 0.7671 |
+| `GLM-4.5V_Pages_1_2_3` | 0.8758 |
+| `code` | 0.7744 |
 | `handwritten` | 0.9777 |
-| `page` | 0.7141 |
-| `paper` | 0.9650 |
+| `page` | 0.7438 |
+| `paper` | 0.9651 |
 | `seal` | 0.9804 |
 | `table` | 0.9944 |
-| **mean** | **0.8931** |
+| **mean** | **0.8981** |
 
 ### Comparative priority signal
 
@@ -165,18 +165,20 @@ Phase 02 is complete. Mask-derived polygons now flow through layout postprocess 
 
 **Tasks**
 
-- [ ] define the supported parity preset family
-- [ ] expand generation/runtime types only as needed by those presets
-- [ ] add seeded reproducibility for sampled parity runs if required
-- [ ] add CLI/script support for explicit preset selection
-- [ ] record preset metadata in example-eval artifacts
-- [ ] add integration tests for greedy vs sampled parity modes
+- [x] define the supported preset family (`default-greedy-v1`, `parity-greedy-v1`)
+- [x] expand generation/runtime types only as needed by those presets
+- [x] explicitly defer sampled preset plumbing until a checked-in parity contract requires it
+- [x] add CLI/script support for explicit preset selection
+- [x] record preset metadata in example-eval artifacts
+- [x] add regression tests for supported preset resolution
 
 **Exit criteria**
 
 - every checked-in parity artifact can name its preset
 - generation policy is no longer implicit
-- parity runs are reproducible
+- current parity runs are reproducible
+
+Phase 03 is complete. Generation presets are now first-class runtime input instead of an implicit `temperature = 0` / `topP = 1` convention. `GLMOCRCLI` and `scripts/run_examples.sh` both thread the chosen preset explicitly, the checked-in parity contract continues to use `parity-greedy-v1`, and the default user-facing preset is the quieter `default-greedy-v1`. Sampled presets remain intentionally out of scope until the repo adopts one for checked-in artifacts.
 
 ---
 

@@ -2,7 +2,7 @@
 
 **Objective:** refresh the `GLM-OCR-Swift` parity work into a phased, faithful improvement plan that names the reference contract explicitly, closes the highest-value remaining gaps in the right order, and then locks the stable subset into the validation workflow.
 
-**Status (2026-03-05):** active. The project has already recovered the major structural blockers around formula labeling and block-list export. The remaining work is no longer "find the bug" work; it is **reference-contract**, **crop/geometry**, **generation-policy**, and **formatting/export** work.
+**Status (2026-03-06):** active. The project has completed the reference-contract, crop/geometry, and generation-policy phases. The remaining active work is **formatting/export parity** plus the low-flake protection that keeps the stable subset locked in.
 
 ---
 

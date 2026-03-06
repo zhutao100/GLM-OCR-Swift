@@ -62,7 +62,7 @@ final class AppViewModel: ObservableObject {
         Task {
             do {
                 status = .running("Running OCR...")
-                let options = GenerateOptions(maxNewTokens: maxNewTokens, temperature: 0, topP: 1)
+                let options = GenerateOptions.preset(.defaultGreedyV1, maxNewTokens: maxNewTokens)
                 let isPDF = url.pathExtension.lowercased() == "pdf"
                 let pagesSpec = try isPDF ? (PDFPagesSpec.parse(pdfPagesSpec)) : .all
 
