@@ -24,39 +24,28 @@ public struct GLMOCRChatTemplate: Sendable {
 
         let template = PromptTemplate(imagePlaceholder: imagePlaceholder)
         let (prefix, suffix) = try template.splitByImagePlaceholder(prompt)
-        let ids = tokenizer.specialTokenIDs
 
-        func encode(_ text: String) -> [Int] {
-            tokenizer.tokenizer.encode(text: text, addSpecialTokens: false)
-        }
+        let imageTokens = String(repeating: "<|image|>", count: numImageTokens)
 
-        var inputIds: [Int] = []
-        inputIds.append(ids.gMaskId)
-        inputIds.append(ids.sopId)
-        inputIds.append(contentsOf: encode("\n"))
-
-        inputIds.append(ids.userId)
-        inputIds.append(contentsOf: encode("\n"))
+        var rendered = "[gMASK]<sop>\n<|user|>\n"
         if !prefix.isEmpty {
-            inputIds.append(contentsOf: encode(prefix))
+            rendered += prefix
         }
 
-        inputIds.append(ids.beginImageId)
-        inputIds.append(contentsOf: Array(repeating: ids.imageId, count: numImageTokens))
-        inputIds.append(ids.endImageId)
+        rendered += "<|begin_of_image|>"
+        rendered += imageTokens
+        rendered += "<|end_of_image|>"
 
         if !suffix.isEmpty {
-            inputIds.append(contentsOf: encode(suffix))
+            rendered += suffix
         }
 
         if appendNoThink {
-            inputIds.append(contentsOf: encode("\n/nothink"))
+            rendered += "\n/nothink"
         }
 
-        inputIds.append(contentsOf: encode("\n"))
-        inputIds.append(ids.assistantId)
-        inputIds.append(contentsOf: encode("\n"))
+        rendered += "\n<|assistant|>\n"
 
-        return inputIds
+        return tokenizer.tokenizer.encode(text: rendered, addSpecialTokens: false)
     }
 }
