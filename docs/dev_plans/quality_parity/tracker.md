@@ -2,7 +2,7 @@
 
 **Objective:** track the live status of the refreshed faithful-parity plan after the major structural blockers were removed.
 
-**Status (2026-03-05):** active. The project is in the "known remaining gaps" stage. The next work should focus on execution-path parity, not on inventing new architecture.
+**Status (2026-03-06):** active. Phase 00 is complete; the next work should focus on execution-path parity, not on inventing new architecture.
 
 ---
 
@@ -52,6 +52,15 @@ Biggest current deficits to close first:
 
 The default CLI revisions may continue to follow `main`, but parity work should use pinned revisions recorded in docs and score artifacts.
 
+**Checked-in parity contract (2026-03-06)**
+
+| Input | Value |
+|---|---|
+| GLM-OCR snapshot | `zai-org/GLM-OCR@677c6baa60442a451f8a8c7eabdfab32d9801a0b` |
+| PP-DocLayout-V3 snapshot | `PaddlePaddle/PP-DocLayoutV3_safetensors@a0abee1e2bb505e5662993235af873a5d89851e3` |
+| generation preset | `parity-greedy-v1` |
+| contract source | `scripts/_parity_defaults.sh` |
+
 **Required recorded inputs for parity runs**
 
 - GLM-OCR revision/hash
@@ -60,7 +69,7 @@ The default CLI revisions may continue to follow `main`, but parity work should 
 - example set / corpus
 - generation date
 
-The repo already has the scripts needed to capture most of this; the remaining work is to make the metadata mandatory and obvious.
+The repo now records these values in `examples/result/.run_examples_meta.json` and surfaces them in `examples/eval_records/latest/agent_report.md`.
 
 ---
 
@@ -81,17 +90,24 @@ The repo already has the scripts needed to capture most of this; the remaining w
 
 **Tasks**
 
-- [ ] write the parity-target matrix into the maintained docs
-- [ ] define the supported parity preset names
-- [ ] record pinned revision policy for parity runs
-- [ ] thread parity metadata into score artifacts and/or eval records
-- [ ] write one short rebaseline policy for checked-in example artifacts
+- [x] write the parity-target matrix into the maintained docs
+- [x] define the supported parity preset names
+- [x] record pinned revision policy for parity runs
+- [x] thread parity metadata into score artifacts and/or eval records
+- [x] write one short rebaseline policy for checked-in example artifacts
 
 **Exit criteria**
 
 - one written parity contract exists
 - reports can name the preset and revisions that produced them
 - contributors no longer need to infer the target from scattered files
+
+**Rebaseline policy**
+
+- `examples/result/*` may change when a code or contract change is intentional and `scripts/verify_example_eval.sh` shows no significant unexplained regression.
+- `examples/eval_records/latest/*` should be refreshed in the same commit as the accepted `examples/result/*` update so the before/after evidence stays attached.
+- `examples/reference_result/*` changes only when the upstream reference contract itself changes.
+- `examples/golden_result/*` changes only for human-verified adjudication updates, not to hide parity regressions.
 
 ---
 

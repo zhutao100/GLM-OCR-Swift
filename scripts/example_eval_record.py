@@ -51,6 +51,11 @@ def _write_text(path: Path, text: str) -> None:
     path.write_text(text.rstrip() + "\n", encoding="utf-8")
 
 
+def _optional_str(mapping: dict[str, Any], key: str) -> str | None:
+    value = mapping.get(key)
+    return value if isinstance(value, str) and value else None
+
+
 def _format_score(score: float | None) -> str:
     if score is None:
         return "None"
@@ -313,6 +318,7 @@ def _render_agent_report(
     current_summary: dict[str, Any],
     baseline_summary: dict[str, Any] | None,
     git_info: GitInfo,
+    examples_result_meta: dict[str, Any] | None,
 ) -> str:
     generated_at = dt.datetime.now(dt.UTC).isoformat(timespec="seconds")
 
@@ -351,6 +357,22 @@ def _render_agent_report(
         lines.append(f"- git_head_sha: `{git_info.head_sha}`")
     if git_info.is_dirty is not None:
         lines.append(f"- git_dirty: `{git_info.is_dirty}`")
+
+    models_meta = (examples_result_meta or {}).get("models")
+    if isinstance(models_meta, dict):
+        glm_model = _optional_str(models_meta, "glm_model")
+        glm_revision = _optional_str(models_meta, "glm_revision")
+        layout_model = _optional_str(models_meta, "layout_model")
+        layout_revision = _optional_str(models_meta, "layout_revision")
+        generation_preset = _optional_str(models_meta, "generation_preset")
+
+        if glm_model and glm_revision:
+            lines.append(f"- glm_snapshot: `{glm_model}@{glm_revision}`")
+        if layout_model and layout_revision:
+            lines.append(f"- layout_snapshot: `{layout_model}@{layout_revision}`")
+        if generation_preset:
+            lines.append(f"- generation_preset: `{generation_preset}`")
+
     if mean_final is not None:
         lines.append(f"- mean_final_overall: `{_format_score(mean_final)}`")
     lines.append("")
@@ -547,9 +569,13 @@ def main(argv: list[str]) -> int:
         meta["tools"]["example_eval_submodule_head_sha"] = example_eval_sha.stdout.strip()
 
     examples_meta_path = repo_root / "examples" / "result" / ".run_examples_meta.json"
+    examples_result_meta: dict[str, Any] | None = None
     if examples_meta_path.is_file():
         try:
-            meta["examples_result"] = _read_json(examples_meta_path)
+            loaded_examples_meta = _read_json(examples_meta_path)
+            if isinstance(loaded_examples_meta, dict):
+                examples_result_meta = loaded_examples_meta
+            meta["examples_result"] = loaded_examples_meta
         except Exception:
             meta["examples_result"] = {"error": f"failed to parse {examples_meta_path.as_posix()}"}
 
@@ -560,6 +586,7 @@ def main(argv: list[str]) -> int:
         current_summary=current_summary,
         baseline_summary=baseline_summary,
         git_info=git_info,
+        examples_result_meta=examples_result_meta,
     )
     _write_text(record_dir / "agent_report.md", agent_report)
 

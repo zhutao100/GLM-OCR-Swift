@@ -7,22 +7,24 @@ Batch-run GLMOCRCLI over examples/source and write outputs to examples/result,
 mirroring the folder layout of examples/reference_result.
 
 Usage:
-  scripts/run_examples.sh [-c debug|release] [--clean] [--glm-revision <rev>] [--layout-revision <rev>]
+  scripts/run_examples.sh [-c debug|release] [--clean] [--generation-preset <name>] [--glm-revision <rev>] [--layout-revision <rev>]
 
 Options:
   -c, --configuration  SwiftPM build configuration (default: release)
   --clean              Remove examples/result before running
-  --glm-model <id>     GLM-OCR HF model id (default: GLMOCRCLI default)
-  --glm-revision <rev> GLM-OCR HF revision (branch/tag/commit) (default: GLMOCRCLI default)
-  --layout-model <id>  Layout HF model id (default: GLMOCRCLI default)
-  --layout-revision <rev> Layout HF revision (branch/tag/commit) (default: GLMOCRCLI default)
+  --generation-preset <name>
+                      Recorded parity generation preset (default: parity-greedy-v1)
+  --glm-model <id>     GLM-OCR HF model id (default: pinned parity contract)
+  --glm-revision <rev> GLM-OCR HF revision (branch/tag/commit) (default: pinned parity contract)
+  --layout-model <id>  Layout HF model id (default: pinned parity contract)
+  --layout-revision <rev> Layout HF revision (branch/tag/commit) (default: pinned parity contract)
   --download-base <dir> Hub download base directory (default: HF hub cache)
   -h, --help           Show help
 
 Notes:
   - Ensures mlx.metallib exists in the SwiftPM bin directory for the chosen -c profile.
   - PDFs default to OCR’ing all pages (use GLMOCRCLI --pages to restrict).
-  - For deterministic parity/quality baselines, prefer pinned revisions (see docs/dev_plans/quality_parity/tracker.md).
+  - The defaults come from the checked-in parity contract in `scripts/_parity_defaults.sh`.
 EOF
 }
 
@@ -32,7 +34,17 @@ glm_model=""
 glm_revision=""
 layout_model=""
 layout_revision=""
+generation_preset=""
 download_base=""
+
+root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+. "$root_dir/scripts/_parity_defaults.sh"
+
+glm_model="$PARITY_GLM_MODEL_ID"
+glm_revision="$PARITY_GLM_REVISION"
+layout_model="$PARITY_LAYOUT_MODEL_ID"
+layout_revision="$PARITY_LAYOUT_REVISION"
+generation_preset="$PARITY_GENERATION_PRESET"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -40,6 +52,8 @@ while [[ $# -gt 0 ]]; do
       config="${2:-}"; shift 2 ;;
     --clean)
       clean="1"; shift ;;
+    --generation-preset)
+      generation_preset="${2:-}"; shift 2 ;;
     --glm-model)
       glm_model="${2:-}"; shift 2 ;;
     --glm-revision)
@@ -64,7 +78,14 @@ if [[ "$config" != "debug" && "$config" != "release" ]]; then
   exit 2
 fi
 
-root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+case "$generation_preset" in
+  parity-greedy-v1) ;;
+  *)
+    echo "Unsupported --generation-preset: $generation_preset" >&2
+    echo "Supported presets: parity-greedy-v1" >&2
+    exit 2 ;;
+esac
+
 cd "$root_dir"
 
 . "$root_dir/scripts/_examples_fingerprint.sh"
@@ -163,6 +184,7 @@ write_run_meta() {
     --glm-revision "$glm_revision"
     --layout-model "$layout_model"
     --layout-revision "$layout_revision"
+    --generation-preset "$generation_preset"
     --download-base "$download_base"
     --started-at-utc "$started_at_utc"
     --ended-at-utc "$ended_at_utc"
@@ -183,6 +205,7 @@ write_run_meta() {
 }
 
 echo "==> Running examples from: $src_dir"
+echo "==> Parity contract: glm=$glm_model@$glm_revision layout=$layout_model@$layout_revision preset=$generation_preset"
 # shellcheck disable=SC2016
 while IFS= read -r -d '' input_path; do
   if is_noisy_file "$input_path"; then

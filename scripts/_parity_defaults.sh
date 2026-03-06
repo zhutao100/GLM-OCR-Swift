@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+PARITY_GLM_MODEL_ID="zai-org/GLM-OCR"
+PARITY_GLM_REVISION="677c6baa60442a451f8a8c7eabdfab32d9801a0b"
+
+PARITY_LAYOUT_MODEL_ID="PaddlePaddle/PP-DocLayoutV3_safetensors"
+PARITY_LAYOUT_REVISION="a0abee1e2bb505e5662993235af873a5d89851e3"
+
+PARITY_GENERATION_PRESET="parity-greedy-v1"

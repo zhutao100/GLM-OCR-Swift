@@ -1,9 +1,12 @@
 # Example evaluation (agent report)
 
-- generated_at: `2026-03-06T03:56:02+00:00`
-- git: `f7e59e6`
-- git_head_sha: `f7e59e6b56b8c685e23513ea237bdfd0b05ac05c`
-- git_dirty: `False`
+- generated_at: `2026-03-06T18:29:21+00:00`
+- git: `52a0878-dirty`
+- git_head_sha: `52a08783aad05d150e5165a1dbc93c1d84bf92a9`
+- git_dirty: `True`
+- glm_snapshot: `zai-org/GLM-OCR@677c6baa60442a451f8a8c7eabdfab32d9801a0b`
+- layout_snapshot: `PaddlePaddle/PP-DocLayoutV3_safetensors@a0abee1e2bb505e5662993235af873a5d89851e3`
+- generation_preset: `parity-greedy-v1`
 - mean_final_overall: `0.8931`
 
 ## Scores

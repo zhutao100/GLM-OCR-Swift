@@ -97,7 +97,9 @@ git submodule update --init --recursive
 scripts/verify_example_eval.sh
 ```
 
-`scripts/verify_example_eval.sh` refreshes `examples/result/` when needed, runs `tools/example_eval/`, and records the latest evaluation snapshot under `examples/eval_records/latest/`.
+`scripts/run_examples.sh` uses the checked-in parity contract by default: pinned HF revisions plus the recorded `parity-greedy-v1` preset from `scripts/_parity_defaults.sh`.
+
+`scripts/verify_example_eval.sh` refreshes `examples/result/` when needed, runs `tools/example_eval/`, and records the latest evaluation snapshot under `examples/eval_records/latest/`, including the model revisions and generation preset used for the example run.
 
 ## Configuration
 

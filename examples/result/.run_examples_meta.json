@@ -1,24 +1,25 @@
 {
   "configuration": "release",
-  "fingerprint_sha256": "9feded8394dca9e85effd4ec9dc9e8bddcf04dc6582a8f5a172ea59fbbc32d3c",
-  "generated_at": "2026-03-06T03:55:32+00:00",
+  "fingerprint_sha256": "33663e6d5bdc3ff94a37797f41fd24a5ae92513daa8521e984eacf43dfd7e129",
+  "generated_at": "2026-03-06T18:29:20+00:00",
   "git": {
-    "describe": "be76454",
-    "dirty": false,
-    "head_sha": "be76454c8510adc54a20895e7eccd609cfa71948"
+    "describe": "52a0878-dirty",
+    "dirty": true,
+    "head_sha": "52a08783aad05d150e5165a1dbc93c1d84bf92a9"
   },
   "models": {
     "download_base": "",
-    "glm_model": "",
-    "glm_revision": "",
-    "layout_model": "",
-    "layout_revision": ""
+    "generation_preset": "parity-greedy-v1",
+    "glm_model": "zai-org/GLM-OCR",
+    "glm_revision": "677c6baa60442a451f8a8c7eabdfab32d9801a0b",
+    "layout_model": "PaddlePaddle/PP-DocLayoutV3_safetensors",
+    "layout_revision": "a0abee1e2bb505e5662993235af873a5d89851e3"
   },
   "run": {
-    "ended_at_utc": "2026-03-06T03:55:32Z",
+    "ended_at_utc": "2026-03-06T18:29:20Z",
     "failed": [],
     "skipped": [],
-    "started_at_utc": "2026-03-06T03:54:26Z",
+    "started_at_utc": "2026-03-06T18:28:16Z",
     "succeeded": [
       "paper.png",
       "code.png",

@@ -2,7 +2,7 @@
 
 **Goal:** define the parity target precisely enough that future work can say whether a behavior is intentionally different, still drifting, or already faithful.
 
-**Status (2026-03-05):** not started as a formal deliverable. The repo contains the needed ingredients, but the contract is still spread across code, scripts, debug notes, and example artifacts.
+**Status (2026-03-06):** completed. The parity contract is now explicit in the tracker, pinned in `scripts/_parity_defaults.sh`, and threaded through the example-eval records.
 
 ---
 
@@ -42,6 +42,18 @@ Check in and document:
 - default parity decode preset name
 - any required environment variables or script flags
 
+**Checked-in parity contract (2026-03-06)**
+
+| Item | Value |
+|---|---|
+| GLM-OCR model | `zai-org/GLM-OCR` |
+| GLM-OCR revision | `677c6baa60442a451f8a8c7eabdfab32d9801a0b` |
+| PP-DocLayout-V3 model | `PaddlePaddle/PP-DocLayoutV3_safetensors` |
+| PP-DocLayout-V3 revision | `a0abee1e2bb505e5662993235af873a5d89851e3` |
+| Checked-in parity preset | `parity-greedy-v1` |
+
+These values are the defaults used by `scripts/run_examples.sh` and the example-eval verification loop unless a contributor overrides them deliberately.
+
 ### Decision C - current baseline table
 
 Record the checked-in baseline scores for:
@@ -66,6 +78,8 @@ The table does not need to imply satisfaction with the current scores. It exists
 3. document the parity preset in the CLI help and/or scripts used for example generation
 4. write one short note describing when a golden/result rebaseline is allowed
 
+The repo now satisfies (1)-(3). The rebaseline policy is recorded in the tracker and artifact README updates.
+
 ---
 
 ## 4. Recommended implementation notes
@@ -76,13 +90,11 @@ The upstream surfaces are not perfectly unified. Treat them as inputs to a repo-
 
 ### Prefer explicit preset names over loose flags
 
-Examples:
+For the current checked-in contract, the repo keeps the preset surface intentionally small:
 
-- `parity-hf-greedy`
-- `parity-sdk-sampled`
-- `parity-repo-default-v1`
+- `parity-greedy-v1`
 
-A named preset is easier to record, compare, and discuss than a long list of ad hoc flags.
+Phase 03 may add more preset names, but checked-in parity artifacts should not use unnamed ad hoc flag combinations.
 
 ---
 

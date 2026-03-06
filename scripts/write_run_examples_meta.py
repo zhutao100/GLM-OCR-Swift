@@ -40,6 +40,7 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--glm-revision", default="")
     parser.add_argument("--layout-model", default="")
     parser.add_argument("--layout-revision", default="")
+    parser.add_argument("--generation-preset", default="")
     parser.add_argument("--download-base", default="")
 
     parser.add_argument("--started-at-utc", default="")
@@ -67,6 +68,7 @@ def main(argv: list[str]) -> int:
             "glm_revision": args.glm_revision,
             "layout_model": args.layout_model,
             "layout_revision": args.layout_revision,
+            "generation_preset": args.generation_preset,
             "download_base": args.download_base,
         },
         "run": {

@@ -32,8 +32,10 @@ Key files:
 - `examples/eval_records/latest/agent_report.md` — agent-focused summary + “Signals” + fix hints.
 - `examples/eval_records/latest/delta_from_baseline.md` — per-example `final_overall` deltas vs baseline.
 - `examples/eval_records/latest/summary.md` / `summary.json` — raw evaluator summary copy.
-- `examples/eval_records/latest/meta.json` — git/tooling metadata for reproducibility.
+- `examples/eval_records/latest/meta.json` — git/tooling metadata plus the captured example-run contract.
 - `examples/eval_records/latest/examples/<name>/report.md` / `report.json` — per-example evaluator reports.
+
+The agent report header also records the `glm_snapshot`, `layout_snapshot`, and `generation_preset` when `examples/result/.run_examples_meta.json` is available.
 
 ## Baseline semantics (how deltas work)
 
@@ -50,4 +52,3 @@ To keep deltas meaningful over time:
 
 - commit `examples/eval_records/latest/` when you accept a new baseline
 - run `scripts/verify_example_eval.sh` after code changes to see improvements/regressions vs that baseline
-
