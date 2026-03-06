@@ -2,7 +2,7 @@
 
 **Goal:** eliminate the remaining high-leverage drift caused by coordinate conversion, crop semantics, region filtering, reading order, and page/crop handling.
 
-**Status (2026-03-05):** active. Earlier work fixed the gross structural blockers, but the comparative analysis still points to layout/crop/order as the most plausible reason for the remaining hard-example drift.
+**Status (2026-03-06):** completed. The bbox conversion, crop rounding, filter rules, and ordering tie-breaks are regression-tested, and the layout path now reuses a single loaded page image for both detection and region cropping.
 
 ---
 
@@ -119,3 +119,5 @@ This phase is complete when all of the following are true:
 - ordering differences on representative examples are either closed or documented as intentional
 - page/crop reuse is deterministic and not duplicated accidentally
 - the remaining hard-example drift can no longer be explained mainly by crop/order defects
+
+The current example-eval baseline still flags `page` and `code` as the hardest examples, but after the verified Phase 01 pass there are no significant remaining regressions attributable to bbox conversion, crop rounding, filter parity, or order tie-breaking in the maintained Swift path.

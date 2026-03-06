@@ -150,28 +150,15 @@ public actor GLMOCRLayoutPipeline: OCRPipeline {
 
         try await ensureLoaded(progress: nil)
 
-        let layoutImage: CIImage =
-            if url.pathExtension.lowercased() == "pdf" {
-                try VisionIO.loadCIImage(fromPDF: url, page: page, dpi: CGFloat(pdfDPI))
-            } else {
-                try VisionIO.loadCIImage(from: url)
-            }
+        let pageImage = try loadPageImage(url: url, page: page)
 
         try Task.checkCancellation()
-        let detected = try await layoutDetector.detect(ciImage: layoutImage)
-
-        try Task.checkCancellation()
-        let cropImage: CIImage =
-            if url.pathExtension.lowercased() == "pdf" {
-                try VisionIO.loadCIImage(fromPDF: url, page: page, dpi: CGFloat(pdfDPI))
-            } else {
-                try VisionIO.loadCIImage(from: url)
-            }
+        let detected = try await layoutDetector.detect(ciImage: pageImage)
 
         let resolvedConcurrency = layoutOptions.resolvedMaxConcurrentRegions()
         var regions = detected
 
-        let sendablePageImage = SendableCIImage(cropImage)
+        let sendablePageImage = SendableCIImage(pageImage)
         let regionOCR = ocrPipeline
 
         var workItems: [WorkItem] = []
@@ -274,6 +261,13 @@ public actor GLMOCRLayoutPipeline: OCRPipeline {
         }
 
         return (normalizedURL, page)
+    }
+
+    private func loadPageImage(url: URL, page: Int) throws -> CIImage {
+        if url.pathExtension.lowercased() == "pdf" {
+            return try VisionIO.loadCIImage(fromPDF: url, page: page, dpi: CGFloat(pdfDPI))
+        }
+        return try VisionIO.loadCIImage(from: url)
     }
 }
 

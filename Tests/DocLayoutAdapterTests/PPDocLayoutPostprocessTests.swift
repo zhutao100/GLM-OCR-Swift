@@ -251,6 +251,28 @@ final class PPDocLayoutPostprocessTests: XCTestCase {
         XCTAssertTrue(diagnostics.contains(where: { $0.contains("order_seq missing") }))
     }
 
+    func testOrdering_usesBBoxTieBreakWhenOrderSeqValuesMatch() throws {
+        let config = makeConfig()
+        let raw = PPDocLayoutV3Postprocess.RawDetections(
+            scores: [0.1, 0.1, 0.1],
+            labels: [22, 21, 14],
+            boxes: [
+                OCRNormalizedBBox(x1: 70, y1: 50, x2: 80, y2: 60),
+                OCRNormalizedBBox(x1: 10, y1: 50, x2: 20, y2: 60),
+                OCRNormalizedBBox(x1: 40, y1: 40, x2: 50, y2: 50),
+            ],
+            orderSeq: [3, 3, 3]
+        )
+
+        let (regions, _) = try PPDocLayoutV3Postprocess.apply(
+            raw,
+            config: config,
+            options: .init(applyNMS: false, mergeMode: nil, mergeModeByClassID: nil)
+        )
+
+        XCTAssertEqual(regions.map(\.classID), [14, 21, 22])
+    }
+
     private func makeConfig() -> PPDocLayoutV3Config {
         PPDocLayoutV3Config(
             modelType: "ppdoclayoutv3",

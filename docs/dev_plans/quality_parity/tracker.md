@@ -117,19 +117,21 @@ The repo now records these values in `examples/result/.run_examples_meta.json` a
 
 **Tasks**
 
-- [ ] audit bbox normalization and de-normalization contracts end-to-end
-- [ ] regression-test crop rounding/clamping near boundaries
-- [ ] confirm min-size and large-image filtering behavior against the intended upstream contract
-- [ ] record and stabilize region order/tie-breaking on representative dense examples
-- [ ] reuse page rasters/crops between layout detection and OCR cropping where safe and deterministic
-- [ ] rerun parity reports for `page`, `code`, `paper`, and the GLM-4.5V PDFs
-- [ ] document any remaining ordering differences that are intentional or not yet solved
+- [x] audit bbox normalization and de-normalization contracts end-to-end
+- [x] regression-test crop rounding/clamping near boundaries
+- [x] confirm min-size and large-image filtering behavior against the intended upstream contract
+- [x] record and stabilize region order/tie-breaking on representative dense examples
+- [x] reuse page rasters/crops between layout detection and OCR cropping where safe and deterministic
+- [x] rerun parity reports for `page`, `code`, `paper`, and the GLM-4.5V PDFs
+- [x] document any remaining ordering differences that are intentional or not yet solved
 
 **Exit criteria**
 
 - crop/order math is regression-tested and stable
 - no unexplained filter or clamp behavior remains
 - the remaining drift on hard examples is no longer mainly attributable to crop/order defects
+
+Phase 01 is complete. The maintained Swift path now uses one page-image load per layout request, and the remaining hard-example score gap is tracked under later geometry and generation phases rather than unexplained crop/order behavior.
 
 ---
 

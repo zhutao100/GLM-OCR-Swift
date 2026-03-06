@@ -140,7 +140,7 @@ Current implementation details:
 
 - region task type is chosen from `PPDocLayoutV3Mappings`
 - `GLMOCRLayoutPipeline` can run region OCR with `auto`, `1`, or `2` workers, capped at `2`
-- for PDFs, the common layout path currently renders each selected page twice: once for layout detection and once for cropping
+- the common layout path reuses one loaded page image for both layout detection and region cropping
 
 ## Outputs And Artifacts
 

@@ -1,8 +1,8 @@
 # Example evaluation (agent report)
 
-- generated_at: `2026-03-06T18:29:21+00:00`
-- git: `52a0878-dirty`
-- git_head_sha: `52a08783aad05d150e5165a1dbc93c1d84bf92a9`
+- generated_at: `2026-03-06T18:32:38+00:00`
+- git: `d00861e-dirty`
+- git_head_sha: `d00861ecb2ec07cdbc6067d93dcea278113d4479`
 - git_dirty: `True`
 - glm_snapshot: `zai-org/GLM-OCR@677c6baa60442a451f8a8c7eabdfab32d9801a0b`
 - layout_snapshot: `PaddlePaddle/PP-DocLayoutV3_safetensors@a0abee1e2bb505e5662993235af873a5d89851e3`
