@@ -2,7 +2,7 @@
 
 **Objective:** Port the highest-leverage “fidelity primitives” from `glm-ocr.swift` into `GLM-OCR-Swift` (deterministic preprocessing modes + vectorized fusion), and add tests that prevent regressions (fusion correctness + chat-template drift).
 
-**Status (2026-03-05):** in progress — executing `patch_plan.md` phase-by-phase; each phase is verified with `swift test` and committed separately.
+**Status (2026-03-05):** completed — phases 0–4 landed; run `swift test` (and set `GLMOCR_SNAPSHOT_PATH` to enable the conformance checks).
 
 ## Phases (source of truth)
 
