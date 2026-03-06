@@ -1,166 +1,125 @@
-# Phase 03 - generation alignment
+# Phase 03 - generation and runtime parity
 
-**Objective:** make decoding policy an explicit, reusable part of the repo so parity claims are reproducible and not conflated with crop or detector defects.
+**Goal:** make the OCR generation path explicit, reproducible, and aligned with the repo's chosen parity contract.
 
-**Status (2026-02-27):** planned.
-
----
-
-## 1. Why this phase is third, not first
-
-The current output drift is a mixture of geometry effects and decode-policy effects. If decoding is tuned before crops are aligned, the project risks fitting sampler behavior to compensate for bad crops.
-
-That is why this phase starts only after Phase 01 and Phase 02 make the visual inputs more faithful.
+**Status (2026-03-05):** planned. Current evidence suggests generation policy still matters, but it should be treated only after geometry-sensitive drift is under control.
 
 ---
 
-## 2. The parity-contract ambiguity that must be resolved first
+## 1. Why this phase is needed
 
-The upstream ecosystem exposes more than one plausible default decode policy:
+The current repo already supports OCR generation, but parity work needs a narrower and more explicit contract than generic generation support.
 
-- the SDK code path has page-loader defaults in Python config types
-- the SDK YAML sample shows a different, more sampling-heavy profile
-- the Hugging Face `generation_config.json` for the model indicates a direct-model profile
+The project needs to answer:
 
-Until the repo chooses one of these as the parity target, "generation alignment" is underspecified.
+- which preset generated `examples/result/*`?
+- was the run greedy or sampled?
+- if sampled, what seed and penalties were used?
+- how should parity runs differ from day-to-day ad hoc CLI usage?
 
----
-
-## 3. Decision required at the start of the phase
-
-Choose and document one of the following as the parity contract for `examples/reference_result/*` regeneration and comparison.
-
-### Option A - direct model parity
-
-Use the HF model's direct generation behavior as the primary contract.
-
-**Pros**
-
-- closest to the model snapshot itself
-- simpler to reason about for local inference
-
-**Cons**
-
-- may not match the official SDK path that produced the published examples
-
-### Option B - SDK pipeline parity
-
-Use the official GLM-OCR SDK request-building path as the contract.
-
-**Pros**
-
-- most likely to align with published end-to-end examples
-- matches the full document-parsing workflow more closely
-
-**Cons**
-
-- depends on clarifying which SDK defaults are actually authoritative
-
-### Option C - repo-owned explicit parity profile
-
-Define a named parity profile in this repo and record exactly which knobs it sets.
-
-**Pros**
-
-- fully reproducible
-- avoids ambiguity once documented
-
-**Cons**
-
-- must be carefully justified if it diverges from upstream defaults
-
-**Recommendation:** use Option B if the example provenance clearly comes from the SDK pipeline; otherwise use Option C and document the evidence for each chosen knob.
+Without that, example rebaselines remain difficult to explain.
 
 ---
 
-## 4. Implementation shape in Swift
+## 2. Scope
 
-Do not keep growing `GLMOCRModel.generate(...)` as a one-off decode loop.
+### In scope
 
-### Recommended architecture
+- repo-owned parity presets
+- reusable runtime/sampler plumbing
+- support for the minimum knobs actually needed by the chosen parity contract
+- reproducible seeded sampling when sampled parity is required
+- CLI and script support for explicit parity runs
+- integration tests covering the supported parity modes
 
-1. expand `GenerateOptions` so it can represent the required knobs
-2. add a sampler abstraction in `VLMRuntimeKit/Generation`
-3. keep `GLMOCRModel.generate(...)` focused on model-specific token/logit production
-4. let the generation layer own:
-   - greedy selection
-   - temperature scaling
-   - top-p filtering
-   - top-k filtering
-   - repetition penalty
-   - deterministic seeded sampling for experiments
+### Out of scope
 
-This follows the same general reuse direction already reflected in `docs/reference_projects.md`.
+- infinite end-user configurability
+- speculative generation features with no parity value
 
 ---
 
-## 5. Concrete implementation tasks
+## 3. Decision points
 
-### Workstream A - define the public generation surface
+### Decision A - choose the parity-run preset family
 
-**Files**
+The repo should define a small, named preset family, for example:
 
-- `Sources/VLMRuntimeKit/OCRTypes.swift`
-- `Sources/VLMRuntimeKit/Generation/*`
+- `parity-greedy-v1`
+- `parity-sampled-sdk-v1`
+- `exploratory-local`
 
-**Tasks**
+Only the first two should be allowed to generate checked-in parity artifacts.
 
-1. expand `GenerateOptions` with the knobs needed for parity work
-2. define defaults explicitly rather than relying on scattered call-site literals
-3. add a named decode policy/profile concept if needed
+### Decision B - minimum parameter surface
 
-### Workstream B - sampler implementation
+Expand the generation/runtime surface only as needed for the chosen presets. Likely candidates include:
 
-**Files**
+- `temperature`
+- `topP`
+- `topK`
+- `repetitionPenalty`
+- deterministic `seed`
+- `maxNewTokens`
 
-- `Sources/VLMRuntimeKit/Generation/*`
-- `Sources/ModelAdapters/GLMOCR/GLMOCRModel.swift`
-
-**Tasks**
-
-1. keep greedy mode as the simplest code path
-2. add sampling support with deterministic seeding
-3. add repetition penalty support before sampling selection
-4. ensure stop-token behavior stays identical across greedy and sampled modes
-
-### Workstream C - CLI and app plumbing
-
-**Files**
-
-- `Sources/GLMOCRCLI/GLMOCRCLI.swift`
-- `Sources/GLMOCRApp/ContentView.swift`
-
-**Tasks**
-
-1. expose parity-relevant controls without overloading the default UX
-2. keep default CLI behavior obvious and reproducible
-3. make it clear in output diagnostics which decode policy/profile was used
+If a parameter is not part of a checked-in preset or a known debugging workflow, it should not be promoted casually.
 
 ---
 
-## 6. Tests to add
+## 4. Implementation workstreams
 
-### Unit tests
+## Workstream A - preset definition
 
-- temperature 0 or greedy path remains deterministic
-- top-k filtering excludes lower-ranked tokens correctly
-- top-p filtering respects cumulative-probability cutoff
-- repetition penalty changes logits for repeated tokens as expected
-- seeded sampling is reproducible
+Tasks:
 
-### Integration tests
+1. define the supported parity presets in one place
+2. document what each preset is for
+3. record the preset name in example-eval metadata
 
-- one tiny fixture for greedy decoding
-- one tiny fixture for sampled decoding with a fixed seed
-- a parity-oriented example rerun once Phase 01 and Phase 02 are stable
+## Workstream B - runtime plumbing
+
+Tasks:
+
+1. extend `Sources/VLMRuntimeKit/OCRTypes.swift` to represent the needed generation knobs cleanly
+2. keep policy out of individual model-adapter call sites where possible
+3. make `Sources/VLMRuntimeKit/Generation/Generation.swift` host reusable behavior rather than one-off parity logic
+
+## Workstream C - CLI and scripts
+
+Tasks:
+
+1. add explicit parity-preset selection to `GLMOCRCLI`
+2. thread the chosen preset through `scripts/run_examples.sh` and report generation
+3. keep default UX quiet for normal usage while making parity runs self-describing
+
+## Workstream D - tests
+
+Add tests that distinguish:
+
+- greedy parity preset behavior
+- sampled preset reproducibility with fixed seed
+- serialization/recording of preset metadata in score artifacts
 
 ---
 
-## 7. Acceptance criteria
+## 5. Acceptance examples
 
-This phase is done when:
+This phase should be evaluated primarily on:
 
-- the repo explicitly names its parity decode policy
-- `examples/result/*` generation can be reproduced from documented settings
-- decode policy is reusable and tested rather than embedded ad hoc in model code
-- remaining example diffs can be discussed without ambiguity about the sampler path
+- `code`
+- `page`
+- `paper`
+- one GLM-4.5V PDF example
+
+These examples are sensitive enough to reveal whether the chosen preset meaningfully improves parity without letting the repo hide behind easy cases.
+
+---
+
+## 6. Exit criteria
+
+This phase is complete when:
+
+- every checked-in parity artifact can name the preset that produced it
+- the repo supports the minimum generation knobs needed by that preset family
+- parity runs are reproducible
+- generation-policy differences are no longer implicit or guessed from code history

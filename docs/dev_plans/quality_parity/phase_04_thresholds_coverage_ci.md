@@ -1,119 +1,123 @@
-# Phase 04 - thresholds, coverage, and CI policy
+# Phase 04 - formatting/export parity, golden policy, thresholds, and CI
 
-**Objective:** convert the current report-only quality/parity tooling into a stable enforcement layer for the subset of examples that has become trustworthy.
+**Goal:** turn improved runtime parity into stable, user-visible checked-in artifacts and protect the stable subset with low-flake automation.
 
-**Status (2026-03-04):** planned. The scorer scaffold exists as `tools/example_eval/`; this phase is about turning it into an opt-in enforcement lane (without slowing down default `swift test`).
-
----
-
-## 1. Why this phase matters
-
-The repo already has strong ingredients:
-
-- reproducible example generation
-- a dual-lane diff harness (`parity` and `quality`)
-- a scored evaluator with per-example rules (`tools/example_eval/`)
-- opt-in end-to-end PDF parity tests
-
-What it lacks is a low-friction way to say:
-
-- these examples are now stable enough to fail on regression
-- these other examples are still exploratory and should remain report-only
-
-This phase supplies that policy layer.
+**Status (2026-03-05):** planned. This phase now explicitly includes formatting/export parity and golden-result policy, not only threshold enforcement.
 
 ---
 
-## 2. Recommended gating model
+## 1. Why this phase is broader than CI
 
-Do not gate everything at once.
+The comparison work showed that parity is not only about OCR content. It is also about the exported structure the user sees:
 
-Use three buckets:
+- markdown block ordering
+- image placeholder replacement
+- fenced code language tags
+- block-list JSON labels and shape
+- example result directory semantics and regeneration rules
 
-### Bucket A - enforced
-
-Examples with stable parity/quality behavior.
-
-For these, the harness may fail on configured conditions such as:
-
-- missing artifacts
-- markdown diff
-- JSON structural diff
-- image mismatch policy
-
-### Bucket B - monitored
-
-Examples that still produce useful reports but are not stable enough to fail CI.
-
-### Bucket C - exploratory
-
-Examples under active debugging where only manual review is expected.
-
-This bucketed approach avoids penalizing ongoing parity work.
+A repo can have good OCR content and still fail practical parity if its final artifacts drift.
 
 ---
 
-## 3. Concrete tasks
+## 2. Scope
 
-### Workstream A - coverage gaps
+### In scope
 
-1. add `examples/golden_result/GLM-4.5V_Page_1/`
-2. add or extend `examples/reference_result_notes/*` where upstream artifacts are known to be noisy
-3. choose one representative PNG example and one representative PDF example as the first enforced set
+- markdown/export semantics
+- block-list JSON stability
+- example regeneration policy
+- golden/reference/result artifact ownership
+- thresholded example coverage
+- low-flake CI posture
 
-### Workstream B - threshold expression
+### Out of scope
 
-1. encode per-example checks and thresholds in `tools/example_eval/config/` (policy + rules)
-2. wire an opt-in failure mode (local and/or CI) using the evaluator’s built-in `--fail-under` / rules
-3. keep `scripts/compare_examples.py` as the low-level diff tool (report-only by default) for diagnosis
-4. record threshold rationale in docs and in the rule files (not only in code)
-
-### Workstream C - test-suite expansion
-
-1. keep the current PDF parity integration tests
-2. add representative PNG parity integration tests once Phase 01 and Phase 02 settle
-3. avoid making default `swift test` expensive; stay env-gated or filter-based
-
-### Workstream D - CI posture
-
-Recommended order:
-
-1. local report-only by default
-2. opt-in enforced subset in CI
-3. expand the enforced set gradually as examples stabilize
+- new model/runtime behavior that belongs to Phases 01-03
 
 ---
 
-## 4. Suggested first enforced examples
+## 3. Workstreams
 
-Use examples with strong signal and low ambiguity.
+## Workstream A - output-format parity audit
 
-### Candidate PDF
+Audit and document the output-sensitive behaviors that affect checked-in examples:
+
+1. region ordering in markdown
+2. image placeholder replacement and crop filename policy
+3. fenced-code formatting and language labeling
+4. JSON export ordering and stable serialization
+5. preservation of table/formula/image-specific semantics
+
+The first deliverable is a short matrix naming which behaviors are guaranteed, best-effort, or intentionally repo-owned.
+
+## Workstream B - golden/reference/result policy
+
+Write down the purpose of each artifact family:
+
+- `reference_result/*`
+- `golden_result/*`
+- `result/*`
+- `eval_records/*`
+
+Then define:
+
+- who may update them
+- when an update is a bug fix vs a rebaseline
+- which metadata must accompany an update
+
+## Workstream C - threshold policy
+
+Start small and explicit.
+
+1. choose one PDF and one PNG example for early enforcement
+2. document the threshold rationale per example
+3. keep report-only coverage for the rest of the corpus
+4. expand only when the examples are demonstrably stable
+
+## Workstream D - CI posture
+
+Recommended posture:
+
+1. cheap local diagnostics by default
+2. opt-in or subset-gated parity enforcement in CI
+3. broader report generation available but not required for every change
+
+This phase should protect parity work without making normal development hostile.
+
+---
+
+## 4. Suggested first protected examples
+
+### PDF
 
 - `GLM-4.5V_Page_1`
 
-Why:
+Reasoning:
 
-- already has reference artifacts
-- single-page scope is easier to reason about than the 3-page PDF
+- already exercised by parity integration tests
+- narrower scope than the 3-page PDF
+- good signal for image placeholder and markdown/export behavior
 
-### Candidate PNG
+### PNG
 
 - `table` or `seal`
 
-Why:
+Reasoning:
 
-- structurally simple
-- easier to detect whether a regression is caused by layout logic or OCR content noise
+- relatively stable structure
+- lower ambiguity than `page` while the geometry work is still settling
 
-Do not start with `paper` as the first enforced PNG if Phase 02 is still in motion.
+Only promote `code` and `page` after Phases 01-03 are stable enough that failures are actionable rather than noisy.
 
 ---
 
 ## 5. Acceptance criteria
 
-This phase is done when:
+This phase is complete when:
 
-- at least one PDF and one PNG example are enforced by documented policy
-- the rest of the corpus can still be compared in report-only mode
-- CI guidance is written down and does not require guessing which examples are expected to fail
+- output-format semantics that affect checked-in examples are documented
+- example artifact ownership and rebaseline rules are written down
+- at least one PDF and one PNG example are protected by thresholds and/or parity integration checks
+- report-only exploratory coverage still exists for the rest of the corpus
+- CI posture is documented and low-flake

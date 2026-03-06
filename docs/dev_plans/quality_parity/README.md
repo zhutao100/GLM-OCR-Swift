@@ -1,19 +1,31 @@
 # Quality parity plan index
 
-**Objective:** turn the current structural parity recovery into a complete, repeatable path to layout-mode parity and then lock that behavior into the repo's validation workflow.
+**Objective:** refresh the `GLM-OCR-Swift` parity work into a phased, faithful improvement plan that names the reference contract explicitly, closes the highest-value remaining gaps in the right order, and then locks the stable subset into the validation workflow.
 
-**Status (2026-02-27):** active. Structural parity blockers have been fixed. The remaining work is concentrated in crop semantics, polygon/mask parity, decoding-policy alignment, and then thresholded enforcement.
+**Status (2026-03-05):** active. The project has already recovered the major structural blockers around formula labeling and block-list export. The remaining work is no longer "find the bug" work; it is **reference-contract**, **crop/geometry**, **generation-policy**, and **formatting/export** work.
 
 ---
 
-## What changed the status of this work
+## What "faithful parity" means in this repo
 
-The layout parity investigation in `docs/debug_notes/layout_parity/layout_parity_analysis.md` identified and validated two primary structural fixes:
+The earlier comparison work showed that the repo needs to be precise about *which* upstream behavior it is matching.
 
-- formula regions were previously dropped because the HF layout snapshot emits `"formula"`, while the Swift mapping only recognized `display_formula` / `inline_formula`
-- block-list JSON export collapsed `table` and `formula` back to `text`
+There are three adjacent but different targets:
 
-Those are now treated as complete. The remaining work is smaller in scope but higher in implementation detail.
+1. **HF / local-model semantics parity**
+   - `transformers` GLM-OCR + PP-DocLayout-V3 config, preprocessing, postprocess, and generation behavior.
+   - This is the most relevant target for a native local inference engine.
+
+2. **Official Python repo behavior parity**
+   - `zai-org/GLM-OCR` page loading, optional layout detection, OCR request orchestration, and result formatting.
+   - This matters for example outputs and UX expectations.
+   - It does **not** imply that `GLM-OCR-Swift` should copy the Python repo's service-oriented architecture.
+
+3. **Repo-owned regression contract**
+   - the exact behavior the project decides to check in under `examples/result/*`, `examples/reference_result/*`, and the parity/quality harness.
+   - This must be explicit so future example updates are reproducible.
+
+This plan treats **(1) + the user-visible parts of (2)** as the parity target, while keeping the Swift architecture native and modular.
 
 ---
 
@@ -21,57 +33,77 @@ Those are now treated as complete. The remaining work is smaller in scope but hi
 
 | Phase | Focus | Primary outcome |
 |---|---|---|
-| Phase 01 | Crop + ordering alignment | Match upstream bbox normalization, crop pixel bounds, and missing layout heuristics closely enough that structural parity is stable without hand-waving |
-| Phase 02 | Polygon + mask support | Use `out_masks` to generate polygon crops instead of bbox-only crops, reducing contamination in formulas/tables |
-| Phase 03 | Generation alignment | Make decoding policy explicit and reproducible, then align the parity profile to the intended upstream reference path |
-| Phase 04 | Thresholds + coverage + CI policy | Convert report-only diffs into stable, opt-in checks for representative PDFs and PNG examples |
+| Phase 00 | Reference contract + reproducibility | One written parity contract, pinned revisions, and an agreed score baseline |
+| Phase 01 | Layout/crop/order alignment | Upstream-faithful bbox math, crop bounds, filtering, and reading-order behavior |
+| Phase 02 | Polygon/mask geometry parity | `out_masks`-driven polygon extraction and polygon-aware crops where upstream provides them |
+| Phase 03 | Generation/runtime parity | Explicit decode presets and reproducible generation behavior for parity runs |
+| Phase 04 | Formatting/export parity + golden policy + CI | Stable markdown/JSON/example outputs, documented golden regeneration policy, and low-flake enforcement |
 
 ---
 
 ## Documents in this folder
 
 - `tracker.md`
-  - live status, ordered backlog, and exit criteria
+  - live status, ordered backlog, score snapshot, and exit criteria
 - `implementation_plan.md`
-  - master plan tying parity and quality lanes together
+  - master plan tying the five phases together
+- `phase_00_reference_contract.md`
+  - target definition, pinned revisions, and acceptance criteria for "faithful parity"
 - `phase_01_crop_order_alignment.md`
-  - detailed plan for bbox, crop rounding, and missing layout heuristics
+  - bbox math, crop rounding, filtering, ordering, and page/crop reuse
 - `phase_02_polygon_mask_support.md`
-  - detailed plan for `out_masks` plumbing and polygon extraction strategy
+  - `out_masks` plumbing, contour extraction, and polygon crop rollout
 - `phase_03_generation_alignment.md`
-  - detailed plan for decoding policy, sampler plumbing, and parity target selection
+  - generation presets, sampler/runtime plumbing, and parity-run UX
 - `phase_04_thresholds_coverage_ci.md`
-  - detailed plan for turning the diff harness into enforced, low-flake checks
+  - formatting/export parity, example regeneration policy, thresholding, and CI posture
 
 ---
 
 ## Recommended execution order
 
-1. Complete Phase 01 first.
-   - It is the cheapest remaining work.
-   - It also gives a cleaner signal when evaluating whether Phase 02 is truly needed for a given example.
+1. **Land Phase 00 first.**
+   - No more parity work should proceed against an unnamed upstream target.
 
-2. Start Phase 02 immediately after Phase 01 lands.
-   - Formula-heavy examples are likely still paying a contamination penalty from bbox-only crops.
-   - This is the highest-value remaining parity investment.
+2. **Finish Phase 01 before large-scale decoder tuning.**
+   - `page` and `code` drift is still too sensitive to crop/order defects.
 
-3. Resolve Phase 03 only after Phase 01 and Phase 02 produce stable crops.
-   - Otherwise token-level drift mixes crop defects with decoder-policy defects.
+3. **Do Phase 02 before claiming formula/table parity.**
+   - Bbox-only crops are still a likely contamination source on formula-heavy and dense-layout pages.
 
-4. Use Phase 04 to lock in the subset that becomes stable.
-   - Do not wait for the entire corpus to become perfect before adding gating.
+4. **Do Phase 03 only after the geometry path is stable.**
+   - Otherwise generation tuning will mask crop and region-selection defects.
+
+5. **Use Phase 04 to lock the stable subset immediately.**
+   - Do not wait for every example to be perfect before protecting the examples that are already stable.
 
 ---
 
-## Design rule for Python-infrastructure gaps
+## Decision rules
 
-When the upstream Python path depends on framework behavior that is not already mirrored in Swift, do not immediately assume a from-scratch port.
+### 1. Stay architecture-native
 
-Use this preference order:
+`GLM-OCR-Swift` should remain a native local Swift/MLX runtime. The goal is not to port the official Python repo's client-service layering one-for-one.
 
-1. existing Apple-native primitives already present in the repo or platform SDKs
-2. established Swift/MLX patterns already surveyed in `docs/reference_projects.md`
-3. a small local implementation only when the first two do not preserve the needed semantics
-4. external heavy dependencies only as a validation aid or last resort, not as the default shipping path
+### 2. Mirror semantics, not incidental implementation details
 
-That rule is applied explicitly in the Phase 02 and Phase 03 plans.
+If the upstream Python or Transformers path uses framework-specific helpers, the Swift implementation should preserve the behavior that changes outputs:
+
+- coordinates
+- filtering
+- ordering
+- masks/polygons
+- decode policy
+- formatting/export semantics
+
+not the upstream library choice itself.
+
+### 3. Name the parity target in every result artifact
+
+Every regenerated example or score report should be able to answer:
+
+- which GLM-OCR revision?
+- which PP-DocLayout-V3 revision?
+- which decode preset?
+- which layout/crop/polygon policy?
+- which formatter/export policy?

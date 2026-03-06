@@ -1,162 +1,201 @@
-# Tracker - quality parity
+# Tracker - faithful quality parity
 
-**Objective:** track the live status of parity and quality work after the structural layout blockers were removed.
+**Objective:** track the live status of the refreshed faithful-parity plan after the major structural blockers were removed.
 
-**Status (2026-02-27):** active. Structural parity recovery is complete. Remaining work is ordered below by expected leverage.
-
----
-
-## 0. Reproducibility (pinned revisions)
-
-The default CLI revisions are `main`. For parity/quality work, prefer pinning both model snapshots so reports are reproducible.
-
-Current working baselines (update here when intentionally rebasing):
-
-- GLM-OCR: `zai-org/GLM-OCR` @ `677c6baa60442a451f8a8c7eabdfab32d9801a0b`
-- PP-DocLayout-V3: `PaddlePaddle/PP-DocLayoutV3_safetensors` @ `a0abee1e2bb505e5662993235af873a5d89851e3`
-
-Where they are used:
-
-- CLI: `--revision <hash>` + `--layout-revision <hash>`
-- Examples harness: `scripts/run_examples.sh --glm-revision <hash> --layout-revision <hash>`
-
-## 1. Status snapshot
-
-### Completed
-
-- [x] Added PP-DocLayout-V3 formula aliasing for HF snapshot label strings
-- [x] Fixed block-list JSON export labels for `table` and `formula`
-- [x] Confirmed restored formula block counts on representative examples (`paper`, `page`, `GLM-4.5V_Pages_1_2_3`)
-- [x] Established that the next diffs are primarily crop, polygon, and generation-policy issues rather than gross structural loss
-
-### Active queue
-
-1. **Phase 01 - crop + ordering alignment**
-2. **Phase 02 - polygon + mask support**
-3. **Phase 03 - generation alignment**
-4. **Phase 04 - thresholded coverage + CI policy**
+**Status (2026-03-05):** active. The project is in the "known remaining gaps" stage. The next work should focus on execution-path parity, not on inventing new architecture.
 
 ---
 
-## 2. Ordered backlog
+## 0. Current baseline and reference signal
 
-### Phase 01 - crop + ordering alignment
+### Checked-in score snapshot (current repo)
 
-**Goal:** eliminate avoidable drift caused by coordinate conversion and missing layout heuristics.
+Use the current checked-in reports as the baseline until intentionally rebaselined.
+
+| Example | Current final overall |
+|---|---:|
+| `GLM-4.5V_Page_1` | 0.8730 |
+| `GLM-4.5V_Pages_1_2_3` | 0.8732 |
+| `code` | 0.7671 |
+| `handwritten` | 0.9777 |
+| `page` | 0.7141 |
+| `paper` | 0.9650 |
+| `seal` | 0.9804 |
+| `table` | 0.9944 |
+| **mean** | **0.8931** |
+
+### Comparative priority signal
+
+The peer Swift port's checked-in reports are ahead overall, especially on `code` and `page`. Treat that as a priority signal, not as a reason to copy its architecture wholesale.
+
+Biggest current deficits to close first:
+
+1. `code`
+2. `page`
+3. dense mixed-layout/formula pages
+
+---
+
+## 1. Source-of-truth matrix
+
+| Behavior class | Primary source | Secondary source | Current repo rule |
+|---|---|---|---|
+| GLM-OCR model config / image preprocessing | selected `transformers` GLM-OCR files | fixtures + integration tests | Swift path should match semantics, not Python library choice |
+| PP-DocLayout-V3 postprocess / masks / polygons | selected `transformers` PP-DocLayout-V3 files | repo golden fixtures/tests | fallback behavior must be explicit |
+| page loading / page selection | official Python repo behavior | repo scripts/tests | local-native implementation allowed |
+| markdown and block-list output shape | checked-in reference examples + integration tests | official repo intent | checked-in examples define practical parity |
+| parity-run decode preset | repo-owned explicit preset | upstream defaults as input only | preset must be recorded in reports |
+
+---
+
+## 2. Reproducibility policy
+
+The default CLI revisions may continue to follow `main`, but parity work should use pinned revisions recorded in docs and score artifacts.
+
+**Required recorded inputs for parity runs**
+
+- GLM-OCR revision/hash
+- PP-DocLayout-V3 revision/hash
+- parity preset name
+- example set / corpus
+- generation date
+
+The repo already has the scripts needed to capture most of this; the remaining work is to make the metadata mandatory and obvious.
+
+---
+
+## 3. Completed work that remains valid
+
+- [x] Formula label aliasing was fixed so formula regions are no longer silently dropped due to snapshot label-name differences.
+- [x] Block-list JSON export preserves `table` and `formula` labels instead of collapsing them to `text`.
+- [x] The repo has a real parity integration lane for GLM-4.5V PDF examples.
+- [x] The repo has enough evidence to say the next gaps are mainly crop/order, masks/polygons, generation policy, and formatting/export.
+
+---
+
+## 4. Ordered backlog
+
+### Phase 00 - reference contract + reproducibility
+
+**Goal:** make "faithful parity" explicit and reproducible.
 
 **Tasks**
 
-- [x] Switch normalized bbox conversion in `PPDocLayoutV3Model.toNormalizedBBox` from floor/ceil expansion to upstream-style truncation semantics
-- [x] Switch `VisionIO.cropRegion` pixel-bound conversion from down/up rounding to upstream-style truncation semantics
-- [x] Add crop-specific tests that compare pixel rectangles against the upstream contract for representative bbox values near page edges
-- [x] Mirror the upstream min-size validity pre-filter before post-process selection
-- [x] Mirror `filter_large_image` in the Swift postprocess path, behind a clearly documented option if needed
-- [x] Re-run parity reports for `paper`, `page`, `table`, and `GLM-4.5V_Pages_1_2_3`
-- [x] Record whether order-sequence tie-breaking still needs adjustment once crop math is stable
-
-**Notes (2026-02-28)**
-
-- parity report: `max_bbox_delta` tightened to <= 8 for `paper`, `table`, and `GLM-4.5V_Pages_1_2_3`
-- `page` still shows a local ordering mismatch (three adjacent `text` blocks permuted); treat this as remaining Workstream C follow-up
+- [ ] write the parity-target matrix into the maintained docs
+- [ ] define the supported parity preset names
+- [ ] record pinned revision policy for parity runs
+- [ ] thread parity metadata into score artifacts and/or eval records
+- [ ] write one short rebaseline policy for checked-in example artifacts
 
 **Exit criteria**
 
-- bbox deltas stop shifting for purely arithmetic reasons
-- no known missing upstream layout heuristic remains untracked in the detector path
-- at least one regression test protects the chosen rounding contract
+- one written parity contract exists
+- reports can name the preset and revisions that produced them
+- contributors no longer need to infer the target from scattered files
 
 ---
 
-### Phase 02 - polygon + mask support
+### Phase 01 - layout/crop/order alignment
 
-**Goal:** replace bbox-only crops with mask-derived polygon crops where upstream provides them.
+**Goal:** close the remaining layout-path drift with the highest expected leverage on `page` and `code`.
 
 **Tasks**
 
-- [ ] Expose final `out_masks` in the Swift detector raw outputs
-- [ ] Gather masks with the same top-query selection used for scores/labels/boxes
-- [ ] Implement the same fallback rules as upstream:
-  - invalid box -> rectangle polygon
-  - no contour -> rectangle polygon
-  - fewer than four polygon points -> rectangle polygon
-- [ ] Choose contour extraction path after a short spike:
-  - [ ] evaluate Apple-native contour extraction on binary masks
-  - [ ] if semantics drift, implement a local external-contour + simplification path
-- [ ] Preserve polygon coordinates in normalized `[0, 1000]` space and feed them into `VisionIO.cropRegion`
-- [ ] Add targeted unit fixtures for contour extraction and polygon normalization
-- [ ] Add end-to-end example checks for formula-heavy samples
+- [ ] audit bbox normalization and de-normalization contracts end-to-end
+- [ ] regression-test crop rounding/clamping near boundaries
+- [ ] confirm min-size and large-image filtering behavior against the intended upstream contract
+- [ ] record and stabilize region order/tie-breaking on representative dense examples
+- [ ] reuse page rasters/crops between layout detection and OCR cropping where safe and deterministic
+- [ ] rerun parity reports for `page`, `code`, `paper`, and the GLM-4.5V PDFs
+- [ ] document any remaining ordering differences that are intentional or not yet solved
 
 **Exit criteria**
 
-- `ProcessedRegion.polygon` is no longer bbox-derived by default when masks are present
-- formula and table crops visibly reduce background contamination on targeted examples
-- the polygon path has both unit and end-to-end coverage
+- crop/order math is regression-tested and stable
+- no unexplained filter or clamp behavior remains
+- the remaining drift on hard examples is no longer mainly attributable to crop/order defects
 
 ---
 
-### Phase 03 - generation alignment
+### Phase 02 - polygon/mask geometry parity
 
-**Goal:** make decoding policy explicit, testable, and aligned with the chosen parity contract.
+**Goal:** use mask-derived polygons when upstream provides them, with explicit fallback behavior.
 
 **Tasks**
 
-- [ ] Decide and document the parity target source of truth:
-  - HF direct model path
-  - official SDK pipeline path
-  - repo-owned explicit parity profile
-- [ ] Reconcile the current upstream default ambiguity:
-  - SDK `config.py` page-loader defaults
-  - SDK `config.yaml` page-loader defaults
-  - HF `generation_config.json`
-- [ ] Expand `GenerateOptions` to include the knobs actually needed for parity work
-- [ ] Introduce reusable sampler plumbing in `VLMRuntimeKit/Generation` instead of embedding more policy in `GLMOCRModel.generate(...)`
-- [ ] Support deterministic seeded sampling for parity experiments
-- [ ] Add repetition penalty and top-k support if the chosen parity target requires them
-- [ ] Expose CLI controls for parity runs without making the default UX noisy
-- [ ] Add targeted integration tests covering greedy and sampled modes separately
+- [ ] expose final masks from the DocLayout path
+- [ ] preserve mask-to-region alignment through selection and export
+- [ ] implement contour extraction and simplification with explicit fallback rules
+- [ ] support polygon-aware cropping in `VisionIO`
+- [ ] preserve polygons through OCR result models and JSON export
+- [ ] add unit tests for contour/polygon normalization
+- [ ] add end-to-end checks on formula/table-heavy examples
 
 **Exit criteria**
 
-- the repo can explain exactly which decode policy generated `examples/result/*`
-- parity experiments are reproducible
-- sampler logic is reusable and regression-tested
+- valid masks produce usable polygons by default
+- fallback behavior is documented and tested
+- target examples show reduced contamination-driven errors
 
 ---
 
-### Phase 04 - thresholds + coverage + CI policy
+### Phase 03 - generation/runtime parity
 
-**Goal:** lock in the stable subset without slowing down the default development loop.
+**Goal:** make decode policy explicit, minimal, and reproducible for checked-in parity artifacts.
 
 **Tasks**
 
-- [ ] Add `examples/golden_result/GLM-4.5V_Page_1/` so the quality lane covers both PDFs
-- [ ] Promote at least one PDF and one PNG example to threshold-gated status
-- [ ] Add per-example threshold policy docs to the tracker or adjacent notes
-- [ ] Use `tools/example_eval/` as the primary scorer/enforcer (keep `scripts/compare_examples.py` as the diagnostic diff tool)
-- [ ] Add representative PNG parity integration tests once Phase 01 and Phase 02 settle
-- [ ] Document a CI mode that is opt-in or subset-gated rather than globally expensive
+- [ ] define the supported parity preset family
+- [ ] expand generation/runtime types only as needed by those presets
+- [ ] add seeded reproducibility for sampled parity runs if required
+- [ ] add CLI/script support for explicit preset selection
+- [ ] record preset metadata in example-eval artifacts
+- [ ] add integration tests for greedy vs sampled parity modes
 
 **Exit criteria**
 
-- at least one PDF and one PNG example are protected by thresholds
-- report-only mode still exists for exploratory work
-- the repo has a documented low-flake CI posture for quality/parity checks
+- every checked-in parity artifact can name its preset
+- generation policy is no longer implicit
+- parity runs are reproducible
 
 ---
 
-## 3. Risks to keep visible
+### Phase 04 - formatting/export parity + golden policy + CI
 
-- **Contour-semantic mismatch risk:** an Apple-native contour API may not match the OpenCV-style polygon semantics used upstream closely enough for parity work.
-- **False attribution risk:** generation-policy tuning before crop/polygon alignment can hide the real source of errors.
-- **Over-gating risk:** threshold enforcement added too early can create churn while the examples are still unstable.
-- **Reference ambiguity risk:** upstream SDK defaults and HF model defaults are not obviously the same, so parity claims must name the exact target.
+**Goal:** protect the user-visible artifact layer and lock the stable subset.
+
+**Tasks**
+
+- [ ] audit markdown and JSON output semantics that affect checked-in examples
+- [ ] document `reference_result`, `golden_result`, `result`, and `eval_records` ownership
+- [ ] define the rebaseline policy for example artifacts
+- [ ] protect at least one PDF and one PNG example with thresholds and/or parity integration tests
+- [ ] keep broad report-only coverage available for exploratory work
+- [ ] document a low-flake CI posture for parity/quality checks
+
+**Exit criteria**
+
+- output-format semantics are documented
+- example rebaselines follow an explicit policy
+- the stable subset is protected without slowing normal development excessively
 
 ---
 
-## 4. Completion criteria for the tracker
+## 5. Risks to keep visible
+
+- **Reference ambiguity risk:** upstream sources do not automatically resolve all policy questions; the repo must own a written contract.
+- **False attribution risk:** generation tuning before geometry parity can hide the real root cause of errors.
+- **Contour-semantic mismatch risk:** a contour API can look correct while still drifting from the upstream polygon semantics that matter for crops.
+- **Artifact drift risk:** OCR content improvements can still appear as regressions if markdown/JSON/export rules are not stabilized.
+- **Over-gating risk:** thresholding unstable examples too early creates churn instead of confidence.
+
+---
+
+## 6. Maintenance-mode criteria
 
 This tracker can move to maintenance mode when:
 
-- all four phases are either complete or explicitly descoped
-- the remaining open diffs are intentional and documented per example
-- the stable examples are protected by thresholds or integration tests
+- all five phases are complete or explicitly descoped
+- current example artifacts carry enough metadata to reproduce them
+- hard examples either meet the chosen parity target or have their remaining intentional gaps documented
+- the stable subset is protected by automated checks

@@ -1,162 +1,108 @@
-# Phase 02 - polygon and mask support
+# Phase 02 - polygon and mask geometry parity
 
-**Objective:** bring the Swift layout path from bbox-only crops to mask-derived polygon crops, matching the intent of the upstream PP-DocLayout-V3 inference path closely enough to improve OCR content parity.
+**Goal:** move from bbox-only crops to upstream-faithful mask-derived polygon handling when PP-DocLayout-V3 provides the necessary mask outputs.
 
-**Status (2026-02-27):** planned.
+**Status (2026-03-05):** planned. The comparative analysis indicates this is likely the next highest-value parity investment after layout/crop/order alignment.
 
 ---
 
 ## 1. Why this phase matters
 
-The current Swift code already supports polygon masking in `VisionIO.cropRegion(...)`, but the detector path never supplies real polygons. As a result:
+Dense pages, formulas, and some tables are disproportionately harmed by bbox-only crops. Even if the correct region is selected, rectangular crops can drag in neighboring text, rule lines, captions, or adjacent formulas.
 
-- every crop is effectively rectangular
-- formulas, tables, and irregular regions can include more surrounding pixels than upstream
-- the OCR model has to parse extra visual noise that the reference pipeline attempts to remove
-
-This is the most likely remaining reason formula-heavy crops still differ after structural parity was restored.
+Mask-derived polygons reduce that contamination and align better with the upstream postprocess behavior exposed in the selected `transformers` files.
 
 ---
 
-## 2. Upstream reference behavior to mirror
+## 2. Scope
 
-The Transformers PP-DocLayout-V3 postprocess path does the following:
+### In scope
 
-1. takes final `out_masks`
-2. thresholds them into binary masks
-3. crops each mask to its box window
-4. rescales the cropped mask back to the box size
-5. extracts an outer contour and polygon approximation
-6. falls back to the box rectangle when the polygon is missing or too small
+- exposing `out_masks` or equivalent final masks from the DocLayout path
+- selecting the masks using the same query-selection logic as labels/scores/boxes
+- contour extraction and polygon simplification
+- fallback rules when masks are missing or unusable
+- normalized polygon storage and polygon-aware cropping
+- targeted formula/table parity checks
 
-The Swift plan should mirror that high-level behavior, even if the contour-extraction backend differs.
+### Out of scope
 
----
-
-## 3. Swift solution search order
-
-This phase should not assume a from-scratch contour implementation until the alternatives are evaluated.
-
-### Option A - Apple-native contour extraction spike
-
-**What to evaluate**
-
-- extracting contours from binary masks using Apple-native image-analysis primitives
-- whether the returned contour ordering and simplification are stable enough for parity work
-
-**Why try it first**
-
-- keeps the shipping path Apple-native
-- minimizes dependency cost
-- may be sufficient for external-contour extraction on clean binary masks
-
-**Why it might fail parity needs**
-
-- hidden preprocessing or contour smoothing can drift from the OpenCV-style semantics used upstream
-- contour approximation behavior may not match the upstream fallback rules closely enough
-
-### Option B - small local contour extractor
-
-If Option A does not preserve the needed semantics, implement a narrow local solution that mirrors the upstream intent:
-
-- binary external-contour tracing
-- polygon simplification
-- upstream-compatible fallback rules
-
-This is preferred over a large dependency if the implementation remains small and testable.
-
-### Option C - OpenCV-backed validation aid
-
-Keep OpenCV out of the default shipping path.
-
-If needed, use it only as a validation oracle during development for a few fixtures, not as the primary runtime dependency.
+- decoder/generation changes
+- markdown export formatting changes unrelated to geometry
 
 ---
 
-## 4. Recommended implementation plan
+## 3. Required behavior contract
 
-### Workstream A - plumb masks through the detector
+The Swift path should preserve the following behavior classes:
 
-**Files**
+1. **happy path**
+   - valid mask -> contour -> simplified polygon -> normalized polygon points -> polygon-aware crop
 
-- `Sources/ModelAdapters/DocLayout/PPDocLayoutV3Model.swift`
-- `Sources/ModelAdapters/DocLayout/PPDocLayoutV3Postprocess.swift`
+2. **fallback path**
+   - invalid box -> rectangle polygon
+   - no contour -> rectangle polygon
+   - too few points -> rectangle polygon
+   - obviously degenerate polygon -> rectangle polygon
 
-**Tasks**
-
-1. extend the raw output type so final masks are available to post-process code
-2. gather masks with exactly the same top-query selection used for scores/labels/boxes
-3. preserve ordering consistency with `order_seq`
-
-### Workstream B - implement polygon extraction utility
-
-**Suggested landing zone**
-
-- a dedicated helper under `Sources/ModelAdapters/DocLayout/` or `Sources/VLMRuntimeKit/VisionIO/`
-
-**Tasks**
-
-1. crop mask to the bbox window
-2. resize mask to the bbox dimensions using nearest-neighbor behavior
-3. extract the external contour
-4. simplify to polygon points
-5. normalize/fallback exactly as needed by the OCR pipeline
-
-### Workstream C - wire polygons into crop generation
-
-**Files**
-
-- `Sources/VLMRuntimeKit/VisionIO/VisionCrop.swift`
-- `Sources/ModelAdapters/GLMOCR/GLMOCRLayoutPipeline.swift`
-
-**Tasks**
-
-1. pass real polygons into `VisionIO.cropRegion(...)`
-2. confirm existing polygon-mask fill stays consistent with the upstream white-fill intent
-3. verify that bbox fallback still works for invalid polygons
+3. **recording path**
+   - downstream block models and JSON export should preserve polygon information when available
 
 ---
 
-## 5. Compatibility rules to preserve
+## 4. Implementation strategy
 
-The Swift path should preserve these upstream-style fallback behaviors:
+## Workstream A - mask exposure and selection
 
-- invalid or empty bbox -> rectangle fallback
-- no contour found -> rectangle fallback
-- fewer than four polygon points -> rectangle fallback
-- polygon count mismatch vs detections -> diagnostics + rectangle fallback
+Tasks:
 
-This ensures the polygon feature improves crops without making the pipeline fragile.
+1. expose final masks from the PP-DocLayout output path
+2. ensure masks are filtered with the same top-query selection used for boxes/scores/labels
+3. add tests confirming mask-to-region alignment is stable
 
----
+## Workstream B - contour extraction spike
 
-## 6. Tests to add
+Recommended search order:
 
-### Unit tests
+1. evaluate an Apple-native binary-contour route if it can preserve semantics closely enough
+2. if that drifts too much, implement a compact local external-contour path
+3. use heavier validation tooling only as a temporary parity oracle, not as a required shipping dependency
 
-- contour extraction from a simple rectangular mask
-- contour extraction from an L-shaped or irregular mask
-- fallback when the mask is empty
-- fallback when the extracted polygon is too small
-- normalization and clamping of polygon coordinates into `[0, 1000]`
+## Workstream C - polygon normalization and crop support
 
-### Integration checks
+Tasks:
 
-Re-run at least:
+1. preserve polygon coordinates in a normalized contract consistent with the existing bbox path
+2. make `VisionIO` able to crop from polygons deterministically
+3. ensure polygons round-trip through OCR result models and JSON export without silent loss
+
+## Workstream D - targeted end-to-end validation
+
+Target examples:
 
 - `paper`
 - `page`
-- `GLM-4.5V_Pages_1_2_3`
+- formula-heavy PDF pages
+- at least one table-dense sample
 
-The acceptance signal is not just markdown similarity. It should also include qualitative crop inspection for formula regions.
+The first success criterion is not a perfect score. It is a visible reduction in contamination and a measurable gain in structure/content metrics on the targeted examples.
 
 ---
 
-## 7. Acceptance criteria
+## 5. Risks
 
-This phase is done when:
+- **Contour-semantic mismatch risk:** some contour APIs may smooth or order contours differently enough to create output drift.
+- **False precision risk:** a polygon path that looks more advanced but does not improve real crops is not a parity win.
+- **Serialization loss risk:** polygons can be computed correctly and still be lost before export unless every downstream model preserves them.
 
-- real mask-derived polygons are available end-to-end
-- bbox fallback remains robust
-- formula-heavy examples show reduced contamination and improved parity signal
-- the chosen contour backend is justified in docs and protected by tests
+---
+
+## 6. Exit criteria
+
+This phase is complete when:
+
+- masks flow through the selected-layout path reliably
+- valid masks produce non-rectangular polygons where appropriate
+- polygon-aware crops are used by default when masks are present and valid
+- fallback behavior is documented and regression-tested
+- formula/table-heavy examples show a measurable reduction in contamination-driven errors

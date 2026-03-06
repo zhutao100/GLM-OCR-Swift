@@ -1,119 +1,121 @@
-# Phase 01 - crop and ordering alignment
+# Phase 01 - layout, crop, and order alignment
 
-**Objective:** eliminate avoidable parity drift caused by coordinate conversion, crop pixel-bound semantics, and missing layout heuristics.
+**Goal:** eliminate the remaining high-leverage drift caused by coordinate conversion, crop semantics, region filtering, reading order, and page/crop handling.
 
-**Status (2026-02-28):** implemented rounding + pre-filters + unit tests; ordering follow-up remains for `page` (see `docs/dev_plans/quality_parity/tracker.md`).
+**Status (2026-03-05):** active. Earlier work fixed the gross structural blockers, but the comparative analysis still points to layout/crop/order as the most plausible reason for the remaining hard-example drift.
 
 ---
 
 ## 1. Why this phase comes first
 
-After the formula-label and JSON-label fixes, the next most plausible source of parity drift is not model quality but geometry handling:
+The checked-in reports show the largest remaining deficits on examples such as `page` and `code`. Those examples are highly sensitive to:
 
-- upstream bbox normalization truncates to integer space
-- the Swift path currently expands max edges via ceil-like behavior
-- the cropper repeats that expansion when converting normalized bbox values back to pixels
+- which regions survive layout filtering
+- which pixels are included in the crop
+- the order in which regions are emitted and concatenated
+- whether crops are polluted by neighboring content
 
-That means the recognizer is often seeing slightly larger crops than the upstream path, which is especially damaging for formulas and dense scientific text.
-
-If this is not fixed first, Phase 02 and Phase 03 results become much harder to interpret.
+Until those contracts are stable, generation tuning will be noisy and misleading.
 
 ---
 
-## 2. Upstream behaviors to mirror
+## 2. Scope
 
-### 2.1 Normalized bbox conversion
+### In scope
 
-Upstream converts floating-point `xyxy` boxes into `[0, 1000]` normalized integer coordinates using truncation semantics.
+- normalized bbox conversion rules
+- crop pixel-bound rounding and clamping
+- min-size and large-image filtering parity
+- deterministic order sequencing / tie-breaking
+- page reuse to avoid duplicate load/raster paths when that can perturb results or cost
+- targeted PDF + PNG parity checks on representative examples
 
-**Swift code to revisit**
+### Out of scope
+
+- mask-derived polygon extraction itself (Phase 02)
+- decode presets and sampler/runtime policy (Phase 03)
+
+---
+
+## 3. Workstreams
+
+## Workstream A - bbox and crop contract audit
+
+Confirm, codify, and regression-test the exact contract used for:
+
+- normalization to `[0, 1000]`
+- de-normalization back to pixels
+- clamping at page/image boundaries
+- behavior for near-zero or invalid boxes
+
+**Primary touchpoints**
 
 - `Sources/ModelAdapters/DocLayout/PPDocLayoutV3Model.swift`
-  - `toNormalizedBBox(...)`
-
-### 2.2 Crop de-normalization
-
-Upstream converts normalized bbox coordinates back into pixel coordinates using integer truncation.
-
-**Swift code to revisit**
-
 - `Sources/VLMRuntimeKit/VisionIO/VisionCrop.swift`
-  - `cropRegion(...)`
+- `Tests/DocLayoutAdapterTests/PPDocLayoutV3BBoxConversionTests.swift`
+- `Tests/VLMRuntimeKitTests/VisionCropTests.swift`
 
-### 2.3 Min-size validity pre-filter
+## Workstream B - filter parity
 
-The upstream detector masks logits for boxes smaller than one mask cell before post-processing. That can change the set of surviving detections even when NMS matches.
+Audit and close any remaining difference in:
 
-**Swift code to revisit**
+- min-size prefilter behavior
+- `filter_large_image` handling or equivalent behavior
+- discard / retain rules for edge-case boxes
 
-- `Sources/ModelAdapters/DocLayout/PPDocLayoutV3Model.swift`
-  - raw output selection path before `postProcessObjectDetection(...)`
+**Primary touchpoints**
 
-### 2.4 Large-image filtering
+- DocLayout postprocess code and tests under `Tests/DocLayoutAdapterTests/`
 
-The upstream layout postprocess includes `filter_large_image`, which drops extremely large image regions under specific conditions.
+## Workstream C - order and region sequence parity
 
-**Swift code to revisit**
+For dense pages, small ordering differences can change both markdown and the OCR text concatenation context.
 
-- `Sources/ModelAdapters/DocLayout/PPDocLayoutV3Postprocess.swift`
-- `Sources/ModelAdapters/DocLayout/PPDocLayoutV3Detector.swift`
+Tasks:
 
----
+1. record current ordering on `page`, `paper`, `GLM-4.5V_Page_1`, and `GLM-4.5V_Pages_1_2_3`
+2. compare against the reference examples and upstream intended reading order
+3. make tie-breaking deterministic and testable
+4. keep order rules documented, not implicit
 
-## 3. Recommended implementation steps
+## Workstream D - page/crop reuse
 
-### Workstream A - rounding contract
+The current layout path should avoid needless double-loading or double-rasterizing page/image inputs when it risks extra cost or divergent handling.
 
-1. Add a small test matrix for `toNormalizedBBox(...)` using edge-near values.
-2. Change the normalization path from expand-on-max-edge to upstream-style truncation.
-3. Add a matching test matrix for `VisionIO.cropRegion(...)` that validates exact crop rectangles against the same contract.
-4. Re-run representative examples and record bbox-delta changes.
+Tasks:
 
-**Important rule:** do not silently change both the detector and cropper without tests. The repo needs to be able to explain the chosen arithmetic contract later.
+1. document the current page load/raster path
+2. reuse page rasters between layout detection and region cropping where safe
+3. keep the behavior deterministic and covered by tests
 
-### Workstream B - missing heuristics
-
-1. Mirror the min-size validity mask before post-process selection.
-2. Mirror `filter_large_image` as closely as practical.
-3. Keep these behaviors explicit in code comments and diagnostics rather than burying them in opaque constants.
-
-### Workstream C - ordering cleanup
-
-Only after Workstreams A and B land:
-
-1. inspect whether `order_seq` still causes unstable tie ordering
-2. if needed, tighten the fallback/tie-break path
-3. avoid changing ordering heuristics in the same patch as rounding changes unless a failing test requires it
+This is partly a performance improvement, but it also reduces hidden parity drift from duplicated image-processing paths.
 
 ---
 
-## 4. Tests to add
+## 4. Suggested acceptance examples
 
-### Unit tests
+The first serious validation set for this phase should be:
 
-- bbox normalization cases covering values just below and above integer boundaries
-- crop rectangle conversion cases for page-edge boxes and tiny formula boxes
-- min-size validity filter fixture using a synthetic raw output that should be suppressed upstream
-- `filter_large_image` behavior fixture with one large image box and one smaller content box
-
-### Integration checks
-
-At minimum, rerun and compare:
-
-- `paper`
 - `page`
-- `table`
+- `paper`
+- `code`
+- `GLM-4.5V_Page_1`
 - `GLM-4.5V_Pages_1_2_3`
 
-If the bbox tolerance report tightens without increasing block-count mismatches, the phase is moving in the right direction.
+Reasoning:
+
+- `page` and `code` are currently the clearest hard examples
+- the GLM-4.5V PDFs exercise the existing parity-integration lane
+- `paper` exercises dense mixed-layout behavior
 
 ---
 
-## 5. Acceptance criteria
+## 5. Exit criteria
 
-This phase is done when all of the following are true:
+This phase is complete when all of the following are true:
 
-- normalization and crop rounding are protected by regression tests
-- the missing upstream heuristics are either implemented or intentionally documented as non-goals
-- parity reports no longer show obvious bbox drift attributable to arithmetic expansion
-- the tracker does not list any remaining "easy geometry mismatch" items
+- bbox and crop math are locked by regression tests
+- no known filter or clamp rule remains implicit or unexplained
+- ordering differences on representative examples are either closed or documented as intentional
+- page/crop reuse is deterministic and not duplicated accidentally
+- the remaining hard-example drift can no longer be explained mainly by crop/order defects
