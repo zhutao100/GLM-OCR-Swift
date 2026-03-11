@@ -13,9 +13,11 @@ Build and maintain a fully native macOS GLM-OCR app in Swift using:
 ## Current Reality (verified 2026-03-11)
 
 - `swift test` passes.
+- `swift run GLMOCRCLI --help` works and is the live CLI contract.
 - MLX-backed SwiftPM tests auto-prepare `mlx.metallib` on demand.
 - `scripts/build.sh` is the scripted release-build entrypoint for the packaged CLI path.
 - CLI and app support local OCR for images and PDFs.
+- Non-layout task presets support `text`, `formula`, `table`, and structured `json`.
 - Layout mode is implemented with PP-DocLayout-V3 -> region OCR -> merged Markdown.
 - CLI layout exports support both examples-style block-list JSON and structured `OCRDocument` JSON.
 - Heavy model-backed validation is opt-in through env vars and cached HF snapshots.
@@ -34,11 +36,11 @@ Build and maintain a fully native macOS GLM-OCR app in Swift using:
    - Update `README.md` for user-visible workflow or configuration changes.
    - Update `docs/overview.md` when the doc routing or source-of-truth map changes.
    - Update `docs/architecture.md` when module boundaries, public API shape, or runtime dataflow changes.
-   - Update `docs/dev_plans/*` trackers when work lands or is descoped.
+   - Update `docs/dev_plans/*` trackers when work lands or priorities change.
    - Add an ADR under `docs/decisions/` when you change interfaces, cache layout, prompt/template policy, or other durable contracts.
 
 3. Prefer deterministic, testable primitives.
-   - Keep preprocessing, prompt splitting, cache-path resolution, and export formatting easy to unit test.
+   - Keep preprocessing, prompt splitting, cache-path resolution, page selection, and export formatting easy to unit test.
    - Add targeted regression tests for deterministic fixes.
 
 4. Do not overfit the repo to transient debugging work.
@@ -66,17 +68,23 @@ Build and maintain a fully native macOS GLM-OCR app in Swift using:
 - Parity / golden / examples work
   - `docs/dev_plans/quality_parity/tracker.md`
   - `docs/golden_checks.md`
-  - `tools/example_eval/README.md`
+  - `examples/README.md`
   - `examples/eval_records/README.md`
+  - `tools/example_eval/README.md`
   - relevant notes under `docs/debug_notes/`
 
-- Release / app polish
+- Release / packaging / app polish
+  - `README.md`
+  - `docs/architecture.md`
   - `docs/dev_plans/gui_polish_distribution/tracker.md`
   - `docs/reference_projects.md`
 
 - Docs-only work
-  - keep `README.md`, `AGENTS.md`, and `docs/overview.md` aligned
-  - prefer linking to deeper docs instead of re-explaining them in multiple places
+  - `docs/overview.md`
+  - `README.md`
+  - `AGENTS.md`
+  - `docs/dev_plans/README.md`
+  - keep the maintained docs aligned instead of repeating the same guidance in multiple places
 
 ## Repo Map
 
@@ -97,31 +105,33 @@ Build and maintain a fully native macOS GLM-OCR app in Swift using:
 - `Tests/GLMOCRAdapterTests/`
   - GLM-OCR unit tests plus opt-in integration, golden, and example-parity checks
 
-## Source Of Truth
+## Source Of Truth Priority
 
-- Current runnable user workflow
-  - `README.md`
+- Live CLI surface and runnable behavior
   - `swift run GLMOCRCLI --help`
+  - current source under `Sources/`
 
-- Current architecture and public runtime shape
+- User-facing workflow and defaults
+  - `README.md`
+
+- Architecture and durable contracts
   - `docs/architecture.md`
   - ADRs in `docs/decisions/`
 
-- Roadmap and prioritized remaining work
+- Current roadmap and active gaps
   - `docs/dev_plans/README.md`
   - active trackers under `docs/dev_plans/`
 
-- Parity / integration / fixture workflow
+- Parity, examples, and evaluation workflow
   - `docs/golden_checks.md`
-
-- Example corpus ownership and generated artifacts
   - `examples/README.md`
   - `examples/eval_records/README.md`
+  - `tools/example_eval/README.md`
 
-- Historical investigations and old implementation plans
+- Historical context
   - `docs/debug_notes/`
   - `docs/dev_plans/archive/`
-  - treat these as historical context, not as the source of current behavior
+  - `docs/reference_projects.md`
 
 ## Common Commands
 
@@ -129,11 +139,12 @@ Build and maintain a fully native macOS GLM-OCR app in Swift using:
 swift build
 swift test
 swift run GLMOCRCLI --help
-scripts/build.sh
-scripts/build_mlx_metallib.sh -c debug
+swift run GLMOCRCLI --download-only
 swift run GLMOCRCLI --input examples/source/page.png > out.md
-swift run GLMOCRCLI --layout --input examples/source/page.png --emit-json out.json > out.md
+swift run GLMOCRCLI --layout --input examples/source/table.png --emit-json out.json > out.md
 swift run GLMOCRApp
+scripts/build_mlx_metallib.sh -c debug
+scripts/build.sh
 scripts/run_examples.sh
 python3 scripts/compare_examples.py --lane both
 git submodule update --init --recursive
@@ -143,8 +154,9 @@ scripts/verify_example_eval.sh
 ## Validation Expectations
 
 - Keep `swift test` green before wrapping up.
+- If you touched CLI docs, flags, or packaging behavior, also run `swift run GLMOCRCLI --help`.
+- If you touched the packaged release path or build docs, run `scripts/build.sh`.
 - MLX-backed SwiftPM tests auto-prepare `mlx.metallib`; use `scripts/build_mlx_metallib.sh -c debug` to prewarm direct SwiftPM runtime experiments or executables.
-- `scripts/build.sh` is the source-of-truth scripted release build path and matches `.github/workflows/ci.yml`.
 - The checked-in CI workflow covers default `swift test` verification and nightly CLI packaging smoke checks. Manual local command discipline remains the pre-merge validation contract.
 - Use opt-in lanes only when the task requires them:
   - `GLMOCR_RUN_GOLDEN=1`
@@ -154,29 +166,13 @@ scripts/verify_example_eval.sh
   - `GLMOCR_TEST_RUN_GENERATE=1`
 - Snapshot-backed tests auto-resolve from the local HF cache when possible. Use `GLMOCR_SNAPSHOT_PATH` or `LAYOUT_SNAPSHOT_PATH` to pin a snapshot folder explicitly.
 
-## Formatting And Tooling
-
-Checked-in tooling config:
-
-- `.swift-format`
-- `.pre-commit-config.yaml`
-
-Typical commands:
-
-```bash
-pre-commit run -a
-swift-format format --in-place --parallel Sources Tests
-swift-format lint --strict --parallel Sources Tests
-```
-
-The pre-commit hook auto-detects `swift-format` from `PATH` or via `xcrun`.
-
-## Coding Conventions
+## Repo Conventions
 
 - Swift 6 strict concurrency is enabled everywhere.
 - Default to `Sendable` value types and use `actor` for mutable shared state.
 - Prefer typed errors over `fatalError` unless the failure is genuinely unrecoverable.
 - Keep `VLMRuntimeKit` free of GLM-OCR- or PP-DocLayout-V3-specific policy.
+- Swift formatting is driven by `.swift-format` and the repo hook in `scripts/precommit_swift_format_autostage.sh`, wired through `.pre-commit-config.yaml`.
 - When working with MLX tensors:
   - avoid compound assignment unless non-aliasing is proven
   - prefer out-of-place residual updates such as `x = x + y`
@@ -185,9 +181,9 @@ The pre-commit hook auto-detects `swift-format` from `PATH` or via `xcrun`.
 ## Docs Maintenance Checklist
 
 - If CLI flags, defaults, or quickstart steps changed, update `README.md`.
-- If module boundaries or outputs changed, update `docs/architecture.md`.
-- If active work landed or priorities changed, update `docs/dev_plans/README.md` and the relevant tracker.
-- If you touch historical docs, fix dead links but do not rewrite them into the current source of truth.
+- If module boundaries, outputs, or runtime flow changed, update `docs/architecture.md`.
+- If priorities changed, update `docs/dev_plans/README.md` and the relevant tracker.
+- If you touch historical docs, fix dead links and obvious inaccuracies, but keep them clearly historical.
 - Before wrapping up, look for duplicated guidance across `README.md`, `AGENTS.md`, and `docs/`; consolidate rather than copy-paste.
 
 ## Useful Local References

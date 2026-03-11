@@ -2,7 +2,7 @@
 
 **Objective:** track the live status of the refreshed faithful-parity plan after the major structural blockers were removed.
 
-**Status (2026-03-06):** maintenance mode. All five phases are complete; follow-up work should be incremental parity improvements within the documented contract, not a new roadmap reset.
+**Status (2026-03-11):** maintenance mode. All five phases are complete; follow-up work should be incremental parity improvements within the documented contract, not a new roadmap reset.
 
 ---
 
@@ -33,6 +33,13 @@ Biggest current deficits to close first:
 1. `code`
 2. `page`
 3. dense mixed-layout/formula pages
+
+### Maintenance backlog
+
+- [ ] Improve `code` without regressing the stable subset.
+- [ ] Improve `page` without regressing the stable subset.
+- [ ] Re-evaluate dense mixed-layout/formula examples before any future artifact rebaseline.
+- [ ] Keep `examples/result/*` and `examples/eval_records/latest/*` coupled when the accepted baseline changes.
 
 ---
 
@@ -82,7 +89,7 @@ The repo now records these values in `examples/result/.run_examples_meta.json` a
 
 ---
 
-## 4. Ordered backlog
+## 4. Completed phase log
 
 ### Phase 00 - reference contract + reproducibility
 
@@ -215,9 +222,9 @@ Phase 04 is complete. The maintained output contract now lives in `examples/READ
 
 ---
 
-## 6. Maintenance-mode criteria
+## 6. Tracker retirement criteria
 
-This tracker can move to maintenance mode when:
+This tracker can be retired when:
 
 - all five phases are complete or explicitly descoped
 - current example artifacts carry enough metadata to reproduce them

@@ -1,7 +1,9 @@
 # Reference projects
 
 This document captures the detailed survey of reference Swift OCR projects (DeepSeek-OCR / DeepSeek-OCR2 / PaddleOCR-VL)
-and adjacent “inference scaffolding” repos, including reusable component inventory and architecture comparison.
+and adjacent inference scaffolding repos, including reusable component inventory and architecture comparison.
+
+It is background material, not the live repo contract. For current behavior, defaults, and roadmap, use `README.md`, `docs/architecture.md`, and `docs/dev_plans/README.md`.
 
 ---
 
@@ -172,17 +174,17 @@ Validated against the local sibling checkouts in this workspace:
 * `../deepseek-ocr2.swift`
 * `../paddleocr-vl.swift`
 
-Planned landing zones in this repo:
+Current landing zones in this repo and the remaining borrow candidates:
 
-* `VLMRuntimeKit/ModelStore`: HF snapshot download + cache conventions (DeepSeek OCR repos’ Hub patterns; Phase 01)
-* `VLMRuntimeKit/VisionIO`: CIImage/PDFKit decode → MLXArray + normalization (DeepSeek OCR), plus smart resize policy (PaddleOCR-VL; Phase 03)
-* `VLMRuntimeKit/TokenizerKit`: `<image>` placeholder splitting + “prompt parts” tokenization patterns (DeepSeek OCR2; Phase 03)
+* `VLMRuntimeKit/ModelStore`: implemented HF snapshot download + cache conventions, largely informed by the reference repos’ Hub patterns
+* `VLMRuntimeKit/VisionIO`: implemented image/PDF decode, raster, crop, and normalization; smart-resize tuning remains a future optimization area
+* `VLMRuntimeKit/TokenizerKit`: implemented `<image>` placeholder splitting and prompt-part helpers
   * Keep special token ids and image-token budgeting constants in `GLMOCRAdapter`
-* `VLMRuntimeKit/Weights`: sharded safetensors loading + dtype selection (DeepSeek OCR2 `WeightsLoader`; Phase 02)
+* `VLMRuntimeKit/Weights`: implemented sharded safetensors helpers plus dtype-aware loading patterns
   * Keep GLM-OCR weight name mapping in `GLMOCRAdapter`
-* `VLMRuntimeKit/Generation`: token-by-token greedy decode skeleton (DeepSeek OCR) + KV cache utilities (DeepSeek OCR2; Phase 02/03)
-* `GLMOCRAdapter`: config parsing, model-specific prompt formatting, vision sizing policy, token ids, and connector glue (Phase 02/03)
-* `GLMOCRApp`: job queue + responsiveness patterns (mlx-swift-chat / mlx-swift-examples; Phase 05)
+* `VLMRuntimeKit/Generation`: implemented greedy decode plus KV cache utilities; broader preset families remain intentionally out of scope unless the parity contract changes
+* `GLMOCRAdapter`: implemented config parsing, prompt formatting, vision sizing policy, token ids, and layout orchestration
+* `GLMOCRApp`: current borrow target is mostly UX polish and packaging patterns, not core inference architecture
 
 License/attribution notes when copying code:
 
@@ -210,22 +212,22 @@ From the model card: GLM-OCR is a **GLM-V encoder–decoder** with a **CogViT** 
 
 From the official MLX example: the reference Apple-Silicon path is currently Python-centric and integrates into an API/service style workflow. ([GitHub][11])
 
-**Implication:** for a macOS GUI app, you should plan for two milestones:
+**Implication:** the repo already implements the two core product milestones:
 
 1. **MVP**: single-image / PDF (single/multi-page) GLM-OCR → Markdown/text (**implemented**)
 2. **Layout mode**: DocLayout (PP-DocLayout-V3) + multi-region OCR orchestration + merged Markdown/JSON exports (**implemented**)
+
+The remaining product work is mostly parity tightening, app UX, and packaging/distribution.
 
 ---
 
 ## 5) Decision: standalone GLM-OCR vs consolidated multi-model project
 
-### Recommendation
+### Current decision
 
-**Start as a standalone GLM-OCR Swift project**, but architect it as **“core + adapter”** from day one so consolidation is a mechanical refactor, not a rewrite.
+The repo follows the standalone GLM-OCR Swift path with a core-plus-adapter architecture. Future consolidation remains optional and should add new adapters rather than collapsing the current module boundaries.
 
-This matches your “Apple-native end state” goal while avoiding early scope creep, and aligns with a direct-download/notarized distribution path that stays lightweight and offline-first. (You can still add DeepSeek-OCR/PaddleOCR-VL later as adapters if you want a single “OCR workbench” app.)
-
-### Proposed structure (module boundaries)
+### Current structure (module boundaries)
 
 * `VLMRuntimeKit` (shared core)
 
@@ -239,9 +241,10 @@ This matches your “Apple-native end state” goal while avoiding early scope c
   * `GLMOCRConfig`, `GLMOCRProcessor`, `GLMOCRModel`, `GLMOCRPipeline`
 * `GLMOCRApp` (SwiftUI)
 
-  * drag/drop images + PDFs, clipboard import
+  * drag/drop one image or PDF at a time
   * task presets: Text / Formula / Table + JSON extraction mode ([Hugging Face][10])
-  * job queue + cancellation + progress + export (Markdown/JSON)
+  * layout toggle, PDF page selection, model download/load, and Markdown output
+  * keeps structured JSON in memory for a future export UI
 
 ### Suggested public API for the shared core (so future consolidation is easy)
 
@@ -317,7 +320,7 @@ HF Swift tooling already provides model download + progress hooks suitable for a
 
 The roadmap lives in `docs/dev_plans/README.md`. Current trackers:
 
-* Quality/parity validation: `docs/dev_plans/quality_parity/tracker.md`
+* Quality/parity maintenance: `docs/dev_plans/quality_parity/tracker.md`
 * GUI polish + distribution: `docs/dev_plans/gui_polish_distribution/tracker.md`
 
 Completed work is kept either as:

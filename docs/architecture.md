@@ -88,6 +88,7 @@ The CLI is responsible for:
 Current behavior:
 
 - layout mode defaults on for PDFs and off for non-PDF inputs
+- `--layout-parallelism` accepts `auto`, `1`, or `2`; runtime concurrency stays capped at `2`
 - `--task` affects only non-layout mode
 - `--generation-preset` selects a repo-owned decode preset; the default CLI/app preset is `default-greedy-v1`
 - `--emit-json` and `--emit-ocrdocument-json` require layout mode
@@ -102,6 +103,7 @@ The app is intentionally small.
 - run one OCR request
 - display Markdown output
 - keep structured JSON in memory for future export UI
+- auto-enable layout mode when a PDF is dropped and default PDF page selection to `all`
 
 The app is not yet a full document workbench. Queueing, export UI, model management, and packaging remain future work.
 
@@ -161,8 +163,9 @@ If an export directory exists, `MarkdownImageCropper` can materialize region-ima
 
 ## Current Gaps
 
-- Quality/parity validation is still being tightened; see `docs/dev_plans/quality_parity/tracker.md`.
-- The current generation surface is intentionally narrow: greedy decode is the maintained default, while richer parity presets are still planned work.
+- Quality/parity maintenance continues on hard examples and eval hygiene; see `docs/dev_plans/quality_parity/tracker.md`.
+- The maintained generation surface is intentionally narrow: `default-greedy-v1` and `parity-greedy-v1` are the only shipped presets, and broader preset families stay out of scope unless the parity contract starts depending on them.
+- Broad corpus coverage remains report-only through `scripts/verify_example_eval.sh`; the opt-in integration lane protects only the current stable subset.
 - Large-PDF performance is still pragmatic rather than optimized.
 - The app remains a scaffold rather than a packaged end-user product.
 

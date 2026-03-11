@@ -1,43 +1,45 @@
 # Development Plans
 
-**Status (2026-03-06):** active. Current work is tracked through focused topic trackers. Completed implementation plans and older trackers live under `docs/dev_plans/archive/`.
+**Status (2026-03-11):** maintained. The repo no longer has a large open implementation program; current roadmap work is intentionally narrow and tracked through focused documents.
 
 ## Priority Order
 
-1. Quality/parity validation
-2. GUI polish and distribution after the quality backlog is under control
+1. Incremental quality/parity maintenance on the hard examples plus artifact hygiene
+2. App polish, export UX, and distribution when product focus returns
 
-## Active Trackers
+## Maintained Trackers
 
-- Quality/parity validation
+- Quality/parity maintenance
   - `docs/dev_plans/quality_parity/tracker.md`
-  - supporting phase docs: `docs/dev_plans/quality_parity/README.md`
+  - `docs/dev_plans/quality_parity/README.md`
+  - use these for the live backlog, baseline score snapshot, and parity-contract rules
 
 - GUI polish and distribution
   - `docs/dev_plans/gui_polish_distribution/tracker.md`
+  - currently deferred, but kept current as the next product-facing backlog
 
 ## Supporting References
 
 - `docs/golden_checks.md`
   - opt-in parity, golden, and model-backed integration workflow
-
+- `examples/README.md`
+  - output contract and artifact ownership
 - `examples/eval_records/README.md`
-  - how the scored evaluation record is refreshed and compared
+  - scored evaluation record refresh policy
+- `tools/example_eval/README.md`
+  - evaluator usage and outputs
 
-## Archived Work
+## Historical Material
 
-- Early implementation phases
-  - `docs/dev_plans/archive/README.md`
-
-- Multi-page PDF support
-  - `docs/dev_plans/archive/multi_page_pdf/tracker.md`
-
-- Preprocessing and fusion primitives port
-  - `docs/dev_plans/archive/preprocessing_and_fusion_primitives_port/tracker.md`
+- `docs/dev_plans/archive/README.md`
+  - early implementation phases and archived trackers
+- phase docs under `docs/dev_plans/quality_parity/`
+  - completed parity-program rationale and implementation notes
 
 ## Rules For New Plan Docs
 
 - Use a dedicated folder with a `tracker.md` for work that spans multiple sessions.
 - Keep each tracker truthful: update status, completed tasks, and descoped work when reality changes.
-- Put current behavior in `README.md`, `docs/overview.md`, and `docs/architecture.md`, not in archived plan docs.
+- Put current behavior in `README.md`, `docs/overview.md`, and `docs/architecture.md`, not in historical plan docs.
+- When a phase is complete but still useful for rationale, keep it clearly marked as completed or historical.
 - When you touch archived material, fix dead links and obvious inaccuracies, but keep it clearly historical.
