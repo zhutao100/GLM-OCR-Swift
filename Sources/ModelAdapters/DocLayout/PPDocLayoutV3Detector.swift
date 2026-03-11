@@ -42,9 +42,15 @@ public actor PPDocLayoutV3Detector {
         let store = store
         let request = ModelSnapshotRequest(modelID: modelID, revision: revision, matchingGlobs: downloadGlobs)
         let downloadBase = downloadBase
+        let explicitSnapshotPath = ProcessInfo.processInfo.environment["LAYOUT_SNAPSHOT_PATH"]
 
         let task = Task {
-            let folder = try await store.resolveSnapshot(request, downloadBase: downloadBase, progress: progress)
+            let folder = try await store.resolveSnapshotPreferringExisting(
+                request,
+                explicitSnapshotPath: explicitSnapshotPath,
+                downloadBase: downloadBase,
+                progress: progress
+            )
             let loadedConfig = try PPDocLayoutV3Config.load(from: folder)
             let loadedPreprocessorConfig = try PPDocLayoutV3PreprocessorConfig.load(from: folder)
             let inventory = try PPDocLayoutV3Weights.loadInventory(from: folder)

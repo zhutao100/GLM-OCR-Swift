@@ -14,7 +14,7 @@
 Model-agnostic runtime primitives live here.
 
 - `ModelStore`
-  - Hugging Face snapshot download and cache resolution
+  - explicit snapshot overrides, Hugging Face cache resolution, and download fallback
 - `TokenizerKit`
   - shared prompt/template helpers such as image-placeholder splitting
 - `OCRTypes` and `OCRDocumentTypes`
@@ -92,6 +92,7 @@ Current behavior:
 - `--task` affects only non-layout mode
 - `--generation-preset` selects a repo-owned decode preset; the default CLI/app preset is `default-greedy-v1`
 - `--emit-json` and `--emit-ocrdocument-json` require layout mode
+- runtime snapshot resolution prefers `GLMOCR_SNAPSHOT_PATH` / `LAYOUT_SNAPSHOT_PATH`, then the local HF cache, then download
 
 ### `GLMOCRApp`
 

@@ -27,6 +27,27 @@ public protocol ModelStore: Sendable {
     ) async throws -> URL
 }
 
+public extension ModelStore {
+    func resolveSnapshotPreferringExisting(
+        _ request: ModelSnapshotRequest,
+        explicitSnapshotPath: String? = nil,
+        downloadBase: URL? = nil,
+        progress: (@Sendable (Progress) -> Void)? = nil
+    ) async throws -> URL {
+        if self is HuggingFaceHubModelStore {
+            return try await HuggingFaceHubModelStore.resolveSnapshotPreferringExisting(
+                request,
+                explicitSnapshotPath: explicitSnapshotPath,
+                downloadBase: downloadBase,
+                downloadStore: self,
+                progress: progress
+            )
+        }
+
+        return try await resolveSnapshot(request, downloadBase: downloadBase, progress: progress)
+    }
+}
+
 /// Hugging Face Hub-backed store.
 /// Mirrors the cache resolution logic used in reference Swift OCR repos.
 public struct HuggingFaceHubModelStore: ModelStore {
@@ -103,6 +124,50 @@ public struct HuggingFaceHubModelStore: ModelStore {
 }
 
 extension HuggingFaceHubModelStore {
+    public static func resolveExplicitSnapshotPath(_ rawPath: String?) -> URL? {
+        let trimmed = rawPath?.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let trimmed, !trimmed.isEmpty else { return nil }
+        return URL(fileURLWithPath: (trimmed as NSString).expandingTildeInPath).standardizedFileURL
+    }
+
+    /// Resolves an already-present snapshot using the repo's preferred local lookup order:
+    /// explicit snapshot path override first, then the local HF cache.
+    public static func resolveExistingSnapshot(
+        _ request: ModelSnapshotRequest,
+        explicitSnapshotPath: String? = nil,
+        downloadBase: URL? = nil
+    ) throws -> URL? {
+        if let explicitSnapshotURL = resolveExplicitSnapshotPath(explicitSnapshotPath) {
+            return explicitSnapshotURL
+        }
+
+        return try resolveCachedSnapshot(
+            modelID: request.modelID,
+            revision: request.revision,
+            downloadBase: downloadBase
+        )
+    }
+
+    /// Resolves a snapshot by preferring existing local sources before downloading:
+    /// explicit snapshot path override, then the local HF cache, then the provided download store.
+    public static func resolveSnapshotPreferringExisting(
+        _ request: ModelSnapshotRequest,
+        explicitSnapshotPath: String? = nil,
+        downloadBase: URL? = nil,
+        downloadStore: any ModelStore = HuggingFaceHubModelStore(),
+        progress: (@Sendable (Progress) -> Void)? = nil
+    ) async throws -> URL {
+        if let existingSnapshot = try resolveExistingSnapshot(
+            request,
+            explicitSnapshotPath: explicitSnapshotPath,
+            downloadBase: downloadBase
+        ) {
+            return existingSnapshot
+        }
+
+        return try await downloadStore.resolveSnapshot(request, downloadBase: downloadBase, progress: progress)
+    }
+
     /// Resolves a local Hugging Face Hub snapshot folder without downloading.
     ///
     /// This is intended for opt-in integration tests and parity checks that should be able to

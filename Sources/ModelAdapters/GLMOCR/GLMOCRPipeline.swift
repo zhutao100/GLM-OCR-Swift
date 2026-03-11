@@ -66,9 +66,15 @@ public actor GLMOCRPipeline: OCRPipeline {
         let store = store
         let request = ModelSnapshotRequest(modelID: modelID, revision: revision, matchingGlobs: downloadGlobs)
         let downloadBase = downloadBase
+        let explicitSnapshotPath = ProcessInfo.processInfo.environment["GLMOCR_SNAPSHOT_PATH"]
 
         let task = Task {
-            let folder = try await store.resolveSnapshot(request, downloadBase: downloadBase, progress: progress)
+            let folder = try await store.resolveSnapshotPreferringExisting(
+                request,
+                explicitSnapshotPath: explicitSnapshotPath,
+                downloadBase: downloadBase,
+                progress: progress
+            )
             let loadedModel = try await GLMOCRModel.load(from: folder)
             self.finishLoad(modelFolder: folder, model: loadedModel)
         }

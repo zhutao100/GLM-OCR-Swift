@@ -105,33 +105,22 @@ struct GLMOCRPreprocessDebugCLI: AsyncParsableCommand {
         let downloadBaseURL = downloadBase.map { URL(fileURLWithPath: ($0 as NSString).expandingTildeInPath) }
         try FileManager.default.createDirectory(at: outputURL, withIntermediateDirectories: true)
 
+        let environment = ProcessInfo.processInfo.environment
         let store = HuggingFaceHubModelStore()
-        let glmFolder = try await resolveSnapshotURL(
-            explicitEnvPath: ProcessInfo.processInfo.environment["GLMOCR_SNAPSHOT_PATH"],
-            modelID: model,
-            revision: revision,
-            matchingGlobs: GLMOCRDefaults.downloadGlobs,
-            downloadBaseURL: downloadBaseURL,
-            store: store
+        let glmFolder = try await store.resolveSnapshotPreferringExisting(
+            ModelSnapshotRequest(modelID: model, revision: revision, matchingGlobs: GLMOCRDefaults.downloadGlobs),
+            explicitSnapshotPath: environment["GLMOCR_SNAPSHOT_PATH"],
+            downloadBase: downloadBaseURL
         )
         let config = try GLMOCRConfig.load(from: glmFolder)
         let normalizationStats = try GLMOCRPreprocessorConfigLoader.loadNormalizationStats(from: glmFolder)
         let glmModel = try await GLMOCRModel.load(from: glmFolder)
 
-        let layoutFolder = try await resolveSnapshotURL(
-            explicitEnvPath: ProcessInfo.processInfo.environment["LAYOUT_SNAPSHOT_PATH"],
-            modelID: layoutModel,
-            revision: layoutRevision,
-            matchingGlobs: PPDocLayoutV3Defaults.downloadGlobs,
-            downloadBaseURL: downloadBaseURL,
-            store: store
-        )
         let detector = PPDocLayoutV3Detector(
             modelID: layoutModel,
             revision: layoutRevision,
             downloadGlobs: PPDocLayoutV3Defaults.downloadGlobs,
-            downloadBase: downloadBaseURL,
-            store: StaticSnapshotModelStore(snapshotURL: layoutFolder)
+            downloadBase: downloadBaseURL
         )
         try await detector.ensureLoaded(progress: nil)
 
@@ -270,33 +259,6 @@ struct GLMOCRPreprocessDebugCLI: AsyncParsableCommand {
         let scalars = value.unicodeScalars.map { allowed.contains($0) ? Character($0) : "_" }
         return String(scalars)
     }
-
-    private func resolveSnapshotURL(
-        explicitEnvPath: String?,
-        modelID: String,
-        revision: String,
-        matchingGlobs: [String],
-        downloadBaseURL: URL?,
-        store: HuggingFaceHubModelStore
-    ) async throws -> URL {
-        if let explicitEnvPath, !explicitEnvPath.isEmpty {
-            return URL(fileURLWithPath: (explicitEnvPath as NSString).expandingTildeInPath).standardizedFileURL
-        }
-
-        if let cached = try? HuggingFaceHubModelStore.resolveCachedSnapshot(
-            modelID: modelID,
-            revision: revision,
-            downloadBase: downloadBaseURL
-        ) {
-            return cached
-        }
-
-        return try await store.resolveSnapshot(
-            ModelSnapshotRequest(modelID: modelID, revision: revision, matchingGlobs: matchingGlobs),
-            downloadBase: downloadBaseURL,
-            progress: nil
-        )
-    }
 }
 
 private extension GLMOCRResizeBackend {
@@ -314,20 +276,5 @@ private extension Duration {
     var seconds: Double {
         let components = components
         return Double(components.seconds) + Double(components.attoseconds) / 1_000_000_000_000_000_000
-    }
-}
-
-private struct StaticSnapshotModelStore: ModelStore {
-    let snapshotURL: URL
-
-    func resolveSnapshot(
-        _ request: ModelSnapshotRequest,
-        downloadBase: URL?,
-        progress: (@Sendable (Progress) -> Void)?
-    ) async throws -> URL {
-        _ = request
-        _ = downloadBase
-        _ = progress
-        return snapshotURL
     }
 }

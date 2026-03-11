@@ -294,12 +294,17 @@ struct GLMOCRCLI: AsyncParsableCommand {
         emitJsonURL: URL?,
         emitOCRDocumentJsonURL: URL?
     ) async throws {
-        let store: any ModelStore = HuggingFaceHubModelStore()
+        let store = HuggingFaceHubModelStore()
+        let environment = ProcessInfo.processInfo.environment
 
         let glmPrinter = DownloadProgressPrinter(modelID: modelID)
         let glmRequest = ModelSnapshotRequest(
             modelID: modelID, revision: revision, matchingGlobs: GLMOCRDefaults.downloadGlobs)
-        let glmFolder = try await store.resolveSnapshot(glmRequest, downloadBase: downloadBaseURL) { progress in
+        let glmFolder = try await store.resolveSnapshotPreferringExisting(
+            glmRequest,
+            explicitSnapshotPath: environment["GLMOCR_SNAPSHOT_PATH"],
+            downloadBase: downloadBaseURL
+        ) { progress in
             let completed = progress.completedUnitCount
             let total = progress.totalUnitCount
             Task { await glmPrinter.update(completed: completed, total: total) }
@@ -312,7 +317,11 @@ struct GLMOCRCLI: AsyncParsableCommand {
                 revision: layoutRevision,
                 matchingGlobs: PPDocLayoutV3Defaults.downloadGlobs
             )
-            _ = try await store.resolveSnapshot(layoutRequest, downloadBase: downloadBaseURL) { progress in
+            _ = try await store.resolveSnapshotPreferringExisting(
+                layoutRequest,
+                explicitSnapshotPath: environment["LAYOUT_SNAPSHOT_PATH"],
+                downloadBase: downloadBaseURL
+            ) { progress in
                 let completed = progress.completedUnitCount
                 let total = progress.totalUnitCount
                 Task { await layoutPrinter.update(completed: completed, total: total) }

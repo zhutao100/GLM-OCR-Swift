@@ -128,12 +128,14 @@ Run `swift run GLMOCRCLI --help` for the full flag list.
 3. `HF_HOME` + `/hub`
 4. `~/.cache/huggingface/hub`
 
+For GLM-OCR and layout runtime loads, snapshot lookup prefers an explicit snapshot override first, then the local HF cache, and only downloads when neither local source is available.
+
 ### Key environment variables
 
 - `GLMOCR_SNAPSHOT_PATH`
-  - override the auto-resolved cached snapshot for GLM-OCR model-backed tests
+  - override the preferred local snapshot for GLM-OCR runtime loads and model-backed tests
 - `LAYOUT_SNAPSHOT_PATH`
-  - override the auto-resolved cached snapshot for PP-DocLayout-V3 model-backed tests
+  - override the preferred local snapshot for PP-DocLayout-V3 runtime loads and model-backed tests
 - `GLMOCR_RUN_GOLDEN=1`
   - enable GLM-OCR golden/parity integration tests
 - `LAYOUT_RUN_GOLDEN=1`

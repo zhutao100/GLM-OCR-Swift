@@ -3,6 +3,33 @@ import XCTest
 @testable import VLMRuntimeKit
 
 final class ModelStoreTests: XCTestCase {
+    private enum TestError: Error {
+        case unexpectedDownload
+    }
+
+    private struct FailingModelStore: ModelStore {
+        func resolveSnapshot(
+            _ request: ModelSnapshotRequest,
+            downloadBase _: URL?,
+            progress _: (@Sendable (Progress) -> Void)?
+        ) async throws -> URL {
+            XCTFail("Unexpected download fallback for \(request.modelID)")
+            throw TestError.unexpectedDownload
+        }
+    }
+
+    private struct StaticModelStore: ModelStore {
+        let snapshotURL: URL
+
+        func resolveSnapshot(
+            _: ModelSnapshotRequest,
+            downloadBase _: URL?,
+            progress _: (@Sendable (Progress) -> Void)?
+        ) async throws -> URL {
+            snapshotURL
+        }
+    }
+
     func testResolveCacheDirectory_ExplicitBaseMustBeFileURL() {
         let explicitBase = URL(string: "https://example.com/cache")!
 
@@ -167,5 +194,96 @@ final class ModelStoreTests: XCTestCase {
             downloadBase: hub
         )
         XCTAssertEqual(resolvedWithInvalidRef, snapshotB.standardizedFileURL)
+    }
+
+    func testResolveExistingSnapshot_UsesExplicitPathBeforeCache() throws {
+        let hub = FileManager.default.temporaryDirectory.appendingPathComponent("hf_hub_\(UUID().uuidString)")
+        defer { _ = try? FileManager.default.removeItem(at: hub) }
+        try FileManager.default.createDirectory(at: hub, withIntermediateDirectories: true)
+
+        let explicitSnapshot = hub.appendingPathComponent("explicit_snapshot", isDirectory: true)
+        try FileManager.default.createDirectory(at: explicitSnapshot, withIntermediateDirectories: true)
+
+        let cachedSnapshot = try makeCachedSnapshot(
+            in: hub,
+            modelID: "acme/test-model",
+            revision: "main",
+            snapshotID: "cached"
+        )
+
+        let request = ModelSnapshotRequest(modelID: "acme/test-model", revision: "main", matchingGlobs: ["*.json"])
+        let resolved = try HuggingFaceHubModelStore.resolveExistingSnapshot(
+            request,
+            explicitSnapshotPath: "  \(explicitSnapshot.path)  ",
+            downloadBase: hub
+        )
+
+        XCTAssertEqual(resolved, explicitSnapshot.standardizedFileURL)
+        XCTAssertNotEqual(resolved, cachedSnapshot.standardizedFileURL)
+    }
+
+    func testResolveSnapshotPreferringExisting_UsesCachedSnapshotBeforeDownloadStore() async throws {
+        let hub = FileManager.default.temporaryDirectory.appendingPathComponent("hf_hub_\(UUID().uuidString)")
+        defer { _ = try? FileManager.default.removeItem(at: hub) }
+        try FileManager.default.createDirectory(at: hub, withIntermediateDirectories: true)
+
+        let cachedSnapshot = try makeCachedSnapshot(
+            in: hub,
+            modelID: "acme/test-model",
+            revision: "main",
+            snapshotID: "cached"
+        )
+
+        let request = ModelSnapshotRequest(modelID: "acme/test-model", revision: "main", matchingGlobs: ["*.json"])
+        let resolved = try await HuggingFaceHubModelStore.resolveSnapshotPreferringExisting(
+            request,
+            explicitSnapshotPath: " \n ",
+            downloadBase: hub,
+            downloadStore: FailingModelStore(),
+            progress: nil
+        )
+
+        XCTAssertEqual(resolved, cachedSnapshot.standardizedFileURL)
+    }
+
+    func testResolveSnapshotPreferringExisting_FallsBackToDownloadStoreWhenNoLocalSnapshotExists() async throws {
+        let hub = FileManager.default.temporaryDirectory.appendingPathComponent("hf_hub_\(UUID().uuidString)")
+        defer { _ = try? FileManager.default.removeItem(at: hub) }
+        try FileManager.default.createDirectory(at: hub, withIntermediateDirectories: true)
+
+        let downloadedSnapshot = hub.appendingPathComponent("downloaded_snapshot", isDirectory: true)
+        try FileManager.default.createDirectory(at: downloadedSnapshot, withIntermediateDirectories: true)
+
+        let request = ModelSnapshotRequest(modelID: "acme/test-model", revision: "main", matchingGlobs: ["*.json"])
+        let resolved = try await HuggingFaceHubModelStore.resolveSnapshotPreferringExisting(
+            request,
+            explicitSnapshotPath: nil,
+            downloadBase: hub,
+            downloadStore: StaticModelStore(snapshotURL: downloadedSnapshot),
+            progress: nil
+        )
+
+        XCTAssertEqual(resolved, downloadedSnapshot.standardizedFileURL)
+    }
+
+    private func makeCachedSnapshot(
+        in hub: URL,
+        modelID: String,
+        revision: String,
+        snapshotID: String
+    ) throws -> URL {
+        let modelDir = hub.appendingPathComponent(
+            "models--" + modelID.replacingOccurrences(of: "/", with: "--"),
+            isDirectory: true
+        )
+        let snapshotsDir = modelDir.appendingPathComponent("snapshots", isDirectory: true)
+        let refsDir = modelDir.appendingPathComponent("refs", isDirectory: true)
+        try FileManager.default.createDirectory(at: snapshotsDir, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: refsDir, withIntermediateDirectories: true)
+
+        let snapshot = snapshotsDir.appendingPathComponent(snapshotID, isDirectory: true)
+        try FileManager.default.createDirectory(at: snapshot, withIntermediateDirectories: true)
+        try "\(snapshotID)\n".data(using: .utf8)!.write(to: refsDir.appendingPathComponent(revision))
+        return snapshot
     }
 }
