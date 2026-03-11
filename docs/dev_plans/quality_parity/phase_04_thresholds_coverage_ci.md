@@ -56,7 +56,7 @@ The maintained parity posture is now:
 2. `GLMOCR_RUN_EXAMPLES=1 swift test --filter LayoutExamplesParityIntegrationTests` for the protected subset
 3. `scripts/verify_example_eval.sh` for broad report-only evaluation and score deltas
 
-There is still no checked-in repo-local CI workflow; the documented command discipline is the enforcement contract.
+The repo now also has a checked-in CI workflow for the cheap default lane: pull requests run `swift test`, and pushes to `main` additionally validate the nightly CLI packaging path. The heavier parity lanes remain opt-in/manual because they depend on cached snapshots and are intentionally not part of the default CI contract.
 
 ---
 

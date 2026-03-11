@@ -4,10 +4,8 @@ import XCTest
 
 @testable import DocLayoutAdapter
 
-final class PPDocLayoutV3DecoderMutationTests: XCTestCase {
+final class PPDocLayoutV3DecoderMutationTests: MLXTestCase {
     func testMultiscaleDeformableAttention_doesNotMutateHiddenStatesWhenAddingPositionEmbeddings() throws {
-        try ensureMLXMetalLibraryColocated(for: Self.self)
-
         let configData = Data(
             """
             {

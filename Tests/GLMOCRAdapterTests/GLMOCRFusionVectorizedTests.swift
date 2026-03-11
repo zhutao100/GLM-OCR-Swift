@@ -3,10 +3,8 @@ import XCTest
 
 @testable import GLMOCRAdapter
 
-final class GLMOCRFusionVectorizedTests: XCTestCase {
+final class GLMOCRFusionVectorizedTests: MLXTestCase {
     func testFuse_vectorizedMatchesNaiveReference_multiBatch() throws {
-        try ensureMLXMetalLibraryColocated(for: Self.self)
-
         let imageTokenId = 999
         let batch = 2
         let seqLen = 6
@@ -50,8 +48,6 @@ final class GLMOCRFusionVectorizedTests: XCTestCase {
     }
 
     func testFuse_throwsOnMismatchCounts() throws {
-        try ensureMLXMetalLibraryColocated(for: Self.self)
-
         let imageTokenId = 999
         let batch = 1
         let seqLen = 6

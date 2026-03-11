@@ -4,7 +4,7 @@ import Foundation
 import VLMRuntimeKit
 import XCTest
 
-final class VisionIOTests: XCTestCase {
+final class VisionIOTests: MLXTestCase {
     func testLoadCIImage_fromPDF_rendersNonEmptyImage() throws {
         let pdfData = try makeOnePagePDF()
         let url = FileManager.default.temporaryDirectory
@@ -31,8 +31,6 @@ final class VisionIOTests: XCTestCase {
     }
 
     func testImageTensorConverter_convertsAndNormalizes() throws {
-        try ensureMLXMetalLibraryColocated()
-
         let ci = CIImage(color: CIColor(red: 1, green: 0, blue: 0, alpha: 1))
             .cropped(to: CGRect(x: 0, y: 0, width: 2, height: 2))
 
@@ -91,8 +89,6 @@ final class VisionIOTests: XCTestCase {
     }
 
     func testImageTensorConverter_convertsFromRGB8Image() throws {
-        try ensureMLXMetalLibraryColocated()
-
         var data = Data(capacity: 2 * 2 * 3)
         for _ in 0..<4 {
             data.append(255)  // r
@@ -162,28 +158,5 @@ final class VisionIOTests: XCTestCase {
 
         ctx.closePDF()
         return data as Data
-    }
-
-    private func ensureMLXMetalLibraryColocated() throws {
-        guard let executableURL = Bundle(for: Self.self).executableURL else {
-            throw XCTSkip("Cannot determine test executable location for colocating mlx.metallib.")
-        }
-
-        let binaryDir = executableURL.deletingLastPathComponent()
-        let colocated = binaryDir.appendingPathComponent("mlx.metallib")
-        if FileManager.default.fileExists(atPath: colocated.path) { return }
-
-        let binRoot =
-            binaryDir
-            .deletingLastPathComponent()  // Contents
-            .deletingLastPathComponent()  // *.xctest
-            .deletingLastPathComponent()  // <bin>
-        let built = binRoot.appendingPathComponent("mlx.metallib")
-        guard FileManager.default.fileExists(atPath: built.path) else {
-            throw XCTSkip("mlx.metallib not found at \(built.path). Run scripts/build_mlx_metallib.sh first.")
-        }
-
-        _ = try? FileManager.default.removeItem(at: colocated)
-        try FileManager.default.copyItem(at: built, to: colocated)
     }
 }

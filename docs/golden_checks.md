@@ -155,7 +155,7 @@ When these env vars are unset, model-backed tests try to resolve the current cac
 
 ## Practical test matrix
 
-Before running model-backed tests, make sure the current build products have a colocated Metal library:
+MLX-backed SwiftPM tests now prepare the SwiftPM metallib automatically on demand. If you want to prewarm it for direct CLI/runtime experiments, you can still run:
 
 ```bash
 scripts/build_mlx_metallib.sh -c debug

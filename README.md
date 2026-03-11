@@ -12,11 +12,14 @@ The repo is intentionally split into a model-agnostic runtime plus adapters:
 
 See `docs/architecture.md` for the current module boundaries and dataflow.
 
-## Current State (verified 2026-03-06)
+## Current State (verified 2026-03-11)
 
 - `swift test` passes.
 - `swift run GLMOCRCLI --help` works.
+- `scripts/build.sh` builds the packaged CLI release path.
 - `scripts/build_mlx_metallib.sh -c debug` builds the runtime Metal library.
+- MLX-backed SwiftPM tests auto-prepare `mlx.metallib` on demand.
+- The repo has checked-in CI for `swift test` plus nightly CLI packaging smoke checks.
 - End-to-end OCR works locally for images and PDFs through the CLI.
 - Layout mode works for images and PDFs:
   - PP-DocLayout-V3 detection
@@ -44,16 +47,40 @@ See `docs/architecture.md` for the current module boundaries and dataflow.
 - Xcode Command Line Tools
 - Apple Silicon is strongly recommended
 
-### Build and Smoke Test
+### Package Build and Smoke Test
 
 ```bash
 swift build
 swift test
 swift run GLMOCRCLI --help
+```
+
+`swift test` now prepares the SwiftPM `mlx.metallib` automatically when an MLX-backed test first needs it.
+
+If you want to run MLX-backed SwiftPM executables directly from `.build`, prebuild the Metal library with:
+
+```bash
 scripts/build_mlx_metallib.sh -c debug
 ```
 
-If you remove `.build` or switch between `debug` and `release`, rebuild `mlx.metallib` for that configuration.
+If you remove `.build` or switch between `debug` and `release`, rebuild `mlx.metallib` for that configuration before running those executables directly.
+
+### Scripted Release Build
+
+Use the repo build wrapper for the packaged CLI path:
+
+```bash
+scripts/build.sh
+DERIVED_DATA_PATH=./dist ./scripts/build.sh
+```
+
+Equivalent explicit command:
+
+```bash
+xcodebuild build -scheme GLMOCRCLI -configuration Release -destination 'platform=macOS' -derivedDataPath .build/xcode -skipPackagePluginValidation ENABLE_PLUGIN_PREPAREMLSHADERS=YES CLANG_COVERAGE_MAPPING=NO
+```
+
+CI uses the same script and smoke-runs `GLMOCRCLI --help` from the release products after copying `default.metallib` next to the binary.
 
 ### Run OCR
 

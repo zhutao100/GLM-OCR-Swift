@@ -2,10 +2,8 @@
 import MLX
 import XCTest
 
-final class PPDocLayoutV3MinSizePrefilterTests: XCTestCase {
+final class PPDocLayoutV3MinSizePrefilterTests: MLXTestCase {
     func testMaskLogitsForTinyBoxes_masksInvalidQueriesBeforeSelection() throws {
-        try ensureMLXMetalLibraryColocated(for: Self.self)
-
         // mask_h = mask_w = 200 -> min_norm = 1/200 = 0.005
         let logits = MLXArray([Float](arrayLiteral: 10, 9, 8, 1, 2, 3)).reshaped(1, 2, 3)
         let predBoxes = MLXArray(

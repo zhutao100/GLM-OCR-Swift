@@ -201,7 +201,7 @@ Phase 03 is complete. Generation presets are now first-class runtime input inste
 - example rebaselines follow an explicit policy
 - the stable subset is protected without slowing normal development excessively
 
-Phase 04 is complete. The maintained output contract now lives in `examples/README.md`, artifact ownership and refresh rules are documented across `examples/README.md` and `examples/eval_records/README.md`, and the low-flake protected subset is enforced through `LayoutExamplesParityIntegrationTests` for `GLM-4.5V_Page_1` and `table`. The broader corpus remains available through `scripts/verify_example_eval.sh` without turning every change into a high-latency parity gate.
+Phase 04 is complete. The maintained output contract now lives in `examples/README.md`, artifact ownership and refresh rules are documented across `examples/README.md` and `examples/eval_records/README.md`, and the low-flake protected subset is enforced through `LayoutExamplesParityIntegrationTests` for `GLM-4.5V_Page_1` and `table`. Repo-local CI now covers the cheap default `swift test` lane and nightly CLI packaging smoke checks, while the broader corpus remains available through `scripts/verify_example_eval.sh` without turning every change into a high-latency parity gate.
 
 ---
 

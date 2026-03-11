@@ -2,13 +2,15 @@
 
 This folder is the maintained reference set for the repo. For the runnable quickstart, start with `README.md`.
 
-## Current State (verified 2026-03-06)
+## Current State (verified 2026-03-11)
 
 - The SwiftPM workspace builds and tests cleanly.
+- MLX-backed SwiftPM tests auto-prepare `mlx.metallib` instead of relying on manual prebuild steps.
 - Local OCR works through both the CLI and the app for images and PDFs.
 - Layout mode is implemented and can emit Markdown, examples-style block-list JSON, and structured `OCRDocument` JSON.
 - Hugging Face snapshot download and cache resolution are implemented in `VLMRuntimeKit`.
 - Example generation, diffing, scored evaluation, and persistent eval records are all wired up.
+- The repo has checked-in CI for default verification and nightly CLI packaging smoke checks.
 - The main remaining work is quality/parity tightening and app/distribution polish.
 
 ## Start Here

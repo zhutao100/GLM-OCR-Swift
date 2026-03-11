@@ -1,8 +1,5 @@
 import Foundation
-import VLMRuntimeKit
 import XCTest
-
-import GLMOCRAdapter
 
 private struct SwiftPMPreparationError: LocalizedError {
     let message: String
@@ -78,63 +75,6 @@ private final class SwiftPMTestSupport: @unchecked Sendable {
     }
 }
 
-enum GLMOCRTestEnv {
-    static var modelFolderURL: URL? {
-        if let value = ProcessInfo.processInfo.environment["GLMOCR_SNAPSHOT_PATH"], !value.isEmpty {
-            return URL(fileURLWithPath: (value as NSString).expandingTildeInPath).standardizedFileURL
-        }
-
-        return try? HuggingFaceHubModelStore.resolveCachedSnapshot(
-            modelID: GLMOCRDefaults.modelID,
-            revision: GLMOCRDefaults.revision,
-            downloadBase: nil
-        )
-    }
-
-    static func requireModelFolderURL(
-        file: StaticString = #filePath,
-        line: UInt = #line
-    ) throws -> URL {
-        guard let url = modelFolderURL else {
-            throw XCTSkip(
-                "No cached HF snapshot found for \(GLMOCRDefaults.modelID) (\(GLMOCRDefaults.revision)). "
-                    + "Either download it to your HF cache or set GLMOCR_SNAPSHOT_PATH to a local snapshot folder.",
-                file: file,
-                line: line
-            )
-        }
-        return url
-    }
-
-    static var runGolden: Bool {
-        ProcessInfo.processInfo.environment["GLMOCR_RUN_GOLDEN"] == "1"
-    }
-
-    static var runForwardPass: Bool {
-        ProcessInfo.processInfo.environment["GLMOCR_TEST_RUN_FORWARD_PASS"] == "1" || runGolden
-    }
-
-    static var runGenerate: Bool {
-        ProcessInfo.processInfo.environment["GLMOCR_TEST_RUN_GENERATE"] == "1"
-    }
-
-    static func goldenFixtureData(
-        name: String = "glmocr_forward_golden_v1",
-        file: StaticString = #filePath,
-        line: UInt = #line
-    ) throws -> Data {
-        guard let url = Bundle.module.url(forResource: name, withExtension: "json") else {
-            throw XCTSkip(
-                "Golden fixture '\(name).json' not found in test bundle. "
-                    + "Generate it via scripts/generate_glmocr_golden.py and place it under Tests/GLMOCRAdapterTests/Fixtures/.",
-                file: file,
-                line: line
-            )
-        }
-        return try Data(contentsOf: url)
-    }
-}
-
 class MLXTestCase: XCTestCase {
     override func setUpWithError() throws {
         try super.setUpWithError()
@@ -152,15 +92,11 @@ func ensureMLXMetalLibraryColocated(for testCase: AnyClass) throws {
     let colocated = binaryDir.appendingPathComponent("mlx.metallib")
     if FileManager.default.fileExists(atPath: colocated.path) { return }
 
-    // Expected layout for SwiftPM:
-    //   <bin>/GLMOCRSwiftPackageTests.xctest/Contents/MacOS/GLMOCRSwiftPackageTests
-    // and scripts/build_mlx_metallib.sh writes:
-    //   <bin>/mlx.metallib
     let binRoot =
         binaryDir
-        .deletingLastPathComponent()  // Contents
-        .deletingLastPathComponent()  // *.xctest
-        .deletingLastPathComponent()  // <bin>
+        .deletingLastPathComponent()
+        .deletingLastPathComponent()
+        .deletingLastPathComponent()
     let built = binRoot.appendingPathComponent("mlx.metallib")
     if !FileManager.default.fileExists(atPath: built.path) {
         try SwiftPMTestSupport.shared.ensureMLXMetalLibraryPrepared(configuration: configuration)

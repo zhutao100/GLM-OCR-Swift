@@ -10,14 +10,17 @@ Build and maintain a fully native macOS GLM-OCR app in Swift using:
 - Hugging Face `swift-transformers` for snapshot download and tokenizer loading
 - a core-plus-adapter architecture that stays open to future multi-model consolidation
 
-## Current Reality (verified 2026-03-06)
+## Current Reality (verified 2026-03-11)
 
 - `swift test` passes.
+- MLX-backed SwiftPM tests auto-prepare `mlx.metallib` on demand.
+- `scripts/build.sh` is the scripted release-build entrypoint for the packaged CLI path.
 - CLI and app support local OCR for images and PDFs.
 - Layout mode is implemented with PP-DocLayout-V3 -> region OCR -> merged Markdown.
 - CLI layout exports support both examples-style block-list JSON and structured `OCRDocument` JSON.
 - Heavy model-backed validation is opt-in through env vars and cached HF snapshots.
 - Example generation, diffing, and scored evaluation tooling are wired up and in daily use.
+- The repo has checked-in CI for `swift test` and nightly CLI packaging smoke checks.
 
 ## Non-Negotiables
 
@@ -126,6 +129,7 @@ Build and maintain a fully native macOS GLM-OCR app in Swift using:
 swift build
 swift test
 swift run GLMOCRCLI --help
+scripts/build.sh
 scripts/build_mlx_metallib.sh -c debug
 swift run GLMOCRCLI --input examples/source/page.png > out.md
 swift run GLMOCRCLI --layout --input examples/source/page.png --emit-json out.json > out.md
@@ -139,8 +143,9 @@ scripts/verify_example_eval.sh
 ## Validation Expectations
 
 - Keep `swift test` green before wrapping up.
-- Use `scripts/build_mlx_metallib.sh -c debug` before model-backed runtime tests if the build products changed.
-- There is no checked-in repo-local CI workflow today. Manual command discipline is the validation contract.
+- MLX-backed SwiftPM tests auto-prepare `mlx.metallib`; use `scripts/build_mlx_metallib.sh -c debug` to prewarm direct SwiftPM runtime experiments or executables.
+- `scripts/build.sh` is the source-of-truth scripted release build path and matches `.github/workflows/ci.yml`.
+- The checked-in CI workflow covers default `swift test` verification and nightly CLI packaging smoke checks. Manual local command discipline remains the pre-merge validation contract.
 - Use opt-in lanes only when the task requires them:
   - `GLMOCR_RUN_GOLDEN=1`
   - `LAYOUT_RUN_GOLDEN=1`

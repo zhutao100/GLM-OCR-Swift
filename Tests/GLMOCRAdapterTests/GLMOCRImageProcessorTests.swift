@@ -4,10 +4,8 @@ import XCTest
 
 @testable import GLMOCRAdapter
 
-final class GLMOCRImageProcessorTests: XCTestCase {
+final class GLMOCRImageProcessorTests: MLXTestCase {
     func testProcess_handlesNonZeroOriginExtent() throws {
-        try ensureMLXMetalLibraryColocated(for: Self.self)
-
         let image = CIImage(color: CIColor(red: 0.2, green: 0.3, blue: 0.4, alpha: 1))
             .cropped(to: CGRect(x: 2000, y: 3000, width: 120, height: 80))
 
@@ -27,8 +25,6 @@ final class GLMOCRImageProcessorTests: XCTestCase {
     }
 
     func testProcess_deterministicBackend_matchesTokenCountAndShape() throws {
-        try ensureMLXMetalLibraryColocated(for: Self.self)
-
         let image = CIImage(color: CIColor(red: 0.2, green: 0.3, blue: 0.4, alpha: 1))
             .cropped(to: CGRect(x: 100, y: 200, width: 120, height: 80))
 
