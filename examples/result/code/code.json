@@ -3,7 +3,7 @@
     {
       "index" : 0,
       "label" : "text",
-      "content" : "relationship between the beans. The only difference from previous exercises is the change in the INDI name element tac for the Address home interface:",
+      "content" : "relationship between the beans. The only difference from previous exercises is the change in the JNDI name element tag for the Address home interface:",
       "bbox_2d" : [
         97,
         103,
@@ -25,7 +25,7 @@
     {
       "index" : 2,
       "label" : "text",
-      "content" : "Because the Home interface for the Address is local, the tag is <local-jndi-name> rather than <ndi-name>",
+      "content" : "Because the Home interface for the Address is local, the tag is <local-jndi-name> rather than <jndi-name>.",
       "bbox_2d" : [
         99,
         174,
@@ -36,7 +36,7 @@
     {
       "index" : 3,
       "label" : "text",
-      "content" : "the weblogic cmp-rdbms-jar.xml descriptor contains a number of new sections and elements\n\nthat will be added to the database, and the sections will wait until the next\n\nexercise, but there are some other changes to observe and examine.",
+      "content" : "the weblogic-emp-rdbms-jar.xml descriptor file contains a number of new sections and elements in this exercise. A detailed examination of the relationship elements will wait until the next",
       "bbox_2d" : [
         97,
         218,
@@ -47,7 +47,7 @@
     {
       "index" : 4,
       "label" : "text",
-      "content" : "The file contains a section mapping the key table attributes from the job pjr.xml to the\n\nkey table in addition to a new section related to the\n\nautomatic key generation used for primary key values in this file.",
+      "content" : "The file contains a section mapping the Address <comp-field> attributes from the `ebj-jar.xml` file to the database columns that correspond to a new section related to the address. For the primary key values in this base",
       "bbox_2d" : [
         98,
         281,

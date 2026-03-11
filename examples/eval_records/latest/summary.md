@@ -4,9 +4,9 @@
 
 | Example | Parity | Result→Golden | Ref→Golden | Final | Rules |
 |---|---:|---:|---:|---:|---:|
-| `GLM-4.5V_Page_1` | 0.873 | None | None | 0.873 | 0/0 fail |
-| `GLM-4.5V_Pages_1_2_3` | 0.8789 | 0.8887 | 0.923 | 0.8758 | 0/7 fail |
-| `code` | 0.7748 | 0.7282 | 0.727 | 0.7744 | 0/0 fail |
+| `GLM-4.5V_Page_1` | 0.8723 | None | None | 0.8723 | 0/0 fail |
+| `GLM-4.5V_Pages_1_2_3` | 0.8788 | 0.8885 | 0.923 | 0.8757 | 0/7 fail |
+| `code` | 0.902 | 0.7194 | 0.727 | 0.9016 | 0/0 fail |
 | `handwritten` | 0.9277 | 0.96 | 0.955 | 0.9777 | 0/1 fail |
 | `page` | 0.7567 | 0.5281 | 0.6078 | 0.7438 | 0/0 fail |
 | `paper` | 0.9651 | 0.7058 | 0.709 | 0.9651 | 0/0 fail |
@@ -17,17 +17,17 @@
 
 ### `GLM-4.5V_Page_1`
 
-- parity.text_fidelity: 0.944
-- parity.critical_structure: 0.7688
+- parity.text_fidelity: 0.9429
+- parity.critical_structure: 0.7687
 - parity.decorative_style: 0.75
-- final_overall: 0.873
+- final_overall: 0.8723
 
 ### `GLM-4.5V_Pages_1_2_3`
 
-- parity.text_fidelity: 0.9435
-- parity.critical_structure: 0.7868
+- parity.text_fidelity: 0.9433
+- parity.critical_structure: 0.7867
 - parity.decorative_style: 0.75
-- final_overall: 0.8758
+- final_overall: 0.8757
 - rules:
   - [pass] page1_start: Page 1 start matched expected content.
   - [pass] page1_end: Page 1 end matched expected content.
@@ -39,10 +39,10 @@
 
 ### `code`
 
-- parity.text_fidelity: 0.7734
-- parity.critical_structure: 0.7621
+- parity.text_fidelity: 0.9017
+- parity.critical_structure: 0.9056
 - parity.decorative_style: 0.8804
-- final_overall: 0.7744
+- final_overall: 0.9016
 
 ### `handwritten`
 

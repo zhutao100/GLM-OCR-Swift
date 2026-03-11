@@ -1,14 +1,14 @@
 # `GLM-4.5V_Pages_1_2_3`
 
-- parity_overall: 0.8789
-- result_to_golden_overall: 0.8887
+- parity_overall: 0.8788
+- result_to_golden_overall: 0.8885
 - reference_to_golden_overall: 0.923
-- final_overall: 0.8758
+- final_overall: 0.8757
 
 ## Final dimensions
 
-- text_fidelity: 0.9435
-- critical_structure: 0.7868
+- text_fidelity: 0.9433
+- critical_structure: 0.7867
 - decorative_style: 0.6875
 
 ## Rules

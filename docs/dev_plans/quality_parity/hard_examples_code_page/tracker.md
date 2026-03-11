@@ -2,7 +2,7 @@
 
 **Objective:** close the remaining `code` / `page` quality gap with the smallest truthful set of runtime and formatting changes.
 
-**Status (2026-03-11):** ready to execute. The investigation has enough evidence to prioritize runtime/preprocessing parity before any new layout-geometry work.
+**Status (2026-03-11):** executed and landed. Workstreams A-C are complete. The accepted first-pass result is `code` `0.9016` (`+0.1272`), `page` `0.7438` (stable), and `table` `0.9944` (stable).
 
 ---
 
@@ -21,38 +21,40 @@ The repo already completed the broader parity program, so this tracker is intent
 
 ### H1 — default vision-input dtype is wrong for normal runtime use
 **Priority:** highest
-**Confidence:** medium-high
+**Confidence:** resolved for the current parity snapshot
 
 Current maintained behavior:
-- image preprocessing defaults to `.bfloat16`
-- dtype alignment to the loaded vision weights is env-gated instead of default runtime behavior
+- runtime image tensors now align to `model.visionInputDType` by default
+- `GLMOCR_ALIGN_VISION_DTYPE=0` and `GLMOCR_VISION_INPUT_DTYPE=...` remain available as explicit debug overrides
 
-Expected risk:
-- blurry/small-text crops lose more signal than cleaner examples
-- `code` and `page` are more sensitive than `table` or `seal`
+Execution note:
+- on the pinned parity snapshot, `model.visionInputDType == .bfloat16`
+- this change fixes a silent correctness hazard for non-BF16 snapshots, but it did not move the checked-in hard examples by itself
 
 ### H2 — the default Core Image resize path is too soft for these hard crops
 **Priority:** high
-**Confidence:** medium-high
+**Confidence:** confirmed, but only for a narrow crop class
 
 Current maintained behavior:
-- default resize backend is `CoreImage` bicubic
-- deterministic CPU bicubic exists but is not the default
+- Core Image bicubic remains the general default
+- layout OCR now switches short, wide text-line crops to deterministic CPU bicubic
+- `GLMOCR_PREPROCESS_BACKEND=coreimage|deterministic` still forces a backend globally for debugging
 
-Expected risk:
-- thin glyph strokes get softened before normalization
-- short-height line regions are especially exposed
+Execution note:
+- full deterministic switching improved `code` to `0.8988` but regressed `page` to `0.7046`
+- the accepted adaptive policy recovered `code` to `0.9016` while keeping `page` and `table` stable
+- crop manifests under `.build/hard_example_probes/*` showed the improvement concentrated in very wide, short line crops from `code`
 
 ### H3 — `algorithm` blocks need explicit formatting normalization
 **Priority:** medium
 **Confidence:** high
 
 Current maintained behavior:
-- missing algorithm-specific code-fence normalization compared with the peer port
+- algorithm-specific code-fence normalization is now present in the maintained formatter
 
-Expected risk:
-- user-visible structure remains worse than necessary even after OCR improves
-- evaluator structure/style dimensions stay artificially suppressed
+Execution note:
+- XML-like algorithm blocks now normalize from ` ```html ` to ` ```xml `
+- real HTML content is preserved
 
 ### H4 — some residual crop/layout issues still contribute
 **Priority:** medium-low for first pass
@@ -67,51 +69,53 @@ Treat this as a follow-up branch, not the starting point.
 ## Workstream A — make vision-input dtype alignment the default runtime behavior
 
 ### Tasks
-- [ ] Change the normal GLM-OCR runtime path so image tensors align to `model.visionInputDType` by default, not only in env-gated parity lanes.
-- [ ] Preserve an explicit override for debugging alternate dtypes when needed.
-- [ ] Add a focused regression test covering the default alignment behavior.
-- [ ] Record the runtime decision in `README.md` and/or `docs/architecture.md` if the default user-facing behavior changes.
+- [x] Change the normal GLM-OCR runtime path so image tensors align to `model.visionInputDType` by default, not only in env-gated parity lanes.
+- [x] Preserve an explicit override for debugging alternate dtypes when needed.
+- [x] Add a focused regression test covering the default alignment behavior.
+- [x] Record the runtime decision in `README.md` and/or `docs/architecture.md` if the default user-facing behavior changes.
 
 ### Acceptance
-- [ ] Default runtime no longer silently feeds BF16 image tensors into a non-BF16 vision path.
-- [ ] `swift test` remains green.
-- [ ] Hard-example eval can be rerun without special env flags for dtype parity.
+- [x] Default runtime no longer silently feeds BF16 image tensors into a non-BF16 vision path.
+- [x] `swift test` remains green.
+- [x] Hard-example eval can be rerun without special env flags for dtype parity.
 
 ## Workstream B — run a resize-backend A/B investigation with artifact capture
 
 ### Tasks
-- [ ] Add a narrow debug harness that can dump, for selected regions/examples:
+- [x] Add a narrow debug harness that can dump, for selected regions/examples:
   - crop bbox metadata
   - crop pixel size
   - target resize size
   - resized RGB artifact
   - image tensor dtype / min / max / mean summary
-- [ ] Compare `coreImageBicubic` vs `deterministicBicubicCPU` on:
+- [x] Compare `coreImageBicubic` vs `deterministicBicubicCPU` on:
   - `code`
   - `page`
   - at least one stable counterexample such as `table`
-- [ ] Decide whether the deterministic backend should become:
+- [x] Decide whether the deterministic backend should become:
   - the global default,
   - the parity/example default only,
   - or an adaptive default for small-text hard cases.
 
+**Accepted backend decision (2026-03-11):** use an adaptive default for short, wide layout text-line crops; do not flip the entire OCR path to deterministic CPU bicubic.
+
 ### Acceptance
-- [ ] One written backend decision exists.
-- [ ] The decision is supported by recorded artifacts, not just by intuition.
-- [ ] Any default change is documented and covered by a regression test.
+- [x] One written backend decision exists.
+- [x] The decision is supported by recorded artifacts, not just by intuition.
+- [x] Any default change is documented and covered by a regression test.
 
 ## Workstream C — close the algorithm/code formatting gap
 
 ### Tasks
-- [ ] Port the peer repo's `algorithm` code-block normalization into the maintained formatter, adapted to local naming/layout types.
-- [ ] Add focused tests for:
+- [x] Port the peer repo's `algorithm` code-block normalization into the maintained formatter, adapted to local naming/layout types.
+- [x] Add focused tests for:
   - XML-like code block fence normalization
   - no accidental rewrite of real HTML content
-- [ ] Re-evaluate the `code` example after the runtime changes, so formatting-only improvements are not mistaken for OCR fixes.
+- [x] Re-evaluate the `code` example after the runtime changes, so formatting-only improvements are not mistaken for OCR fixes.
 
 ### Acceptance
-- [ ] `algorithm` blocks preserve code structure more faithfully.
-- [ ] Formatter changes are isolated and regression-tested.
+- [x] `algorithm` blocks preserve code structure more faithfully.
+- [x] Formatter changes are isolated and regression-tested.
 
 ## Workstream D — only if still needed, revisit crop/layout contributors
 
@@ -160,10 +164,10 @@ Treat this as a follow-up branch, not the starting point.
 
 This focused tracker can be considered successful when all of the following are true:
 
-- [ ] `code` improves materially from the current baseline without a compensating regression on the protected subset.
-- [ ] The repo has a documented default policy for vision-input dtype alignment.
-- [ ] The repo has a documented default policy for the resize backend used in parity-sensitive OCR.
-- [ ] Any accepted example rebaseline refreshes `examples/result/*` and `examples/eval_records/latest/*` together.
+- [x] `code` improves materially from the current baseline without a compensating regression on the protected subset.
+- [x] The repo has a documented default policy for vision-input dtype alignment.
+- [x] The repo has a documented default policy for the resize backend used in parity-sensitive OCR.
+- [x] Any accepted example rebaseline refreshes `examples/result/*` and `examples/eval_records/latest/*` together.
 
 A reasonable first-pass target is:
 
@@ -184,8 +188,8 @@ A reasonable first-pass target is:
 
 ## 6. Immediate next patch set
 
-1. Make vision-input dtype alignment default-on in the normal runtime path.
-2. Add the hard-example preprocess artifact dump harness.
-3. Port algorithm/code fence normalization.
-4. Rerun `scripts/verify_example_eval.sh`.
-5. Decide whether the deterministic resize backend should become the default for this repo's GLM-OCR path.
+1. Default-on vision-input dtype alignment landed, with explicit debug overrides.
+2. `GLMOCRPreprocessDebugCLI` now captures crop metadata, resized artifacts, timings, and tensor summaries.
+3. Algorithm/code fence normalization landed with focused formatter tests.
+4. `scripts/verify_example_eval.sh` refreshed `examples/result/*` and `examples/eval_records/latest/*`.
+5. The accepted resize policy is adaptive, not a global deterministic flip.

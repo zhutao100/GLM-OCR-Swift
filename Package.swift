@@ -13,6 +13,7 @@ let package = Package(
         .library(name: "GLMOCRAdapter", targets: ["GLMOCRAdapter"]),
         .executable(name: "GLMOCRApp", targets: ["GLMOCRApp"]),
         .executable(name: "GLMOCRCLI", targets: ["GLMOCRCLI"]),
+        .executable(name: "GLMOCRPreprocessDebugCLI", targets: ["GLMOCRPreprocessDebugCLI"]),
     ],
     dependencies: [
         .package(url: "https://github.com/ml-explore/mlx-swift", .upToNextMinor(from: "0.30.3")),
@@ -73,6 +74,18 @@ let package = Package(
         .executableTarget(
             name: "GLMOCRCLI",
             dependencies: [
+                "GLMOCRAdapter",
+                "VLMRuntimeKit",
+                .product(name: "ArgumentParser", package: "swift-argument-parser"),
+            ],
+            swiftSettings: [
+                .enableExperimentalFeature("StrictConcurrency")
+            ]
+        ),
+        .executableTarget(
+            name: "GLMOCRPreprocessDebugCLI",
+            dependencies: [
+                "DocLayoutAdapter",
                 "GLMOCRAdapter",
                 "VLMRuntimeKit",
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),

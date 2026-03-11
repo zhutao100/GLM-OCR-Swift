@@ -45,7 +45,7 @@ GLM-OCR-specific inference and orchestration live here.
 - `GLMOCRProcessor`, `GLMOCRChatTemplate`
   - task prompt policy and GLM-specific token layout
 - `GLMOCRImageProcessor`
-  - resize, normalization, and parity-related preprocessing knobs
+  - resize, normalization, parity-related preprocessing knobs, and crop-level preprocess inspection helpers
 - `GLMOCRModel`
   - weights, forward pass, and greedy decode
 - `GLMOCRPipeline`
@@ -125,6 +125,7 @@ Notes:
 
 - `GLMOCRPipeline.recognizePDF` loops selected pages and joins Markdown with blank lines.
 - Non-layout PDF OCR uses `PDFPagesSpec` so CLI and app page semantics stay aligned.
+- Runtime image tensors align to the loaded GLM vision-weight dtype by default; `GLMOCR_ALIGN_VISION_DTYPE=0` or `GLMOCR_VISION_INPUT_DTYPE=...` can override that for debugging.
 
 ### Layout OCR
 
@@ -144,6 +145,7 @@ Current implementation details:
 - region task type is chosen from `PPDocLayoutV3Mappings`
 - `GLMOCRLayoutPipeline` can run region OCR with `auto`, `1`, or `2` workers, capped at `2`
 - the common layout path reuses one loaded page image for both layout detection and region cropping
+- Layout OCR keeps the Core Image resize path as the general default, but adaptively switches short, wide text-line crops to the deterministic CPU bicubic backend; `GLMOCR_PREPROCESS_BACKEND` remains an explicit override for debugging/parity probes.
 
 ## Outputs And Artifacts
 

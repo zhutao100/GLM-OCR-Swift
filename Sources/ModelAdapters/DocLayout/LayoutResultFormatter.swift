@@ -92,6 +92,10 @@ public enum LayoutResultFormatter {
             }
         }
 
+        if nativeLabel == "algorithm" {
+            output = normalizeAlgorithmCodeBlock(output)
+        }
+
         if kind == .formula {
             output = formatFormula(output)
         }
@@ -178,6 +182,19 @@ public enum LayoutResultFormatter {
         output = replacingSingleNewlinesWithDoubleNewlines(output)
 
         return output
+    }
+
+    private static func normalizeAlgorithmCodeBlock(_ content: String) -> String {
+        guard content.hasPrefix("```html") else { return content }
+
+        let lower = content.lowercased()
+        if lower.contains("<html") || lower.contains("<body") || lower.contains("<div") {
+            return content
+        }
+        if lower.contains("</") || lower.contains("/>") || lower.contains("<weblogic") || lower.contains("<local-") {
+            return content.replacingOccurrences(of: "```html", with: "```xml", options: [.anchored])
+        }
+        return content
     }
 
     private static func parseParenListPrefix(_ content: String) -> (symbol: String, rest: String)? {

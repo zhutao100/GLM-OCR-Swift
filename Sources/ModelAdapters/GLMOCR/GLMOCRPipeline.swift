@@ -155,7 +155,12 @@ public actor GLMOCRPipeline: OCRPipeline {
         )
     }
 
-    func recognize(ciImage: CIImage, task: OCRTask, options: GenerateOptions) async throws -> OCRResult {
+    func recognize(
+        ciImage: CIImage,
+        task: OCRTask,
+        options: GenerateOptions,
+        preferredResizeBackend: GLMOCRResizeBackend? = nil
+    ) async throws -> OCRResult {
         if model == nil, let loadTask {
             try await loadTask.value
         }
@@ -166,9 +171,9 @@ public actor GLMOCRPipeline: OCRPipeline {
         let revision = revision
         let config = model.config
 
-        var meanStd: (mean: (Float, Float, Float), std: (Float, Float, Float))?
-        if let folder = modelFolder, let loaded = try? loadMeanStd(from: folder) {
-            meanStd = loaded
+        var normalizationStats: GLMOCRNormalizationStats?
+        if let folder = modelFolder, let loaded = try? GLMOCRPreprocessorConfigLoader.loadNormalizationStats(from: folder) {
+            normalizationStats = loaded
         }
 
         let sendableImage = SendableCIImage(ciImage)
@@ -176,37 +181,13 @@ public actor GLMOCRPipeline: OCRPipeline {
         let work = Task.detached(priority: .userInitiated) {
             try Task.checkCancellation()
 
-            var imageOptions = GLMOCRImageProcessingOptions()
             let env = ProcessInfo.processInfo.environment
-
-            if let backend = env["GLMOCR_PREPROCESS_BACKEND"]?.lowercased() {
-                switch backend {
-                case "coreimage", "core_image", "coreimagebicubic":
-                    imageOptions.resizeBackend = .coreImageBicubic
-                case "deterministic", "deterministic_bicubic_cpu", "deterministicbicubiccpu":
-                    imageOptions.resizeBackend = .deterministicBicubicCPU
-                default:
-                    break
-                }
-            }
-
-            if let value = env["GLMOCR_POST_RESIZE_JPEG_QUALITY"], let quality = Double(value) {
-                imageOptions.postResizeJPEGRoundTripQuality = quality
-            }
-
-            if env["GLMOCR_ALIGN_VISION_DTYPE"] == "1" || env["GLMOCR_RUN_GOLDEN"] == "1" {
-                imageOptions.alignDTypeToVisionWeights = true
-            }
-
-            if let meanStd {
-                imageOptions.mean = meanStd.mean
-                imageOptions.std = meanStd.std
-            }
-
-            if imageOptions.alignDTypeToVisionWeights {
-                imageOptions.dtype = model.visionInputDType
-            }
-
+            let imageOptions = GLMOCRRuntimeImageOptionsResolver.resolve(
+                env: env,
+                normalizationStats: normalizationStats,
+                visionInputDType: model.visionInputDType,
+                preferredResizeBackend: preferredResizeBackend
+            )
             let imageProcessor = GLMOCRImageProcessor(options: imageOptions)
             let processed = try imageProcessor.process(sendableImage.value, config: config)
 
@@ -235,28 +216,5 @@ public actor GLMOCRPipeline: OCRPipeline {
         self.modelFolder = modelFolder
         self.model = model
         loadTask = nil
-    }
-
-    private struct PreprocessorConfig: Decodable, Sendable {
-        var imageMean: [Float]?
-        var imageStd: [Float]?
-
-        private enum CodingKeys: String, CodingKey {
-            case imageMean = "image_mean"
-            case imageStd = "image_std"
-        }
-    }
-
-    private func loadMeanStd(from modelFolder: URL) throws -> (mean: (Float, Float, Float), std: (Float, Float, Float))?
-    {
-        let url = modelFolder.appendingPathComponent("preprocessor_config.json")
-        guard FileManager.default.fileExists(atPath: url.path) else { return nil }
-
-        let data = try Data(contentsOf: url)
-        let config = try JSONDecoder().decode(PreprocessorConfig.self, from: data)
-        guard let mean = config.imageMean, let std = config.imageStd, mean.count == 3, std.count == 3 else {
-            return nil
-        }
-        return ((mean[0], mean[1], mean[2]), (std[0], std[1], std[2]))
     }
 }

@@ -2,10 +2,10 @@
   "name": "GLM-4.5V_Page_1",
   "parity": {
     "available": true,
-    "overall": 0.873,
+    "overall": 0.8723,
     "dimensions": {
-      "text_fidelity": 0.944,
-      "critical_structure": 0.7688,
+      "text_fidelity": 0.9429,
+      "critical_structure": 0.7687,
       "decorative_style": 0.75
     },
     "details": {
@@ -132,7 +132,7 @@
           }
         ],
         "aligned_score": 0.056743442101291494,
-        "global_score": 0.9907063197026023
+        "global_score": 0.9895470383275262
       },
       "tables": {
         "tables": []
@@ -144,7 +144,7 @@
           "block_count": 1.0,
           "labels": 1.0,
           "bbox": 0.6636363636363637,
-          "content": 0.9941761392965671
+          "content": 0.9935660111696606
         },
         "pages": [
           {
@@ -152,7 +152,7 @@
             "block_count": 1.0,
             "labels": 1.0,
             "bbox": 0.6636,
-            "content": 0.9942
+            "content": 0.9936
           }
         ]
       },
@@ -203,10 +203,10 @@
     "missing_reason": "missing markdown: /Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/golden_result/GLM-4.5V_Page_1/GLM-4.5V_Page_1.md (missing)"
   },
   "final_dimensions": {
-    "text_fidelity": 0.944,
-    "critical_structure": 0.7688,
+    "text_fidelity": 0.9429,
+    "critical_structure": 0.7687,
     "decorative_style": 0.75
   },
-  "final_overall": 0.873,
+  "final_overall": 0.8723,
   "rules": []
 }

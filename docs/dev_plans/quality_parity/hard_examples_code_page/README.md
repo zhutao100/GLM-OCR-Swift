@@ -1,6 +1,6 @@
 # Hard examples: `code` and `page`
 
-**Status (2026-03-11):** active focused investigation. This folder exists because the remaining gap is no longer best described as a broad parity-program issue; it is a narrow hard-example problem with concrete runtime/preprocessing suspects.
+**Status (2026-03-11):** first-pass runtime/preprocessing corrections landed. `code` improved materially, `page` stayed stable, and the remaining `page` gap is now tracked as a residual follow-up rather than a reason to broaden the resize-policy change.
 
 ## Scope
 
@@ -67,41 +67,36 @@ The two Swift ports' `code` region boxes are broadly aligned, and the large code
 
 ### 4. The strongest current root-cause suspects are in the GLM-OCR image preprocessing/runtime path
 
-#### Suspect A — runtime vision-input dtype alignment (high priority)
+#### Suspect A — runtime vision-input dtype alignment (resolved)
 
-The maintained repo currently defaults `GLMOCRImageProcessingOptions.dtype` to `.bfloat16`, and only aligns the image tensor dtype to the loaded vision-weight dtype when:
+The maintained repo now aligns image tensors to the loaded vision-weight dtype by default, with explicit debug overrides via `GLMOCR_ALIGN_VISION_DTYPE` and `GLMOCR_VISION_INPUT_DTYPE`.
 
-- `GLMOCR_ALIGN_VISION_DTYPE=1`, or
-- `GLMOCR_RUN_GOLDEN=1`
+On the pinned parity snapshot, the loaded GLM vision weights resolve to `bfloat16`, so this was a correctness hardening step rather than the lever that moved the checked-in `code` score.
 
-The peer Swift port, by contrast, casts `pixel_values` to the model vision dtype on every inference path.
+#### Suspect B — resize backend choice (accepted, adaptive)
 
-For blurry, glyph-dense crops, this is a plausible accuracy loss multiplier.
+Artifact-backed A/B runs under `.build/hard_example_probes/*` showed:
 
-#### Suspect B — default resize backend choice (high priority)
+- the pinned parity snapshot still uses `bfloat16` vision weights
+- switching **all** OCR crops to deterministic CPU bicubic raised `code` to `0.8988`, held `table` flat, and regressed `page` to `0.7046`
+- restricting deterministic resize to short, wide text-line crops recovered `code` to `0.9016` while keeping `page` and `table` effectively unchanged
 
-The maintained repo defaults to `CoreImage` bicubic resize.
-The peer Swift port uses a deterministic CPU bicubic resize path.
+The maintained policy is therefore: keep Core Image as the general default, but adaptively use deterministic CPU bicubic for layout text-line crops where the crop is both short and wide.
 
-For `code`, this matters because at least one critical algorithm-line crop is extremely short in height and must be rescaled into the model's grid-aligned target size. For such thin text lines, a slightly softer resize path can materially reduce legibility.
+#### Suspect C — algorithm/code formatting normalization gap (resolved)
 
-#### Suspect C — algorithm/code formatting normalization gap (secondary but worth fixing)
-
-The peer port normalizes `algorithm` regions into fenced XML code blocks where appropriate.
-The maintained repo currently lacks that algorithm-specific normalization.
-
-This does not explain the whole text-fidelity deficit, but it does affect user-visible structure and some evaluator dimensions.
+The maintained formatter now normalizes XML-like `algorithm` blocks from ` ```html ` to ` ```xml ` while preserving real HTML content. This did not drive the `code` score improvement by itself, but it removes a known structure/style gap.
 
 ## Working interpretation
 
-For the current `code` gap, the most credible near-term plan is:
+The first-pass execution result is now:
 
-1. fix runtime vision-input dtype alignment first
-2. compare resize backends on the hard examples with artifact capture
-3. close the algorithm/code formatting gap
-4. only then decide whether a deeper crop/layout investigation is still necessary
+1. default-on vision-input dtype alignment is in place
+2. preprocess artifact capture is available through `GLMOCRPreprocessDebugCLI`
+3. adaptive deterministic resize is accepted for short, wide layout text-line crops
+4. algorithm/code fence normalization is in place
 
-The `page` example should travel with the same workstream, because it is another dense mixed-layout case likely to react to the same preprocessing/runtime changes.
+The remaining `page` gap should now be treated as a later crop/layout or formatting follow-up, not as evidence that the repo should switch the entire OCR path to deterministic resize.
 
 ## Non-goals
 

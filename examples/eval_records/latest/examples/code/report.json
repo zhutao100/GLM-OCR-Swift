@@ -2,10 +2,10 @@
   "name": "code",
   "parity": {
     "available": true,
-    "overall": 0.7748,
+    "overall": 0.902,
     "dimensions": {
-      "text_fidelity": 0.7734,
-      "critical_structure": 0.7621,
+      "text_fidelity": 0.9017,
+      "critical_structure": 0.9056,
       "decorative_style": 0.8804
     },
     "details": {
@@ -16,7 +16,7 @@
             "status": "paired",
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
-            "score": 0.9595
+            "score": 1.0
           },
           {
             "index": 1,
@@ -30,56 +30,32 @@
             "status": "paired",
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
-            "score": 0.9709
+            "score": 1.0
           },
           {
             "index": 3,
             "status": "paired",
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
-            "score": 0.5836
+            "score": 0.9554
           },
           {
             "index": 4,
             "status": "paired",
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
-            "score": 0.2279
+            "score": 0.8232
           },
           {
             "index": 5,
             "status": "paired",
-            "actual_kind": "paragraph",
+            "actual_kind": "code",
             "expected_kind": "code",
-            "score": 0.0025
-          },
-          {
-            "index": 6,
-            "status": "missing",
-            "kind": "paragraph",
-            "score": 0.0
-          },
-          {
-            "index": 7,
-            "status": "missing",
-            "kind": "paragraph",
-            "score": 0.0
-          },
-          {
-            "index": 8,
-            "status": "missing",
-            "kind": "paragraph",
-            "score": 0.0
-          },
-          {
-            "index": 9,
-            "status": "missing",
-            "kind": "code",
-            "score": 0.0
+            "score": 0.2963
           }
         ],
-        "aligned_score": 0.2783072378424085,
-        "global_score": 0.8972081218274112
+        "aligned_score": 0.6762754363502482,
+        "global_score": 0.9579993587688361
       },
       "tables": {
         "tables": []
@@ -91,7 +67,7 @@
           "block_count": 1.0,
           "labels": 1.0,
           "bbox": 0.7527777777777778,
-          "content": 0.8337319239705919
+          "content": 0.9304083776829924
         },
         "pages": [
           {
@@ -99,7 +75,7 @@
             "block_count": 1.0,
             "labels": 1.0,
             "bbox": 0.7528,
-            "content": 0.8337
+            "content": 0.9304
           }
         ]
       },
@@ -122,15 +98,15 @@
           ]
         }
       },
-      "block_shape": 0.4
+      "block_shape": 0.8333333333333334
     },
     "missing_reason": null
   },
   "result_to_golden": {
     "available": true,
-    "overall": 0.7282,
+    "overall": 0.7194,
     "dimensions": {
-      "text_fidelity": 0.7333,
+      "text_fidelity": 0.7238,
       "critical_structure": null,
       "decorative_style": 0.6667
     },
@@ -142,7 +118,7 @@
             "status": "paired",
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
-            "score": 0.0985
+            "score": 0.1084
           },
           {
             "index": 1,
@@ -156,7 +132,7 @@
             "status": "paired",
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
-            "score": 0.36
+            "score": 0.3571
           },
           {
             "index": 3,
@@ -170,45 +146,36 @@
             "status": "paired",
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
-            "score": 0.1117
+            "score": 0.1812
           },
           {
             "index": 5,
             "status": "paired",
-            "actual_kind": "paragraph",
+            "actual_kind": "code",
             "expected_kind": "paragraph",
-            "score": 0.4013
+            "score": 0.0159
           },
           {
             "index": 6,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 0.4366
+            "status": "missing",
+            "kind": "paragraph",
+            "score": 0.0
           },
           {
             "index": 7,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "code",
-            "score": 0.009
-          },
-          {
-            "index": 8,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 0.1353
-          },
-          {
-            "index": 9,
             "status": "missing",
             "kind": "code",
             "score": 0.0
+          },
+          {
+            "index": 8,
+            "status": "missing",
+            "kind": "paragraph",
+            "score": 0.0
           }
         ],
-        "aligned_score": 0.1446232095063996,
-        "global_score": 0.8805179517363154
+        "aligned_score": 0.0697556202931125,
+        "global_score": 0.8873699851411591
       },
       "tables": {
         "tables": []
@@ -236,7 +203,7 @@
           ]
         }
       },
-      "block_shape": 0.7
+      "block_shape": 0.4444444444444444
     },
     "missing_reason": null
   },
@@ -347,10 +314,10 @@
     "missing_reason": null
   },
   "final_dimensions": {
-    "text_fidelity": 0.7734,
-    "critical_structure": 0.7621,
+    "text_fidelity": 0.9017,
+    "critical_structure": 0.9056,
     "decorative_style": 0.8721
   },
-  "final_overall": 0.7744,
+  "final_overall": 0.9016,
   "rules": []
 }

@@ -144,8 +144,8 @@ Run `swift run GLMOCRCLI --help` for the full flag list.
   - enable the GLM-OCR smoke forward-pass test
 - `GLMOCR_TEST_RUN_GENERATE=1`
   - enable the GLM-OCR one-token generate smoke test
-- `GLMOCR_PREPROCESS_BACKEND`, `GLMOCR_POST_RESIZE_JPEG_QUALITY`, `GLMOCR_ALIGN_VISION_DTYPE`
-  - parity/debug preprocessing knobs
+- `GLMOCR_PREPROCESS_BACKEND`, `GLMOCR_POST_RESIZE_JPEG_QUALITY`, `GLMOCR_ALIGN_VISION_DTYPE`, `GLMOCR_VISION_INPUT_DTYPE`
+  - preprocessing/debug overrides; runtime image tensors align to the loaded vision weights by default, and layout OCR adaptively prefers deterministic resize for short, wide text-line crops unless the backend is forced explicitly
 
 The full parity and integration matrix lives in `docs/golden_checks.md`.
 

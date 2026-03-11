@@ -2,10 +2,10 @@
   "name": "GLM-4.5V_Pages_1_2_3",
   "parity": {
     "available": true,
-    "overall": 0.8789,
+    "overall": 0.8788,
     "dimensions": {
-      "text_fidelity": 0.9435,
-      "critical_structure": 0.7868,
+      "text_fidelity": 0.9433,
+      "critical_structure": 0.7867,
       "decorative_style": 0.75
     },
     "details": {
@@ -285,7 +285,7 @@
           }
         ],
         "aligned_score": 0.06295075765983481,
-        "global_score": 0.9898134673898664
+        "global_score": 0.9895934385748303
       },
       "tables": {
         "tables": []
@@ -297,7 +297,7 @@
           "block_count": 1.0,
           "labels": 1.0,
           "bbox": 0.6660533910533911,
-          "content": 0.9893559732782101
+          "content": 0.989152597235908
         },
         "pages": [
           {
@@ -305,7 +305,7 @@
             "block_count": 1.0,
             "labels": 1.0,
             "bbox": 0.6636,
-            "content": 0.9942
+            "content": 0.9936
           },
           {
             "page": 2,
@@ -353,9 +353,9 @@
   },
   "result_to_golden": {
     "available": true,
-    "overall": 0.8887,
+    "overall": 0.8885,
     "dimensions": {
-      "text_fidelity": 0.9228,
+      "text_fidelity": 0.9226,
       "critical_structure": null,
       "decorative_style": 0.4792
     },
@@ -648,7 +648,7 @@
           }
         ],
         "aligned_score": 0.05262492569084125,
-        "global_score": 0.9685995671951596
+        "global_score": 0.9683801448507331
       },
       "tables": {
         "tables": []
@@ -1028,11 +1028,11 @@
     "missing_reason": null
   },
   "final_dimensions": {
-    "text_fidelity": 0.9435,
-    "critical_structure": 0.7868,
+    "text_fidelity": 0.9433,
+    "critical_structure": 0.7867,
     "decorative_style": 0.6875
   },
-  "final_overall": 0.8758,
+  "final_overall": 0.8757,
   "rules": [
     {
       "check_id": "page1_start",

@@ -71,76 +71,20 @@ public struct GLMOCRImageProcessor: Sendable {
     }
 
     public func process(_ image: CIImage, config: GLMOCRConfig) throws -> GLMOCRProcessedImage {
-        let patchSize = config.visionConfig.patchSize ?? 14
-        let temporalPatchSize = config.visionConfig.temporalPatchSize ?? 2
-        let mergeSize = config.visionConfig.spatialMergeSize ?? 2
-
-        let originalWidth = max(Int(image.extent.width.rounded(.down)), 1)
-        let originalHeight = max(Int(image.extent.height.rounded(.down)), 1)
-
-        let factor = max(patchSize * mergeSize * options.patchExpandFactor, 1)
-        let (targetHeight, targetWidth) = smartResize(
-            t: temporalPatchSize,
-            height: originalHeight,
-            width: originalWidth,
-            tFactor: temporalPatchSize,
-            heightFactor: factor,
-            widthFactor: factor,
-            minPixels: options.minPixels,
-            maxPixels: options.maxPixels
-        )
-
-        let conversionOptions = ImageTensorConversionOptions(
-            dtype: options.dtype,
-            mean: options.mean,
-            std: options.std
-        )
-
-        let imageTensor: ImageTensor
-        switch options.resizeBackend {
-        case .coreImageBicubic:
-            let resized = resizeDirectly(image, width: targetWidth, height: targetHeight)
-
-            if let quality = options.postResizeJPEGRoundTripQuality {
-                let rgba = try VisionRaster.renderRGBA8(resized)
-                var rgb = try VisionResize.bicubicRGB(from: rgba, toWidth: targetWidth, toHeight: targetHeight)
-                rgb = try VisionJPEG.roundTrip(rgb, quality: quality)
-                imageTensor = try ImageTensorConverter.toTensor(rgb, options: conversionOptions)
-            } else {
-                imageTensor = try ImageTensorConverter.toTensor(resized, options: conversionOptions)
-            }
-        case .deterministicBicubicCPU:
-            let rgba = try VisionRaster.renderRGBA8(image)
-            var resizedRGB = try VisionResize.bicubicRGB(from: rgba, toWidth: targetWidth, toHeight: targetHeight)
-            if let quality = options.postResizeJPEGRoundTripQuality {
-                resizedRGB = try VisionJPEG.roundTrip(resizedRGB, quality: quality)
-            }
-            imageTensor = try ImageTensorConverter.toTensor(resizedRGB, options: conversionOptions)
-        }
-
-        let hwc = imageTensor.tensor.squeezed(axis: 0)  // [H, W, C]
-        let depth = temporalPatchSize
-        let stacked = MLX.stacked(Array(repeating: hwc, count: depth), axis: 0)  // [D, H, W, C]
-        let pixelValues = stacked.expandedDimensions(axis: 0)  // [1, D, H, W, C]
-
-        let gridH = targetHeight / patchSize
-        let gridW = targetWidth / patchSize
-        let downH = gridH / mergeSize
-        let downW = gridW / mergeSize
-        let depthTokens = depth / temporalPatchSize
-        let numImageTokens = depthTokens * downH * downW
-
-        return GLMOCRProcessedImage(
-            pixelValues: pixelValues,
-            width: targetWidth,
-            height: targetHeight,
-            numImageTokens: numImageTokens
+        let prepared = try prepareImage(image, config: config, captureResizedRGB: false)
+        return makeProcessedImage(
+            imageTensor: prepared.imageTensor,
+            targetWidth: prepared.targetWidth,
+            targetHeight: prepared.targetHeight,
+            temporalPatchSize: prepared.temporalPatchSize,
+            patchSize: prepared.patchSize,
+            mergeSize: prepared.mergeSize
         )
     }
 
     // MARK: - Resizing helpers (ported from ../GLM-OCR/glmocr/utils/image_utils.py)
 
-    private func smartResize(
+    func smartResize(
         t: Int,
         height: Int,
         width: Int,
@@ -184,7 +128,7 @@ public struct GLMOCRImageProcessor: Sendable {
         return (hBar, wBar)
     }
 
-    private func resizeDirectly(_ image: CIImage, width: Int, height: Int) -> CIImage {
+    func resizeDirectly(_ image: CIImage, width: Int, height: Int) -> CIImage {
         let targetWidth = CGFloat(max(width, 1))
         let targetHeight = CGFloat(max(height, 1))
         let size = CGSize(width: targetWidth, height: targetHeight)

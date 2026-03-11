@@ -1,20 +1,12 @@
-relationship between the beans. The only difference from previous exercises is the change in the INDI name element tac for the Address home interface:
+relationship between the beans. The only difference from previous exercises is the change in the JNDI name element tag for the Address home interface:
 
 <local-indi-name>AddressHomeLocal</local-indi-name>
 
-Because the Home interface for the Address is local, the tag is <local-jndi-name> rather than <ndi-name>
+Because the Home interface for the Address is local, the tag is <local-jndi-name> rather than <jndi-name>.
 
-the weblogic cmp-rdbms-jar.xml descriptor contains a number of new sections and elements
+the weblogic-emp-rdbms-jar.xml descriptor file contains a number of new sections and elements in this exercise. A detailed examination of the relationship elements will wait until the next
 
-that will be added to the database, and the sections will wait until the next
-
-exercise, but there are some other changes to observe and examine.
-
-The file contains a section mapping the key table attributes from the job pjr.xml to the
-
-key table in addition to a new section related to the
-
-automatic key generation used for primary key values in this file.
+The file contains a section mapping the Address <comp-field> attributes from the `ebj-jar.xml` file to the database columns that correspond to a new section related to the address. For the primary key values in this base
 
 ```xml
 

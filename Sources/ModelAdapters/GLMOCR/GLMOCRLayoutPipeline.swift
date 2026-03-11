@@ -204,8 +204,20 @@ public actor GLMOCRLayoutPipeline: OCRPipeline {
                         case .formula: .formula
                         case .skip, .abandon: .text
                         }
+                    let cropPixelSize = (
+                        width: max(Int(cropped.extent.width.rounded(.down)), 1),
+                        height: max(Int(cropped.extent.height.rounded(.down)), 1)
+                    )
 
-                    let result = try await regionOCR.recognize(ciImage: cropped, task: mappedTask, options: options)
+                    let result = try await regionOCR.recognize(
+                        ciImage: cropped,
+                        task: mappedTask,
+                        options: options,
+                        preferredResizeBackend: preferredResizeBackendForRegionOCR(
+                            taskType: item.taskType,
+                            cropPixelSize: cropPixelSize
+                        )
+                    )
                     return (item.offset, result.text)
                 }
             }
@@ -278,6 +290,18 @@ func shouldUsePolygonCropForOCR(taskType: LayoutTaskType) -> Bool {
     default:
         false
     }
+}
+
+func preferredResizeBackendForRegionOCR(
+    taskType: LayoutTaskType,
+    cropPixelSize: (width: Int, height: Int)
+) -> GLMOCRResizeBackend? {
+    // Hard-example A/B showed the deterministic CPU path helps the very wide, short
+    // text-line crops that dominate `code`, while broader use regressed `page`.
+    if taskType == .text, cropPixelSize.width >= 340, cropPixelSize.height <= 36 {
+        return .deterministicBicubicCPU
+    }
+    return nil
 }
 
 private struct WorkItem: Sendable, Equatable {

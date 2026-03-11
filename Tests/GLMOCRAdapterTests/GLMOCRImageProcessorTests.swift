@@ -45,4 +45,24 @@ final class GLMOCRImageProcessorTests: MLXTestCase {
         XCTAssertEqual(deterministicProcessed.numImageTokens, coreProcessed.numImageTokens)
         XCTAssertEqual(deterministicProcessed.pixelValues.shape, coreProcessed.pixelValues.shape)
     }
+
+    func testInspect_capturesResizedRGBAndTensorSummary() throws {
+        let image = CIImage(color: CIColor(red: 0.25, green: 0.5, blue: 0.75, alpha: 1))
+            .cropped(to: CGRect(x: 0, y: 0, width: 96, height: 64))
+
+        let config = GLMOCRConfig(
+            textConfig: .init(),
+            visionConfig: .init(patchSize: 14, temporalPatchSize: 2, spatialMergeSize: 2)
+        )
+
+        let processor = GLMOCRImageProcessor(options: .init(dtype: .float32))
+        let inspection = try processor.inspect(image, config: config)
+
+        XCTAssertEqual(inspection.originalWidth, 96)
+        XCTAssertEqual(inspection.originalHeight, 64)
+        XCTAssertEqual(inspection.resizedRGB.width, inspection.targetWidth)
+        XCTAssertEqual(inspection.resizedRGB.height, inspection.targetHeight)
+        XCTAssertEqual(inspection.tensorSummary.dtype, String(describing: DType.float32))
+        XCTAssertGreaterThanOrEqual(inspection.tensorSummary.maximum, inspection.tensorSummary.minimum)
+    }
 }

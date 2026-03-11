@@ -172,16 +172,6 @@ final class GLMOCRForwardPassIntegrationTests: XCTestCase {
         )
     }
 
-    private struct PreprocessorConfig: Decodable, Sendable {
-        var imageMean: [Float]?
-        var imageStd: [Float]?
-
-        private enum CodingKeys: String, CodingKey {
-            case imageMean = "image_mean"
-            case imageStd = "image_std"
-        }
-    }
-
     private enum DeterministicImageError: Error, Sendable {
         case cgImageCreationFailed
     }
@@ -194,26 +184,13 @@ final class GLMOCRForwardPassIntegrationTests: XCTestCase {
         if GLMOCRTestEnv.runGolden {
             options.dtype = .float16
         }
-        if let meanStd = try loadMeanStd(from: modelFolder) {
-            options.mean = meanStd.mean
-            options.std = meanStd.std
+        if let normalizationStats = try GLMOCRPreprocessorConfigLoader.loadNormalizationStats(from: modelFolder) {
+            options.mean = normalizationStats.mean
+            options.std = normalizationStats.std
         }
 
         let processor = GLMOCRImageProcessor(options: options)
         return try processor.process(image, config: config)
-    }
-
-    private func loadMeanStd(from modelFolder: URL) throws -> (mean: (Float, Float, Float), std: (Float, Float, Float))?
-    {
-        let url = modelFolder.appendingPathComponent("preprocessor_config.json")
-        guard FileManager.default.fileExists(atPath: url.path) else { return nil }
-
-        let data = try Data(contentsOf: url)
-        let config = try JSONDecoder().decode(PreprocessorConfig.self, from: data)
-        guard let mean = config.imageMean, let std = config.imageStd, mean.count == 3, std.count == 3 else {
-            return nil
-        }
-        return ((mean[0], mean[1], mean[2]), (std[0], std[1], std[2]))
     }
 
     private func makeDeterministicCIImage(imageSize: Int) throws -> CIImage {

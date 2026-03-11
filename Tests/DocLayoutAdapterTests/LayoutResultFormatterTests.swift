@@ -157,4 +157,48 @@ final class LayoutResultFormatterTests: XCTestCase {
         let (_, markdown) = LayoutResultFormatter.format(pages: pages)
         XCTAssertEqual(markdown, "![](page=2,bbox=[10,20,30,40])")
     }
+
+    func testAlgorithmCodeFenceNormalization_rewritesXMLLikeHTMLFence() {
+        let pages = [
+            OCRPage(
+                index: 0,
+                regions: [
+                    OCRRegion(
+                        index: 0,
+                        kind: .unknown,
+                        nativeLabel: "algorithm",
+                        bbox: OCRNormalizedBBox(x1: 0, y1: 0, x2: 1000, y2: 1000),
+                        content: "```html\n<local-jndi-name>AddressHomeLocal</local-jndi-name>\n```"
+                    )
+                ]
+            )
+        ]
+
+        let (document, markdown) = LayoutResultFormatter.format(pages: pages)
+
+        XCTAssertEqual(markdown, "```xml\n\n<local-jndi-name>AddressHomeLocal</local-jndi-name>\n\n```")
+        XCTAssertEqual(document.pages[0].regions[0].content, markdown)
+    }
+
+    func testAlgorithmCodeFenceNormalization_preservesRealHTMLContent() {
+        let pages = [
+            OCRPage(
+                index: 0,
+                regions: [
+                    OCRRegion(
+                        index: 0,
+                        kind: .unknown,
+                        nativeLabel: "algorithm",
+                        bbox: OCRNormalizedBBox(x1: 0, y1: 0, x2: 1000, y2: 1000),
+                        content: "```html\n<html><body>hello</body></html>\n```"
+                    )
+                ]
+            )
+        ]
+
+        let (document, markdown) = LayoutResultFormatter.format(pages: pages)
+
+        XCTAssertEqual(markdown, "```html\n\n<html><body>hello</body></html>\n\n```")
+        XCTAssertEqual(document.pages[0].regions[0].content, markdown)
+    }
 }

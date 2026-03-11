@@ -14,15 +14,15 @@ Use the current checked-in reports as the baseline until intentionally rebaselin
 
 | Example | Current final overall |
 |---|---:|
-| `GLM-4.5V_Page_1` | 0.8730 |
-| `GLM-4.5V_Pages_1_2_3` | 0.8758 |
-| `code` | 0.7744 |
+| `GLM-4.5V_Page_1` | 0.8723 |
+| `GLM-4.5V_Pages_1_2_3` | 0.8757 |
+| `code` | 0.9016 |
 | `handwritten` | 0.9777 |
 | `page` | 0.7438 |
 | `paper` | 0.9651 |
 | `seal` | 0.9804 |
 | `table` | 0.9944 |
-| **mean** | **0.8981** |
+| **mean** | **0.9139** |
 
 ### Comparative priority signal
 
@@ -36,11 +36,11 @@ Biggest current deficits to close first:
 
 ### Maintenance backlog
 
-- [ ] Improve `code` without regressing the stable subset.
+- [x] Improve `code` without regressing the stable subset.
 - [ ] Improve `page` without regressing the stable subset.
-- [ ] Execute the focused preprocessing/runtime triage in `hard_examples_code_page/tracker.md`.
+- [x] Execute the focused preprocessing/runtime triage in `hard_examples_code_page/tracker.md`.
 - [ ] Re-evaluate dense mixed-layout/formula examples before any future artifact rebaseline.
-- [ ] Keep `examples/result/*` and `examples/eval_records/latest/*` coupled when the accepted baseline changes.
+- [x] Keep `examples/result/*` and `examples/eval_records/latest/*` coupled when the accepted baseline changes.
 
 ### Focused current hypothesis
 
@@ -48,8 +48,8 @@ For the present `code` deficit, the strongest current evidence points to **per-r
 
 - the peer port is materially better on `code`
 - region boxes are broadly similar between the two Swift ports
-- the maintained repo still defaults runtime image tensors to BF16 unless an env-gated alignment path is enabled
-- the maintained repo still defaults to the Core Image resize path, while the peer port uses a deterministic CPU bicubic path
+- the maintained repo now aligns runtime image tensors to the loaded vision weights by default, but the pinned parity snapshot resolves those vision weights to BF16 so this was score-neutral on the checked-in corpus
+- the maintained repo now uses an adaptive deterministic CPU bicubic path only for short, wide layout text-line crops; a global switch regressed `page`
 
 Treat that as the current lead, not as a closed diagnosis. The detailed workstream is tracked under `hard_examples_code_page/tracker.md`.
 

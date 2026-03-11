@@ -5,10 +5,10 @@
       "name": "GLM-4.5V_Page_1",
       "parity": {
         "available": true,
-        "overall": 0.873,
+        "overall": 0.8723,
         "dimensions": {
-          "text_fidelity": 0.944,
-          "critical_structure": 0.7688,
+          "text_fidelity": 0.9429,
+          "critical_structure": 0.7687,
           "decorative_style": 0.75
         },
         "details": {
@@ -135,7 +135,7 @@
               }
             ],
             "aligned_score": 0.056743442101291494,
-            "global_score": 0.9907063197026023
+            "global_score": 0.9895470383275262
           },
           "tables": {
             "tables": []
@@ -147,7 +147,7 @@
               "block_count": 1.0,
               "labels": 1.0,
               "bbox": 0.6636363636363637,
-              "content": 0.9941761392965671
+              "content": 0.9935660111696606
             },
             "pages": [
               {
@@ -155,7 +155,7 @@
                 "block_count": 1.0,
                 "labels": 1.0,
                 "bbox": 0.6636,
-                "content": 0.9942
+                "content": 0.9936
               }
             ]
           },
@@ -206,21 +206,21 @@
         "missing_reason": "missing markdown: /Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/golden_result/GLM-4.5V_Page_1/GLM-4.5V_Page_1.md (missing)"
       },
       "final_dimensions": {
-        "text_fidelity": 0.944,
-        "critical_structure": 0.7688,
+        "text_fidelity": 0.9429,
+        "critical_structure": 0.7687,
         "decorative_style": 0.75
       },
-      "final_overall": 0.873,
+      "final_overall": 0.8723,
       "rules": []
     },
     {
       "name": "GLM-4.5V_Pages_1_2_3",
       "parity": {
         "available": true,
-        "overall": 0.8789,
+        "overall": 0.8788,
         "dimensions": {
-          "text_fidelity": 0.9435,
-          "critical_structure": 0.7868,
+          "text_fidelity": 0.9433,
+          "critical_structure": 0.7867,
           "decorative_style": 0.75
         },
         "details": {
@@ -500,7 +500,7 @@
               }
             ],
             "aligned_score": 0.06295075765983481,
-            "global_score": 0.9898134673898664
+            "global_score": 0.9895934385748303
           },
           "tables": {
             "tables": []
@@ -512,7 +512,7 @@
               "block_count": 1.0,
               "labels": 1.0,
               "bbox": 0.6660533910533911,
-              "content": 0.9893559732782101
+              "content": 0.989152597235908
             },
             "pages": [
               {
@@ -520,7 +520,7 @@
                 "block_count": 1.0,
                 "labels": 1.0,
                 "bbox": 0.6636,
-                "content": 0.9942
+                "content": 0.9936
               },
               {
                 "page": 2,
@@ -568,9 +568,9 @@
       },
       "result_to_golden": {
         "available": true,
-        "overall": 0.8887,
+        "overall": 0.8885,
         "dimensions": {
-          "text_fidelity": 0.9228,
+          "text_fidelity": 0.9226,
           "critical_structure": null,
           "decorative_style": 0.4792
         },
@@ -863,7 +863,7 @@
               }
             ],
             "aligned_score": 0.05262492569084125,
-            "global_score": 0.9685995671951596
+            "global_score": 0.9683801448507331
           },
           "tables": {
             "tables": []
@@ -1243,11 +1243,11 @@
         "missing_reason": null
       },
       "final_dimensions": {
-        "text_fidelity": 0.9435,
-        "critical_structure": 0.7868,
+        "text_fidelity": 0.9433,
+        "critical_structure": 0.7867,
         "decorative_style": 0.6875
       },
-      "final_overall": 0.8758,
+      "final_overall": 0.8757,
       "rules": [
         {
           "check_id": "page1_start",
@@ -1304,10 +1304,10 @@
       "name": "code",
       "parity": {
         "available": true,
-        "overall": 0.7748,
+        "overall": 0.902,
         "dimensions": {
-          "text_fidelity": 0.7734,
-          "critical_structure": 0.7621,
+          "text_fidelity": 0.9017,
+          "critical_structure": 0.9056,
           "decorative_style": 0.8804
         },
         "details": {
@@ -1318,7 +1318,7 @@
                 "status": "paired",
                 "actual_kind": "paragraph",
                 "expected_kind": "paragraph",
-                "score": 0.9595
+                "score": 1.0
               },
               {
                 "index": 1,
@@ -1332,56 +1332,32 @@
                 "status": "paired",
                 "actual_kind": "paragraph",
                 "expected_kind": "paragraph",
-                "score": 0.9709
+                "score": 1.0
               },
               {
                 "index": 3,
                 "status": "paired",
                 "actual_kind": "paragraph",
                 "expected_kind": "paragraph",
-                "score": 0.5836
+                "score": 0.9554
               },
               {
                 "index": 4,
                 "status": "paired",
                 "actual_kind": "paragraph",
                 "expected_kind": "paragraph",
-                "score": 0.2279
+                "score": 0.8232
               },
               {
                 "index": 5,
                 "status": "paired",
-                "actual_kind": "paragraph",
+                "actual_kind": "code",
                 "expected_kind": "code",
-                "score": 0.0025
-              },
-              {
-                "index": 6,
-                "status": "missing",
-                "kind": "paragraph",
-                "score": 0.0
-              },
-              {
-                "index": 7,
-                "status": "missing",
-                "kind": "paragraph",
-                "score": 0.0
-              },
-              {
-                "index": 8,
-                "status": "missing",
-                "kind": "paragraph",
-                "score": 0.0
-              },
-              {
-                "index": 9,
-                "status": "missing",
-                "kind": "code",
-                "score": 0.0
+                "score": 0.2963
               }
             ],
-            "aligned_score": 0.2783072378424085,
-            "global_score": 0.8972081218274112
+            "aligned_score": 0.6762754363502482,
+            "global_score": 0.9579993587688361
           },
           "tables": {
             "tables": []
@@ -1393,7 +1369,7 @@
               "block_count": 1.0,
               "labels": 1.0,
               "bbox": 0.7527777777777778,
-              "content": 0.8337319239705919
+              "content": 0.9304083776829924
             },
             "pages": [
               {
@@ -1401,7 +1377,7 @@
                 "block_count": 1.0,
                 "labels": 1.0,
                 "bbox": 0.7528,
-                "content": 0.8337
+                "content": 0.9304
               }
             ]
           },
@@ -1424,15 +1400,15 @@
               ]
             }
           },
-          "block_shape": 0.4
+          "block_shape": 0.8333333333333334
         },
         "missing_reason": null
       },
       "result_to_golden": {
         "available": true,
-        "overall": 0.7282,
+        "overall": 0.7194,
         "dimensions": {
-          "text_fidelity": 0.7333,
+          "text_fidelity": 0.7238,
           "critical_structure": null,
           "decorative_style": 0.6667
         },
@@ -1444,7 +1420,7 @@
                 "status": "paired",
                 "actual_kind": "paragraph",
                 "expected_kind": "paragraph",
-                "score": 0.0985
+                "score": 0.1084
               },
               {
                 "index": 1,
@@ -1458,7 +1434,7 @@
                 "status": "paired",
                 "actual_kind": "paragraph",
                 "expected_kind": "paragraph",
-                "score": 0.36
+                "score": 0.3571
               },
               {
                 "index": 3,
@@ -1472,45 +1448,36 @@
                 "status": "paired",
                 "actual_kind": "paragraph",
                 "expected_kind": "paragraph",
-                "score": 0.1117
+                "score": 0.1812
               },
               {
                 "index": 5,
                 "status": "paired",
-                "actual_kind": "paragraph",
+                "actual_kind": "code",
                 "expected_kind": "paragraph",
-                "score": 0.4013
+                "score": 0.0159
               },
               {
                 "index": 6,
-                "status": "paired",
-                "actual_kind": "paragraph",
-                "expected_kind": "paragraph",
-                "score": 0.4366
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
               },
               {
                 "index": 7,
-                "status": "paired",
-                "actual_kind": "paragraph",
-                "expected_kind": "code",
-                "score": 0.009
-              },
-              {
-                "index": 8,
-                "status": "paired",
-                "actual_kind": "paragraph",
-                "expected_kind": "paragraph",
-                "score": 0.1353
-              },
-              {
-                "index": 9,
                 "status": "missing",
                 "kind": "code",
                 "score": 0.0
+              },
+              {
+                "index": 8,
+                "status": "missing",
+                "kind": "paragraph",
+                "score": 0.0
               }
             ],
-            "aligned_score": 0.1446232095063996,
-            "global_score": 0.8805179517363154
+            "aligned_score": 0.0697556202931125,
+            "global_score": 0.8873699851411591
           },
           "tables": {
             "tables": []
@@ -1538,7 +1505,7 @@
               ]
             }
           },
-          "block_shape": 0.7
+          "block_shape": 0.4444444444444444
         },
         "missing_reason": null
       },
@@ -1649,11 +1616,11 @@
         "missing_reason": null
       },
       "final_dimensions": {
-        "text_fidelity": 0.7734,
-        "critical_structure": 0.7621,
+        "text_fidelity": 0.9017,
+        "critical_structure": 0.9056,
         "decorative_style": 0.8721
       },
-      "final_overall": 0.7744,
+      "final_overall": 0.9016,
       "rules": []
     },
     {

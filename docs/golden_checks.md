@@ -126,7 +126,7 @@ When these env vars are unset, model-backed tests try to resolve the current cac
 ### Opt-in test lanes
 
 - `GLMOCR_RUN_GOLDEN=1`
-  - enables GLM-OCR golden checks and also turns on parity-oriented dtype alignment in the runtime
+  - enables GLM-OCR golden checks
 - `LAYOUT_RUN_GOLDEN=1`
   - enables PP-DocLayoutV3 golden and intermediate parity checks
 - `GLMOCR_RUN_EXAMPLES=1`
@@ -141,11 +141,13 @@ When these env vars are unset, model-backed tests try to resolve the current cac
 - `GLMOCR_DEBUG_VISION=1`
   - prints vision embedding stats in the GLM-OCR golden test
 - `GLMOCR_PREPROCESS_BACKEND=coreimage|deterministic`
-  - selects the GLM image resize backend for runtime/parity debugging
+  - explicitly overrides the GLM image resize backend for runtime/parity debugging
 - `GLMOCR_POST_RESIZE_JPEG_QUALITY=<float>`
   - applies an optional JPEG round-trip after resize in the GLM image processor
-- `GLMOCR_ALIGN_VISION_DTYPE=1`
-  - aligns image tensor dtype to the model vision weights dtype without enabling the full golden lane
+- `GLMOCR_ALIGN_VISION_DTYPE=0|1`
+  - the runtime aligns image tensor dtype to the loaded vision weights by default; set `0` to disable that behavior explicitly
+- `GLMOCR_VISION_INPUT_DTYPE=float16|float32|bfloat16`
+  - forces an explicit image tensor dtype and disables the default vision-weight alignment for that run
 - `LAYOUT_DEBUG_DTYPE=1`
   - prints dtype summaries during PP-DocLayoutV3 golden runs
 - `LAYOUT_FORCE_PIXEL_FLOAT32=1`
@@ -206,6 +208,23 @@ Useful lanes:
   ```bash
   LAYOUT_RUN_GOLDEN=1 swift test --filter PPDocLayoutV3GoldenFloat32IntegrationTests
   ```
+
+### Hard-example preprocess artifact dump
+
+For crop-level backend A/B work on the hard examples, use the internal debug executable. It resolves `GLMOCR_SNAPSHOT_PATH` / `LAYOUT_SNAPSHOT_PATH` first, then falls back to the local HF cache before downloading.
+
+```bash
+source scripts/_parity_defaults.sh
+swift run GLMOCRPreprocessDebugCLI \
+  --input examples/source/code.png \
+  --output-dir .build/hard_example_probes/code \
+  --model "$PARITY_GLM_MODEL_ID" \
+  --revision "$PARITY_GLM_REVISION" \
+  --layout-model "$PARITY_LAYOUT_MODEL_ID" \
+  --layout-revision "$PARITY_LAYOUT_REVISION"
+```
+
+The tool writes `manifest.json` plus per-region resized RGB PNGs so backend decisions can be tied to recorded crop metadata, target sizes, timings, and tensor summaries.
 
 ### PP-DocLayout-V3 intermediate parity (fixture v3)
 

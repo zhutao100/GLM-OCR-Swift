@@ -29,7 +29,7 @@ public struct GLMOCRModel: CausalLM, Sendable {
 
     var config: GLMOCRConfig { state.config }
 
-    var visionInputDType: DType {
+    public var visionInputDType: DType {
         state.core.model.visual.patchEmbed.proj.weight.dtype
     }
 

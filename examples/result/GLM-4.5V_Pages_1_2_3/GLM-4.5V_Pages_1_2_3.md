@@ -4,7 +4,7 @@ GLM-V Team
 
 Zhipu AI & Tsinghua University
 
-(For the complete list of authors, please refer to the Contribution section)
+(For the complete list of authors, please refer to the Contribution section).
 
 ## Abstract
 

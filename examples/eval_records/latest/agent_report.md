@@ -1,21 +1,21 @@
 # Example evaluation (agent report)
 
-- generated_at: `2026-03-06T19:13:55+00:00`
-- git: `3700866-dirty`
-- git_head_sha: `3700866ad82f7a1a0f94cdad1cbc1a0b9154a2ba`
+- generated_at: `2026-03-11T22:49:07+00:00`
+- git: `2f8007a-dirty`
+- git_head_sha: `2f8007a6e6894b8d7c4497a0fc3d504d3dfc9692`
 - git_dirty: `True`
 - glm_snapshot: `zai-org/GLM-OCR@677c6baa60442a451f8a8c7eabdfab32d9801a0b`
 - layout_snapshot: `PaddlePaddle/PP-DocLayoutV3_safetensors@a0abee1e2bb505e5662993235af873a5d89851e3`
 - generation_preset: `parity-greedy-v1`
-- mean_final_overall: `0.8981`
+- mean_final_overall: `0.9139`
 
 ## Scores
 
 | Example | Final | Δ vs baseline | Parity | Result→Golden | Ref→Golden | Rules |
 |---|---:|---:|---:|---:|---:|---:|
-| `GLM-4.5V_Page_1` | 0.8730 | +0.0000 | 0.8730 | None | None | 0/0 |
-| `GLM-4.5V_Pages_1_2_3` | 0.8758 | +0.0000 | 0.8789 | 0.8887 | 0.9230 | 0/7 |
-| `code` | 0.7744 | +0.0000 | 0.7748 | 0.7282 | 0.7270 | 0/0 |
+| `GLM-4.5V_Page_1` | 0.8723 | -0.0007 | 0.8723 | None | None | 0/0 |
+| `GLM-4.5V_Pages_1_2_3` | 0.8757 | -0.0001 | 0.8788 | 0.8885 | 0.9230 | 0/7 |
+| `code` | 0.9016 | +0.1272 | 0.9020 | 0.7194 | 0.7270 | 0/0 |
 | `handwritten` | 0.9777 | +0.0000 | 0.9277 | 0.9600 | 0.9550 | 0/1 |
 | `page` | 0.7438 | +0.0000 | 0.7567 | 0.5281 | 0.6078 | 0/0 |
 | `paper` | 0.9651 | +0.0000 | 0.9651 | 0.7058 | 0.7090 | 0/0 |
@@ -45,32 +45,10 @@
 - lowest text pairs: (idx=8, status=paired, actual=paragraph, expected=paragraph, score=0.0000), (idx=11, status=paired, actual=paragraph, expected=paragraph, score=0.0000), (idx=12, status=paired, actual=paragraph, expected=paragraph, score=0.0000), (idx=14, status=paired, actual=list_item, expected=heading, score=0.0000), (idx=15, status=paired, actual=heading, expected=heading, score=0.0000)
 - fix_hints: OCR JSON (block ordering, bbox rounding, content normalization), Markdown block segmentation (heading/list/paragraph splits)
 
-### `code`
-
-- final_overall: `0.7744`
-- delta_vs_baseline: `+0.0000`
-- result_md: `examples/result/code/code.md`
-- result_json: `examples/result/code/code.json`
-- reference_md: `examples/reference_result/code/code.md`
-- reference_json: `examples/reference_result/code/code.json`
-- eval_report_md: `examples/eval_records/latest/examples/code/report.md`
-- eval_report_json: `examples/eval_records/latest/examples/code/report.json`
-- golden_md: `examples/golden_result/code/code.md`
-- golden_json: `examples/golden_result/code/code.json`
-
-**Signals**
-- lowest dimension: `critical_structure` = 0.7621
-- style.code_languages: actual=['xml'], expected=['html', 'html']
-- json components < 0.98: bbox=0.7528, content=0.8337
-- block_shape: 0.4000
-- text blocks: missing=4, paired=6
-- lowest text pairs: (idx=6, status=missing, actual=None, expected=None, score=0.0000), (idx=7, status=missing, actual=None, expected=None, score=0.0000), (idx=8, status=missing, actual=None, expected=None, score=0.0000), (idx=9, status=missing, actual=None, expected=None, score=0.0000), (idx=5, status=paired, actual=paragraph, expected=code, score=0.0025)
-- fix_hints: Markdown style wrappers (centering/bold/fences), OCR JSON (block ordering, bbox rounding, content normalization), Markdown block segmentation (heading/list/paragraph splits)
-
 ### `GLM-4.5V_Page_1`
 
-- final_overall: `0.8730`
-- delta_vs_baseline: `+0.0000`
+- final_overall: `0.8723`
+- delta_vs_baseline: `-0.0007`
 - result_md: `examples/result/GLM-4.5V_Page_1/GLM-4.5V_Page_1.md`
 - result_json: `examples/result/GLM-4.5V_Page_1/GLM-4.5V_Page_1.json`
 - reference_md: `examples/reference_result/GLM-4.5V_Page_1/GLM-4.5V_Page_1.md`
@@ -90,8 +68,8 @@
 
 ### `GLM-4.5V_Pages_1_2_3`
 
-- final_overall: `0.8758`
-- delta_vs_baseline: `+0.0000`
+- final_overall: `0.8757`
+- delta_vs_baseline: `-0.0001`
 - result_md: `examples/result/GLM-4.5V_Pages_1_2_3/GLM-4.5V_Pages_1_2_3.md`
 - result_json: `examples/result/GLM-4.5V_Pages_1_2_3/GLM-4.5V_Pages_1_2_3.json`
 - reference_md: `examples/reference_result/GLM-4.5V_Pages_1_2_3/GLM-4.5V_Pages_1_2_3.md`
