@@ -38,8 +38,20 @@ Biggest current deficits to close first:
 
 - [ ] Improve `code` without regressing the stable subset.
 - [ ] Improve `page` without regressing the stable subset.
+- [ ] Execute the focused preprocessing/runtime triage in `hard_examples_code_page/tracker.md`.
 - [ ] Re-evaluate dense mixed-layout/formula examples before any future artifact rebaseline.
 - [ ] Keep `examples/result/*` and `examples/eval_records/latest/*` coupled when the accepted baseline changes.
+
+### Focused current hypothesis
+
+For the present `code` deficit, the strongest current evidence points to **per-region OCR preprocessing/runtime parity**, not a fresh layout-ordering failure:
+
+- the peer port is materially better on `code`
+- region boxes are broadly similar between the two Swift ports
+- the maintained repo still defaults runtime image tensors to BF16 unless an env-gated alignment path is enabled
+- the maintained repo still defaults to the Core Image resize path, while the peer port uses a deterministic CPU bicubic path
+
+Treat that as the current lead, not as a closed diagnosis. The detailed workstream is tracked under `hard_examples_code_page/tracker.md`.
 
 ---
 

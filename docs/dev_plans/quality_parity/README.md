@@ -10,11 +10,16 @@
 - Keep `examples/result/*` and `examples/eval_records/latest/*` refreshed together when the accepted baseline changes.
 - Preserve the pinned parity contract from `scripts/_parity_defaults.sh`.
 - Keep the stable subset protected by opt-in tests while the broader corpus stays on the report-only evaluation lane.
+- Use the focused hard-example tracker for the current preprocessing/runtime investigation:
+  - `hard_examples_code_page/README.md`
+  - `hard_examples_code_page/tracker.md`
 
 ## Where Current Behavior Lives
 
 - `tracker.md`
   - live baseline score snapshot, maintenance backlog, and reproducibility policy
+- `hard_examples_code_page/tracker.md`
+  - current ranked hypotheses, workstreams, and acceptance criteria for the `code` / `page` gap
 - `docs/golden_checks.md`
   - opt-in test lanes, snapshot overrides, and fixture-generation workflow
 - `examples/README.md`
@@ -28,6 +33,10 @@
 
 - `tracker.md`
   - live status, ordered maintenance backlog, and baseline scores
+- `hard_examples_code_page/README.md`
+  - investigation summary for the `code` / `page` gap and the current evidence-based hypothesis ranking
+- `hard_examples_code_page/tracker.md`
+  - implementation tracker for the focused hard-example work
 - `implementation_plan.md`
   - completed-program summary and why the phase order mattered
 - `phase_00_reference_contract.md`
@@ -44,6 +53,7 @@
 ## How To Use This Folder
 
 - Start with `tracker.md` when touching parity-sensitive code or example artifacts.
+- Move to `hard_examples_code_page/tracker.md` when the change is specifically about the `code` or `page` quality gap.
 - Use the phase docs only when you need historical reasoning, acceptance criteria, or implementation detail for a completed phase.
 - Do not treat the phase docs as a forward roadmap; the current roadmap is incremental maintenance, not another multi-phase reset.
 

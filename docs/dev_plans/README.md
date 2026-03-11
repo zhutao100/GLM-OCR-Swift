@@ -4,8 +4,9 @@
 
 ## Priority Order
 
-1. Incremental quality/parity maintenance on the hard examples plus artifact hygiene
-2. App polish, export UX, and distribution when product focus returns
+1. Hard-example quality triage for `code`, `page`, and related dense mixed-layout cases
+2. Incremental quality/parity maintenance on the accepted artifact contract
+3. App polish, export UX, and distribution when product focus returns
 
 ## Maintained Trackers
 
@@ -13,6 +14,11 @@
   - `docs/dev_plans/quality_parity/tracker.md`
   - `docs/dev_plans/quality_parity/README.md`
   - use these for the live backlog, baseline score snapshot, and parity-contract rules
+
+- Focused hard-example investigation
+  - `docs/dev_plans/quality_parity/hard_examples_code_page/README.md`
+  - `docs/dev_plans/quality_parity/hard_examples_code_page/tracker.md`
+  - use these when touching GLM-OCR preprocessing/runtime parity for the current `code` and `page` deficits
 
 - GUI polish and distribution
   - `docs/dev_plans/gui_polish_distribution/tracker.md`
