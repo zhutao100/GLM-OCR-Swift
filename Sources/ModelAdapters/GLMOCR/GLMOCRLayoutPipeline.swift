@@ -150,7 +150,7 @@ public actor GLMOCRLayoutPipeline: OCRPipeline {
 
         try await ensureLoaded(progress: nil)
 
-        let pageImage = try loadPageImage(url: url, page: page)
+        let pageImage = SendableCIImage(try loadPageImage(url: url, page: page))
 
         try Task.checkCancellation()
         let detected = try await layoutDetector.detect(ciImage: pageImage)
@@ -158,7 +158,6 @@ public actor GLMOCRLayoutPipeline: OCRPipeline {
         let resolvedConcurrency = layoutOptions.resolvedMaxConcurrentRegions()
         var regions = detected
 
-        let sendablePageImage = SendableCIImage(pageImage)
         let regionOCR = ocrPipeline
 
         var workItems: [WorkItem] = []
@@ -187,11 +186,11 @@ public actor GLMOCRLayoutPipeline: OCRPipeline {
                 next += 1
                 inFlight += 1
 
-                group.addTask { [sendablePageImage] in
+                group.addTask { [pageImage] in
                     try Task.checkCancellation()
 
                     let cropped = try VisionIO.cropRegion(
-                        image: sendablePageImage.value,
+                        image: pageImage.value,
                         bbox: item.region.bbox,
                         polygon: shouldUsePolygonCropForOCR(taskType: item.taskType) ? item.region.polygon : nil,
                         fillColor: .white

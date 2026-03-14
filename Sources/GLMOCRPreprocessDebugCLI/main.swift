@@ -130,7 +130,7 @@ struct GLMOCRPreprocessDebugCLI: AsyncParsableCommand {
             } else {
                 try VisionIO.loadCIImage(from: inputURL)
             }
-        let detectedRegions = try await detector.detect(ciImage: pageImage)
+        let detectedRegions = try await detector.detect(ciImage: SendableCIImage(pageImage))
         let selectedRegions = selectRegions(from: detectedRegions)
 
         let normalizationManifest = normalizationStats.map {

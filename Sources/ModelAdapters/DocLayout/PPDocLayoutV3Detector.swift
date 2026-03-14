@@ -76,7 +76,7 @@ public actor PPDocLayoutV3Detector {
     public func loadedConfig() -> PPDocLayoutV3Config? { config }
     public func loadedPreprocessorConfig() -> PPDocLayoutV3PreprocessorConfig? { preprocessorConfig }
 
-    public func detect(ciImage: CIImage) async throws -> [OCRRegion] {
+    public func detect(ciImage: SendableCIImage) async throws -> [OCRRegion] {
         try await ensureLoaded()
 
         guard let modelFolder else {
@@ -84,7 +84,8 @@ public actor PPDocLayoutV3Detector {
         }
         guard let config else { throw PPDocLayoutV3ModelError.invalidConfiguration("config.json is not loaded") }
 
-        let imageSize = ciImage.extent.integral.size
+        let image = ciImage.value
+        let imageSize = image.extent.integral.size
 
         if model == nil {
             model = try PPDocLayoutV3Model.load(from: modelFolder)
@@ -92,7 +93,7 @@ public actor PPDocLayoutV3Detector {
         guard let model else { throw PPDocLayoutV3ModelError.invalidConfiguration("model failed to load") }
 
         let processor = PPDocLayoutV3Processor(dtype: .bfloat16)
-        let processed = try processor.process(ciImage, preprocessorConfig: preprocessorConfig)
+        let processed = try processor.process(image, preprocessorConfig: preprocessorConfig)
 
         let raw = try model.forward(pixelValues: processed.pixelValues, options: .init(scoreThreshold: 0.3))
         let (regions, diagnostics) = try PPDocLayoutV3Postprocess.apply(
@@ -132,6 +133,10 @@ public actor PPDocLayoutV3Detector {
         }
 
         return output
+    }
+
+    public func detect(ciImage: CIImage) async throws -> [OCRRegion] {
+        try await detect(ciImage: SendableCIImage(ciImage))
     }
 
     private func finishLoad(

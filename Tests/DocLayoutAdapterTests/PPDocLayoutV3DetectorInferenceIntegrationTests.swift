@@ -22,7 +22,7 @@ final class PPDocLayoutV3DetectorInferenceIntegrationTests: XCTestCase {
 
         let image = CIImage(color: CIColor(red: 1, green: 1, blue: 1)).cropped(
             to: CGRect(x: 0, y: 0, width: 800, height: 800))
-        let regions = try await detector.detect(ciImage: image)
+        let regions = try await detector.detect(ciImage: SendableCIImage(image))
 
         XCTAssertFalse(regions.isEmpty)
 
