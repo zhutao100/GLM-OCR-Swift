@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   test:
-    runs-on: macos-latest
+    runs-on: macos-15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -18,7 +18,12 @@ jobs:
       - name: Set up Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: 16.0
+          xcode-version: '^16.0.0'
+
+      - name: Print toolchain
+        run: |
+          xcodebuild -version
+          swift --version
 
       - name: Run SwiftPM tests
         run: swift test
@@ -26,7 +31,7 @@ jobs:
   release:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: test
-    runs-on: macos-latest
+    runs-on: macos-15
     permissions:
       contents: write
     steps:
@@ -36,7 +41,12 @@ jobs:
       - name: Set up Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: 16.0
+          xcode-version: '^16.0.0'
+
+      - name: Print toolchain
+        run: |
+          xcodebuild -version
+          swift --version
 
       - name: Enable PrepareMetalShaders plugin
         run: defaults write com.apple.dt.Xcode IDESkipPackagePluginFingerprintValidation -bool YES
