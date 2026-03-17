@@ -2,290 +2,317 @@
   "name": "GLM-4.5V_Pages_1_2_3",
   "parity": {
     "available": true,
-    "overall": 0.8788,
+    "overall": 0.9494,
     "dimensions": {
-      "text_fidelity": 0.9433,
-      "critical_structure": 0.7867,
+      "text_fidelity": 0.9701,
+      "critical_structure": 0.9423,
       "decorative_style": 0.75
     },
     "details": {
+      "inputs": {
+        "actual_md": "/Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/result/GLM-4.5V_Pages_1_2_3/GLM-4.5V_Pages_1_2_3.md",
+        "expected_md": "/Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/reference_result/GLM-4.5V_Pages_1_2_3/GLM-4.5V_Pages_1_2_3.md",
+        "expected_markdown_page": null
+      },
       "text": {
         "blocks": [
           {
-            "index": 0,
+            "step": 0,
             "status": "paired",
+            "actual_index": 0,
+            "expected_index": 0,
             "actual_kind": "heading",
-            "expected_kind": "paragraph",
-            "score": 0.0
-          },
-          {
-            "index": 1,
-            "status": "paired",
-            "actual_kind": "paragraph",
             "expected_kind": "heading",
-            "score": 0.0265
+            "score": 1.0
           },
           {
-            "index": 2,
+            "step": 1,
             "status": "paired",
+            "actual_index": 1,
+            "expected_index": 1,
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
-            "score": 0.0
+            "score": 1.0
           },
           {
-            "index": 3,
+            "step": 2,
             "status": "paired",
+            "actual_index": 2,
+            "expected_index": 2,
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
-            "score": 0.0
+            "score": 1.0
           },
           {
-            "index": 4,
+            "step": 3,
             "status": "paired",
+            "actual_index": 3,
+            "expected_index": 3,
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.9933
+          },
+          {
+            "step": 4,
+            "status": "paired",
+            "actual_index": 4,
+            "expected_index": 4,
             "actual_kind": "heading",
-            "expected_kind": "paragraph",
-            "score": 0.0
-          },
-          {
-            "index": 5,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 0.0528
-          },
-          {
-            "index": 6,
-            "status": "paired",
-            "actual_kind": "paragraph",
             "expected_kind": "heading",
-            "score": 0.0
+            "score": 1.0
           },
           {
-            "index": 7,
+            "step": 5,
             "status": "paired",
+            "actual_index": 5,
+            "expected_index": 5,
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
-            "score": 0.0182
+            "score": 0.9964
           },
           {
-            "index": 8,
+            "step": 6,
             "status": "paired",
+            "actual_index": 6,
+            "expected_index": 6,
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
-            "score": 0.8462
+            "score": 1.0
           },
           {
-            "index": 9,
+            "step": 7,
             "status": "paired",
+            "actual_index": 7,
+            "expected_index": 7,
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
-            "score": 0.0
+            "score": 0.9818
           },
           {
-            "index": 10,
+            "step": 8,
             "status": "paired",
+            "actual_index": 8,
+            "expected_index": 8,
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
-            "score": 0.0907
+            "score": 1.0
           },
           {
-            "index": 11,
+            "step": 9,
             "status": "paired",
+            "actual_index": 9,
+            "expected_index": 9,
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.9836
+          },
+          {
+            "step": 10,
+            "status": "paired",
+            "actual_index": 10,
+            "expected_index": 10,
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.6819
+          },
+          {
+            "step": 11,
+            "status": "paired",
+            "actual_index": 11,
+            "expected_index": 11,
             "actual_kind": "heading",
-            "expected_kind": "paragraph",
-            "score": 0.0
-          },
-          {
-            "index": 12,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 0.0066
-          },
-          {
-            "index": 13,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 0.0
-          },
-          {
-            "index": 14,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 0.0174
-          },
-          {
-            "index": 15,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 0.0
-          },
-          {
-            "index": 16,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 0.0
-          },
-          {
-            "index": 17,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 0.2929
-          },
-          {
-            "index": 18,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 0.0
-          },
-          {
-            "index": 19,
-            "status": "paired",
-            "actual_kind": "paragraph",
             "expected_kind": "heading",
-            "score": 0.0186
+            "score": 1.0
           },
           {
-            "index": 20,
+            "step": 12,
             "status": "paired",
+            "actual_index": 12,
+            "expected_index": 12,
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
-            "score": 0.028
+            "score": 0.9808
           },
           {
-            "index": 21,
+            "step": 13,
             "status": "paired",
+            "actual_index": 13,
+            "expected_index": 13,
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
-            "score": 0.2893
+            "score": 1.0
           },
           {
-            "index": 22,
+            "step": 14,
             "status": "paired",
+            "actual_index": 14,
+            "expected_index": 14,
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
-            "score": 0.1837
+            "score": 0.9983
           },
           {
-            "index": 23,
+            "step": 15,
             "status": "paired",
+            "actual_index": 15,
+            "expected_index": 15,
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 1.0
+          },
+          {
+            "step": 16,
+            "status": "paired",
+            "actual_index": 16,
+            "expected_index": 16,
+            "actual_kind": "paragraph",
+            "expected_kind": "list_item",
+            "score": 0.75
+          },
+          {
+            "step": 17,
+            "status": "paired",
+            "actual_index": 17,
+            "expected_index": 17,
+            "actual_kind": "paragraph",
+            "expected_kind": "list_item",
+            "score": 0.75
+          },
+          {
+            "step": 18,
+            "status": "paired",
+            "actual_index": 18,
+            "expected_index": 18,
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.9776
+          },
+          {
+            "step": 19,
+            "status": "paired",
+            "actual_index": 19,
+            "expected_index": 19,
+            "actual_kind": "paragraph",
+            "expected_kind": "list_item",
+            "score": 0.75
+          },
+          {
+            "step": 20,
+            "status": "paired",
+            "actual_index": 20,
+            "expected_index": 20,
+            "actual_kind": "paragraph",
+            "expected_kind": "list_item",
+            "score": 0.75
+          },
+          {
+            "step": 21,
+            "status": "paired",
+            "actual_index": 21,
+            "expected_index": 21,
+            "actual_kind": "paragraph",
+            "expected_kind": "list_item",
+            "score": 0.7401
+          },
+          {
+            "step": 22,
+            "status": "paired",
+            "actual_index": 22,
+            "expected_index": 22,
+            "actual_kind": "paragraph",
+            "expected_kind": "list_item",
+            "score": 0.7485
+          },
+          {
+            "step": 23,
+            "status": "paired",
+            "actual_index": 23,
+            "expected_index": 23,
             "actual_kind": "list_item",
-            "expected_kind": "paragraph",
-            "score": 0.1071
+            "expected_kind": "list_item",
+            "score": 1.0
           },
           {
-            "index": 24,
+            "step": 24,
             "status": "paired",
+            "actual_index": 24,
+            "expected_index": 24,
             "actual_kind": "heading",
-            "expected_kind": "list_item",
-            "score": 0.0216
+            "expected_kind": "heading",
+            "score": 1.0
           },
           {
-            "index": 25,
+            "step": 25,
             "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "list_item",
-            "score": 0.1162
-          },
-          {
-            "index": 26,
-            "status": "paired",
+            "actual_index": 25,
+            "expected_index": 25,
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
-            "score": 0.098
+            "score": 1.0
           },
           {
-            "index": 27,
+            "step": 26,
             "status": "paired",
+            "actual_index": 26,
+            "expected_index": 26,
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.955
+          },
+          {
+            "step": 27,
+            "status": "paired",
+            "actual_index": 27,
+            "expected_index": 27,
             "actual_kind": "formula",
-            "expected_kind": "list_item",
-            "score": 0.0108
+            "expected_kind": "formula",
+            "score": 0.9567
           },
           {
-            "index": 28,
+            "step": 28,
             "status": "paired",
+            "actual_index": 28,
+            "expected_index": 28,
             "actual_kind": "paragraph",
-            "expected_kind": "list_item",
-            "score": 0.0404
+            "expected_kind": "paragraph",
+            "score": 0.8996
           },
           {
-            "index": 29,
+            "step": 29,
             "status": "paired",
+            "actual_index": 29,
+            "expected_index": 29,
             "actual_kind": "formula",
-            "expected_kind": "list_item",
-            "score": 0.0129
+            "expected_kind": "formula",
+            "score": 0.9501
           },
           {
-            "index": 30,
+            "step": 30,
             "status": "paired",
+            "actual_index": 30,
+            "expected_index": 30,
             "actual_kind": "paragraph",
-            "expected_kind": "list_item",
-            "score": 0.1416
+            "expected_kind": "paragraph",
+            "score": 1.0
           },
           {
-            "index": 31,
+            "step": 31,
             "status": "paired",
+            "actual_index": 31,
+            "expected_index": 31,
             "actual_kind": "paragraph",
-            "expected_kind": "list_item",
-            "score": 0.1419
-          },
-          {
-            "index": 32,
-            "status": "missing",
-            "kind": "heading",
-            "score": 0.0
-          },
-          {
-            "index": 33,
-            "status": "missing",
-            "kind": "paragraph",
-            "score": 0.0
-          },
-          {
-            "index": 34,
-            "status": "missing",
-            "kind": "paragraph",
-            "score": 0.0
-          },
-          {
-            "index": 35,
-            "status": "missing",
-            "kind": "formula",
-            "score": 0.0
-          },
-          {
-            "index": 36,
-            "status": "missing",
-            "kind": "paragraph",
-            "score": 0.0
-          },
-          {
-            "index": 37,
-            "status": "missing",
-            "kind": "formula",
-            "score": 0.0
-          },
-          {
-            "index": 38,
-            "status": "missing",
-            "kind": "paragraph",
-            "score": 0.0
-          },
-          {
-            "index": 39,
-            "status": "missing",
-            "kind": "paragraph",
-            "score": 0.0
+            "expected_kind": "paragraph",
+            "score": 1.0
           }
         ],
-        "aligned_score": 0.06295075765983481,
-        "global_score": 0.9895934385748303
+        "aligned_score": 0.9339782819166642,
+        "global_score": 0.9895534887821219,
+        "alignment": {
+          "aligned_weight": 0.35,
+          "global_weight": 0.65,
+          "gap_penalty": 0.4,
+          "kind_match_bonus": 0.2
+        }
       },
       "tables": {
         "tables": []
@@ -297,7 +324,7 @@
           "block_count": 1.0,
           "labels": 1.0,
           "bbox": 0.6660533910533911,
-          "content": 0.989152597235908
+          "content": 0.9891112068137778
         },
         "pages": [
           {
@@ -319,7 +346,7 @@
             "block_count": 1.0,
             "labels": 1.0,
             "bbox": 0.6702,
-            "content": 0.9782
+            "content": 0.9781
           }
         ]
       },
@@ -347,308 +374,374 @@
           "code_languages": []
         }
       },
-      "block_shape": 0.45
+      "markdown_structure": {
+        "components": {
+          "kind_sequence": 0.8125,
+          "heading_levels": 1.0,
+          "table_shape": 1.0,
+          "image_count": 1.0,
+          "formula_count": 1.0,
+          "page_break_count": 1.0
+        },
+        "actual": {
+          "kind_count": 32,
+          "heading_levels": [
+            1,
+            2,
+            2,
+            2
+          ],
+          "table_shapes": [],
+          "image_count": 2,
+          "formula_count": 2,
+          "page_break_count": 0
+        },
+        "expected": {
+          "kind_count": 32,
+          "heading_levels": [
+            1,
+            2,
+            2,
+            2
+          ],
+          "table_shapes": [],
+          "image_count": 2,
+          "formula_count": 2,
+          "page_break_count": 0
+        }
+      }
     },
     "missing_reason": null
   },
   "result_to_golden": {
     "available": true,
-    "overall": 0.8885,
+    "overall": 0.8454,
     "dimensions": {
-      "text_fidelity": 0.9226,
-      "critical_structure": null,
+      "text_fidelity": 0.9267,
+      "critical_structure": 0.7583,
       "decorative_style": 0.4792
     },
     "details": {
+      "inputs": {
+        "actual_md": "/Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/result/GLM-4.5V_Pages_1_2_3/GLM-4.5V_Pages_1_2_3.md",
+        "expected_md": "/Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/golden_result/GLM-4.5V_Pages_1_2_3/GLM-4.5V_Pages_1_2_3.md",
+        "expected_markdown_page": null
+      },
       "text": {
         "blocks": [
           {
-            "index": 0,
+            "step": 0,
             "status": "paired",
+            "actual_index": 0,
+            "expected_index": 0,
             "actual_kind": "heading",
-            "expected_kind": "paragraph",
-            "score": 0.0
-          },
-          {
-            "index": 1,
-            "status": "paired",
-            "actual_kind": "paragraph",
             "expected_kind": "heading",
-            "score": 0.0265
+            "score": 1.0
           },
           {
-            "index": 2,
+            "step": 1,
             "status": "paired",
+            "actual_index": 1,
+            "expected_index": 1,
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
-            "score": 0.0
+            "score": 1.0
           },
           {
-            "index": 3,
+            "step": 2,
             "status": "paired",
+            "actual_index": 2,
+            "expected_index": 2,
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
-            "score": 0.0
+            "score": 1.0
           },
           {
-            "index": 4,
+            "step": 3,
             "status": "paired",
+            "actual_index": 3,
+            "expected_index": 3,
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.9933
+          },
+          {
+            "step": 4,
+            "status": "paired",
+            "actual_index": 4,
+            "expected_index": 4,
             "actual_kind": "heading",
-            "expected_kind": "paragraph",
-            "score": 0.0
-          },
-          {
-            "index": 5,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 0.0
-          },
-          {
-            "index": 6,
-            "status": "paired",
-            "actual_kind": "paragraph",
             "expected_kind": "heading",
+            "score": 1.0
+          },
+          {
+            "step": 5,
+            "status": "paired",
+            "actual_index": 5,
+            "expected_index": 5,
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 1.0
+          },
+          {
+            "step": 6,
+            "status": "paired",
+            "actual_index": 6,
+            "expected_index": 6,
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 1.0
+          },
+          {
+            "step": 7,
+            "status": "paired",
+            "actual_index": 7,
+            "expected_index": 7,
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.9818
+          },
+          {
+            "step": 8,
+            "status": "paired",
+            "actual_index": 8,
+            "expected_index": 8,
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 1.0
+          },
+          {
+            "step": 9,
+            "status": "paired",
+            "actual_index": 9,
+            "expected_index": 9,
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.9836
+          },
+          {
+            "step": 10,
+            "status": "paired",
+            "actual_index": 10,
+            "expected_index": 10,
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.6819
+          },
+          {
+            "step": 11,
+            "status": "missing_expected",
+            "actual_index": null,
+            "expected_index": 11,
+            "kind": "paragraph",
             "score": 0.0
           },
           {
-            "index": 7,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 0.0182
-          },
-          {
-            "index": 8,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 0.8462
-          },
-          {
-            "index": 9,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
+            "step": 12,
+            "status": "missing_expected",
+            "actual_index": null,
+            "expected_index": 12,
+            "kind": "paragraph",
             "score": 0.0
           },
           {
-            "index": 10,
+            "step": 13,
             "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 0.0907
-          },
-          {
-            "index": 11,
-            "status": "paired",
+            "actual_index": 11,
+            "expected_index": 13,
             "actual_kind": "heading",
-            "expected_kind": "paragraph",
-            "score": 0.0
-          },
-          {
-            "index": 12,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 0.0066
-          },
-          {
-            "index": 13,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 0.0
-          },
-          {
-            "index": 14,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 0.0174
-          },
-          {
-            "index": 15,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 0.0
-          },
-          {
-            "index": 16,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 0.0
-          },
-          {
-            "index": 17,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 0.2929
-          },
-          {
-            "index": 18,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 0.0
-          },
-          {
-            "index": 19,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 0.0
-          },
-          {
-            "index": 20,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 0.0
-          },
-          {
-            "index": 21,
-            "status": "paired",
-            "actual_kind": "paragraph",
             "expected_kind": "heading",
-            "score": 0.0175
+            "score": 1.0
           },
           {
-            "index": 22,
+            "step": 14,
             "status": "paired",
+            "actual_index": 12,
+            "expected_index": 14,
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
-            "score": 0.1642
+            "score": 1.0
           },
           {
-            "index": 23,
+            "step": 15,
             "status": "paired",
+            "actual_index": 13,
+            "expected_index": 15,
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.9914
+          },
+          {
+            "step": 16,
+            "status": "paired",
+            "actual_index": 14,
+            "expected_index": 16,
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 1.0
+          },
+          {
+            "step": 17,
+            "status": "paired",
+            "actual_index": 15,
+            "expected_index": 17,
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 1.0
+          },
+          {
+            "step": 18,
+            "status": "paired",
+            "actual_index": 16,
+            "expected_index": 18,
+            "actual_kind": "paragraph",
+            "expected_kind": "list_item",
+            "score": 0.75
+          },
+          {
+            "step": 19,
+            "status": "paired",
+            "actual_index": 17,
+            "expected_index": 19,
+            "actual_kind": "paragraph",
+            "expected_kind": "list_item",
+            "score": 0.75
+          },
+          {
+            "step": 20,
+            "status": "paired",
+            "actual_index": 18,
+            "expected_index": 20,
+            "actual_kind": "paragraph",
+            "expected_kind": "list_item",
+            "score": 0.7332
+          },
+          {
+            "step": 21,
+            "status": "paired",
+            "actual_index": 19,
+            "expected_index": 21,
+            "actual_kind": "paragraph",
+            "expected_kind": "list_item",
+            "score": 0.75
+          },
+          {
+            "step": 22,
+            "status": "paired",
+            "actual_index": 20,
+            "expected_index": 22,
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 1.0
+          },
+          {
+            "step": 23,
+            "status": "paired",
+            "actual_index": 21,
+            "expected_index": 23,
+            "actual_kind": "paragraph",
+            "expected_kind": "list_item",
+            "score": 0.7275
+          },
+          {
+            "step": 24,
+            "status": "paired",
+            "actual_index": 22,
+            "expected_index": 24,
+            "actual_kind": "paragraph",
+            "expected_kind": "list_item",
+            "score": 0.7485
+          },
+          {
+            "step": 25,
+            "status": "paired",
+            "actual_index": 23,
+            "expected_index": 25,
             "actual_kind": "list_item",
-            "expected_kind": "paragraph",
-            "score": 0.1395
+            "expected_kind": "list_item",
+            "score": 1.0
           },
           {
-            "index": 24,
+            "step": 26,
             "status": "paired",
+            "actual_index": 24,
+            "expected_index": 26,
             "actual_kind": "heading",
-            "expected_kind": "paragraph",
-            "score": 0.005
+            "expected_kind": "heading",
+            "score": 1.0
           },
           {
-            "index": 25,
+            "step": 27,
             "status": "paired",
+            "actual_index": 25,
+            "expected_index": 27,
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
-            "score": 0.1084
+            "score": 1.0
           },
           {
-            "index": 26,
+            "step": 28,
             "status": "paired",
+            "actual_index": 26,
+            "expected_index": 28,
             "actual_kind": "paragraph",
-            "expected_kind": "list_item",
-            "score": 0.1289
+            "expected_kind": "paragraph",
+            "score": 0.9346
           },
           {
-            "index": 27,
+            "step": 29,
             "status": "paired",
+            "actual_index": 27,
+            "expected_index": 29,
             "actual_kind": "formula",
-            "expected_kind": "list_item",
-            "score": 0.004
+            "expected_kind": "formula",
+            "score": 0.5817
           },
           {
-            "index": 28,
+            "step": 30,
             "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "list_item",
-            "score": 0.0984
-          },
-          {
-            "index": 29,
-            "status": "paired",
-            "actual_kind": "formula",
-            "expected_kind": "list_item",
-            "score": 0.0228
-          },
-          {
-            "index": 30,
-            "status": "paired",
+            "actual_index": 28,
+            "expected_index": 30,
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
-            "score": 0.0496
+            "score": 0.8798
           },
           {
-            "index": 31,
+            "step": 31,
             "status": "paired",
+            "actual_index": 29,
+            "expected_index": 31,
+            "actual_kind": "formula",
+            "expected_kind": "formula",
+            "score": 0.4056
+          },
+          {
+            "step": 32,
+            "status": "paired",
+            "actual_index": 30,
+            "expected_index": 32,
             "actual_kind": "paragraph",
-            "expected_kind": "list_item",
-            "score": 0.2088
+            "expected_kind": "paragraph",
+            "score": 0.9874
           },
           {
-            "index": 32,
-            "status": "missing",
-            "kind": "list_item",
-            "score": 0.0
-          },
-          {
-            "index": 33,
-            "status": "missing",
-            "kind": "list_item",
-            "score": 0.0
-          },
-          {
-            "index": 34,
-            "status": "missing",
-            "kind": "heading",
-            "score": 0.0
-          },
-          {
-            "index": 35,
-            "status": "missing",
-            "kind": "paragraph",
-            "score": 0.0
-          },
-          {
-            "index": 36,
-            "status": "missing",
-            "kind": "paragraph",
-            "score": 0.0
-          },
-          {
-            "index": 37,
-            "status": "missing",
-            "kind": "formula",
-            "score": 0.0
-          },
-          {
-            "index": 38,
-            "status": "missing",
-            "kind": "paragraph",
-            "score": 0.0
-          },
-          {
-            "index": 39,
-            "status": "missing",
-            "kind": "formula",
-            "score": 0.0
-          },
-          {
-            "index": 40,
-            "status": "missing",
-            "kind": "paragraph",
-            "score": 0.0
-          },
-          {
-            "index": 41,
-            "status": "missing",
-            "kind": "paragraph",
-            "score": 0.0
+            "step": 33,
+            "status": "paired",
+            "actual_index": 31,
+            "expected_index": 33,
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.9938
           }
         ],
-        "aligned_score": 0.05262492569084125,
-        "global_score": 0.9683801448507331
+        "aligned_score": 0.8497977951120946,
+        "global_score": 0.9681719860504129,
+        "alignment": {
+          "aligned_weight": 0.35,
+          "global_weight": 0.65,
+          "gap_penalty": 0.4,
+          "kind_match_bonus": 0.2
+        }
       },
       "tables": {
         "tables": []
@@ -681,316 +774,374 @@
           "code_languages": []
         }
       },
-      "block_shape": 0.4523809523809524
+      "markdown_structure": {
+        "components": {
+          "kind_sequence": 0.8,
+          "heading_levels": 0.75,
+          "table_shape": 1.0,
+          "image_count": 1.0,
+          "formula_count": 1.0,
+          "page_break_count": 0.0
+        },
+        "actual": {
+          "kind_count": 32,
+          "heading_levels": [
+            1,
+            2,
+            2,
+            2
+          ],
+          "table_shapes": [],
+          "image_count": 2,
+          "formula_count": 2,
+          "page_break_count": 0
+        },
+        "expected": {
+          "kind_count": 33,
+          "heading_levels": [
+            1,
+            3,
+            2,
+            2
+          ],
+          "table_shapes": [],
+          "image_count": 2,
+          "formula_count": 2,
+          "page_break_count": 1
+        }
+      }
     },
     "missing_reason": null
   },
   "reference_to_golden": {
     "available": true,
-    "overall": 0.923,
+    "overall": 0.8743,
     "dimensions": {
-      "text_fidelity": 0.9391,
-      "critical_structure": null,
+      "text_fidelity": 0.939,
+      "critical_structure": 0.784,
       "decorative_style": 0.7292
     },
     "details": {
+      "inputs": {
+        "actual_md": "/Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/reference_result/GLM-4.5V_Pages_1_2_3/GLM-4.5V_Pages_1_2_3.md",
+        "expected_md": "/Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/golden_result/GLM-4.5V_Pages_1_2_3/GLM-4.5V_Pages_1_2_3.md",
+        "expected_markdown_page": null
+      },
       "text": {
         "blocks": [
           {
-            "index": 0,
+            "step": 0,
             "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 1.0
-          },
-          {
-            "index": 1,
-            "status": "paired",
+            "actual_index": 0,
+            "expected_index": 0,
             "actual_kind": "heading",
             "expected_kind": "heading",
             "score": 1.0
           },
           {
-            "index": 2,
+            "step": 1,
             "status": "paired",
+            "actual_index": 1,
+            "expected_index": 1,
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
-            "score": 0.0
+            "score": 1.0
           },
           {
-            "index": 3,
+            "step": 2,
             "status": "paired",
+            "actual_index": 2,
+            "expected_index": 2,
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
-            "score": 0.0
+            "score": 1.0
           },
           {
-            "index": 4,
+            "step": 3,
             "status": "paired",
+            "actual_index": 3,
+            "expected_index": 3,
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
-            "score": 0.0
+            "score": 1.0
           },
           {
-            "index": 5,
+            "step": 4,
             "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 0.0
-          },
-          {
-            "index": 6,
-            "status": "paired",
+            "actual_index": 4,
+            "expected_index": 4,
             "actual_kind": "heading",
             "expected_kind": "heading",
             "score": 1.0
           },
           {
-            "index": 7,
+            "step": 5,
             "status": "paired",
+            "actual_index": 5,
+            "expected_index": 5,
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
             "score": 0.9964
           },
           {
-            "index": 8,
+            "step": 6,
             "status": "paired",
+            "actual_index": 6,
+            "expected_index": 6,
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
             "score": 1.0
           },
           {
-            "index": 9,
+            "step": 7,
             "status": "paired",
+            "actual_index": 7,
+            "expected_index": 7,
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
             "score": 1.0
           },
           {
-            "index": 10,
+            "step": 8,
             "status": "paired",
+            "actual_index": 8,
+            "expected_index": 8,
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
             "score": 1.0
           },
           {
-            "index": 11,
+            "step": 9,
             "status": "paired",
+            "actual_index": 9,
+            "expected_index": 9,
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
             "score": 1.0
           },
           {
-            "index": 12,
+            "step": 10,
             "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 1.0
-          },
-          {
-            "index": 13,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 1.0
-          },
-          {
-            "index": 14,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 1.0
-          },
-          {
-            "index": 15,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 1.0
-          },
-          {
-            "index": 16,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 1.0
-          },
-          {
-            "index": 17,
-            "status": "paired",
+            "actual_index": 10,
+            "expected_index": 10,
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
             "score": 0.9835
           },
           {
-            "index": 18,
+            "step": 11,
+            "status": "missing_expected",
+            "actual_index": null,
+            "expected_index": 11,
+            "kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "step": 12,
+            "status": "missing_expected",
+            "actual_index": null,
+            "expected_index": 12,
+            "kind": "paragraph",
+            "score": 0.0
+          },
+          {
+            "step": 13,
             "status": "paired",
+            "actual_index": 11,
+            "expected_index": 13,
+            "actual_kind": "heading",
+            "expected_kind": "heading",
+            "score": 1.0
+          },
+          {
+            "step": 14,
+            "status": "paired",
+            "actual_index": 12,
+            "expected_index": 14,
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.9808
+          },
+          {
+            "step": 15,
+            "status": "paired",
+            "actual_index": 13,
+            "expected_index": 15,
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.9914
+          },
+          {
+            "step": 16,
+            "status": "paired",
+            "actual_index": 14,
+            "expected_index": 16,
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.9983
+          },
+          {
+            "step": 17,
+            "status": "paired",
+            "actual_index": 15,
+            "expected_index": 17,
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
             "score": 1.0
           },
           {
-            "index": 19,
+            "step": 18,
             "status": "paired",
+            "actual_index": 16,
+            "expected_index": 18,
+            "actual_kind": "list_item",
+            "expected_kind": "list_item",
+            "score": 1.0
+          },
+          {
+            "step": 19,
+            "status": "paired",
+            "actual_index": 17,
+            "expected_index": 19,
+            "actual_kind": "list_item",
+            "expected_kind": "list_item",
+            "score": 1.0
+          },
+          {
+            "step": 20,
+            "status": "paired",
+            "actual_index": 18,
+            "expected_index": 20,
+            "actual_kind": "paragraph",
+            "expected_kind": "list_item",
+            "score": 0.75
+          },
+          {
+            "step": 21,
+            "status": "paired",
+            "actual_index": 19,
+            "expected_index": 21,
+            "actual_kind": "list_item",
+            "expected_kind": "list_item",
+            "score": 1.0
+          },
+          {
+            "step": 22,
+            "status": "paired",
+            "actual_index": 20,
+            "expected_index": 22,
+            "actual_kind": "list_item",
+            "expected_kind": "paragraph",
+            "score": 0.75
+          },
+          {
+            "step": 23,
+            "status": "paired",
+            "actual_index": 21,
+            "expected_index": 23,
+            "actual_kind": "list_item",
+            "expected_kind": "list_item",
+            "score": 0.9592
+          },
+          {
+            "step": 24,
+            "status": "paired",
+            "actual_index": 22,
+            "expected_index": 24,
+            "actual_kind": "list_item",
+            "expected_kind": "list_item",
+            "score": 1.0
+          },
+          {
+            "step": 25,
+            "status": "paired",
+            "actual_index": 23,
+            "expected_index": 25,
+            "actual_kind": "list_item",
+            "expected_kind": "list_item",
+            "score": 1.0
+          },
+          {
+            "step": 26,
+            "status": "paired",
+            "actual_index": 24,
+            "expected_index": 26,
             "actual_kind": "heading",
-            "expected_kind": "paragraph",
-            "score": 0.0
-          },
-          {
-            "index": 20,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 0.0
-          },
-          {
-            "index": 21,
-            "status": "paired",
-            "actual_kind": "paragraph",
             "expected_kind": "heading",
-            "score": 0.0091
+            "score": 1.0
           },
           {
-            "index": 22,
+            "step": 27,
             "status": "paired",
+            "actual_index": 25,
+            "expected_index": 27,
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
-            "score": 0.3491
+            "score": 1.0
           },
           {
-            "index": 23,
+            "step": 28,
             "status": "paired",
+            "actual_index": 26,
+            "expected_index": 28,
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
-            "score": 0.0944
+            "score": 0.9319
           },
           {
-            "index": 24,
+            "step": 29,
             "status": "paired",
-            "actual_kind": "list_item",
-            "expected_kind": "paragraph",
-            "score": 0.1031
-          },
-          {
-            "index": 25,
-            "status": "paired",
-            "actual_kind": "list_item",
-            "expected_kind": "paragraph",
-            "score": 0.1562
-          },
-          {
-            "index": 26,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "list_item",
-            "score": 0.1315
-          },
-          {
-            "index": 27,
-            "status": "paired",
-            "actual_kind": "list_item",
-            "expected_kind": "list_item",
-            "score": 0.1957
-          },
-          {
-            "index": 28,
-            "status": "paired",
-            "actual_kind": "list_item",
-            "expected_kind": "list_item",
-            "score": 0.0258
-          },
-          {
-            "index": 29,
-            "status": "paired",
-            "actual_kind": "list_item",
-            "expected_kind": "list_item",
-            "score": 0.1796
-          },
-          {
-            "index": 30,
-            "status": "paired",
-            "actual_kind": "list_item",
-            "expected_kind": "paragraph",
-            "score": 0.0546
-          },
-          {
-            "index": 31,
-            "status": "paired",
-            "actual_kind": "list_item",
-            "expected_kind": "list_item",
-            "score": 0.3159
-          },
-          {
-            "index": 32,
-            "status": "paired",
-            "actual_kind": "heading",
-            "expected_kind": "list_item",
-            "score": 0.0211
-          },
-          {
-            "index": 33,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "list_item",
-            "score": 0.2014
-          },
-          {
-            "index": 34,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "heading",
-            "score": 0.0107
-          },
-          {
-            "index": 35,
-            "status": "paired",
-            "actual_kind": "formula",
-            "expected_kind": "paragraph",
-            "score": 0.0068
-          },
-          {
-            "index": 36,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 0.2794
-          },
-          {
-            "index": 37,
-            "status": "paired",
+            "actual_index": 27,
+            "expected_index": 29,
             "actual_kind": "formula",
             "expected_kind": "formula",
-            "score": 0.1661
+            "score": 0.596
           },
           {
-            "index": 38,
+            "step": 30,
             "status": "paired",
+            "actual_index": 28,
+            "expected_index": 30,
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
-            "score": 0.2213
+            "score": 0.8483
           },
           {
-            "index": 39,
+            "step": 31,
             "status": "paired",
-            "actual_kind": "paragraph",
+            "actual_index": 29,
+            "expected_index": 31,
+            "actual_kind": "formula",
             "expected_kind": "formula",
-            "score": 0.0124
+            "score": 0.4367
           },
           {
-            "index": 40,
-            "status": "missing",
-            "kind": "paragraph",
-            "score": 0.0
+            "step": 32,
+            "status": "paired",
+            "actual_index": 30,
+            "expected_index": 32,
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.9874
           },
           {
-            "index": 41,
-            "status": "missing",
-            "kind": "paragraph",
-            "score": 0.0
+            "step": 33,
+            "status": "paired",
+            "actual_index": 31,
+            "expected_index": 33,
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.9938
           }
         ],
-        "aligned_score": 0.4167074345174426,
-        "global_score": 0.9666136724960254
+        "aligned_score": 0.8881387349494158,
+        "global_score": 0.9664518407345282,
+        "alignment": {
+          "aligned_weight": 0.35,
+          "global_weight": 0.65,
+          "gap_penalty": 0.4,
+          "kind_match_bonus": 0.2
+        }
       },
       "tables": {
         "tables": []
@@ -1023,16 +1174,53 @@
           "code_languages": []
         }
       },
-      "block_shape": 0.6904761904761905
+      "markdown_structure": {
+        "components": {
+          "kind_sequence": 0.9538,
+          "heading_levels": 0.75,
+          "table_shape": 1.0,
+          "image_count": 1.0,
+          "formula_count": 1.0,
+          "page_break_count": 0.0
+        },
+        "actual": {
+          "kind_count": 32,
+          "heading_levels": [
+            1,
+            2,
+            2,
+            2
+          ],
+          "table_shapes": [],
+          "image_count": 2,
+          "formula_count": 2,
+          "page_break_count": 0
+        },
+        "expected": {
+          "kind_count": 33,
+          "heading_levels": [
+            1,
+            3,
+            2,
+            2
+          ],
+          "table_shapes": [],
+          "image_count": 2,
+          "formula_count": 2,
+          "page_break_count": 1
+        }
+      }
     },
     "missing_reason": null
   },
+  "quality_overall": 0.8454,
   "final_dimensions": {
-    "text_fidelity": 0.9433,
-    "critical_structure": 0.7867,
+    "text_fidelity": 0.9701,
+    "critical_structure": 0.9359,
     "decorative_style": 0.6875
   },
-  "final_overall": 0.8757,
+  "final_overall": 0.944,
+  "final_minus_quality": 0.0986,
   "rules": [
     {
       "check_id": "page1_start",

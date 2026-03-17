@@ -3,7 +3,9 @@
 - parity_overall: 0.9944
 - result_to_golden_overall: 1.0
 - reference_to_golden_overall: 1.0
+- quality_overall: 1.0
 - final_overall: 0.9944
+- final_minus_quality: -0.0056
 
 ## Final dimensions
 

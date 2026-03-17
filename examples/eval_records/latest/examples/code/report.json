@@ -2,60 +2,83 @@
   "name": "code",
   "parity": {
     "available": true,
-    "overall": 0.902,
+    "overall": 0.8985,
     "dimensions": {
-      "text_fidelity": 0.9017,
-      "critical_structure": 0.9056,
+      "text_fidelity": 0.8716,
+      "critical_structure": 0.9471,
       "decorative_style": 0.8804
     },
     "details": {
+      "inputs": {
+        "actual_md": "/Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/result/code/code.md",
+        "expected_md": "/Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/reference_result/code/code.md",
+        "expected_markdown_page": null
+      },
       "text": {
         "blocks": [
           {
-            "index": 0,
+            "step": 0,
             "status": "paired",
+            "actual_index": 0,
+            "expected_index": 0,
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
             "score": 1.0
           },
           {
-            "index": 1,
+            "step": 1,
             "status": "paired",
+            "actual_index": 1,
+            "expected_index": 1,
             "actual_kind": "paragraph",
             "expected_kind": "code",
-            "score": 0.1974
+            "score": 0.2395
           },
           {
-            "index": 2,
+            "step": 2,
             "status": "paired",
+            "actual_index": 2,
+            "expected_index": 2,
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
             "score": 1.0
           },
           {
-            "index": 3,
+            "step": 3,
             "status": "paired",
+            "actual_index": 3,
+            "expected_index": 3,
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
             "score": 0.9554
           },
           {
-            "index": 4,
+            "step": 4,
             "status": "paired",
+            "actual_index": 4,
+            "expected_index": 4,
             "actual_kind": "paragraph",
             "expected_kind": "paragraph",
             "score": 0.8232
           },
           {
-            "index": 5,
+            "step": 5,
             "status": "paired",
+            "actual_index": 5,
+            "expected_index": 5,
             "actual_kind": "code",
             "expected_kind": "code",
-            "score": 0.2963
+            "score": 0.4403
           }
         ],
-        "aligned_score": 0.6762754363502482,
-        "global_score": 0.9579993587688361
+        "aligned_score": 0.7120695324682023,
+        "global_score": 0.9575605155611443,
+        "alignment": {
+          "aligned_weight": 0.35,
+          "global_weight": 0.65,
+          "gap_penalty": 0.4,
+          "kind_match_bonus": 0.2
+        }
       },
       "tables": {
         "tables": []
@@ -67,7 +90,7 @@
           "block_count": 1.0,
           "labels": 1.0,
           "bbox": 0.7527777777777778,
-          "content": 0.9304083776829924
+          "content": 0.9292094364443652
         },
         "pages": [
           {
@@ -75,7 +98,7 @@
             "block_count": 1.0,
             "labels": 1.0,
             "bbox": 0.7528,
-            "content": 0.9304
+            "content": 0.9292
           }
         ]
       },
@@ -98,84 +121,138 @@
           ]
         }
       },
-      "block_shape": 0.8333333333333334
+      "markdown_structure": {
+        "components": {
+          "kind_sequence": 0.8333,
+          "heading_levels": 1.0,
+          "table_shape": 1.0,
+          "image_count": 1.0,
+          "formula_count": 1.0,
+          "page_break_count": 1.0
+        },
+        "actual": {
+          "kind_count": 6,
+          "heading_levels": [],
+          "table_shapes": [],
+          "image_count": 0,
+          "formula_count": 0,
+          "page_break_count": 0
+        },
+        "expected": {
+          "kind_count": 6,
+          "heading_levels": [],
+          "table_shapes": [],
+          "image_count": 0,
+          "formula_count": 0,
+          "page_break_count": 0
+        }
+      }
     },
     "missing_reason": null
   },
   "result_to_golden": {
     "available": true,
-    "overall": 0.7194,
+    "overall": 0.8153,
     "dimensions": {
-      "text_fidelity": 0.7238,
-      "critical_structure": null,
+      "text_fidelity": 0.7339,
+      "critical_structure": 0.9762,
       "decorative_style": 0.6667
     },
     "details": {
+      "inputs": {
+        "actual_md": "/Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/result/code/code.md",
+        "expected_md": "/Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/golden_result/code/code.md",
+        "expected_markdown_page": null
+      },
       "text": {
         "blocks": [
           {
-            "index": 0,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 0.1084
-          },
-          {
-            "index": 1,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 0.0
-          },
-          {
-            "index": 2,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 0.3571
-          },
-          {
-            "index": 3,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "code",
-            "score": 0.0
-          },
-          {
-            "index": 4,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 0.1812
-          },
-          {
-            "index": 5,
-            "status": "paired",
-            "actual_kind": "code",
-            "expected_kind": "paragraph",
-            "score": 0.0159
-          },
-          {
-            "index": 6,
-            "status": "missing",
+            "step": 0,
+            "status": "missing_expected",
+            "actual_index": null,
+            "expected_index": 0,
             "kind": "paragraph",
             "score": 0.0
           },
           {
-            "index": 7,
-            "status": "missing",
-            "kind": "code",
+            "step": 1,
+            "status": "missing_expected",
+            "actual_index": null,
+            "expected_index": 1,
+            "kind": "paragraph",
             "score": 0.0
           },
           {
-            "index": 8,
-            "status": "missing",
+            "step": 2,
+            "status": "paired",
+            "actual_index": 0,
+            "expected_index": 2,
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.9797
+          },
+          {
+            "step": 3,
+            "status": "paired",
+            "actual_index": 1,
+            "expected_index": 3,
+            "actual_kind": "paragraph",
+            "expected_kind": "code",
+            "score": 0.2395
+          },
+          {
+            "step": 4,
+            "status": "paired",
+            "actual_index": 2,
+            "expected_index": 4,
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.9712
+          },
+          {
+            "step": 5,
+            "status": "paired",
+            "actual_index": 3,
+            "expected_index": 5,
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.7982
+          },
+          {
+            "step": 6,
+            "status": "paired",
+            "actual_index": 4,
+            "expected_index": 6,
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.7335
+          },
+          {
+            "step": 7,
+            "status": "paired",
+            "actual_index": 5,
+            "expected_index": 7,
+            "actual_kind": "code",
+            "expected_kind": "code",
+            "score": 0.4305
+          },
+          {
+            "step": 8,
+            "status": "missing_expected",
+            "actual_index": null,
+            "expected_index": 8,
             "kind": "paragraph",
             "score": 0.0
           }
         ],
-        "aligned_score": 0.0697556202931125,
-        "global_score": 0.8873699851411591
+        "aligned_score": 0.4547499992350458,
+        "global_score": 0.8842228054826481,
+        "alignment": {
+          "aligned_weight": 0.35,
+          "global_weight": 0.65,
+          "gap_penalty": 0.4,
+          "kind_match_bonus": 0.2
+        }
       },
       "tables": {
         "tables": []
@@ -203,84 +280,138 @@
           ]
         }
       },
-      "block_shape": 0.4444444444444444
+      "markdown_structure": {
+        "components": {
+          "kind_sequence": 0.8571,
+          "heading_levels": 1.0,
+          "table_shape": 1.0,
+          "image_count": 1.0,
+          "formula_count": 1.0,
+          "page_break_count": 1.0
+        },
+        "actual": {
+          "kind_count": 6,
+          "heading_levels": [],
+          "table_shapes": [],
+          "image_count": 0,
+          "formula_count": 0,
+          "page_break_count": 0
+        },
+        "expected": {
+          "kind_count": 8,
+          "heading_levels": [],
+          "table_shapes": [],
+          "image_count": 0,
+          "formula_count": 0,
+          "page_break_count": 0
+        }
+      }
     },
     "missing_reason": null
   },
   "reference_to_golden": {
     "available": true,
-    "overall": 0.727,
+    "overall": 0.8406,
     "dimensions": {
-      "text_fidelity": 0.7292,
-      "critical_structure": null,
+      "text_fidelity": 0.7733,
+      "critical_structure": 0.9762,
       "decorative_style": 0.7
     },
     "details": {
+      "inputs": {
+        "actual_md": "/Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/reference_result/code/code.md",
+        "expected_md": "/Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/golden_result/code/code.md",
+        "expected_markdown_page": null
+      },
       "text": {
         "blocks": [
           {
-            "index": 0,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 0.1084
-          },
-          {
-            "index": 1,
-            "status": "paired",
-            "actual_kind": "code",
-            "expected_kind": "paragraph",
-            "score": 0.0
-          },
-          {
-            "index": 2,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 0.3571
-          },
-          {
-            "index": 3,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "code",
-            "score": 0.0
-          },
-          {
-            "index": 4,
-            "status": "paired",
-            "actual_kind": "paragraph",
-            "expected_kind": "paragraph",
-            "score": 0.1661
-          },
-          {
-            "index": 5,
-            "status": "paired",
-            "actual_kind": "code",
-            "expected_kind": "paragraph",
-            "score": 0.0159
-          },
-          {
-            "index": 6,
-            "status": "missing",
+            "step": 0,
+            "status": "missing_expected",
+            "actual_index": null,
+            "expected_index": 0,
             "kind": "paragraph",
             "score": 0.0
           },
           {
-            "index": 7,
-            "status": "missing",
-            "kind": "code",
+            "step": 1,
+            "status": "missing_expected",
+            "actual_index": null,
+            "expected_index": 1,
+            "kind": "paragraph",
             "score": 0.0
           },
           {
-            "index": 8,
-            "status": "missing",
+            "step": 2,
+            "status": "paired",
+            "actual_index": 0,
+            "expected_index": 2,
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.9797
+          },
+          {
+            "step": 3,
+            "status": "paired",
+            "actual_index": 1,
+            "expected_index": 3,
+            "actual_kind": "code",
+            "expected_kind": "code",
+            "score": 1.0
+          },
+          {
+            "step": 4,
+            "status": "paired",
+            "actual_index": 2,
+            "expected_index": 4,
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.9712
+          },
+          {
+            "step": 5,
+            "status": "paired",
+            "actual_index": 3,
+            "expected_index": 5,
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.7956
+          },
+          {
+            "step": 6,
+            "status": "paired",
+            "actual_index": 4,
+            "expected_index": 6,
+            "actual_kind": "paragraph",
+            "expected_kind": "paragraph",
+            "score": 0.7333
+          },
+          {
+            "step": 7,
+            "status": "paired",
+            "actual_index": 5,
+            "expected_index": 7,
+            "actual_kind": "code",
+            "expected_kind": "code",
+            "score": 0.4372
+          },
+          {
+            "step": 8,
+            "status": "missing_expected",
+            "actual_index": null,
+            "expected_index": 8,
             "kind": "paragraph",
             "score": 0.0
           }
         ],
-        "aligned_score": 0.06816376716069497,
-        "global_score": 0.8944543828264758
+        "aligned_score": 0.5553952058438222,
+        "global_score": 0.890579286132241,
+        "alignment": {
+          "aligned_weight": 0.35,
+          "global_weight": 0.65,
+          "gap_penalty": 0.4,
+          "kind_match_bonus": 0.2
+        }
       },
       "tables": {
         "tables": []
@@ -309,15 +440,64 @@
           ]
         }
       },
-      "block_shape": 0.3333333333333333
+      "markdown_structure": {
+        "components": {
+          "kind_sequence": 0.8571,
+          "heading_levels": 1.0,
+          "table_shape": 1.0,
+          "image_count": 1.0,
+          "formula_count": 1.0,
+          "page_break_count": 1.0
+        },
+        "actual": {
+          "kind_count": 6,
+          "heading_levels": [],
+          "table_shapes": [],
+          "image_count": 0,
+          "formula_count": 0,
+          "page_break_count": 0
+        },
+        "expected": {
+          "kind_count": 8,
+          "heading_levels": [],
+          "table_shapes": [],
+          "image_count": 0,
+          "formula_count": 0,
+          "page_break_count": 0
+        }
+      }
     },
     "missing_reason": null
   },
+  "quality_overall": 0.8153,
   "final_dimensions": {
-    "text_fidelity": 0.9017,
-    "critical_structure": 0.9056,
+    "text_fidelity": 0.8618,
+    "critical_structure": 0.9471,
     "decorative_style": 0.8721
   },
-  "final_overall": 0.9016,
-  "rules": []
+  "final_overall": 0.8708,
+  "final_minus_quality": 0.0554,
+  "rules": [
+    {
+      "check_id": "local_jndi_name_tag",
+      "check_type": "contains",
+      "status": "fail",
+      "severity": "critical",
+      "message": "Missing required phrase: '<local-jndi-name>AddressHomeLocal</local-jndi-name>'."
+    },
+    {
+      "check_id": "weblogic_rdbms_bean_tag",
+      "check_type": "contains",
+      "status": "pass",
+      "severity": "major",
+      "message": "Found required phrase for weblogic_rdbms_bean_tag."
+    },
+    {
+      "check_id": "key_cache_size_value",
+      "check_type": "contains",
+      "status": "pass",
+      "severity": "major",
+      "message": "Found required phrase for key_cache_size_value."
+    }
+  ]
 }

@@ -9,10 +9,21 @@
       "decorative_style": 1.0
     },
     "details": {
+      "inputs": {
+        "actual_md": "/Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/result/table/table.md",
+        "expected_md": "/Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/reference_result/table/table.md",
+        "expected_markdown_page": null
+      },
       "text": {
         "blocks": [],
         "aligned_score": null,
-        "global_score": 1.0
+        "global_score": 1.0,
+        "alignment": {
+          "aligned_weight": 0.35,
+          "global_weight": 0.65,
+          "gap_penalty": 0.4,
+          "kind_match_bonus": 0.2
+        }
       },
       "tables": {
         "tables": [
@@ -59,7 +70,42 @@
           "code_languages": []
         }
       },
-      "block_shape": 1.0
+      "markdown_structure": {
+        "components": {
+          "kind_sequence": 1.0,
+          "heading_levels": 1.0,
+          "table_shape": 1.0,
+          "image_count": 1.0,
+          "formula_count": 1.0,
+          "page_break_count": 1.0
+        },
+        "actual": {
+          "kind_count": 1,
+          "heading_levels": [],
+          "table_shapes": [
+            [
+              10,
+              4
+            ]
+          ],
+          "image_count": 0,
+          "formula_count": 0,
+          "page_break_count": 0
+        },
+        "expected": {
+          "kind_count": 1,
+          "heading_levels": [],
+          "table_shapes": [
+            [
+              10,
+              4
+            ]
+          ],
+          "image_count": 0,
+          "formula_count": 0,
+          "page_break_count": 0
+        }
+      }
     },
     "missing_reason": null
   },
@@ -72,10 +118,21 @@
       "decorative_style": 1.0
     },
     "details": {
+      "inputs": {
+        "actual_md": "/Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/result/table/table.md",
+        "expected_md": "/Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/golden_result/table/table.md",
+        "expected_markdown_page": null
+      },
       "text": {
         "blocks": [],
         "aligned_score": null,
-        "global_score": 1.0
+        "global_score": 1.0,
+        "alignment": {
+          "aligned_weight": 0.35,
+          "global_weight": 0.65,
+          "gap_penalty": 0.4,
+          "kind_match_bonus": 0.2
+        }
       },
       "tables": {
         "tables": [
@@ -107,7 +164,42 @@
           "code_languages": []
         }
       },
-      "block_shape": 1.0
+      "markdown_structure": {
+        "components": {
+          "kind_sequence": 1.0,
+          "heading_levels": 1.0,
+          "table_shape": 1.0,
+          "image_count": 1.0,
+          "formula_count": 1.0,
+          "page_break_count": 1.0
+        },
+        "actual": {
+          "kind_count": 1,
+          "heading_levels": [],
+          "table_shapes": [
+            [
+              10,
+              4
+            ]
+          ],
+          "image_count": 0,
+          "formula_count": 0,
+          "page_break_count": 0
+        },
+        "expected": {
+          "kind_count": 1,
+          "heading_levels": [],
+          "table_shapes": [
+            [
+              10,
+              4
+            ]
+          ],
+          "image_count": 0,
+          "formula_count": 0,
+          "page_break_count": 0
+        }
+      }
     },
     "missing_reason": null
   },
@@ -120,10 +212,21 @@
       "decorative_style": 1.0
     },
     "details": {
+      "inputs": {
+        "actual_md": "/Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/reference_result/table/table.md",
+        "expected_md": "/Users/taozhu/workspace/vlm-ocr/GLM-OCR-Swift_dev/examples/golden_result/table/table.md",
+        "expected_markdown_page": null
+      },
       "text": {
         "blocks": [],
         "aligned_score": null,
-        "global_score": 1.0
+        "global_score": 1.0,
+        "alignment": {
+          "aligned_weight": 0.35,
+          "global_weight": 0.65,
+          "gap_penalty": 0.4,
+          "kind_match_bonus": 0.2
+        }
       },
       "tables": {
         "tables": [
@@ -155,15 +258,52 @@
           "code_languages": []
         }
       },
-      "block_shape": 1.0
+      "markdown_structure": {
+        "components": {
+          "kind_sequence": 1.0,
+          "heading_levels": 1.0,
+          "table_shape": 1.0,
+          "image_count": 1.0,
+          "formula_count": 1.0,
+          "page_break_count": 1.0
+        },
+        "actual": {
+          "kind_count": 1,
+          "heading_levels": [],
+          "table_shapes": [
+            [
+              10,
+              4
+            ]
+          ],
+          "image_count": 0,
+          "formula_count": 0,
+          "page_break_count": 0
+        },
+        "expected": {
+          "kind_count": 1,
+          "heading_levels": [],
+          "table_shapes": [
+            [
+              10,
+              4
+            ]
+          ],
+          "image_count": 0,
+          "formula_count": 0,
+          "page_break_count": 0
+        }
+      }
     },
     "missing_reason": null
   },
+  "quality_overall": 1.0,
   "final_dimensions": {
     "text_fidelity": 1.0,
     "critical_structure": 0.9841,
     "decorative_style": 1.0
   },
   "final_overall": 0.9944,
+  "final_minus_quality": -0.0056,
   "rules": []
 }

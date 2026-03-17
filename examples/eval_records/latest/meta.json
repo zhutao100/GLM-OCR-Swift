@@ -1,12 +1,12 @@
 {
   "examples_result": {
     "configuration": "release",
-    "fingerprint_sha256": "703a5943fd9209427a1f9a778e7c7e2a1b98b8679c1c6e8d02c8d8c65abc1a0c",
-    "generated_at": "2026-03-11T22:49:07+00:00",
+    "fingerprint_sha256": "271b901aa4fd4d13f577c3ac61563d035c8bd7b42e03cc36341051b15ac7b4bb",
+    "generated_at": "2026-03-17T18:51:12+00:00",
     "git": {
-      "describe": "2f8007a-dirty",
-      "dirty": true,
-      "head_sha": "2f8007a6e6894b8d7c4497a0fc3d504d3dfc9692"
+      "describe": "2375d65",
+      "dirty": false,
+      "head_sha": "2375d654e2f6158a2d97367c2158e2d25b4a4cdb"
     },
     "models": {
       "download_base": "",
@@ -17,10 +17,10 @@
       "layout_revision": "a0abee1e2bb505e5662993235af873a5d89851e3"
     },
     "run": {
-      "ended_at_utc": "2026-03-11T22:49:07Z",
+      "ended_at_utc": "2026-03-17T18:51:12Z",
       "failed": [],
       "skipped": [],
-      "started_at_utc": "2026-03-11T22:47:46Z",
+      "started_at_utc": "2026-03-17T18:50:19Z",
       "succeeded": [
         "paper.png",
         "code.png",
@@ -35,15 +35,15 @@
     "schema_version": 1,
     "status": "ok"
   },
-  "generated_at": "2026-03-11T22:49:07+00:00",
+  "generated_at": "2026-03-17T18:51:12+00:00",
   "git": {
-    "describe": "2f8007a-dirty",
-    "dirty": true,
-    "head_sha": "2f8007a6e6894b8d7c4497a0fc3d504d3dfc9692"
+    "describe": "2375d65",
+    "dirty": false,
+    "head_sha": "2375d654e2f6158a2d97367c2158e2d25b4a4cdb"
   },
   "schema_version": 1,
   "tools": {
-    "example_eval_submodule_head_sha": "e363c3a49b3c322cda942641c0733c2b9d0b12d8",
+    "example_eval_submodule_head_sha": "c404ee90cbd3de39b436e32ffbac031b606857b3",
     "python": "3.14.2",
     "uv": "uv 0.9.14 (Homebrew 2025-12-01)"
   }
