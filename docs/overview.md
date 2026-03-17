@@ -16,7 +16,13 @@ This folder is the maintained docs entry point for contributors. For the runnabl
 ## Maintained Docs
 
 - `README.md`
-  - runnable quickstart, current features, defaults, and known limits
+  - user-facing overview and quickstart (CLI + app)
+- `docs/development_guide.md`
+  - build/test, app, release builds, and examples/eval workflows
+- `docs/apis/README.md`
+  - user-facing interface index
+- `docs/apis/cli.md`
+  - `GLMOCRCLI` usage, outputs, and model/cache behavior
 - `docs/architecture.md`
   - current module boundaries, runtime flows, and output contracts
 - `docs/golden_checks.md`
