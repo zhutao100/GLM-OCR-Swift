@@ -14,6 +14,7 @@ enum GLMOCRGatewayPreprocessor {
     static func applyOCRInputGatewayPreprocessing(_ image: CIImage) throws -> CIImage {
         var output = image
         output = try applyOCRDeskewIfEnabled(output)
+        output = try applyOCRContrastStretchIfEnabled(output)
         return output
     }
 
@@ -133,6 +134,48 @@ enum GLMOCRGatewayPreprocessor {
         }
 
         return try VisionIO.applyDeskew(image, angleDegrees: estimate.angleDegrees, fillColor: .white)
+    }
+
+    private static func applyOCRContrastStretchIfEnabled(_ image: CIImage) throws -> CIImage {
+        let env = ProcessInfo.processInfo.environment
+        guard parseBool(env["GLMOCR_GATEWAY_CONTRAST"]) == true else { return image }
+
+        let extent = image.extent.integral
+        guard extent.width >= 64, extent.height >= 64 else { return image }
+
+        var options = VisionLumaContrastStretchOptions()
+        if let maxDim = parseInt(env["GLMOCR_GATEWAY_CONTRAST_MAX_ANALYSIS_DIM"]), maxDim > 0 {
+            options.maxAnalysisDimension = maxDim
+        }
+        if let ignoreBorder = parseDouble(env["GLMOCR_GATEWAY_CONTRAST_IGNORE_BORDER_FRACTION"]), ignoreBorder >= 0 {
+            options.ignoreBorderFraction = ignoreBorder
+        }
+        if let lowerP = parseDouble(env["GLMOCR_GATEWAY_CONTRAST_LOWER_P"]), lowerP >= 0 {
+            options.lowerPercentile = lowerP
+        }
+        if let upperP = parseDouble(env["GLMOCR_GATEWAY_CONTRAST_UPPER_P"]), upperP >= 0 {
+            options.upperPercentile = upperP
+        }
+        if let strength = parseDouble(env["GLMOCR_GATEWAY_CONTRAST_STRENGTH"]), strength >= 0 {
+            options.strength = strength
+        }
+        if let minRange = parseDouble(env["GLMOCR_GATEWAY_CONTRAST_MIN_LUMA_RANGE"]), minRange >= 0 {
+            options.minLumaRange = minRange
+        }
+        if let minScale = parseDouble(env["GLMOCR_GATEWAY_CONTRAST_MIN_SCALE"]), minScale > 0 {
+            options.minScale = minScale
+        }
+        if let maxScale = parseDouble(env["GLMOCR_GATEWAY_CONTRAST_MAX_SCALE"]), maxScale > 0 {
+            options.maxScale = maxScale
+        }
+
+        let minConfidence = parseDouble(env["GLMOCR_GATEWAY_CONTRAST_MIN_CONFIDENCE"]) ?? 0.25
+        guard let proposal = try VisionIO.proposeLumaContrastStretch(for: image, options: options) else {
+            return image
+        }
+        guard proposal.confidence >= minConfidence else { return image }
+
+        return try VisionIO.applyLumaContrastStretch(image, proposal: proposal)
     }
 
     private static func parseDeskewOptions(env: [String: String]) -> VisionDeskewOptions {

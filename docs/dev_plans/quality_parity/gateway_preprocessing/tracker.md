@@ -212,11 +212,53 @@ Using the synthetic degraded lane from Workstream A:
 
 **Tasks**
 
-- [ ] Prototype mild percentile stretch on luma.
-- [ ] Prototype conservative luma-only CLAHE.
-- [ ] Gate both by measurable contrast/illumination heuristics.
-- [ ] Apply to OCR crops first, not layout-detector page inputs.
-- [ ] Capture crop-level artifacts via the existing preprocess debug path.
+- [x] Prototype mild percentile stretch on luma.
+- [ ] Prototype conservative luma-only CLAHE (deferred; no Core Image primitive, custom CLAHE likely too heavy for Tier 1).
+- [x] Gate by measurable contrast heuristics.
+- [x] Apply to OCR crops first, not layout-detector page inputs.
+- [x] Capture crop-level artifacts via the existing preprocess debug path.
+
+**Implementation**
+
+- Model-agnostic primitive:
+  - `VisionIO.proposeLumaContrastStretch(...)` + `VisionIO.applyLumaContrastStretch(...)`
+  - analysis: luma percentile probe on a downsampled `RGBA8` raster (with optional border ignore)
+  - apply: deterministic per-channel linear stretch in `RGBA8` space (to avoid Core Image color-space surprises)
+- Experiment toggles (env):
+  - `GLMOCR_GATEWAY_CONTRAST=1`
+  - `GLMOCR_GATEWAY_CONTRAST_MIN_CONFIDENCE=...` (default: `0.25`)
+  - `GLMOCR_GATEWAY_CONTRAST_MAX_ANALYSIS_DIM=...` (default: `512`)
+  - `GLMOCR_GATEWAY_CONTRAST_IGNORE_BORDER_FRACTION=...` (default: `0.04`)
+  - `GLMOCR_GATEWAY_CONTRAST_LOWER_P=...` (default: `0.02`)
+  - `GLMOCR_GATEWAY_CONTRAST_UPPER_P=...` (default: `0.98`)
+  - `GLMOCR_GATEWAY_CONTRAST_STRENGTH=...` (default: `0.65`)
+  - `GLMOCR_GATEWAY_CONTRAST_MIN_LUMA_RANGE=...` (default: `18`)
+  - `GLMOCR_GATEWAY_CONTRAST_MIN_SCALE=...` (default: `1.05`)
+  - `GLMOCR_GATEWAY_CONTRAST_MAX_SCALE=...` (default: `1.60`)
+
+**Current evidence (2026-03-18)**
+
+Using the synthetic degraded lane from Workstream A:
+
+- default stretch settings
+  - degraded lane label: `geo_contrast_v1` (baseline: `geo_baseline`)
+  - env: `GLMOCR_GATEWAY_CONTRAST=1` (defaults otherwise)
+  - by family (final overall mean deltas vs baseline):
+    - `low_contrast_shadow`: **+0.0001**
+    - all other families: ~**+0.0000**
+- more aggressive stretch settings
+  - degraded lane label: `geo_contrast_aggressive_v1` (baseline: `geo_baseline`)
+  - env: `GLMOCR_GATEWAY_CONTRAST=1`, `GLMOCR_GATEWAY_CONTRAST_STRENGTH=1.0`, `GLMOCR_GATEWAY_CONTRAST_MAX_SCALE=2.2`
+  - by family (final overall mean deltas vs baseline):
+    - `low_contrast_shadow`: **+0.0002**
+    - `noise_and_jpeg`: **-0.0001**
+
+This suggests the current synthetic `low_contrast_shadow` family is either already handled well by the model path or not
+well targeted by a *global* stretch; a CLAHE-like or illumination-normalization branch would likely be required for a
+meaningful uplift.
+
+**Decision (for now):** keep the stretch branch behind experiment toggles; do not enable by default. Defer CLAHE unless
+future evidence shows the need (implementation cost + risk of amplifying noise/texture on handwriting and seals).
 
 **Exit criteria**
 
