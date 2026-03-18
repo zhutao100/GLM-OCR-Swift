@@ -16,6 +16,7 @@ enum GLMOCRGatewayPreprocessor {
         output = try applyOCRDeskewIfEnabled(output)
         output = try applyOCRDenoiseIfEnabled(output)
         output = try applyOCRContrastStretchIfEnabled(output)
+        output = try applyOCRMonochromeIfEnabled(output)
         return output
     }
 
@@ -203,6 +204,62 @@ enum GLMOCRGatewayPreprocessor {
         guard proposal.confidence >= minConfidence else { return image }
 
         return try VisionIO.applyLumaContrastStretch(image, proposal: proposal)
+    }
+
+    private static func applyOCRMonochromeIfEnabled(_ image: CIImage) throws -> CIImage {
+        let env = ProcessInfo.processInfo.environment
+        guard parseBool(env["GLMOCR_GATEWAY_MONO"]) == true else { return image }
+
+        let extent = image.extent.integral
+        guard extent.width >= 64, extent.height >= 64 else { return image }
+
+        var heuristics = VisionMonochromeThresholdHeuristicsOptions()
+        if let maxDim = parseInt(env["GLMOCR_GATEWAY_MONO_MAX_ANALYSIS_DIM"]), maxDim > 0 {
+            heuristics.maxAnalysisDimension = maxDim
+        }
+        if let ignoreBorder = parseDouble(env["GLMOCR_GATEWAY_MONO_IGNORE_BORDER_FRACTION"]), ignoreBorder >= 0 {
+            heuristics.ignoreBorderFraction = ignoreBorder
+        }
+        if let maxChroma = parseDouble(env["GLMOCR_GATEWAY_MONO_MAX_CHROMA_MEAN"]), maxChroma >= 0 {
+            heuristics.maxChromaMean = maxChroma
+        }
+        if let maxStd = parseDouble(env["GLMOCR_GATEWAY_MONO_MAX_LUMA_STD"]), maxStd >= 0 {
+            heuristics.maxLumaStd = maxStd
+        }
+
+        let minConfidence = parseDouble(env["GLMOCR_GATEWAY_MONO_MIN_CONFIDENCE"]) ?? 0.60
+        guard let proposal = try VisionIO.proposeMonochromeThreshold(for: image, options: heuristics) else {
+            return image
+        }
+        guard proposal.confidence >= minConfidence else { return image }
+
+        var applyOptions = VisionMonochromeThresholdApplyOptions()
+        if let modeRaw = normalizedNonEmpty(env["GLMOCR_GATEWAY_MONO_MODE"])?.lowercased() {
+            switch modeRaw {
+            case "fixed", "threshold":
+                applyOptions.mode = .fixed
+            default:
+                applyOptions.mode = .otsu
+            }
+        }
+        if let t = parseDouble(env["GLMOCR_GATEWAY_MONO_THRESHOLD"]) {
+            applyOptions.fixedThreshold = t
+        }
+        if let morphRaw = normalizedNonEmpty(env["GLMOCR_GATEWAY_MONO_MORPH"])?.lowercased() {
+            switch morphRaw {
+            case "open":
+                applyOptions.morphology = .open
+            case "close":
+                applyOptions.morphology = .close
+            default:
+                applyOptions.morphology = .none
+            }
+        }
+        if let radius = parseDouble(env["GLMOCR_GATEWAY_MONO_MORPH_RADIUS"]), radius >= 0 {
+            applyOptions.morphologyRadius = radius
+        }
+
+        return try VisionIO.applyMonochromeThreshold(image, options: applyOptions)
     }
 
     private static func parseDeskewOptions(env: [String: String]) -> VisionDeskewOptions {
