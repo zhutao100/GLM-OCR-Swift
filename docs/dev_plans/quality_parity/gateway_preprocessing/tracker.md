@@ -158,10 +158,46 @@ Known limitations from artifact inspection:
 
 **Tasks**
 
-- [ ] Prototype a deterministic skew-angle estimator.
-- [ ] Restrict correction to high-confidence, small-angle cases first.
-- [ ] Evaluate page-level vs region-level application order.
-- [ ] Record a “no-op when uncertain” fallback.
+- [x] Prototype a deterministic skew-angle estimator.
+- [x] Restrict correction to high-confidence, small-angle cases first.
+- [x] Evaluate page-level vs region-level application order.
+- [x] Record a “no-op when uncertain” fallback.
+
+**Implementation**
+
+- Model-agnostic primitive:
+  - `VisionIO.estimateDeskewAngle(...)` + `VisionIO.applyDeskew(...)`
+  - edge-orientation histogram on a downsampled `RGBA8` analysis raster
+  - correction via `CIStraightenFilter`
+- Experiment toggles (env):
+  - `GLMOCR_GATEWAY_DESKEW=1`
+  - `GLMOCR_GATEWAY_DESKEW_STAGE=page|ocr` (default: `ocr`)
+  - `GLMOCR_GATEWAY_DESKEW_MAX_ANALYSIS_DIM=...` (default: `1024`)
+  - `GLMOCR_GATEWAY_DESKEW_MAX_DEG=...` (default: `5.0`)
+  - `GLMOCR_GATEWAY_DESKEW_STEP_DEG=...` (default: `0.5`)
+  - `GLMOCR_GATEWAY_DESKEW_EDGE_THRESHOLD=...` (default: `55`)
+  - `GLMOCR_GATEWAY_DESKEW_SAMPLE_STRIDE=...` (default: `2`)
+  - `GLMOCR_GATEWAY_DESKEW_IGNORE_BORDER_FRACTION=...` (default: `0.06`)
+  - `GLMOCR_GATEWAY_DESKEW_MIN_APPLY_DEG=...` (default: `0.75`)
+  - `GLMOCR_GATEWAY_DESKEW_MIN_CONFIDENCE=...` (default: `0.08`)
+  - `GLMOCR_GATEWAY_ARTIFACT_DIR=...` (page stage only; writes before/after JPEGs + estimate JSON)
+
+**Current evidence (2026-03-18)**
+
+Using the synthetic degraded lane from Workstream A:
+
+- page-level deskew (stage: `page`)
+  - degraded lane label: `geo_deskew_v2` (baseline: `geo_baseline`)
+  - net signal is negative on the skew family:
+    - `page_skew_small_angle` parity **0.7874 → 0.7457** (regression)
+  - table-like inputs sometimes improve, suggesting layout interaction rather than pure OCR gain:
+    - `table_skew_small_angle` parity **0.9753 → 0.9830**
+- OCR-input deskew (stage: `ocr`, applied to layout crops)
+  - degraded lane label: `geo_deskew_ocr_v1` (baseline: `geo_baseline`)
+  - no uplift on `page_skew_small_angle`, and a regression appears on the paper skew case:
+    - `paper_skew_small_angle` parity **0.9439 → 0.9160**
+
+**Decision (for now):** keep deskew behind experiment toggles; do not enable by default.
 
 **Exit criteria**
 

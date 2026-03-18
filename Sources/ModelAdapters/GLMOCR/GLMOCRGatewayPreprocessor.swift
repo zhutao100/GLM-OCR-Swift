@@ -7,6 +7,13 @@ enum GLMOCRGatewayPreprocessor {
         var output = image
         output = try applyPagePerspectiveRectificationIfEnabled(output, sourceURL: sourceURL)
         output = try applyPageBorderCleanupIfEnabled(output, sourceURL: sourceURL)
+        output = try applyPageDeskewIfEnabled(output, sourceURL: sourceURL)
+        return output
+    }
+
+    static func applyOCRInputGatewayPreprocessing(_ image: CIImage) throws -> CIImage {
+        var output = image
+        output = try applyOCRDeskewIfEnabled(output)
         return output
     }
 
@@ -85,6 +92,78 @@ enum GLMOCRGatewayPreprocessor {
         return rectified
     }
 
+    private static func applyPageDeskewIfEnabled(_ image: CIImage, sourceURL: URL) throws -> CIImage {
+        let env = ProcessInfo.processInfo.environment
+        guard parseBool(env["GLMOCR_GATEWAY_DESKEW"]) == true else { return image }
+        guard deskewStage(env: env) == .page else { return image }
+        guard sourceURL.pathExtension.lowercased() != "pdf" else { return image }
+
+        let options = parseDeskewOptions(env: env)
+
+        guard let estimate = try VisionIO.estimateDeskewAngle(for: image, options: options) else {
+            return image
+        }
+
+        let deskewed = try VisionIO.applyDeskew(image, angleDegrees: estimate.angleDegrees, fillColor: .white)
+
+        if let dir = normalizedNonEmpty(env["GLMOCR_GATEWAY_ARTIFACT_DIR"]) {
+            try writeDeskewArtifacts(
+                original: image,
+                deskewed: deskewed,
+                estimate: estimate,
+                sourceURL: sourceURL,
+                artifactsDir: URL(fileURLWithPath: (dir as NSString).expandingTildeInPath).standardizedFileURL
+            )
+        }
+
+        return deskewed
+    }
+
+    private static func applyOCRDeskewIfEnabled(_ image: CIImage) throws -> CIImage {
+        let env = ProcessInfo.processInfo.environment
+        guard parseBool(env["GLMOCR_GATEWAY_DESKEW"]) == true else { return image }
+        guard deskewStage(env: env) == .ocr else { return image }
+
+        let extent = image.extent.integral
+        guard extent.width >= 96, extent.height >= 96 else { return image }
+
+        let options = parseDeskewOptions(env: env)
+        guard let estimate = try VisionIO.estimateDeskewAngle(for: image, options: options) else {
+            return image
+        }
+
+        return try VisionIO.applyDeskew(image, angleDegrees: estimate.angleDegrees, fillColor: .white)
+    }
+
+    private static func parseDeskewOptions(env: [String: String]) -> VisionDeskewOptions {
+        var options = VisionDeskewOptions()
+        if let maxDim = parseInt(env["GLMOCR_GATEWAY_DESKEW_MAX_ANALYSIS_DIM"]), maxDim > 0 {
+            options.maxAnalysisDimension = maxDim
+        }
+        if let maxDeg = parseDouble(env["GLMOCR_GATEWAY_DESKEW_MAX_DEG"]), maxDeg > 0 {
+            options.maxAngleDegrees = maxDeg
+        }
+        if let step = parseDouble(env["GLMOCR_GATEWAY_DESKEW_STEP_DEG"]), step > 0 {
+            options.stepDegrees = step
+        }
+        if let edgeThreshold = parseInt(env["GLMOCR_GATEWAY_DESKEW_EDGE_THRESHOLD"]), edgeThreshold > 0 {
+            options.edgeMagnitudeThreshold = edgeThreshold
+        }
+        if let stride = parseInt(env["GLMOCR_GATEWAY_DESKEW_SAMPLE_STRIDE"]), stride > 0 {
+            options.sampleStride = stride
+        }
+        if let ignoreBorder = parseDouble(env["GLMOCR_GATEWAY_DESKEW_IGNORE_BORDER_FRACTION"]), ignoreBorder >= 0 {
+            options.ignoreBorderFraction = ignoreBorder
+        }
+        if let minApply = parseDouble(env["GLMOCR_GATEWAY_DESKEW_MIN_APPLY_DEG"]), minApply >= 0 {
+            options.minApplyAngleDegrees = minApply
+        }
+        if let minConf = parseDouble(env["GLMOCR_GATEWAY_DESKEW_MIN_CONFIDENCE"]), minConf >= 0 {
+            options.minConfidence = minConf
+        }
+        return options
+    }
+
     private static func writeBorderCleanupArtifacts(
         original: CIImage,
         cleaned: CIImage,
@@ -131,6 +210,29 @@ enum GLMOCRGatewayPreprocessor {
         try data.write(to: proposalURL)
     }
 
+    private static func writeDeskewArtifacts(
+        original: CIImage,
+        deskewed: CIImage,
+        estimate: VisionDeskewEstimate,
+        sourceURL: URL,
+        artifactsDir: URL
+    ) throws {
+        try FileManager.default.createDirectory(at: artifactsDir, withIntermediateDirectories: true)
+
+        let baseName = sourceURL.deletingPathExtension().lastPathComponent
+        let originalURL = artifactsDir.appendingPathComponent("\(baseName)_gateway_deskew_original.jpg")
+        let deskewedURL = artifactsDir.appendingPathComponent("\(baseName)_gateway_deskew_deskewed.jpg")
+        let estimateURL = artifactsDir.appendingPathComponent("\(baseName)_gateway_deskew_estimate.json")
+
+        try VisionIO.writeJPEG(original, to: originalURL, quality: 0.92)
+        try VisionIO.writeJPEG(deskewed, to: deskewedURL, quality: 0.92)
+
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        let data = try encoder.encode(DeskewArtifactPayload(sourceFile: baseName, estimate: estimate))
+        try data.write(to: estimateURL)
+    }
+
     private static func parseBool(_ raw: String?) -> Bool? {
         switch raw?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
         case "1", "true", "yes", "on":
@@ -157,6 +259,16 @@ enum GLMOCRGatewayPreprocessor {
         guard let trimmed, !trimmed.isEmpty else { return nil }
         return trimmed
     }
+
+    private enum DeskewStage: String {
+        case page
+        case ocr
+    }
+
+    private static func deskewStage(env: [String: String]) -> DeskewStage {
+        guard let raw = normalizedNonEmpty(env["GLMOCR_GATEWAY_DESKEW_STAGE"])?.lowercased() else { return .ocr }
+        return DeskewStage(rawValue: raw) ?? .ocr
+    }
 }
 
 private struct BorderCleanupArtifactPayload: Encodable {
@@ -176,5 +288,15 @@ private struct PerspectiveRectifyArtifactPayload: Encodable {
     enum CodingKeys: String, CodingKey {
         case sourceFile = "source_file"
         case proposal
+    }
+}
+
+private struct DeskewArtifactPayload: Encodable {
+    var sourceFile: String
+    var estimate: VisionDeskewEstimate
+
+    enum CodingKeys: String, CodingKey {
+        case sourceFile = "source_file"
+        case estimate
     }
 }
