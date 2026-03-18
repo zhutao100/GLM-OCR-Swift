@@ -14,6 +14,7 @@ enum GLMOCRGatewayPreprocessor {
     static func applyOCRInputGatewayPreprocessing(_ image: CIImage) throws -> CIImage {
         var output = image
         output = try applyOCRDeskewIfEnabled(output)
+        output = try applyOCRDenoiseIfEnabled(output)
         output = try applyOCRContrastStretchIfEnabled(output)
         return output
     }
@@ -134,6 +135,32 @@ enum GLMOCRGatewayPreprocessor {
         }
 
         return try VisionIO.applyDeskew(image, angleDegrees: estimate.angleDegrees, fillColor: .white)
+    }
+
+    private static func applyOCRDenoiseIfEnabled(_ image: CIImage) throws -> CIImage {
+        let env = ProcessInfo.processInfo.environment
+        guard parseBool(env["GLMOCR_GATEWAY_DENOISE"]) == true else { return image }
+
+        let extent = image.extent.integral
+        guard extent.width > 0, extent.height > 0 else { return image }
+
+        let minDim = parseInt(env["GLMOCR_GATEWAY_DENOISE_MIN_DIM"]) ?? 96
+        guard Int(extent.width) >= minDim, Int(extent.height) >= minDim else { return image }
+
+        let mode = normalizedNonEmpty(env["GLMOCR_GATEWAY_DENOISE_MODE"])?.lowercased() ?? "median"
+        switch mode {
+        case "noise_reduction", "noise-reduction", "nr":
+            var options = VisionNoiseReductionOptions()
+            if let noiseLevel = parseDouble(env["GLMOCR_GATEWAY_DENOISE_NOISE_LEVEL"]), noiseLevel >= 0 {
+                options.noiseLevel = noiseLevel
+            }
+            if let sharpness = parseDouble(env["GLMOCR_GATEWAY_DENOISE_SHARPNESS"]), sharpness >= 0 {
+                options.sharpness = sharpness
+            }
+            return try VisionIO.applyNoiseReductionDenoise(image, options: options)
+        default:
+            return try VisionIO.applyMedianDenoise(image)
+        }
     }
 
     private static func applyOCRContrastStretchIfEnabled(_ image: CIImage) throws -> CIImage {
