@@ -129,7 +129,7 @@ public actor GLMOCRPipeline: OCRPipeline {
                 try VisionIO.loadCIImage(from: normalizedURL)
             }
 
-        let ciImage = try GLMOCRGatewayPreprocessor.applyPageBorderCleanupIfEnabled(loaded, sourceURL: normalizedURL)
+        let ciImage = try GLMOCRGatewayPreprocessor.applyPageGatewayPreprocessing(loaded, sourceURL: normalizedURL)
         return try await recognize(ciImage: ciImage, task: task, options: options)
     }
 

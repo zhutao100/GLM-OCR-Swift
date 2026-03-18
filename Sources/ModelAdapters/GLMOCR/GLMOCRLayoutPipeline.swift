@@ -281,7 +281,7 @@ public actor GLMOCRLayoutPipeline: OCRPipeline {
         } else {
             loaded = try VisionIO.loadCIImage(from: url)
         }
-        return try GLMOCRGatewayPreprocessor.applyPageBorderCleanupIfEnabled(loaded, sourceURL: url)
+        return try GLMOCRGatewayPreprocessor.applyPageGatewayPreprocessing(loaded, sourceURL: url)
     }
 }
 
