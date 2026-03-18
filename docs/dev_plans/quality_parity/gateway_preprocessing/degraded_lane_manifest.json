@@ -1,0 +1,154 @@
+{
+  "version": 1,
+  "notes": "Synthetic degraded-input lane derived from checked-in examples/source. Targets are the clean example's reference_result and golden_result, copied into the lane under each degraded example name so the existing example-eval scorer can run unchanged.",
+  "seed": 20260318,
+  "bases": [
+    {
+      "name": "page",
+      "source_path": "examples/source/page.png"
+    },
+    {
+      "name": "table",
+      "source_path": "examples/source/table.png"
+    },
+    {
+      "name": "paper",
+      "source_path": "examples/source/paper.png"
+    }
+  ],
+  "families": {
+    "border_dark_margin": {
+      "border_fraction": 0.14,
+      "border_rgb": [
+        14,
+        14,
+        14
+      ],
+      "inner_padding_fraction": 0.01
+    },
+    "skew_small_angle": {
+      "degrees": 2.0,
+      "fill_rgb": [
+        255,
+        255,
+        255
+      ],
+      "resample": "bicubic"
+    },
+    "perspective_warp": {
+      "corner_offsets_fraction": {
+        "top_left": [
+          0.03,
+          0.02
+        ],
+        "top_right": [
+          -0.04,
+          0.03
+        ],
+        "bottom_right": [
+          -0.02,
+          -0.02
+        ],
+        "bottom_left": [
+          0.04,
+          -0.03
+        ]
+      },
+      "fill_rgb": [
+        255,
+        255,
+        255
+      ],
+      "resample": "bicubic"
+    },
+    "low_contrast_shadow": {
+      "contrast_factor": 0.78,
+      "brightness_factor": 0.97,
+      "shadow_gradient": {
+        "direction": "left_to_right",
+        "strength": 0.22
+      }
+    },
+    "noise_and_jpeg": {
+      "gaussian_sigma": 0.018,
+      "jpeg_quality": 35
+    }
+  },
+  "variants": [
+    {
+      "name": "page_border_dark_margin",
+      "base": "page",
+      "family": "border_dark_margin"
+    },
+    {
+      "name": "page_skew_small_angle",
+      "base": "page",
+      "family": "skew_small_angle"
+    },
+    {
+      "name": "page_perspective_warp",
+      "base": "page",
+      "family": "perspective_warp"
+    },
+    {
+      "name": "page_low_contrast_shadow",
+      "base": "page",
+      "family": "low_contrast_shadow"
+    },
+    {
+      "name": "page_noise_and_jpeg",
+      "base": "page",
+      "family": "noise_and_jpeg"
+    },
+    {
+      "name": "table_border_dark_margin",
+      "base": "table",
+      "family": "border_dark_margin"
+    },
+    {
+      "name": "table_skew_small_angle",
+      "base": "table",
+      "family": "skew_small_angle"
+    },
+    {
+      "name": "table_perspective_warp",
+      "base": "table",
+      "family": "perspective_warp"
+    },
+    {
+      "name": "table_low_contrast_shadow",
+      "base": "table",
+      "family": "low_contrast_shadow"
+    },
+    {
+      "name": "table_noise_and_jpeg",
+      "base": "table",
+      "family": "noise_and_jpeg"
+    },
+    {
+      "name": "paper_border_dark_margin",
+      "base": "paper",
+      "family": "border_dark_margin"
+    },
+    {
+      "name": "paper_skew_small_angle",
+      "base": "paper",
+      "family": "skew_small_angle"
+    },
+    {
+      "name": "paper_perspective_warp",
+      "base": "paper",
+      "family": "perspective_warp"
+    },
+    {
+      "name": "paper_low_contrast_shadow",
+      "base": "paper",
+      "family": "low_contrast_shadow"
+    },
+    {
+      "name": "paper_noise_and_jpeg",
+      "base": "paper",
+      "family": "noise_and_jpeg"
+    }
+  ]
+}

@@ -26,25 +26,31 @@ A candidate is accepted only when:
 
 **Tasks**
 
-- [ ] Define a deterministic synthetic degradation recipe set over selected checked-in examples.
-- [ ] Start with the most relevant source images:
-  - `examples/source/page.png`
-  - `examples/source/table.png`
-  - `examples/source/paper.png`
+- [x] Define a deterministic synthetic degradation recipe set over selected checked-in examples.
+- [x] Start with the most relevant source images:
+  - [x] `examples/source/page.png`
+  - [x] `examples/source/table.png`
+  - [x] `examples/source/paper.png`
   - optionally selected crops from layout-mode examples
-- [ ] Add at least these degradation families:
-  - [ ] dark-border / overscan margin injection
-  - [ ] small-angle skew
-  - [ ] perspective warp
-  - [ ] low-contrast / uneven illumination
-  - [ ] light noise / compression degradation
-- [ ] Record exact generation parameters so the lane is reproducible.
-- [ ] Keep this lane report-only until a stable signal emerges.
+- [x] Add at least these degradation families:
+  - [x] dark-border / overscan margin injection
+  - [x] small-angle skew
+  - [x] perspective warp
+  - [x] low-contrast / uneven illumination
+  - [x] light noise / compression degradation
+- [x] Record exact generation parameters so the lane is reproducible.
+- [x] Keep this lane report-only until a stable signal emerges.
+
+**Implementation**
+
+- Manifest: `docs/dev_plans/quality_parity/gateway_preprocessing/degraded_lane_manifest.json`
+- Generator: `scripts/gateway_preprocessing_generate_degraded_lane.py`
+- Runner + scorer: `scripts/verify_gateway_preprocessing_degraded_lane.sh`
 
 **Exit criteria**
 
-- one repeatable degraded-input lane exists
-- reports can compare baseline vs gateway branch on a defect-family basis
+- [x] one repeatable degraded-input lane exists
+- [x] reports can compare baseline vs gateway branch on a defect-family basis (`--label` + `--baseline-label`)
 
 ---
 
