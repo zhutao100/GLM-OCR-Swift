@@ -198,7 +198,8 @@ public actor GLMOCRPipeline: OCRPipeline {
                 preferredResizeBackend: preferredResizeBackend
             )
             let imageProcessor = GLMOCRImageProcessor(options: imageOptions)
-            let processed = try imageProcessor.process(sendableImage.value, config: config)
+            let gatewayImage = try GLMOCRGatewayPreprocessor.applyOCRInputGatewayPreprocessing(sendableImage.value)
+            let processed = try imageProcessor.process(gatewayImage, config: config)
 
             let generator = GreedyGenerator()
             var result = try await generator.run(
