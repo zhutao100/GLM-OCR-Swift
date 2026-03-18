@@ -122,13 +122,14 @@ public actor GLMOCRPipeline: OCRPipeline {
         }
         guard model != nil else { throw GLMOCRPipelineError.modelNotLoaded }
 
-        let ciImage: CIImage =
+        let loaded: CIImage =
             if normalizedURL.pathExtension.lowercased() == "pdf" {
                 try VisionIO.loadCIImage(fromPDF: normalizedURL, page: page, dpi: 200)
             } else {
                 try VisionIO.loadCIImage(from: normalizedURL)
             }
 
+        let ciImage = try GLMOCRGatewayPreprocessor.applyPageBorderCleanupIfEnabled(loaded, sourceURL: normalizedURL)
         return try await recognize(ciImage: ciImage, task: task, options: options)
     }
 

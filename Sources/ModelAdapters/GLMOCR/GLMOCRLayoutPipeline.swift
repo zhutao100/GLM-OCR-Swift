@@ -275,10 +275,13 @@ public actor GLMOCRLayoutPipeline: OCRPipeline {
     }
 
     private func loadPageImage(url: URL, page: Int) throws -> CIImage {
+        let loaded: CIImage
         if url.pathExtension.lowercased() == "pdf" {
-            return try VisionIO.loadCIImage(fromPDF: url, page: page, dpi: CGFloat(pdfDPI))
+            loaded = try VisionIO.loadCIImage(fromPDF: url, page: page, dpi: CGFloat(pdfDPI))
+        } else {
+            loaded = try VisionIO.loadCIImage(from: url)
         }
-        return try VisionIO.loadCIImage(from: url)
+        return try GLMOCRGatewayPreprocessor.applyPageBorderCleanupIfEnabled(loaded, sourceURL: url)
     }
 }
 
