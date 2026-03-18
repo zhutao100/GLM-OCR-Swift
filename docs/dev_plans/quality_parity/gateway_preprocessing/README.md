@@ -248,6 +248,31 @@ Why synthetic first:
 
 This lane should be report-only at first.
 
+##### Lane 2 implementation notes (in this repo)
+
+The degraded-input lane is implemented as a **synthetic lane repo** under:
+
+- `.build/gateway_preprocessing/degraded_lane_repo/`
+
+It is generated from a checked-in manifest:
+
+- `docs/dev_plans/quality_parity/gateway_preprocessing/degraded_lane_manifest.json`
+
+To keep the scorer unchanged, each degraded example copies the clean baseline targets into the lane under the degraded
+example name:
+
+- `examples/reference_result/<degraded_name>/` ← copied from the base example
+- `examples/golden_result/<degraded_name>/` ← copied from the base example (when available)
+
+That means Lane 2 scores **robustness to degradation** against the clean target text/structure, not parity to an
+upstream run over the degraded image.
+
+Quick run:
+
+```bash
+scripts/verify_gateway_preprocessing_degraded_lane.sh --label baseline
+```
+
 ### B. Artifact capture requirements
 
 For every candidate branch, capture:
