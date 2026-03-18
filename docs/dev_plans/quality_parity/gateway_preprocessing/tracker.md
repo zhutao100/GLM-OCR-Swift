@@ -2,7 +2,7 @@
 
 **Objective:** run a narrow, evidence-driven experiment program for deterministic lightweight gateway preprocessing, without destabilizing the repo's accepted artifact contract.
 
-**Status (2026-03-17):** proposed; no gateway preprocessing branch has been accepted yet beyond the existing resize-backend/runtime work.
+**Status (2026-03-18):** in progress; multiple Tier-1 prototypes are implemented and measured on the degraded lane, but none are accepted as default-on yet.
 
 ---
 
@@ -104,11 +104,45 @@ Using the synthetic degraded lane from Workstream A:
 
 **Tasks**
 
-- [ ] Implement or prototype a deterministic page-on-background detector.
-- [ ] Add quad estimation with confidence gating.
-- [ ] Add a perspective-warp helper at the model-agnostic vision layer.
-- [ ] Run focused A/B on `table.png` and synthetic perspective-warp cases.
-- [ ] Confirm that clean scan/PDF inputs do not spuriously enter this path.
+- [x] Implement or prototype a deterministic page-on-background detector.
+- [x] Add quad estimation with confidence gating.
+- [x] Add a perspective-warp helper at the model-agnostic vision layer.
+- [x] Run focused A/B on `table.png` and synthetic perspective-warp cases.
+- [ ] Confirm that clean scan/PDF inputs do not spuriously enter this path if considering default-on.
+
+**Implementation**
+
+- Model-agnostic primitive:
+  - `VisionIO.proposeDocumentRectification(...)` + `VisionIO.applyDocumentRectification(...)`
+  - rectangle quad via `CIDetectorTypeRectangle`, rectification via `CIPerspectiveCorrection`
+- Experiment toggles (env):
+  - `GLMOCR_GATEWAY_PERSPECTIVE_RECTIFY=1`
+  - `GLMOCR_GATEWAY_PERSPECTIVE_MIN_CONFIDENCE=...` (default: `0.60`)
+  - `GLMOCR_GATEWAY_PERSPECTIVE_MIN_AREA_FRACTION=...` (default: `0.45`)
+  - `GLMOCR_GATEWAY_PERSPECTIVE_MAX_AREA_FRACTION=...` (default: `0.98`)
+  - `GLMOCR_GATEWAY_PERSPECTIVE_MAX_ANALYSIS_DIM=...` (default: `768`)
+  - `GLMOCR_GATEWAY_ARTIFACT_DIR=...` (writes before/after JPEGs + proposal JSON when the heuristic triggers)
+
+**Current evidence (2026-03-18)**
+
+Using the synthetic degraded lane from Workstream A:
+
+- degraded lane label: `geo_rectify_v1` (baseline: `geo_baseline`)
+- env: `GLMOCR_GATEWAY_PERSPECTIVE_RECTIFY=1`, `GLMOCR_GATEWAY_PERSPECTIVE_MIN_CONFIDENCE=0.60`
+- by family (final overall mean deltas vs baseline):
+  - `border_dark_margin`: **+0.0205**
+  - `perspective_warp`: **+0.0023** (mostly `table_perspective_warp`)
+- representative per-example parity uplifts vs baseline:
+  - `page_border_dark_margin`: **0.7382 → 0.7647**
+  - `paper_border_dark_margin`: **0.9231 → 0.9504**
+  - `table_perspective_warp`: **0.9761 → 0.9830**
+
+Known limitations from artifact inspection:
+
+- The rectangle detector triggers reliably for photographed-page-on-contrast-background cases.
+- It often does **not** trigger for the synthetic `*_perspective_warp` variants that fill with pure white (white-on-white boundary → weak quad edges).
+
+**Decision (for now):** keep perspective rectification behind experiment toggles; do not enable by default.
 
 **Exit criteria**
 
@@ -195,11 +229,11 @@ Using the synthetic degraded lane from Workstream A:
 
 ## 2. Integration rules
 
-- [ ] Keep raw image operations model-agnostic in `VLMRuntimeKit`.
-- [ ] Keep enablement policy in `GLMOCRAdapter` / `DocLayoutAdapter`.
-- [ ] Do not widen the CLI/app user-facing surface until at least one branch proves stable.
-- [ ] Prefer hidden experiment toggles or test-only wiring first.
-- [ ] Preserve the existing accepted resize-backend/runtime policy unless a new branch clearly supersedes it.
+- [x] Keep raw image operations model-agnostic in `VLMRuntimeKit`.
+- [x] Keep enablement policy in `GLMOCRAdapter` / `DocLayoutAdapter`.
+- [x] Do not widen the CLI/app user-facing surface until at least one branch proves stable.
+- [x] Prefer hidden experiment toggles or test-only wiring first.
+- [x] Preserve the existing accepted resize-backend/runtime policy unless a new branch clearly supersedes it.
 
 ---
 

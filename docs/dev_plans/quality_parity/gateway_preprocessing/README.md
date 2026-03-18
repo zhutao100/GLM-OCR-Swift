@@ -1,6 +1,6 @@
 # Gateway input preprocessing for degraded OCR inputs
 
-**Status (2026-03-17):** proposed experiment plan.
+**Status (2026-03-18):** in progress; the degraded-input lane exists and multiple Tier-1 prototypes are measured, but all gateway branches remain experimental/default-off.
 
 ## Objective
 
