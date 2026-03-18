@@ -47,7 +47,8 @@ public struct GLMOCRImageProcessingInspection: @unchecked Sendable {
 
 extension GLMOCRImageProcessor {
     public func inspect(_ image: CIImage, config: GLMOCRConfig) throws -> GLMOCRImageProcessingInspection {
-        let prepared = try prepareImage(image, config: config, captureResizedRGB: true)
+        let gatewayImage = try GLMOCRGatewayPreprocessor.applyOCRInputGatewayPreprocessing(image)
+        let prepared = try prepareImage(gatewayImage, config: config, captureResizedRGB: true)
         let processed = makeProcessedImage(
             imageTensor: prepared.imageTensor,
             targetWidth: prepared.targetWidth,

@@ -71,7 +71,8 @@ public struct GLMOCRImageProcessor: Sendable {
     }
 
     public func process(_ image: CIImage, config: GLMOCRConfig) throws -> GLMOCRProcessedImage {
-        let prepared = try prepareImage(image, config: config, captureResizedRGB: false)
+        let gatewayImage = try GLMOCRGatewayPreprocessor.applyOCRInputGatewayPreprocessing(image)
+        let prepared = try prepareImage(gatewayImage, config: config, captureResizedRGB: false)
         return makeProcessedImage(
             imageTensor: prepared.imageTensor,
             targetWidth: prepared.targetWidth,

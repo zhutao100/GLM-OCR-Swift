@@ -21,6 +21,7 @@ The current codebase already exposes the right hooks for disciplined experiments
   - smart resize, normalization, backend selection, optional post-resize JPEG round-trip, inspection helpers
 - `GLMOCRPreprocessDebugCLI`
   - crop-level artifact capture for preprocess A/B work
+  - includes OCR-input gateway preprocessing because it runs inside `GLMOCRImageProcessor`
 - `GLMOCRLayoutPipeline`
   - one loaded page image reused across layout detection and OCR cropping, plus a narrow adaptive backend override for short, wide text-line crops
 
@@ -284,6 +285,8 @@ For every candidate branch, capture:
 - final OCR output and scored eval delta
 
 `GLMOCRPreprocessDebugCLI` is already the natural starting point for region-level artifact capture. A similar page-level capture path should be added only if Tier 1 experiments begin to show value.
+
+Note: OCR-input gateway preprocessing is applied inside `GLMOCRImageProcessor`, so `GLMOCRPreprocessDebugCLI` captures gateway effects without any extra wiring.
 
 ## Suggested workstream order
 
