@@ -13,6 +13,9 @@
 - Use the focused hard-example tracker for the current preprocessing/runtime investigation:
   - `hard_examples_code_page/README.md`
   - `hard_examples_code_page/tracker.md`
+- Use the gateway-preprocessing tracker when evaluating deterministic lightweight cleanup before page/crop OCR:
+  - `gateway_preprocessing/README.md`
+  - `gateway_preprocessing/tracker.md`
 
 ## Where Current Behavior Lives
 
@@ -37,6 +40,10 @@
   - investigation summary for the `code` / `page` gap and the current evidence-based hypothesis ranking
 - `hard_examples_code_page/tracker.md`
   - implementation tracker for the focused hard-example work
+- `gateway_preprocessing/README.md`
+  - candidate assessment and experiment design for degraded-input gateway preprocessing
+- `gateway_preprocessing/tracker.md`
+  - ordered workstreams and acceptance criteria for gateway preprocessing experiments
 - `implementation_plan.md`
   - completed-program summary and why the phase order mattered
 - `phase_00_reference_contract.md`

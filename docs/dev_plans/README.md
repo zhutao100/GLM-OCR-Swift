@@ -20,6 +20,11 @@
   - `docs/dev_plans/quality_parity/hard_examples_code_page/tracker.md`
   - use these when touching GLM-OCR preprocessing/runtime parity for the current `code` and `page` deficits
 
+- Gateway preprocessing experiments for degraded inputs
+  - `docs/dev_plans/quality_parity/gateway_preprocessing/README.md`
+  - `docs/dev_plans/quality_parity/gateway_preprocessing/tracker.md`
+  - use these when evaluating deterministic page/crop cleanup before GLM-OCR / PP-DocLayout-V3 inference
+
 - GUI polish and distribution
   - `docs/dev_plans/gui_polish_distribution/tracker.md`
   - currently deferred, but kept current as the next product-facing backlog
