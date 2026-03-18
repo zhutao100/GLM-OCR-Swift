@@ -31,6 +31,10 @@ This folder is the maintained docs entry point for contributors. For the runnabl
   - roadmap entrypoint and tracker index
 - `docs/dev_plans/quality_parity/tracker.md`
   - live parity maintenance backlog, baseline scores, and reproducibility contract
+- `docs/dev_plans/quality_parity/gateway_preprocessing/README.md`
+  - candidate assessment and experiment design for lightweight degraded-input gateway preprocessing
+- `docs/dev_plans/quality_parity/gateway_preprocessing/tracker.md`
+  - ordered gateway-preprocessing workstreams and acceptance criteria
 - `docs/dev_plans/gui_polish_distribution/tracker.md`
   - deferred app/export/distribution backlog
 - `docs/decisions/README.md`
