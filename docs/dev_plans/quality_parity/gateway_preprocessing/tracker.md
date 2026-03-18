@@ -60,17 +60,41 @@ A candidate is accepted only when:
 
 **Tasks**
 
-- [ ] Add a model-agnostic border-analysis primitive in `VLMRuntimeKit`.
-- [ ] Implement a conservative content-box proposal with confidence scoring.
-- [ ] Preserve a small safety border instead of hard edge crops.
-- [ ] Capture before/after page artifacts for inspected examples.
-- [ ] Evaluate on the clean corpus and degraded border/margin lane.
+- [x] Add a model-agnostic border-analysis primitive in `VLMRuntimeKit`.
+- [x] Implement a conservative content-box proposal with confidence scoring.
+- [x] Preserve a small safety border instead of hard edge crops.
+- [x] Capture before/after page artifacts for inspected examples.
+- [x] Evaluate on the degraded border/margin lane.
+- [ ] Evaluate on the clean corpus if considering default-on.
+
+**Implementation**
+
+- Model-agnostic primitive:
+  - `VisionIO.proposeBorderCleanupCrop(...)` + `VisionIO.applyBorderCleanupCrop(...)` / `VisionIO.applyBorderCleanupMask(...)`
+- Experiment toggles (env):
+  - `GLMOCR_GATEWAY_BORDER_CLEANUP=1`
+  - `GLMOCR_GATEWAY_BORDER_CLEANUP_MODE=mask|crop` (default: `mask`)
+  - `GLMOCR_GATEWAY_BORDER_CLEANUP_MIN_CONFIDENCE=...` (default: `0.60`)
+  - `GLMOCR_GATEWAY_BORDER_CLEANUP_MAX_ANALYSIS_DIM=...` (default: `512`)
+  - `GLMOCR_GATEWAY_ARTIFACT_DIR=...` (writes before/after JPEGs + proposal JSON when the heuristic triggers)
+
+**Current evidence (2026-03-18)**
+
+Using the synthetic degraded lane from Workstream A:
+
+- crop mode (`GLMOCR_GATEWAY_BORDER_CLEANUP_MODE=crop`, min_conf=0.60)
+  - improves `paper_border_dark_margin` materially, but regresses `page_border_dark_margin`
+  - net signal is mixed; not stable enough for default-on acceptance
+- mask mode (`GLMOCR_GATEWAY_BORDER_CLEANUP_MODE=mask`, min_conf=0.60)
+  - smaller deltas, but still no consistent uplift on the `page_*` degraded border case
+
+**Decision (for now):** keep border/canvas cleanup behind experiment toggles; do not enable by default.
 
 **Exit criteria**
 
-- content-box detection is deterministic and inspectable
-- clean-corpus regressions are absent or negligible
-- border-degraded examples show a meaningful improvement signal
+- [x] content-box detection is deterministic and inspectable
+- [ ] clean-corpus regressions are absent or negligible
+- [ ] border-degraded examples show a meaningful improvement signal
 
 ---
 
