@@ -326,11 +326,53 @@ uniform Gaussian + JPEG).
 
 **Tasks**
 
-- [ ] Restrict to OCR-region experiments only.
-- [ ] Add a gating heuristic for near-monochrome/shaded-paper cases.
-- [ ] Test adaptive threshold variants before morphology.
+- [x] Restrict to OCR-region experiments only.
+- [x] Add a gating heuristic for near-monochrome/shaded-paper cases.
+- [x] Test adaptive threshold variants before morphology.
 - [ ] Add morphology only if thresholded outputs still show measurable speck/bleed problems.
 - [ ] Explicitly compare against the RGB-first branch on handwriting, seals, and mixed-layout cases.
+
+**Implementation**
+
+- Model-agnostic primitives:
+  - `VisionIO.proposeMonochromeThreshold(...)` (chroma + luma-std heuristic on a downsampled `RGBA8` raster)
+  - `VisionIO.applyMonochromeThreshold(...)` (Otsu-derived threshold + optional morphology)
+- Experiment toggles (env):
+  - `GLMOCR_GATEWAY_MONO=1`
+  - `GLMOCR_GATEWAY_MONO_MIN_CONFIDENCE=...` (default: `0.60`)
+  - `GLMOCR_GATEWAY_MONO_MAX_ANALYSIS_DIM=...` (default: `384`)
+  - `GLMOCR_GATEWAY_MONO_IGNORE_BORDER_FRACTION=...` (default: `0.04`)
+  - `GLMOCR_GATEWAY_MONO_MAX_CHROMA_MEAN=...` (default: `0.08`)
+  - `GLMOCR_GATEWAY_MONO_MAX_LUMA_STD=...` (default: `60`)
+  - `GLMOCR_GATEWAY_MONO_MODE=otsu|fixed` (default: `otsu`)
+  - `GLMOCR_GATEWAY_MONO_THRESHOLD=...` (mode: `fixed`, default: `0.50`)
+  - `GLMOCR_GATEWAY_MONO_MORPH=none|open|close` (default: `none`)
+  - `GLMOCR_GATEWAY_MONO_MORPH_RADIUS=...` (default: `1.0`)
+
+Note: the Otsu path estimates the threshold from an `RGBA8` analysis render. The analysis render uses
+`useSoftwareRenderer=false` because some polygon-crop filter graphs can crash under the software renderer on macOS.
+
+**Current evidence (2026-03-18)**
+
+Using the synthetic degraded lane from Workstream A:
+
+- conservative gating (mostly no-op)
+  - degraded lane label: `geo_mono_conservative_v1` (baseline: `geo_baseline`)
+  - env: `GLMOCR_GATEWAY_MONO=1` (defaults otherwise)
+  - by family (final overall mean deltas vs baseline): ~**+0.0000** across families
+- broad application (force gate open)
+  - degraded lane label: `geo_mono_otsu_v1` (baseline: `geo_baseline`)
+  - env: `GLMOCR_GATEWAY_MONO=1`, `GLMOCR_GATEWAY_MONO_MIN_CONFIDENCE=0`, `GLMOCR_GATEWAY_MONO_MAX_LUMA_STD=255`
+  - by family (final overall mean deltas vs baseline):
+    - `low_contrast_shadow`: **-0.1271**
+    - `border_dark_margin`: **-0.0744**
+    - `noise_and_jpeg`: **-0.0683**
+
+This strongly suggests that global monochrome thresholding is not a good fit for the GLM-OCR/DocLayout vision path on
+the current example families, even when the inputs are near-monochrome.
+
+**Decision (for now):** keep the branch as an experiment only; do not enable by default. Unless new evidence appears on a
+more targeted lane (e.g. extreme bleed-through), this family is likely not worth maintaining as a supported workflow.
 
 **Exit criteria**
 
