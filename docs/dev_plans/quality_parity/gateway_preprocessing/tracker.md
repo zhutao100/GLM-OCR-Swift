@@ -274,10 +274,44 @@ future evidence shows the need (implementation cost + risk of amplifying noise/t
 
 **Tasks**
 
-- [ ] Start with a very small median-filter branch.
-- [ ] Keep stronger denoise variants behind an explicit experiment flag only.
-- [ ] Evaluate primarily on noise/compression degraded inputs.
-- [ ] Verify that tiny stroke detail is not softened unacceptably.
+- [x] Start with a very small median-filter branch.
+- [x] Keep stronger denoise variants behind an explicit experiment flag only.
+- [x] Evaluate primarily on noise/compression degraded inputs.
+- [x] Record whether any uplift appears without unacceptable blur.
+
+**Implementation**
+
+- Model-agnostic primitives:
+  - `VisionIO.applyMedianDenoise(...)` (Core Image `CIMedianFilter`)
+  - `VisionIO.applyNoiseReductionDenoise(...)` (Core Image `CINoiseReduction`)
+- Experiment toggles (env):
+  - `GLMOCR_GATEWAY_DENOISE=1`
+  - `GLMOCR_GATEWAY_DENOISE_MIN_DIM=...` (default: `96`)
+  - `GLMOCR_GATEWAY_DENOISE_MODE=median|noise_reduction` (default: `median`)
+  - `GLMOCR_GATEWAY_DENOISE_NOISE_LEVEL=...` (mode: `noise_reduction`, default: `0.02`)
+  - `GLMOCR_GATEWAY_DENOISE_SHARPNESS=...` (mode: `noise_reduction`, default: `0.40`)
+
+**Current evidence (2026-03-18)**
+
+Using the synthetic degraded lane from Workstream A:
+
+- median filter
+  - degraded lane label: `geo_denoise_median_v1` (baseline: `geo_baseline`)
+  - env: `GLMOCR_GATEWAY_DENOISE=1`
+  - by family (final overall mean deltas vs baseline):
+    - `noise_and_jpeg`: **-0.0000** (no improvement)
+    - `perspective_warp`: **-0.0011**
+- noise reduction
+  - degraded lane label: `geo_denoise_noise_reduction_v1` (baseline: `geo_baseline`)
+  - env: `GLMOCR_GATEWAY_DENOISE=1`, `GLMOCR_GATEWAY_DENOISE_MODE=noise_reduction`
+  - by family (final overall mean deltas vs baseline):
+    - `noise_and_jpeg`: **-0.0004** (regression)
+
+No clear uplift appears on the synthetic noise/compression family, and small regressions show up elsewhere.
+
+**Decision (for now):** keep denoise behind experiment toggles only; do not enable by default. If denoise becomes a
+priority again, revisit with a tighter trigger heuristic and a more targeted lane (camera noise / ISO grain instead of
+uniform Gaussian + JPEG).
 
 **Exit criteria**
 
