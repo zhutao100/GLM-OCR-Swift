@@ -47,7 +47,6 @@ private struct BackendArtifactManifest: Codable {
     var tensorSummary: GLMOCRImageTensorSummary
 }
 
-@main
 struct GLMOCRPreprocessDebugCLI: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "GLMOCRPreprocessDebugCLI",
@@ -261,8 +260,8 @@ struct GLMOCRPreprocessDebugCLI: AsyncParsableCommand {
     }
 }
 
-private extension GLMOCRResizeBackend {
-    var manifestName: String {
+extension GLMOCRResizeBackend {
+    fileprivate var manifestName: String {
         switch self {
         case .coreImageBicubic:
             "coreimage"
@@ -272,9 +271,11 @@ private extension GLMOCRResizeBackend {
     }
 }
 
-private extension Duration {
-    var seconds: Double {
+extension Duration {
+    fileprivate var seconds: Double {
         let components = components
         return Double(components.seconds) + Double(components.attoseconds) / 1_000_000_000_000_000_000
     }
 }
+
+GLMOCRPreprocessDebugCLI.main()

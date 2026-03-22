@@ -13,9 +13,9 @@ Build and maintain a fully native macOS GLM-OCR app in Swift using:
 ## Current Reality (verified 2026-03-11)
 
 - `swift test` passes.
-- `swift run GLMOCRCLI --help` works and is the live CLI contract.
+- `GLMOCRCLI --help` is the live CLI contract (run via `scripts/build.sh`, or via `swift run` after preparing `mlx.metallib`).
 - MLX-backed SwiftPM tests auto-prepare `mlx.metallib` on demand.
-- `scripts/build.sh` is the scripted release-build entrypoint for the packaged CLI path.
+- `scripts/build.sh` is the Xcode/xcodebuild production build entrypoint (and will attempt to download the Metal toolchain when missing).
 - CLI and app support local OCR for images and PDFs.
 - Non-layout task presets support `text`, `formula`, `table`, and structured `json`.
 - Layout mode is implemented with PP-DocLayout-V3 -> region OCR -> merged Markdown.
@@ -52,7 +52,7 @@ Build and maintain a fully native macOS GLM-OCR app in Swift using:
   - `README.md`
   - `docs/overview.md`
   - run `swift test`
-  - then reproduce with `swift run GLMOCRCLI --help` or a small example input
+  - then reproduce with the production-built CLI: `scripts/build.sh` then `.build/xcode/Build/Products/Release/GLMOCRCLI --help`
 
 - Runtime / pipeline feature work
   - `docs/architecture.md`
@@ -108,7 +108,8 @@ Build and maintain a fully native macOS GLM-OCR app in Swift using:
 ## Source Of Truth Priority
 
 - Live CLI surface and runnable behavior
-  - `swift run GLMOCRCLI --help`
+  - `scripts/build.sh`
+  - `.build/xcode/Build/Products/Release/GLMOCRCLI --help`
   - current source under `Sources/`
 
 - User-facing workflow and defaults
@@ -136,15 +137,20 @@ Build and maintain a fully native macOS GLM-OCR app in Swift using:
 ## Common Commands
 
 ```bash
+# Development (SwiftPM)
 swift build
 swift test
+scripts/build_mlx_metallib.sh -c debug
 swift run GLMOCRCLI --help
 swift run GLMOCRCLI --download-only
 swift run GLMOCRCLI --input examples/source/page.png > out.md
 swift run GLMOCRCLI --layout --input examples/source/table.png --emit-json out.json > out.md
 swift run GLMOCRApp
-scripts/build_mlx_metallib.sh -c debug
+
+# Production build (xcodebuild)
 scripts/build.sh
+SCHEMES='GLMOCRCLI' scripts/build.sh
+.build/xcode/Build/Products/Release/GLMOCRCLI --help
 scripts/run_examples.sh
 python3 scripts/compare_examples.py --lane both
 git submodule update --init --recursive
@@ -154,9 +160,10 @@ scripts/verify_example_eval.sh
 ## Validation Expectations
 
 - Keep `swift test` green before wrapping up.
-- If you touched CLI docs, flags, or packaging behavior, also run `swift run GLMOCRCLI --help`.
+- If you touched CLI docs, flags, or packaging behavior, also run the production-built CLI: `scripts/build.sh` then `.build/xcode/Build/Products/Release/GLMOCRCLI --help`.
 - If you touched the packaged release path or build docs, run `scripts/build.sh`.
 - MLX-backed SwiftPM tests auto-prepare `mlx.metallib`; use `scripts/build_mlx_metallib.sh -c debug` to prewarm direct SwiftPM runtime experiments or executables.
+- `scripts/build.sh` builds all workspace schemes by default; set `SCHEMES='GLMOCRCLI'` to restrict the build to the CLI.
 - The checked-in CI workflow covers default `swift test` verification and nightly CLI packaging smoke checks. Manual local command discipline remains the pre-merge validation contract.
 - Use opt-in lanes only when the task requires them:
   - `GLMOCR_RUN_GOLDEN=1`
