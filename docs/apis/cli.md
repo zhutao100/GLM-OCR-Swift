@@ -5,6 +5,15 @@
 For the authoritative flag list and current defaults, run:
 
 ```bash
+scripts/build.sh
+CLI=".build/xcode/Build/Products/Release/GLMOCRCLI"
+"$CLI" --help
+```
+
+SwiftPM development runs are also supported, but on a clean checkout you may need to prepare `mlx.metallib` first:
+
+```bash
+scripts/build_mlx_metallib.sh -c debug
 swift run GLMOCRCLI --help
 ```
 
@@ -13,20 +22,23 @@ swift run GLMOCRCLI --help
 OCR an image to Markdown:
 
 ```bash
-swift run GLMOCRCLI --input examples/source/page.png > out.md
+CLI=".build/xcode/Build/Products/Release/GLMOCRCLI"
+"$CLI" --input examples/source/page.png > out.md
 ```
 
 OCR a PDF (all pages by default) and restrict pages explicitly:
 
 ```bash
-swift run GLMOCRCLI --input examples/source/GLM-4.5V_Pages_1_2_3.pdf > out.md
-swift run GLMOCRCLI --input examples/source/GLM-4.5V_Pages_1_2_3.pdf --pages 1-2 > out.md
+CLI=".build/xcode/Build/Products/Release/GLMOCRCLI"
+"$CLI" --input examples/source/GLM-4.5V_Pages_1_2_3.pdf > out.md
+"$CLI" --input examples/source/GLM-4.5V_Pages_1_2_3.pdf --pages 1-2 > out.md
 ```
 
 Download model snapshots without running inference:
 
 ```bash
-swift run GLMOCRCLI --download-only
+CLI=".build/xcode/Build/Products/Release/GLMOCRCLI"
+"$CLI" --download-only
 ```
 
 ## Modes
@@ -49,7 +61,8 @@ swift run GLMOCRCLI --download-only
 Example:
 
 ```bash
-swift run GLMOCRCLI --layout --input examples/source/table.png \
+CLI=".build/xcode/Build/Products/Release/GLMOCRCLI"
+"$CLI" --layout --input examples/source/table.png \
   --emit-json out.blocks.json \
   --emit-ocrdocument-json out.ocrdocument.json > out.md
 ```

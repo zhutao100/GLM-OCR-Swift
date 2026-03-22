@@ -30,21 +30,18 @@ collect_all_tracked_swift_files() {
   git ls-files -z -- '*.swift' 2>/dev/null || true
 }
 
-read_nul_list_into_array() {
-  local -n _out="$1"
-  _out=()
+read_nul_stream_into_array() {
+  # bash 3.2 compatible (no nameref); writes to global `files`.
   while IFS= read -r -d '' f; do
-    _out+=("$f")
+    files+=("$f")
   done
 }
 
 # Prefer staged files (commit flow). If none, fall back to all tracked (manual/all-files flow).
-staged_nul="$(collect_staged_swift_files)"
 declare -a files=()
-if [[ -n "$staged_nul" ]]; then
-  read_nul_list_into_array files < <(printf '%s' "$staged_nul")
-else
-  read_nul_list_into_array files < <(collect_all_tracked_swift_files)
+read_nul_stream_into_array < <(collect_staged_swift_files)
+if [[ "${#files[@]}" -eq 0 ]]; then
+  read_nul_stream_into_array < <(collect_all_tracked_swift_files)
 fi
 
 if [[ "${#files[@]}" -eq 0 ]]; then
@@ -72,8 +69,8 @@ run_in_chunks() {
 run_in_chunks "${SWIFT_FORMAT[@]}" "${format_args[@]}"
 
 # --- autostage (safe) ---
-# pre-commit discourages modifying the staging area :contentReference[oaicite:3]{index=3},
-# but since you want autostage, we must prevent index lock contention.
+# pre-commit discourages modifying the staging area, but since this repo wants autostage,
+# prevent index lock contention.
 git_dir="$(git rev-parse --git-dir)"
 lock_dir="${git_dir}/.swift-format-precommit.lockdir"
 

@@ -15,23 +15,46 @@ Optionally, layout mode runs `PaddlePaddle/PP-DocLayoutV3_safetensors` first to 
 - Swift 6 toolchain (Xcode 16+ recommended)
 - Apple Silicon recommended for performance
 
+## Build from source
+
+For the fast development loop, use SwiftPM:
+
+```bash
+swift test
+scripts/build_mlx_metallib.sh -c debug
+swift run GLMOCRCLI --help
+swift run GLMOCRApp
+```
+
+On a clean checkout, running SwiftPM-built executables (`swift run ...`) can fail if `mlx.metallib` is missing. `scripts/build_mlx_metallib.sh` prepares that SwiftPM metallib.
+
+For production/release builds (the packaged CLI path), use the Xcode/xcodebuild wrapper:
+
+```bash
+scripts/build.sh
+```
+
+`scripts/build.sh` will ensure the Metal toolchain is available and will attempt to install it when missing via `xcodebuild -downloadComponent MetalToolchain`.
+
 ## Quickstart (CLI)
 
 ```bash
 # Show the live CLI contract (source of truth for flags and defaults)
-swift run GLMOCRCLI --help
+scripts/build.sh
+CLI=".build/xcode/Build/Products/Release/GLMOCRCLI"
+"$CLI" --help
 
 # Optional: prefetch the default model snapshots
-swift run GLMOCRCLI --download-only
+"$CLI" --download-only
 
 # Image -> Markdown
-swift run GLMOCRCLI --input examples/source/page.png > out.md
+"$CLI" --input examples/source/page.png > out.md
 
 # PDF -> Markdown (all pages by default)
-swift run GLMOCRCLI --input examples/source/GLM-4.5V_Pages_1_2_3.pdf > out.md
+"$CLI" --input examples/source/GLM-4.5V_Pages_1_2_3.pdf > out.md
 
 # Restrict PDF pages explicitly
-swift run GLMOCRCLI --input examples/source/GLM-4.5V_Pages_1_2_3.pdf --pages 1-2 > out.md
+"$CLI" --input examples/source/GLM-4.5V_Pages_1_2_3.pdf --pages 1-2 > out.md
 ```
 
 Non-layout OCR supports task presets via `--task`: `text`, `formula`, `table`, and `json`.
@@ -41,7 +64,8 @@ Non-layout OCR supports task presets via `--task`: `text`, `formula`, `table`, a
 Layout mode is enabled by default for PDFs and disabled for non-PDF inputs. It is required for JSON exports.
 
 ```bash
-swift run GLMOCRCLI --layout --input examples/source/table.png \
+CLI=".build/xcode/Build/Products/Release/GLMOCRCLI"
+"$CLI" --layout --input examples/source/table.png \
   --emit-json out.blocks.json \
   --emit-ocrdocument-json out.ocrdocument.json > out.md
 ```

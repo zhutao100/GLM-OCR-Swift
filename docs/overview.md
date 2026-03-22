@@ -1,6 +1,6 @@
 # Docs Overview
 
-This folder is the maintained docs entry point for contributors. For the runnable quickstart, start with `README.md`. For the live CLI surface, use `swift run GLMOCRCLI --help`.
+This folder is the maintained docs entry point for contributors. For the runnable quickstart, start with `README.md`. For the live CLI surface, run the production-built binary: `scripts/build.sh` then `.build/xcode/Build/Products/Release/GLMOCRCLI --help` (or use `swift run` after preparing `mlx.metallib`).
 
 ## Current State (verified 2026-03-11)
 
@@ -82,7 +82,7 @@ Treat these folders as reference context. They can describe older repo states an
 
 ## Source Of Truth Priority
 
-1. `swift run GLMOCRCLI --help` and the current source under `Sources/`
+1. `scripts/build.sh` then `.build/xcode/Build/Products/Release/GLMOCRCLI --help` and the current source under `Sources/`
 2. `README.md`
 3. `docs/architecture.md` and ADRs under `docs/decisions/`
 4. active trackers under `docs/dev_plans/`
