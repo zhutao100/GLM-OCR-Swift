@@ -1,5 +1,5 @@
-import DocLayoutAdapter
 import CoreGraphics
+import DocLayoutAdapter
 import VLMRuntimeKit
 import XCTest
 

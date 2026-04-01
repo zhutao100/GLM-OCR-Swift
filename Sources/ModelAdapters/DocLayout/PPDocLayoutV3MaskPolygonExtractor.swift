@@ -50,12 +50,14 @@ enum PPDocLayoutV3MaskPolygonExtractor {
             y2: Int((CGFloat(bbox.y2) * imageSize.height / 1000.0).rounded(.down))
         )
 
-        guard let pixelPolygon = extractPixelPolygon(
-            boxPx: pixelBox,
-            mask: mask,
-            imageSize: (width: Int(imageSize.width), height: Int(imageSize.height)),
-            epsilonRatio: epsilonRatio
-        ) else {
+        guard
+            let pixelPolygon = extractPixelPolygon(
+                boxPx: pixelBox,
+                mask: mask,
+                imageSize: (width: Int(imageSize.width), height: Int(imageSize.height)),
+                epsilonRatio: epsilonRatio
+            )
+        else {
             return nil
         }
 
@@ -515,8 +517,7 @@ enum PPDocLayoutV3MaskPolygonExtractor {
             let dy = endPoint.y - startPoint.y
             let distance = abs((point.x - startPoint.x) * dy - (point.y - startPoint.y) * dx)
             let successiveInnerProduct =
-                (point.x - startPoint.x) * (endPoint.x - point.x) +
-                (point.y - startPoint.y) * (endPoint.y - point.y)
+                (point.x - startPoint.x) * (endPoint.x - point.x) + (point.y - startPoint.y) * (endPoint.y - point.y)
 
             if distance * distance <= 0.5 * eps * (dx * dx + dy * dy) && dx != 0 && dy != 0
                 && successiveInnerProduct >= 0

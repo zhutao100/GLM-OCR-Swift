@@ -15,7 +15,8 @@ public enum VisionJPEG {
     /// - Returns: `RGB8Image` with the same `(width, height)`.
     public static func roundTrip(_ rgb: RGB8Image, quality: Double) throws -> RGB8Image {
         guard rgb.width > 0, rgb.height > 0 else {
-            throw VisionJPEGError.invalidInput(expected: max(rgb.width, 0) * max(rgb.height, 0) * 3, actual: rgb.data.count)
+            throw VisionJPEGError.invalidInput(
+                expected: max(rgb.width, 0) * max(rgb.height, 0) * 3, actual: rgb.data.count)
         }
 
         let expectedBytes = rgb.width * rgb.height * 3

@@ -1,7 +1,6 @@
 import Foundation
-import XCTest
-
 import VLMRuntimeKit
+import XCTest
 
 @testable import GLMOCRAdapter
 

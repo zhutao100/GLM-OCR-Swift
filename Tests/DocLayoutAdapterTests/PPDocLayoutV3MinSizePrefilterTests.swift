@@ -1,6 +1,7 @@
-@testable import DocLayoutAdapter
 import MLX
 import XCTest
+
+@testable import DocLayoutAdapter
 
 final class PPDocLayoutV3MinSizePrefilterTests: MLXTestCase {
     func testMaskLogitsForTinyBoxes_masksInvalidQueriesBeforeSelection() throws {
@@ -10,7 +11,7 @@ final class PPDocLayoutV3MinSizePrefilterTests: MLXTestCase {
             [Float](
                 arrayLiteral:
                     0.5, 0.5, 0.005, 0.006,  // width == min_norm -> invalid (strict > in upstream)
-                    0.5, 0.5, 0.006, 0.006  // valid
+                0.5, 0.5, 0.006, 0.006  // valid
             )
         ).reshaped(1, 2, 4)
 

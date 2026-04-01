@@ -172,7 +172,8 @@ public enum ImageTensorConverter {
     /// Convert an RGB byte buffer into a normalized `[1, H, W, C]` float tensor (channels last).
     ///
     /// - Note: The input must be tightly packed as RGBRGB… with `data.count == width * height * 3`.
-    public static func toTensor(_ rgb: RGB8Image, options: ImageTensorConversionOptions = .init()) throws -> ImageTensor {
+    public static func toTensor(_ rgb: RGB8Image, options: ImageTensorConversionOptions = .init()) throws -> ImageTensor
+    {
         let w = rgb.width
         let h = rgb.height
         guard w > 0, h > 0 else { throw ImageTensorConversionError.invalidRGBDimensions(width: w, height: h) }

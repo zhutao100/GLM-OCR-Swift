@@ -27,8 +27,8 @@ public protocol ModelStore: Sendable {
     ) async throws -> URL
 }
 
-public extension ModelStore {
-    func resolveSnapshotPreferringExisting(
+extension ModelStore {
+    public func resolveSnapshotPreferringExisting(
         _ request: ModelSnapshotRequest,
         explicitSnapshotPath: String? = nil,
         downloadBase: URL? = nil,
@@ -240,7 +240,8 @@ extension HuggingFaceHubModelStore {
 
         for entry in entries {
             guard (try? entry.resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory == true else { continue }
-            let date = (try? entry.resourceValues(forKeys: [.contentModificationDateKey]))?.contentModificationDate
+            let date =
+                (try? entry.resourceValues(forKeys: [.contentModificationDateKey]))?.contentModificationDate
                 ?? Date.distantPast
             if date > bestDate {
                 bestDate = date

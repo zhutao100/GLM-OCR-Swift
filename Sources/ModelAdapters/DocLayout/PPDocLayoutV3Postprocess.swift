@@ -223,8 +223,7 @@ public enum PPDocLayoutV3Postprocess {
 
         // Mirror upstream `filter_large_image` to avoid a full-page "image" box
         // collapsing the merge stage (text gets marked as contained-by-image).
-        if
-            options.filterLargeImage,
+        if options.filterLargeImage,
             let imageSize,
             imageSize.width > 0,
             imageSize.height > 0,
@@ -487,18 +486,18 @@ private func isContained(_ box: OCRNormalizedBBox, in container: OCRNormalizedBB
     let y1 = Float(box.y1)
     let x2 = Float(box.x2)
     let y2 = Float(box.y2)
-    let X1 = Float(container.x1)
-    let Y1 = Float(container.y1)
-    let X2 = Float(container.x2)
-    let Y2 = Float(container.y2)
+    let containerX1 = Float(container.x1)
+    let containerY1 = Float(container.y1)
+    let containerX2 = Float(container.x2)
+    let containerY2 = Float(container.y2)
 
     let boxArea = max(0, x2 - x1) * max(0, y2 - y1)
     guard boxArea > 0 else { return false }
 
-    let xi1 = max(x1, X1)
-    let yi1 = max(y1, Y1)
-    let xi2 = min(x2, X2)
-    let yi2 = min(y2, Y2)
+    let xi1 = max(x1, containerX1)
+    let yi1 = max(y1, containerY1)
+    let xi2 = min(x2, containerX2)
+    let yi2 = min(y2, containerY2)
 
     let interW = max(0, xi2 - xi1)
     let interH = max(0, yi2 - yi1)

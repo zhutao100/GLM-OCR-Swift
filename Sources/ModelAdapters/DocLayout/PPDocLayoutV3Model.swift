@@ -47,10 +47,6 @@ public struct PPDocLayoutV3Model: Sendable {
 
     private let state: State
 
-    private init(state: State) {
-        self.state = state
-    }
-
     public static func load(from modelFolder: URL, weightsDTypeOverride: DType? = nil) throws -> PPDocLayoutV3Model {
         guard modelFolder.isFileURL else { throw PPDocLayoutV3ModelError.invalidModelFolder(modelFolder) }
         var isDirectory: ObjCBool = false

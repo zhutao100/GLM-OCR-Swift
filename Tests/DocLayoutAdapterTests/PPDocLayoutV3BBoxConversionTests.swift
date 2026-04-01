@@ -1,6 +1,7 @@
-@testable import DocLayoutAdapter
 import VLMRuntimeKit
 import XCTest
+
+@testable import DocLayoutAdapter
 
 final class PPDocLayoutV3BBoxConversionTests: XCTestCase {
     func testToNormalizedBBox_usesTruncationForAllEdges() throws {

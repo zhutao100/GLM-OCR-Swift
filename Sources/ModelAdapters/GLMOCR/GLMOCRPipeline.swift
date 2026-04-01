@@ -178,7 +178,9 @@ public actor GLMOCRPipeline: OCRPipeline {
         let config = model.config
 
         var normalizationStats: GLMOCRNormalizationStats?
-        if let folder = modelFolder, let loaded = try? GLMOCRPreprocessorConfigLoader.loadNormalizationStats(from: folder) {
+        if let folder = modelFolder,
+            let loaded = try? GLMOCRPreprocessorConfigLoader.loadNormalizationStats(from: folder)
+        {
             normalizationStats = loaded
         }
 
