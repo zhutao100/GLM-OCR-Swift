@@ -124,7 +124,9 @@ extension VisionIO {
         }
         thresholdFilter.setValue(image, forKey: kCIInputImageKey)
         thresholdFilter.setValue(threshold, forKey: "inputThreshold")
-        guard let thresholded = thresholdFilter.outputImage else { throw VisionMonochromeThresholdError.cannotThreshold }
+        guard let thresholded = thresholdFilter.outputImage else {
+            throw VisionMonochromeThresholdError.cannotThreshold
+        }
 
         let cropped = thresholded.cropped(to: extent)
         guard options.morphology != .none, options.morphologyRadius > 0 else { return cropped }

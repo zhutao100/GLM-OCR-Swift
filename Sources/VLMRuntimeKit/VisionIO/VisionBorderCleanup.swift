@@ -132,7 +132,8 @@ extension VisionIO {
     }
 
     /// Apply a previously proposed border cleanup crop to the given image.
-    public static func applyBorderCleanupCrop(_ image: CIImage, proposal: VisionBorderCleanupProposal) throws -> CIImage {
+    public static func applyBorderCleanupCrop(_ image: CIImage, proposal: VisionBorderCleanupProposal) throws -> CIImage
+    {
         try cropRegion(image: image, bbox: proposal.bbox, polygon: nil, fillColor: .white)
     }
 
@@ -235,7 +236,8 @@ extension VisionIO {
         let (leftThickness, leftTone) = BorderStats.pickTone(dark: left, light: leftLight, minBorder: minBorderX)
         let (rightThickness, rightTone) = BorderStats.pickTone(dark: right, light: rightLight, minBorder: minBorderX)
         let (topThickness, topTone) = BorderStats.pickTone(dark: top, light: topLight, minBorder: minBorderY)
-        let (bottomThickness, bottomTone) = BorderStats.pickTone(dark: bottom, light: bottomLight, minBorder: minBorderY)
+        let (bottomThickness, bottomTone) = BorderStats.pickTone(
+            dark: bottom, light: bottomLight, minBorder: minBorderY)
 
         let hasAnyBorder = leftThickness > 0 || rightThickness > 0 || topThickness > 0 || bottomThickness > 0
         guard hasAnyBorder else { return nil }
