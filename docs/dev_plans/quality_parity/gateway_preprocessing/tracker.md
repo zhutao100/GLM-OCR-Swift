@@ -44,7 +44,7 @@ A candidate is accepted only when:
 **Implementation**
 
 - Manifest: `docs/dev_plans/quality_parity/gateway_preprocessing/degraded_lane_manifest.json`
-- Generator: `scripts/gateway_preprocessing_generate_degraded_lane.py`
+- Generator: `scripts/python/gateway_preprocessing_generate_degraded_lane.py`
 - Runner + scorer: `scripts/verify_gateway_preprocessing_degraded_lane.sh`
 
 **Exit criteria**

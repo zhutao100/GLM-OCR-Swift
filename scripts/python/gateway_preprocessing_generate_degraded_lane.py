@@ -18,7 +18,7 @@ try:
 except ModuleNotFoundError as exc:  # pragma: no cover
     raise SystemExit(
         "Missing dependencies. Run with the repo's Python env, e.g.\n"
-        "  PYENV_VERSION=venv313 pyenv exec python3 scripts/gateway_preprocessing_generate_degraded_lane.py\n"
+        "  PYENV_VERSION=venv313 pyenv exec python3 scripts/python/gateway_preprocessing_generate_degraded_lane.py\n"
         f"Original error: {exc}"
     ) from exc
 

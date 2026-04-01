@@ -30,7 +30,7 @@ generation_preset=""
 download_base=""
 
 root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-. "$root_dir/scripts/_parity_defaults.sh"
+. "$root_dir/scripts/lib/_parity_defaults.sh"
 
 glm_model="$PARITY_GLM_MODEL_ID"
 glm_revision="$PARITY_GLM_REVISION"
@@ -83,7 +83,7 @@ fi
 
 echo "==> Generating degraded lane repo…"
 PYENV_VERSION=venv313 pyenv exec python3 \
-  "$root_dir/scripts/gateway_preprocessing_generate_degraded_lane.py" \
+  "$root_dir/scripts/python/gateway_preprocessing_generate_degraded_lane.py" \
   --repo-root "$root_dir" \
   --out-root "$lane_root"
 
@@ -205,7 +205,7 @@ echo "==> Scoring degraded lane…"
 uv run --project "$root_dir/tools/example_eval" example-eval evaluate --repo-root "$lane_root" --out-dir "$eval_out_dir"
 
 echo "==> Aggregating by defect family…"
-python3 "$root_dir/scripts/gateway_preprocessing_summarize_degraded_lane_eval.py" \
+python3 "$root_dir/scripts/python/gateway_preprocessing_summarize_degraded_lane_eval.py" \
   --lane-root "$lane_root" \
   --summary-json "$eval_out_dir/summary.json" \
   --out-md "$eval_out_dir/degraded_lane_summary.md"
@@ -216,7 +216,7 @@ if [[ -n "$baseline_label" ]]; then
     echo "Missing baseline summary.json: $baseline_summary" >&2
     exit 1
   fi
-  python3 "$root_dir/scripts/gateway_preprocessing_summarize_degraded_lane_eval.py" \
+  python3 "$root_dir/scripts/python/gateway_preprocessing_summarize_degraded_lane_eval.py" \
     --lane-root "$lane_root" \
     --summary-json "$eval_out_dir/summary.json" \
     --baseline-summary-json "$baseline_summary" \
