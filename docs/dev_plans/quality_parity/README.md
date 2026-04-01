@@ -8,7 +8,7 @@
 
 - Improve the hard examples that still trail the desired contract, especially `code`, `page`, and dense mixed-layout/formula pages.
 - Keep `examples/result/*` and `examples/eval_records/latest/*` refreshed together when the accepted baseline changes.
-- Preserve the pinned parity contract from `scripts/_parity_defaults.sh`.
+- Preserve the pinned parity contract from `scripts/lib/_parity_defaults.sh`.
 - Keep the stable subset protected by opt-in tests while the broader corpus stays on the report-only evaluation lane.
 - Use the focused hard-example tracker for the current preprocessing/runtime investigation:
   - `hard_examples_code_page/README.md`

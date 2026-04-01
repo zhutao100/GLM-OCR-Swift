@@ -4,10 +4,7 @@ set -euo pipefail
 echo "==> Swift toolchain:"
 swift --version
 
-echo "==> Building..."
-swift build
-
-echo "==> Testing..."
-swift test
+echo "==> Building & Testing..."
+scripts/verify_fast.sh
 
 echo "Done."

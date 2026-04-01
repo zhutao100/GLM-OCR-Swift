@@ -39,7 +39,7 @@ The agent report header also records the `glm_snapshot`, `layout_snapshot`, and 
 
 ## Baseline semantics (how deltas work)
 
-`scripts/example_eval_record.py` reads the baseline summary from git using:
+`scripts/python/example_eval_record.py` reads the baseline summary from git using:
 
 ```text
 git show <baseline-ref>:examples/eval_records/latest/summary.json

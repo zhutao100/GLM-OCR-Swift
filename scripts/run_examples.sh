@@ -24,7 +24,7 @@ Options:
 Notes:
   - Ensures mlx.metallib exists in the SwiftPM bin directory for the chosen -c profile.
   - PDFs default to OCR’ing all pages (use GLMOCRCLI --pages to restrict).
-  - The defaults come from the checked-in parity contract in `scripts/_parity_defaults.sh`.
+  - The defaults come from the checked-in parity contract in `scripts/lib/_parity_defaults.sh`.
 EOF
 }
 
@@ -38,7 +38,7 @@ generation_preset=""
 download_base=""
 
 root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-. "$root_dir/scripts/_parity_defaults.sh"
+. "$root_dir/scripts/lib/_parity_defaults.sh"
 
 glm_model="$PARITY_GLM_MODEL_ID"
 glm_revision="$PARITY_GLM_REVISION"
@@ -88,7 +88,7 @@ esac
 
 cd "$root_dir"
 
-. "$root_dir/scripts/_examples_fingerprint.sh"
+. "$root_dir/scripts/lib/_examples_fingerprint.sh"
 
 src_dir="$root_dir/examples/source"
 out_root="$root_dir/examples/result"
@@ -201,7 +201,7 @@ write_run_meta() {
     meta_args+=(--skipped "$f")
   done
 
-  python3 "$root_dir/scripts/write_run_examples_meta.py" "${meta_args[@]}"
+  python3 "$root_dir/scripts/python/write_run_examples_meta.py" "${meta_args[@]}"
 }
 
 echo "==> Running examples from: $src_dir"

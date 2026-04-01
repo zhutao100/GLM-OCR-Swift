@@ -5,13 +5,13 @@ By default, `swift test` **does not** require these fixtures.
 To generate the PP-DocLayoutV3 forward-pass golden fixture:
 
 ```bash
-python3 scripts/generate_ppdoclayoutv3_golden.py --model-folder "$LAYOUT_SNAPSHOT_PATH" --device mps
+python3 scripts/python/generate_ppdoclayoutv3_golden.py --model-folder "$LAYOUT_SNAPSHOT_PATH" --device mps
 ```
 
 To generate a CPU/float32 fixture (useful to separate dtype vs porting issues):
 
 ```bash
-PYENV_VERSION=venv313 pyenv exec python3 scripts/generate_ppdoclayoutv3_golden.py \
+PYENV_VERSION=venv313 pyenv exec python3 scripts/python/generate_ppdoclayoutv3_golden.py \
   --model-folder "$LAYOUT_SNAPSHOT_PATH" \
   --device cpu \
   --out Tests/DocLayoutAdapterTests/Fixtures/ppdoclayoutv3_forward_golden_cpu_float32_v1.json
@@ -22,7 +22,7 @@ To generate CPU/float32 intermediate parity fixtures:
 - v3 (pre-decoder intermediates)
 
 ```bash
-PYENV_VERSION=venv313 pyenv exec python3 scripts/generate_ppdoclayoutv3_golden.py \
+PYENV_VERSION=venv313 pyenv exec python3 scripts/python/generate_ppdoclayoutv3_golden.py \
   --model-folder "$LAYOUT_SNAPSHOT_PATH" \
   --device cpu \
   --include-intermediates \
@@ -32,7 +32,7 @@ PYENV_VERSION=venv313 pyenv exec python3 scripts/generate_ppdoclayoutv3_golden.p
 - v4 (decoder layer-0 intermediates)
 
 ```bash
-PYENV_VERSION=venv313 pyenv exec python3 scripts/generate_ppdoclayoutv3_golden.py \
+PYENV_VERSION=venv313 pyenv exec python3 scripts/python/generate_ppdoclayoutv3_golden.py \
   --model-folder "$LAYOUT_SNAPSHOT_PATH" \
   --device cpu \
   --include-decoder-intermediates \

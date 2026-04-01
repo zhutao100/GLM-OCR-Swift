@@ -2,7 +2,7 @@
 
 **Goal:** define the parity target precisely enough that future work can say whether a behavior is intentionally different, still drifting, or already faithful.
 
-**Status (2026-03-06):** completed. The parity contract is now explicit in the tracker, pinned in `scripts/_parity_defaults.sh`, and threaded through the example-eval records.
+**Status (2026-03-06):** completed. The parity contract is now explicit in the tracker, pinned in `scripts/lib/_parity_defaults.sh`, and threaded through the example-eval records.
 
 ---
 

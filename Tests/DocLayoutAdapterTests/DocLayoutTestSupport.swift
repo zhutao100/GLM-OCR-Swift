@@ -1,10 +1,9 @@
 import CoreGraphics
 import CoreImage
+import DocLayoutAdapter
 import Foundation
 import VLMRuntimeKit
 import XCTest
-
-import DocLayoutAdapter
 
 private struct SwiftPMPreparationError: LocalizedError {
     let message: String
@@ -120,7 +119,7 @@ enum DocLayoutTestEnv {
         guard let url = Bundle.module.url(forResource: name, withExtension: "json") else {
             throw XCTSkip(
                 "Golden fixture '\(name).json' not found in test bundle. "
-                    + "Generate it via scripts/generate_ppdoclayoutv3_golden.py and place it under Tests/DocLayoutAdapterTests/Fixtures/.",
+                    + "Generate it via scripts/python/generate_ppdoclayoutv3_golden.py and place it under Tests/DocLayoutAdapterTests/Fixtures/.",
                 file: file,
                 line: line
             )

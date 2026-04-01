@@ -214,7 +214,7 @@ Useful lanes:
 For crop-level backend A/B work on the hard examples, use the internal debug executable. It resolves `GLMOCR_SNAPSHOT_PATH` / `LAYOUT_SNAPSHOT_PATH` first, then falls back to the local HF cache before downloading.
 
 ```bash
-source scripts/_parity_defaults.sh
+source scripts/lib/_parity_defaults.sh
 swift run GLMOCRPreprocessDebugCLI \
   --input examples/source/code.png \
   --output-dir .build/hard_example_probes/code \
@@ -231,7 +231,7 @@ The tool writes `manifest.json` plus per-region resized RGB PNGs so backend deci
 To localize drift before touching logits/boxes, generate a CPU/float32 fixture with intermediate scalar samples:
 
 ```bash
-PYENV_VERSION=venv313 pyenv exec python3 scripts/generate_ppdoclayoutv3_golden.py \
+PYENV_VERSION=venv313 pyenv exec python3 scripts/python/generate_ppdoclayoutv3_golden.py \
   --model-folder "$LAYOUT_SNAPSHOT_PATH" \
   --device cpu \
   --include-intermediates \
@@ -247,8 +247,8 @@ LAYOUT_RUN_GOLDEN=1 swift test --filter PPDocLayoutV3IntermediateParityIntegrati
 ## Practical checklist (when adding or updating a golden fixture)
 
 1. Generate the fixture from the reference stack:
-   - GLM-OCR: `scripts/generate_glmocr_golden.py`
-   - PP-DocLayout-V3: `scripts/generate_ppdoclayoutv3_golden.py`
+   - GLM-OCR: `scripts/python/generate_glmocr_golden.py`
+   - PP-DocLayout-V3: `scripts/python/generate_ppdoclayoutv3_golden.py`
 2. Ensure the fixture metadata records enough to reproduce:
    - snapshot hash, prompt, preprocessing config summary
    - device + dtype (and any forced-float32 blocks); if not embedded in JSON, ensure it is printed/logged by the generator script output.

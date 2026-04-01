@@ -50,7 +50,7 @@ This is your “before” checkpoint.
 ## 2) Add a new “fixture v3” with intermediate slices (Python generator)
 You chose “Add fixture v3 slices”, so implement this as the primary localization tool.
 
-### 2.1 Extend `scripts/generate_ppdoclayoutv3_golden.py`
+### 2.1 Extend `scripts/python/generate_ppdoclayoutv3_golden.py`
 Add flags:
 - `--include-intermediates` (bool)
 - (optional) `--fixture-version v3` or auto-bump when intermediates included
@@ -107,7 +107,7 @@ Fix (now implemented): call the encoder with a copy:
 
 ### 2.2 Generate the CPU/float32 v3 fixture
 Command (explicit):
-- `PYENV_VERSION=venv313 pyenv exec python3 scripts/generate_ppdoclayoutv3_golden.py --model-folder \"$LAYOUT_SNAPSHOT_PATH\" --device cpu --include-intermediates --out Tests/DocLayoutAdapterTests/Fixtures/ppdoclayoutv3_forward_golden_cpu_float32_v3.json`
+- `PYENV_VERSION=venv313 pyenv exec python3 scripts/python/generate_ppdoclayoutv3_golden.py --model-folder \"$LAYOUT_SNAPSHOT_PATH\" --device cpu --include-intermediates --out Tests/DocLayoutAdapterTests/Fixtures/ppdoclayoutv3_forward_golden_cpu_float32_v3.json`
 
 ---
 

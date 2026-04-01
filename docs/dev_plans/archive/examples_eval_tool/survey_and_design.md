@@ -2,7 +2,7 @@
 
 **Objective:** provide a scored evaluation loop for `examples/result/*` vs `examples/reference_result/*` (parity) and `examples/golden_result/*` (quality), without relying solely on raw diffs.
 
-**Status (2026-03-04):** implemented as the `tools/example_eval/` sub-project. `scripts/compare_examples.py` remains the low-level diff tool.
+**Status (2026-03-04):** implemented as the `tools/example_eval/` sub-project. `scripts/python/compare_examples.py` remains the low-level diff tool.
 
 For usage/configuration, start at `tools/example_eval/README.md`. The remainder of this document captures the original survey/design rationale and may include ideas not implemented verbatim.
 
@@ -24,7 +24,7 @@ So the recommendation is:
 
 **Do not** use raw unified diffs or `SequenceMatcher` as the final quality score.
 
-Keep the current `scripts/compare_examples.py` as a **diagnostic diff tool**, but add a new scorer that produces:
+Keep the current `scripts/python/compare_examples.py` as a **diagnostic diff tool**, but add a new scorer that produces:
 
 * a **continuous parity score**
 * a **golden-adjudicated final score**
@@ -44,7 +44,7 @@ From this repo:
   * `reference_result/` is the upstream mirrored parity target
   * `golden_result/` is the human-verified baseline
   * `reference_result_notes/` already contains adjudication hints
-* `scripts/compare_examples.py` is useful, but it is still mostly **match/diff/missing** logic with some JSON tolerance checks, not a real scorer.
+* `scripts/python/compare_examples.py` is useful, but it is still mostly **match/diff/missing** logic with some JSON tolerance checks, not a real scorer.
 * `golden_result/GLM-4.5V_Page_1/` is currently missing, so the quality lane is incomplete for one PDF sample.
 
 That means the right design is **not** “replace everything.” It is:

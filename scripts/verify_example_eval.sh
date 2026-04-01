@@ -45,7 +45,7 @@ fi
 root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$root_dir"
 
-. "$root_dir/scripts/_examples_fingerprint.sh"
+. "$root_dir/scripts/lib/_examples_fingerprint.sh"
 
 if [[ ! -f tools/example_eval/pyproject.toml ]]; then
   echo "Missing tools/example_eval submodule. Run:" >&2
@@ -124,7 +124,7 @@ PY
 fi
 
 uv run --project tools/example_eval example-eval evaluate --repo-root .
-python3 scripts/example_eval_record.py --repo-root "$root_dir" --baseline-ref "$baseline_ref"
+python3 scripts/python/example_eval_record.py --repo-root "$root_dir" --baseline-ref "$baseline_ref"
 
 echo "OK: recorded under examples/eval_records/latest/"
 echo "  - examples/eval_records/latest/agent_report.md"

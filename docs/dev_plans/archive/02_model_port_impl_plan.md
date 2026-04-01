@@ -212,7 +212,7 @@ Add an opt-in integration test:
   - assert logits shape and a small numeric slice against golden fixture data (`Tests/GLMOCRAdapterTests/Fixtures/glmocr_forward_golden_v1.json`).
   - parity hygiene (dtype/device alignment, intermediate debugging): see `docs/golden_checks.md`.
 
-Add `scripts/generate_glmocr_golden.py` (manual workflow, not run by CI):
+Add `scripts/python/generate_glmocr_golden.py` (manual workflow, not run by CI):
 - Uses Python + `transformers` to:
   - load the same snapshot weights
   - build a deterministic synthetic RGB image and run it through the official `Glm46VImageProcessor` to produce `pixel_values` + `image_grid_thw`
@@ -241,4 +241,4 @@ Add `scripts/generate_glmocr_golden.py` (manual workflow, not run by CI):
 1. `swift test` (must pass; golden test is skipped by default)
 2. `swift run GLMOCRCLI --download-only` (ensures snapshot exists)
 3. `swift run GLMOCRCLI --dev-forward-pass` (prints logits shape + top-k ids)
-4. (Optional) `GLMOCR_SNAPSHOT_PATH=<path> GLMOCR_RUN_GOLDEN=1 swift test` after generating fixtures via `scripts/generate_glmocr_golden.py`
+4. (Optional) `GLMOCR_SNAPSHOT_PATH=<path> GLMOCR_RUN_GOLDEN=1 swift test` after generating fixtures via `scripts/python/generate_glmocr_golden.py`

@@ -1,8 +1,7 @@
 import Foundation
+import GLMOCRAdapter
 import VLMRuntimeKit
 import XCTest
-
-import GLMOCRAdapter
 
 private struct SwiftPMPreparationError: LocalizedError {
     let message: String
@@ -126,7 +125,7 @@ enum GLMOCRTestEnv {
         guard let url = Bundle.module.url(forResource: name, withExtension: "json") else {
             throw XCTSkip(
                 "Golden fixture '\(name).json' not found in test bundle. "
-                    + "Generate it via scripts/generate_glmocr_golden.py and place it under Tests/GLMOCRAdapterTests/Fixtures/.",
+                    + "Generate it via scripts/python/generate_glmocr_golden.py and place it under Tests/GLMOCRAdapterTests/Fixtures/.",
                 file: file,
                 line: line
             )

@@ -78,7 +78,7 @@ The default CLI revisions may continue to follow `main`, but parity work should 
 | GLM-OCR snapshot | `zai-org/GLM-OCR@677c6baa60442a451f8a8c7eabdfab32d9801a0b` |
 | PP-DocLayout-V3 snapshot | `PaddlePaddle/PP-DocLayoutV3_safetensors@a0abee1e2bb505e5662993235af873a5d89851e3` |
 | generation preset | `parity-greedy-v1` |
-| contract source | `scripts/_parity_defaults.sh` |
+| contract source | `scripts/lib/_parity_defaults.sh` |
 
 **Required recorded inputs for parity runs**
 

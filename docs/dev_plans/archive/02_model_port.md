@@ -40,7 +40,7 @@ scripts/build_mlx_metallib.sh -c debug
 - Forward pass smoke (also requires `mlx.metallib`):
   - `GLMOCR_SNAPSHOT_PATH=<path> GLMOCR_TEST_RUN_FORWARD_PASS=1 swift test`
 - Python/Transformers parity golden (also requires `mlx.metallib`):
-  - `python3 scripts/generate_glmocr_golden.py --model-folder <path>`
+  - `python3 scripts/python/generate_glmocr_golden.py --model-folder <path>`
   - `GLMOCR_SNAPSHOT_PATH=<path> GLMOCR_RUN_GOLDEN=1 swift test`
 
 Parity notes:

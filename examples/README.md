@@ -27,5 +27,5 @@ This folder holds the checked-in example corpus plus the artifact families used 
 
 - Run `scripts/verify_example_eval.sh` before accepting `examples/result/*` changes.
 - Refresh `examples/eval_records/latest/*` in the same commit as accepted `examples/result/*` updates so the evidence stays attached.
-- Treat `scripts/_parity_defaults.sh` as the checked-in parity contract for model revisions and the parity preset.
+- Treat `scripts/lib/_parity_defaults.sh` as the checked-in parity contract for model revisions and the parity preset.
 - Use `GLMOCR_RUN_EXAMPLES=1 swift test --filter LayoutExamplesParityIntegrationTests` to exercise the current protected subset (`GLM-4.5V_Page_1` PDF and `table` PNG).

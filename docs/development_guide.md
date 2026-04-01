@@ -102,7 +102,7 @@ scripts/run_examples.sh
 Report diffs against checked-in baselines:
 
 ```bash
-python3 scripts/compare_examples.py --lane both
+python3 scripts/python/compare_examples.py --lane both
 ```
 
 For scored evaluation, initialize the evaluator submodule first if needed:

@@ -1,9 +1,20 @@
-.DS_Store
+# Build products
 .build/
 .swiftpm/
-*.xcodeproj/
-xcuserdata/
 DerivedData/
+artifacts/
+*.xcresult/
+*.xcodeproj/
 *.xcuserstate
-*.swp
+
+# Local env / secrets
 .env
+
+# Logs
+*.log
+
+# macOS
+.DS_Store
+
+# Xcode project user data
+xcuserdata/

@@ -89,7 +89,7 @@ PY
 ```bash
 export LAYOUT_SNAPSHOT_PATH="$HOME/.cache/huggingface/hub/models--PaddlePaddle--PP-DocLayoutV3_safetensors/snapshots/a0abee1e2bb505e5662993235af873a5d89851e3"
 
-PYENV_VERSION=venv313 pyenv exec python3 scripts/generate_ppdoclayoutv3_golden.py \
+PYENV_VERSION=venv313 pyenv exec python3 scripts/python/generate_ppdoclayoutv3_golden.py \
   --model-folder "$LAYOUT_SNAPSHOT_PATH" \
   --device cpu \
   --include-intermediates \
@@ -99,7 +99,7 @@ PYENV_VERSION=venv313 pyenv exec python3 scripts/generate_ppdoclayoutv3_golden.p
 For decoder layer-0 internal probes (fixture v4):
 
 ```bash
-PYENV_VERSION=venv313 pyenv exec python3 scripts/generate_ppdoclayoutv3_golden.py \
+PYENV_VERSION=venv313 pyenv exec python3 scripts/python/generate_ppdoclayoutv3_golden.py \
   --model-folder "$LAYOUT_SNAPSHOT_PATH" \
   --device cpu \
   --include-decoder-intermediates \
@@ -129,7 +129,7 @@ Root cause:
 - In the Python golden generator, we passed the `proj_feats` list directly into `model_core.encoder(...)`.
 - That mutated `proj_feats`, so later we accidentally recorded **post-encoder** tensors under names like `encoder_input_proj.2`.
 
-Fix (now implemented in `scripts/generate_ppdoclayoutv3_golden.py`):
+Fix (now implemented in `scripts/python/generate_ppdoclayoutv3_golden.py`):
 
 - Call the encoder with a copy: `model_core.encoder(list(proj_feats), x4_feat)`
 - Keep `proj_feats` as the stable “pre-encoder input projection outputs” for intermediate sampling.

@@ -71,7 +71,7 @@ Similar deficits existed for:
 
 This was corroborated by the repo’s report harness:
 
-- `python3 scripts/compare_examples.py --lane both` (pre-fix) produced:
+- `python3 scripts/python/compare_examples.py --lane both` (pre-fix) produced:
   - `paper`: `blocks expected/actual: 30/19`, multiple `label mismatch expected='formula' actual='text'`
   - `table`: `label mismatch expected='table' actual='text'` (content OK but schema label wrong)
 
@@ -137,7 +137,7 @@ The “examples-compatible” JSON export (`OCRDocument.toBlockListExport()`) pr
 even though `examples/reference_result/*/*.json` uses `"table"` and `"formula"` labels.
 
 #### Evidence (investigation)
-- Pre-fix `scripts/compare_examples.py` showed (for `table.json`): `label mismatch expected='table' actual='text'` while content matched.
+- Pre-fix `scripts/python/compare_examples.py` showed (for `table.json`): `label mismatch expected='table' actual='text'` while content matched.
 - Code inspection confirmed `canonicalLabel(for:)` returned `"text"` for all non-image kinds.
 
 #### Fix applied
@@ -265,7 +265,7 @@ PY
 
 ### Generate full parity/quality report (repo harness)
 ```bash
-python3 scripts/compare_examples.py --lane both
+python3 scripts/python/compare_examples.py --lane both
 ```
 
 ---

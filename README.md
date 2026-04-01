@@ -20,7 +20,7 @@ Optionally, layout mode runs `PaddlePaddle/PP-DocLayoutV3_safetensors` first to 
 For the fast development loop, use SwiftPM:
 
 ```bash
-swift test
+scripts/verify_fast.sh
 scripts/build_mlx_metallib.sh -c debug
 swift run GLMOCRCLI --help
 swift run GLMOCRApp
