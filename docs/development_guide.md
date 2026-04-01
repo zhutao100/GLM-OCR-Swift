@@ -89,6 +89,16 @@ For distribution, also ship `default.metallib` next to the CLI binary. It is pro
 
 - `mlx-swift_Cmlx.bundle/Contents/Resources/default.metallib`
 
+### One-shot release artifacts (CLI + App)
+
+To build and package all external-facing release artifacts (CLI zip + App zip) in one command:
+
+```bash
+scripts/release_artifacts.sh
+```
+
+By default, artifacts are written to `artifacts/release/<stamp>/` (gitignored). See `scripts/release_artifacts.sh --help` for overrides.
+
 ## Examples and evaluation tooling
 
 This repo includes a checked-in example corpus under `examples/source/` and tooling to regenerate outputs and compare against baselines.

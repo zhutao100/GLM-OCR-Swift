@@ -36,6 +36,12 @@ scripts/build.sh
 
 `scripts/build.sh` will ensure the Metal toolchain is available and will attempt to install it when missing via `xcodebuild -downloadComponent MetalToolchain`.
 
+To build and package the external-facing release artifacts (CLI + App zips) in one shot:
+
+```bash
+scripts/release_artifacts.sh
+```
+
 ## Quickstart (CLI)
 
 ```bash
