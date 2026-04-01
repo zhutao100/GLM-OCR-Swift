@@ -136,4 +136,24 @@ Snapshot-backed tests will prefer local snapshots when provided:
 
 ## Formatting
 
-Swift formatting is driven by `.swift-format` and the repo hook script `scripts/precommit_swift_format_autostage.sh` (also wired through `.pre-commit-config.yaml`).
+This repo uses `prek` (a `pre-commit`-compatible runner) with `.pre-commit-config.yaml`.
+
+One-time setup:
+
+```bash
+brew install prek
+git config core.hooksPath .githooks
+prek prepare-hooks
+```
+
+The committed `.githooks/pre-commit` hook is a self-healing shim: it runs `prek run` on the staged set, auto-stages autofixes,
+and retries until stable.
+
+Manual runs:
+
+```bash
+prek run
+prek run --all-files
+```
+
+Swift formatting is driven by `.swift-format` and the repo hook script `scripts/precommit_swift_format_autostage.sh`.

@@ -179,7 +179,8 @@ scripts/verify_example_eval.sh
 - Default to `Sendable` value types and use `actor` for mutable shared state.
 - Prefer typed errors over `fatalError` unless the failure is genuinely unrecoverable.
 - Keep `VLMRuntimeKit` free of GLM-OCR- or PP-DocLayout-V3-specific policy.
-- Swift formatting is driven by `.swift-format` and the repo hook in `scripts/precommit_swift_format_autostage.sh`, wired through `.pre-commit-config.yaml`.
+- Git hooks run via `prek` and `.pre-commit-config.yaml`, routed through the self-healing `.githooks/pre-commit` shim (set once per clone: `git config core.hooksPath .githooks`).
+- Swift formatting is driven by `.swift-format` and `scripts/precommit_swift_format_autostage.sh`.
 - When working with MLX tensors:
   - avoid compound assignment unless non-aliasing is proven
   - prefer out-of-place residual updates such as `x = x + y`
