@@ -4,9 +4,15 @@ on:
   pull_request:
   push:
     branches: [main]
+    tags:
+      - 'v*'
 
 permissions:
   contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
@@ -28,8 +34,15 @@ jobs:
       - name: Run SwiftPM tests
         run: ./scripts/verify_fast.sh
 
+      - name: Upload verify logs (failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verify-logs
+          path: artifacts/logs
+
   release:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
     needs: test
     runs-on: macos-15
     permissions:
@@ -48,25 +61,26 @@ jobs:
           xcodebuild -version
           swift --version
 
-      - name: Enable PrepareMetalShaders plugin
-        run: defaults write com.apple.dt.Xcode IDESkipPackagePluginFingerprintValidation -bool YES
-
-      - name: Build
-        run: DERIVED_DATA_PATH=./dist ./scripts/build.sh
-
-      - name: Prepare Artifacts
-        run: |
-          cd ./dist/Build/Products/Release
-          chmod +x GLMOCRCLI
-          cp mlx-swift_Cmlx.bundle/Contents/Resources/default.metallib .
-          ./GLMOCRCLI --help >/tmp/glmocr-cli-help.txt 2>/tmp/glmocr-cli-help.err
-          test -f default.metallib
-          zip -r glmocr.macos.arm64.zip GLMOCRCLI default.metallib
+      - name: Build + package artifacts
+        env:
+          DERIVED_DATA_PATH: ./dist
+          OUT_DIR: ./dist-artifacts
+          STAMP: ${{ github.ref == 'refs/heads/main' && 'nightly' || github.ref_name }}
+          SKIP_VERIFY: '1'
+        run: ./scripts/release_artifacts.sh
 
       - name: Get current date
+        if: github.ref == 'refs/heads/main'
         run: echo "CURRENT_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
 
-      - name: Create GitHub Release
+      - name: Upload packaged artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-artifacts
+          path: ./dist-artifacts/${{ github.ref == 'refs/heads/main' && 'nightly' || github.ref_name }}
+
+      - name: Create nightly GitHub Release
+        if: github.ref == 'refs/heads/main'
         uses: ncipollo/release-action@v1
         env:
           CURRENT_DATE: ${{ env.CURRENT_DATE }}
@@ -76,5 +90,19 @@ jobs:
           draft: false
           prerelease: true
           allowUpdates: true
-          artifacts: ./dist/Build/Products/Release/glmocr.macos.arm64.zip
+          artifacts: ./dist-artifacts/nightly/*.zip,./dist-artifacts/nightly/SHA256SUMS.txt
+          artifactErrorsFailBuild: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create tag GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ github.ref_name }}
+          name: "Release ${{ github.ref_name }}"
+          draft: false
+          prerelease: false
+          allowUpdates: false
+          artifacts: ./dist-artifacts/${{ github.ref_name }}/*.zip,./dist-artifacts/${{ github.ref_name }}/SHA256SUMS.txt
+          artifactErrorsFailBuild: true
           token: ${{ secrets.GITHUB_TOKEN }}
