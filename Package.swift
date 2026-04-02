@@ -97,7 +97,8 @@ let package = Package(
         .testTarget(
             name: "VLMRuntimeKitTests",
             dependencies: [
-                "VLMRuntimeKit"
+                "SwiftPMSandboxTestingBootstrap",  // swiftpm-sandbox-testing
+                "VLMRuntimeKit",
             ],
             swiftSettings: [
                 .enableExperimentalFeature("StrictConcurrency")
@@ -106,7 +107,8 @@ let package = Package(
         .testTarget(
             name: "DocLayoutAdapterTests",
             dependencies: [
-                "DocLayoutAdapter"
+                "SwiftPMSandboxTestingBootstrap",  // swiftpm-sandbox-testing
+                "DocLayoutAdapter",
             ],
             resources: [
                 .process("Fixtures")
@@ -118,7 +120,8 @@ let package = Package(
         .testTarget(
             name: "GLMOCRAdapterTests",
             dependencies: [
-                "GLMOCRAdapter"
+                "SwiftPMSandboxTestingBootstrap",  // swiftpm-sandbox-testing
+                "GLMOCRAdapter",
             ],
             resources: [
                 .process("Fixtures")
@@ -127,5 +130,12 @@ let package = Package(
                 .enableExperimentalFeature("StrictConcurrency")
             ]
         ),
+        // swiftpm-sandbox-testing: begin
+        .target(
+            name: "SwiftPMSandboxTestingBootstrap",
+            path: "Sources/SwiftPMSandboxTestingBootstrap",
+            publicHeadersPath: "include"
+        ),
+        // swiftpm-sandbox-testing: end
     ]
 )

@@ -174,3 +174,14 @@ func ensureMLXMetalLibraryColocated(for testCase: AnyClass) throws {
     _ = try? FileManager.default.removeItem(at: colocated)
     try FileManager.default.copyItem(at: built, to: colocated)
 }
+
+func makeWorkspaceTempDir(prefix: String) throws -> URL {
+    let root = SwiftPMTestSupport.shared.projectRoot
+        .appendingPathComponent(".build", isDirectory: true)
+        .appendingPathComponent("test-tmp", isDirectory: true)
+    try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+
+    let dir = root.appendingPathComponent("\(prefix)_\(UUID().uuidString)", isDirectory: true)
+    try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+    return dir
+}

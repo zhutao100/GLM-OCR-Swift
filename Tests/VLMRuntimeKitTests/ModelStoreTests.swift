@@ -122,9 +122,8 @@ final class ModelStoreTests: XCTestCase {
     }
 
     func testResolveCachedSnapshot_UsesRefsWhenPresent() throws {
-        let hub = FileManager.default.temporaryDirectory.appendingPathComponent("hf_hub_\(UUID().uuidString)")
+        let hub = try makeWorkspaceTempDir(prefix: "hf_hub")
         defer { _ = try? FileManager.default.removeItem(at: hub) }
-        try FileManager.default.createDirectory(at: hub, withIntermediateDirectories: true)
 
         let modelID = "acme/test-model"
         let modelDir = hub.appendingPathComponent("models--acme--test-model", isDirectory: true)
@@ -152,9 +151,8 @@ final class ModelStoreTests: XCTestCase {
     }
 
     func testResolveCachedSnapshot_FallsBackToLatestSnapshotWhenRefMissingOrInvalid() throws {
-        let hub = FileManager.default.temporaryDirectory.appendingPathComponent("hf_hub_\(UUID().uuidString)")
+        let hub = try makeWorkspaceTempDir(prefix: "hf_hub")
         defer { _ = try? FileManager.default.removeItem(at: hub) }
-        try FileManager.default.createDirectory(at: hub, withIntermediateDirectories: true)
 
         let modelID = "acme/test-model"
         let modelDir = hub.appendingPathComponent("models--acme--test-model", isDirectory: true)
@@ -197,9 +195,8 @@ final class ModelStoreTests: XCTestCase {
     }
 
     func testResolveExistingSnapshot_UsesExplicitPathBeforeCache() throws {
-        let hub = FileManager.default.temporaryDirectory.appendingPathComponent("hf_hub_\(UUID().uuidString)")
+        let hub = try makeWorkspaceTempDir(prefix: "hf_hub")
         defer { _ = try? FileManager.default.removeItem(at: hub) }
-        try FileManager.default.createDirectory(at: hub, withIntermediateDirectories: true)
 
         let explicitSnapshot = hub.appendingPathComponent("explicit_snapshot", isDirectory: true)
         try FileManager.default.createDirectory(at: explicitSnapshot, withIntermediateDirectories: true)
@@ -223,9 +220,8 @@ final class ModelStoreTests: XCTestCase {
     }
 
     func testResolveSnapshotPreferringExisting_UsesCachedSnapshotBeforeDownloadStore() async throws {
-        let hub = FileManager.default.temporaryDirectory.appendingPathComponent("hf_hub_\(UUID().uuidString)")
+        let hub = try makeWorkspaceTempDir(prefix: "hf_hub")
         defer { _ = try? FileManager.default.removeItem(at: hub) }
-        try FileManager.default.createDirectory(at: hub, withIntermediateDirectories: true)
 
         let cachedSnapshot = try makeCachedSnapshot(
             in: hub,
@@ -247,9 +243,8 @@ final class ModelStoreTests: XCTestCase {
     }
 
     func testResolveSnapshotPreferringExisting_FallsBackToDownloadStoreWhenNoLocalSnapshotExists() async throws {
-        let hub = FileManager.default.temporaryDirectory.appendingPathComponent("hf_hub_\(UUID().uuidString)")
+        let hub = try makeWorkspaceTempDir(prefix: "hf_hub")
         defer { _ = try? FileManager.default.removeItem(at: hub) }
-        try FileManager.default.createDirectory(at: hub, withIntermediateDirectories: true)
 
         let downloadedSnapshot = hub.appendingPathComponent("downloaded_snapshot", isDirectory: true)
         try FileManager.default.createDirectory(at: downloadedSnapshot, withIntermediateDirectories: true)

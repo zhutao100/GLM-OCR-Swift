@@ -88,8 +88,8 @@ final class LayoutExamplesParityIntegrationTests: XCTestCase {
         }
 
         let pageImage = try VisionIO.loadCIImage(fromPDF: sourcePDF, page: 1, dpi: 200)
-        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(
-            "glmocr_examples_\(UUID().uuidString)")
+        let tempDir = try makeWorkspaceTempDir(prefix: "glmocr_examples")
+        defer { _ = try? FileManager.default.removeItem(at: tempDir) }
         let imgsDir = tempDir.appendingPathComponent("imgs")
 
         let (actualMarkdown, saved) = try MarkdownImageCropper.cropAndReplaceImages(
@@ -155,8 +155,8 @@ final class LayoutExamplesParityIntegrationTests: XCTestCase {
         }
 
         let pageImage = try VisionIO.loadCIImage(from: sourceImage)
-        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(
-            "glmocr_examples_\(UUID().uuidString)")
+        let tempDir = try makeWorkspaceTempDir(prefix: "glmocr_examples")
+        defer { _ = try? FileManager.default.removeItem(at: tempDir) }
         let imgsDir = tempDir.appendingPathComponent("imgs")
 
         let (actualMarkdown, saved) = try MarkdownImageCropper.cropAndReplaceImages(
@@ -233,8 +233,8 @@ final class LayoutExamplesParityIntegrationTests: XCTestCase {
             pageImages[pageIndex] = try VisionIO.loadCIImage(fromPDF: sourcePDF, page: pageIndex + 1, dpi: 200)
         }
 
-        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(
-            "glmocr_examples_\(UUID().uuidString)")
+        let tempDir = try makeWorkspaceTempDir(prefix: "glmocr_examples")
+        defer { _ = try? FileManager.default.removeItem(at: tempDir) }
         let imgsDir = tempDir.appendingPathComponent("imgs")
 
         let (actualMarkdown, saved) = try MarkdownImageCropper.cropAndReplaceImages(

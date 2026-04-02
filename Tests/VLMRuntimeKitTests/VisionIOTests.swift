@@ -7,11 +7,13 @@ import XCTest
 final class VisionIOTests: MLXTestCase {
     func testLoadCIImage_fromPDF_rendersNonEmptyImage() throws {
         let pdfData = try makeOnePagePDF()
-        let url = FileManager.default.temporaryDirectory
-            .appendingPathComponent("vlmruntimekit_visionio_test_\(UUID().uuidString)")
+        let tempDir = try makeWorkspaceTempDir(prefix: "vlmruntimekit_visionio_test")
+        defer { _ = try? FileManager.default.removeItem(at: tempDir) }
+        let url =
+            tempDir
+            .appendingPathComponent("input")
             .appendingPathExtension("pdf")
         try pdfData.write(to: url)
-        defer { _ = try? FileManager.default.removeItem(at: url) }
 
         let image = try VisionIO.loadCIImage(fromPDF: url, page: 1, dpi: 72)
         XCTAssertGreaterThan(image.extent.width, 0)
@@ -20,11 +22,13 @@ final class VisionIOTests: MLXTestCase {
 
     func testPDFPageCount_returnsCorrectCount() throws {
         let pdfData = try makeTwoPagePDF()
-        let url = FileManager.default.temporaryDirectory
-            .appendingPathComponent("vlmruntimekit_visionio_pagecount_test_\(UUID().uuidString)")
+        let tempDir = try makeWorkspaceTempDir(prefix: "vlmruntimekit_visionio_pagecount_test")
+        defer { _ = try? FileManager.default.removeItem(at: tempDir) }
+        let url =
+            tempDir
+            .appendingPathComponent("input")
             .appendingPathExtension("pdf")
         try pdfData.write(to: url)
-        defer { _ = try? FileManager.default.removeItem(at: url) }
 
         let count = try VisionIO.pdfPageCount(url: url)
         XCTAssertEqual(count, 2)

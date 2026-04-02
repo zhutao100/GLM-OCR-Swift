@@ -34,7 +34,7 @@ final class MarkdownImageCropperTests: XCTestCase {
         let image = CIImage(color: CIColor(red: 0.2, green: 0.3, blue: 0.4, alpha: 1))
             .cropped(to: CGRect(x: 0, y: 0, width: 100, height: 100))
 
-        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent("md_cropper_\(UUID().uuidString)")
+        let tempDir = try makeWorkspaceTempDir(prefix: "md_cropper")
         defer { _ = try? FileManager.default.removeItem(at: tempDir) }
         let imgsDir = tempDir.appendingPathComponent("imgs")
 
