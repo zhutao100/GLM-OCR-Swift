@@ -277,6 +277,7 @@ static bool swiftpmst_write_allowed_path_string(const char *abs_path) {
         if (swiftpmst_is_within_prefix(abs_path, "/private/tmp")) return true;
         if (swiftpmst_is_within_prefix(abs_path, "/var/tmp")) return true;
         if (swiftpmst_is_within_prefix(abs_path, "/private/var/tmp")) return true;
+        if (swiftpmst_is_within_prefix(abs_path, "/var/folders")) return true;
         if (swiftpmst_is_within_prefix(abs_path, "/private/var/folders")) return true;
     }
 
@@ -427,6 +428,7 @@ static const char *kSwiftpmstProfileCompat =
     "  (subpath \"/private/tmp\")\n"
     "  (subpath \"/var/tmp\")\n"
     "  (subpath \"/private/var/tmp\")\n"
+    "  (subpath \"/var/folders\")\n"
     "  (subpath \"/private/var/folders\")\n"
     ")\n";
 

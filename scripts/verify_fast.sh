@@ -22,6 +22,23 @@ DESTINATION="${DESTINATION:-platform=macOS}"
 CONFIGURATION="${CONFIGURATION:-Debug}"
 VERBOSE="${VERBOSE:-0}"
 
+maybe_enable_swiftpm_sandbox_ci_compat() {
+  # The in-process Seatbelt sandbox denies all writes outside the repo workspace.
+  # On GitHub Actions (and some other CI environments), Apple toolchains commonly
+  # need to write caches under `/var/folders/...` (e.g., clang module cache, `xcrun` db).
+  #
+  # Keep local defaults strict, but enable the compat allowlist on CI unless the
+  # caller explicitly set `SWIFTPM_SANDBOX_ALLOW_SYSTEM_TMP`.
+  if [[ "${CI:-}" == "true" || "${CI:-}" == "1" || "${GITHUB_ACTIONS:-}" == "true" ]]; then
+    if [[ -z "${SWIFTPM_SANDBOX_ALLOW_SYSTEM_TMP:-}" ]]; then
+      export SWIFTPM_SANDBOX_ALLOW_SYSTEM_TMP=1
+      echo "[verify_fast] CI compat: SWIFTPM_SANDBOX_ALLOW_SYSTEM_TMP=1"
+    fi
+  fi
+}
+
+maybe_enable_swiftpm_sandbox_ci_compat
+
 run_logged() {
   local log_file="${1}"
   shift
